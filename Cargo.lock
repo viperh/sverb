@@ -7302,6 +7302,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "tracing-subscriber",
+ "uuid",
  "vergen-gix",
  "zeroize",
 ]
@@ -7595,6 +7596,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+ "uuid",
  "zeroize",
 ]
 

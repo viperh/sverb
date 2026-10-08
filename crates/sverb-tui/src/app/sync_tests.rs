@@ -381,3 +381,93 @@ fn sync_actions() {
             .apply_sync_action(ActionName::Quit, &mut effects)
     );
 }
+
+// M5-01 T-08: the Team page only exists in synced mode; an invite copies the link
+// and says so; the page's keys send the org requests.
+#[test]
+fn t08_team_page() {
+    use super::sync::TeamResult;
+    use super::sync_ui::TeamOp;
+    use sverb_proto::orgs::{InviteCreated, MemberView, OrgView, Role};
+
+    let mut h = harness();
+    h.send(UiEvent::SyncUi(SyncUiEvent::Info(local_only())));
+    assert_eq!(h.app().views.settings.pages(), [SettingsPage::Sync]);
+    assert!(!h.app().action_enabled(ActionName::TeamKeys));
+
+    h.send(UiEvent::SyncUi(SyncUiEvent::Info(synced_info())));
+    h.take_effects();
+    let mut effects = Vec::new();
+    h.app_mut().open_sync_page(SettingsPage::Team, &mut effects);
+    assert!(effects.contains(&Effect::Sync(SyncEffect::TeamPins)));
+    assert!(effects.contains(&Effect::Sync(SyncEffect::Team(TeamOp::Load { org: None }))));
+    // Not in an org yet.
+    h.send(UiEvent::SyncUi(SyncUiEvent::Team(TeamResult::Loaded {
+        orgs: vec![],
+        org: None,
+        members: vec![],
+    })));
+    assert!(h.render(100, 30).contains("You are not in any org"));
+
+    let org_id = "0190f000-0000-7000-8000-000000000001".parse().unwrap();
+    let me = "0190f000-0000-7000-8000-000000000002".parse().unwrap();
+    h.send(UiEvent::SyncUi(SyncUiEvent::Team(TeamResult::Loaded {
+        orgs: vec![OrgView {
+            id: org_id,
+            name: "Acme".into(),
+            role: Role::Owner,
+            created_at: None,
+        }],
+        org: Some(org_id.to_string()),
+        members: vec![MemberView {
+            user_id: me,
+            email: "me@example.test".into(),
+            role: Role::Owner,
+        }],
+    })));
+    let screen = h.render(100, 30);
+    assert!(
+        screen.contains("Acme") && screen.contains("me@example.test"),
+        "{screen}"
+    );
+    insta::assert_snapshot!("t08_team_page", screen);
+
+    // `i`, an email, Enter: the invite request (Insert mode while typing).
+    h.app_mut().shell.region = crate::views::Region::Main;
+    h.take_effects();
+    h.keys("i");
+    assert_eq!(h.app().mode(), Mode::Insert);
+    for c in "bob@example.test".chars() {
+        h.keys(&c.to_string());
+    }
+    h.keys("enter");
+    assert_eq!(
+        sync_effects(&mut h),
+        [SyncEffect::Team(TeamOp::Invite {
+            org: org_id.to_string(),
+            email: Some("bob@example.test".into()),
+        })]
+    );
+    // The result: link copied, toast.
+    let link = "https://sync.example.test/invite/tok".to_owned();
+    h.send(UiEvent::SyncUi(SyncUiEvent::Team(TeamResult::Invited(
+        InviteCreated {
+            id: me,
+            org_id,
+            email: Some("bob@example.test".into()),
+            role: Role::Member,
+            expires_at: chrono::DateTime::from_timestamp(0, 0).unwrap(),
+            link: Some(link.clone()),
+            emailed: false,
+        },
+    ))));
+    assert!(h.effects().contains(&Effect::CopyToClipboard(link)));
+    assert!(
+        h.app()
+            .toasts()
+            .iter()
+            .any(|t| t.message.contains("link copied to the clipboard")),
+        "{:?}",
+        h.app().toasts()
+    );
+}

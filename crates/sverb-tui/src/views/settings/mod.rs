@@ -40,7 +40,7 @@ use ratatui::{
 use sverb_core::model::UnixMillis;
 
 use crate::{
-    app::sync_ui::{SyncLevel, SyncPanel, WizardFlow},
+    app::sync_ui::{SyncLevel, SyncPanel, TeamOp, WizardFlow},
     theme::Theme,
     views::{Outcome, RenderCx, View, ViewCx, ViewEvent, logs::list::format_time},
 };
@@ -101,6 +101,44 @@ pub enum SettingsRequest {
         /// Accept a changed key (else mark verified).
         accept_new_key: bool,
     },
+    // M5-01
+    /// An org request (no confirmation needed).
+    Team(TeamOp),
+    /// Remove a member or leave (asks first).
+    TeamRemove {
+        /// Org id.
+        org: String,
+        /// Org name.
+        org_name: String,
+        /// Member id.
+        user: String,
+        /// Their email.
+        email: String,
+        /// It is this account (leaving).
+        me: bool,
+    },
+}
+
+// M5-01
+/// What the Team page's input line is for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TeamInput {
+    /// A new org's name.
+    CreateOrg,
+    /// The email to invite (empty: a link invite).
+    Invite,
+    /// A pasted invite link.
+    Accept,
+}
+
+impl TeamInput {
+    fn label(self) -> &'static str {
+        match self {
+            Self::CreateOrg => "New org name",
+            Self::Invite => "Invite email (empty: a single-use link)",
+            Self::Accept => "Invite link",
+        }
+    }
 }
 
 /// The Settings section.
@@ -117,6 +155,11 @@ pub struct SettingsView {
     /// M5-03: the Team page.
     #[cfg(feature = "sync")]
     pub team: team_verify::TeamVerifyView,
+    // M5-01
+    /// Highlighted member on the Team page.
+    pub member_selected: usize,
+    /// The Team page's input line, while open.
+    pub input: Option<(TeamInput, String)>,
     request: Option<SettingsRequest>,
 }
 
@@ -130,6 +173,15 @@ impl SettingsView {
         self.device_selected = self
             .device_selected
             .min(self.panel.devices.rows.len().saturating_sub(1));
+        // M5-01
+        self.member_selected = self
+            .member_selected
+            .min(self.panel.team.members.len().saturating_sub(1));
+    }
+
+    /// The Team page edits text (Insert mode).
+    pub fn wants_text(&self) -> bool {
+        self.page == SettingsPage::Team && self.input.is_some()
     }
 
     /// The pages shown now: only Sync until a server is connected.
@@ -320,6 +372,10 @@ impl SettingsView {
         if mods.intersects(KeyModifiers::CONTROL | KeyModifiers::ALT) || !self.panel.available {
             return false;
         }
+        // M5-01: the input line takes every key.
+        if self.wants_text() {
+            return self.input_key(code);
+        }
         match code {
             KeyCode::Left | KeyCode::Char('[') if self.panel.connected => self.cycle_page(-1),
             KeyCode::Right | KeyCode::Char(']') if self.panel.connected => self.cycle_page(1),
@@ -331,7 +387,8 @@ impl SettingsView {
                 return match self.page {
                     SettingsPage::Sync => self.sync_key(code),
                     SettingsPage::Devices => self.devices_key(code),
-                    SettingsPage::Team => false,
+                    // M5-01
+                    SettingsPage::Team => self.team_key(code),
                 };
             }
         }
@@ -352,6 +409,228 @@ impl SettingsView {
             _ => return false,
         };
         true
+    }
+
+    // M5-01 ---------------------------------------------------------------- Team
+
+    fn input_key(&mut self, code: KeyCode) -> bool {
+        let Some((purpose, text)) = self.input.as_mut() else {
+            return false;
+        };
+        match code {
+            KeyCode::Esc => self.input = None,
+            KeyCode::Backspace => {
+                text.pop();
+            }
+            KeyCode::Char(c) => text.push(c),
+            KeyCode::Enter => {
+                let (purpose, text) = (*purpose, text.trim().to_owned());
+                self.input = None;
+                let org = self.panel.team.current().map(|o| o.id.clone());
+                self.request = match (purpose, org) {
+                    (TeamInput::CreateOrg, _) if !text.is_empty() => {
+                        Some(SettingsRequest::Team(TeamOp::Create { name: text }))
+                    }
+                    (TeamInput::Accept, _) if !text.is_empty() => {
+                        Some(SettingsRequest::Team(TeamOp::Accept { link: text }))
+                    }
+                    (TeamInput::Invite, Some(org)) => Some(SettingsRequest::Team(TeamOp::Invite {
+                        org,
+                        email: (!text.is_empty()).then_some(text),
+                    })),
+                    _ => None,
+                };
+            }
+            _ => {}
+        }
+        true
+    }
+
+    /// Pastes go to the input line.
+    pub fn paste(&mut self, text: &str) -> bool {
+        match self.input.as_mut() {
+            Some((_, t)) if self.page == SettingsPage::Team => {
+                t.push_str(text.trim());
+                true
+            }
+            _ => false,
+        }
+    }
+
+    fn team_key(&mut self, code: KeyCode) -> bool {
+        use sverb_proto::orgs::Role;
+        let t = &self.panel.team;
+        let org = t.current().cloned();
+        let admin = org.as_ref().is_some_and(|o| o.role >= Role::Admin);
+        let member = t.members.get(self.member_selected).cloned();
+        match code {
+            KeyCode::Down | KeyCode::Char('j') => {
+                self.member_selected =
+                    (self.member_selected + 1).min(t.members.len().saturating_sub(1));
+            }
+            KeyCode::Up | KeyCode::Char('k') => {
+                self.member_selected = self.member_selected.saturating_sub(1);
+            }
+            KeyCode::Char('c') => self.input = Some((TeamInput::CreateOrg, String::new())),
+            KeyCode::Char('a') => self.input = Some((TeamInput::Accept, String::new())),
+            KeyCode::Char('i') if admin => self.input = Some((TeamInput::Invite, String::new())),
+            KeyCode::Char('r') => {
+                self.request = Some(SettingsRequest::Team(TeamOp::Load {
+                    org: org.map(|o| o.id),
+                }));
+            }
+            KeyCode::Char('o') if t.orgs.len() > 1 => {
+                let next = t.orgs[(t.org + 1) % t.orgs.len()].id.clone();
+                self.member_selected = 0;
+                self.request = Some(SettingsRequest::Team(TeamOp::Load { org: Some(next) }));
+            }
+            KeyCode::Char('l') if admin => {
+                if let Some(o) = org {
+                    self.request = Some(SettingsRequest::Team(TeamOp::Audit { org: o.id }));
+                }
+            }
+            KeyCode::Char(c @ ('p' | 'd')) if admin => {
+                let (Some(o), Some(m)) = (org, member) else {
+                    return true;
+                };
+                let role = match (c, m.role) {
+                    ('p', Role::Member) => Role::Admin,
+                    ('p', _) => Role::Owner,
+                    ('d', Role::Owner) => Role::Admin,
+                    _ => Role::Member,
+                };
+                if role != m.role {
+                    self.request = Some(SettingsRequest::Team(TeamOp::SetRole {
+                        org: o.id,
+                        user: m.user_id,
+                        role,
+                    }));
+                }
+            }
+            KeyCode::Char('x') | KeyCode::Delete => {
+                let (Some(o), Some(m)) = (org, member) else {
+                    return true;
+                };
+                self.request = Some(SettingsRequest::TeamRemove {
+                    org: o.id,
+                    org_name: o.name,
+                    me: m
+                        .email
+                        .eq_ignore_ascii_case(self.panel.email.as_deref().unwrap_or("")),
+                    user: m.user_id,
+                    email: m.email,
+                });
+            }
+            KeyCode::Enter | KeyCode::Char('v') =>
+            {
+                #[cfg(feature = "sync")]
+                if let Some(m) = member {
+                    self.team.open_verify(m.user_bytes);
+                }
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    fn team_lines(&self, cx: &RenderCx<'_>) -> Vec<Line<'static>> {
+        let theme = cx.theme;
+        let t = &self.panel.team;
+        let mut lines = Vec::new();
+        if t.loading {
+            lines.push(Line::styled("Loading…", theme.dim));
+        }
+        if let Some(e) = &t.error {
+            lines.push(Line::styled(e.clone(), theme.error));
+        }
+        let key = |k: &str, label: &str| {
+            vec![
+                Span::styled(format!("[{k}]"), theme.accent),
+                Span::raw(format!(" {label}   ")),
+            ]
+        };
+        match t.current() {
+            None if !t.loading => {
+                lines.push(Line::raw("You are not in any org."));
+                lines.push(Line::raw(""));
+                let mut k = key("c", "Create an org");
+                k.extend(key("a", "Accept an invite"));
+                lines.push(Line::from(k));
+            }
+            None => {}
+            Some(org) => {
+                let mut head = vec![
+                    Span::styled("Org  ", theme.dim),
+                    Span::styled(org.name.clone(), theme.base.add_modifier(Modifier::BOLD)),
+                    Span::styled(format!("  (you: {})", org.role), theme.dim),
+                ];
+                if t.orgs.len() > 1 {
+                    head.push(Span::styled(
+                        format!("  {}/{} · o next", t.org + 1, t.orgs.len()),
+                        theme.dim,
+                    ));
+                }
+                lines.push(Line::from(head));
+                lines.push(Line::raw(""));
+                for (i, m) in t.members.iter().enumerate() {
+                    let cursor = if i == self.member_selected {
+                        "› "
+                    } else {
+                        "  "
+                    };
+                    #[cfg_attr(not(feature = "sync"), allow(unused_mut))]
+                    let mut spans = vec![
+                        Span::raw(cursor),
+                        Span::styled(format!("{:<7}", m.role.as_str()), theme.dim),
+                        Span::raw(m.email.clone()),
+                    ];
+                    #[cfg(feature = "sync")]
+                    match self.team.state_of(&m.user_bytes) {
+                        Some(sverb_store::PinState::Verified) => {
+                            spans.push(Span::styled("  ✓", theme.ok));
+                        }
+                        Some(sverb_store::PinState::KeyChanged) => {
+                            spans.push(Span::styled("  ⚠ key changed", theme.error));
+                        }
+                        _ => {}
+                    }
+                    let line = Line::from(spans);
+                    lines.push(if i == self.member_selected && cx.focused {
+                        line.patch_style(theme.selection)
+                    } else {
+                        line
+                    });
+                }
+                lines.push(Line::raw(""));
+                let mut k = Vec::new();
+                if org.role >= sverb_proto::orgs::Role::Admin {
+                    k.extend(key("i", "Invite"));
+                    k.extend(key("p/d", "Promote/demote"));
+                    k.extend(key("l", "Audit log"));
+                }
+                k.extend(key("x", "Remove/leave"));
+                k.extend(key("v", "Verify keys"));
+                lines.push(Line::from(k));
+                let mut k = key("c", "New org");
+                k.extend(key("a", "Accept invite"));
+                k.extend(key("r", "Reload"));
+                lines.push(Line::from(k));
+            }
+        }
+        if let Some((purpose, text)) = &self.input {
+            lines.push(Line::raw(""));
+            lines.push(Line::from(vec![
+                Span::styled(format!("{}: ", purpose.label()), theme.dim),
+                Span::raw(text.clone()),
+                Span::styled("▏", theme.accent),
+            ]));
+        }
+        if !t.audit.is_empty() {
+            lines.push(Line::raw(""));
+            lines.push(Line::styled("Audit log (newest first)", theme.dim));
+            lines.extend(t.audit.iter().map(|a| Line::raw(format!("  {a}"))));
+        }
+        lines
     }
 
     fn devices_key(&mut self, code: KeyCode) -> bool {
@@ -392,17 +671,21 @@ pub fn level_style(level: SyncLevel, theme: &Theme) -> ratatui::style::Style {
 
 impl View for SettingsView {
     fn handle(&mut self, ev: &ViewEvent, cx: &mut ViewCx<'_>) -> Outcome {
+        // M5-01: a pasted invite link goes to the input line.
+        if let ViewEvent::Paste(text) = ev {
+            if self.paste(text) {
+                cx.request_redraw();
+                return Outcome::Consumed;
+            }
+            return Outcome::Ignored;
+        }
         let ViewEvent::Key(key) = ev else {
             return Outcome::Ignored;
         };
-        // M5-03: the Team page (and its dialogs) gets keys first.
+        // M5-03: the Team page's safety-number dialogs get keys first.
         #[cfg(feature = "sync")]
         if self.page == SettingsPage::Team
-            && (self.team.dialog.is_some()
-                || !matches!(
-                    key.code,
-                    KeyCode::Left | KeyCode::Right | KeyCode::Char('1'..='3' | '[' | ']')
-                ))
+            && self.team.dialog.is_some()
             && self.team.handle(ev, cx) == Outcome::Consumed
         {
             return Outcome::Consumed;
@@ -413,6 +696,11 @@ impl View for SettingsView {
         } else {
             Outcome::Ignored
         }
+    }
+
+    // M5-01
+    fn insert_mode(&self) -> bool {
+        self.wants_text()
     }
 
     fn render(&self, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {
@@ -465,9 +753,14 @@ impl View for SettingsView {
         let lines = match self.page {
             SettingsPage::Sync => self.sync_lines(cx),
             SettingsPage::Devices => self.device_lines(cx),
+            // M5-01: orgs and members; M5-03's dialogs on top.
             SettingsPage::Team => {
+                frame.render_widget(
+                    Paragraph::new(self.team_lines(cx)).wrap(Wrap { trim: false }),
+                    body,
+                );
                 #[cfg(feature = "sync")]
-                self.team.render(frame, body, cx);
+                self.team.render_dialog_only(frame, body, cx);
                 return;
             }
         };

@@ -159,7 +159,7 @@ impl TeamVerifyView {
         self.rows.iter().find(|r| r.user_id == *user)
     }
 
-    fn open_verify(&mut self, user: UserId) {
+    pub(crate) fn open_verify(&mut self, user: UserId) {
         let Some(row) = self.row(&user).cloned() else {
             return;
         };
@@ -296,6 +296,21 @@ impl View for TeamVerifyView {
         if let Some(d) = &self.dialog {
             render_dialog(d, frame, area, cx);
         }
+    }
+}
+
+// M5-01
+impl TeamVerifyView {
+    /// Draws only the open dialog (Settings → Team draws its own member list).
+    pub fn render_dialog_only(&self, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {
+        if let Some(d) = &self.dialog {
+            render_dialog(d, frame, area, cx);
+        }
+    }
+
+    /// The trust state of `user`, if pinned.
+    pub fn state_of(&self, user: &UserId) -> Option<PinState> {
+        self.row(user).map(|r| r.state)
     }
 }
 

@@ -20,8 +20,9 @@ Previous transcript: /home/viperh/.claude/projects/-home-viperh/d8490e3c-b2b8-4a
 
 ## Cloud session progress (2026-10-08)
 - Working directly in the cloud session (no sub-agents, so no locks), branch `claude/focused-tesla-e5wwcs`, committing per task.
-- M4-09 and M7-06 DONE; M5-01 server side DONE, client/CLI/TUI parts still open (see tasks/04-PROGRESS.md). Paused here at the user's request.
-- Next: finish M5-01 (client API, `sverb team list/invite`, TUI Team views), then M5-02, M5-04, M6-03, M7-04, then M7-05 and M7-07.
+- M4-09, M7-06 and M5-01 DONE (see tasks/04-PROGRESS.md). Stopped here at the user's request; the rest is for another session.
+- Next: M5-02, M5-04, M6-03, M7-04, then M7-05 and M7-07 (each alone at the end).
+- Full suite (all features, PostgreSQL on): see the last commit message for the counts.
 - A local PostgreSQL 16 can be started in the container (binaries in /usr/lib/postgresql/16/bin; run as a non-root user, e.g. `pgtest`, port 55432) and DATABASE_URL=postgres://postgres@127.0.0.1:55432/postgres runs the *_pg server tests.
 - Disk is tight here: build with `CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0`.
 - Pushing to GitHub works (access fixed by the user).

@@ -20,7 +20,7 @@ use std::fmt;
 use sverb_core::vault::LockState;
 
 #[cfg(feature = "sync")]
-pub use super::sync::{SyncModel, SyncUiEvent};
+pub use super::sync::{SyncModel, SyncUiEvent, TeamResult};
 use super::{App, Effect, VaultPassword};
 
 /// How the sync state reads (top bar color).
@@ -64,6 +64,57 @@ pub struct DevicesPanel {
     pub rows: Vec<DeviceRow>,
 }
 
+// M5-01
+/// An org in Settings → Team.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OrgEntry {
+    /// Id (UUID text).
+    pub id: String,
+    /// Name.
+    pub name: String,
+    /// This account's role.
+    pub role: sverb_proto::orgs::Role,
+}
+
+// M5-01
+/// A member of the shown org.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MemberEntry {
+    /// User id (UUID text).
+    pub user_id: String,
+    /// The user id's bytes (matches the key pins).
+    pub user_bytes: [u8; 16],
+    /// Email.
+    pub email: String,
+    /// Role.
+    pub role: sverb_proto::orgs::Role,
+}
+
+// M5-01
+/// Settings → Team: orgs, the shown org's members, its audit log.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TeamPanel {
+    /// A request is running.
+    pub loading: bool,
+    /// The last error.
+    pub error: Option<String>,
+    /// This account's orgs.
+    pub orgs: Vec<OrgEntry>,
+    /// The shown org (index into `orgs`).
+    pub org: usize,
+    /// Its members, owners first.
+    pub members: Vec<MemberEntry>,
+    /// Its audit log (admins), newest first, as display lines.
+    pub audit: Vec<String>,
+}
+
+impl TeamPanel {
+    /// The shown org.
+    pub fn current(&self) -> Option<&OrgEntry> {
+        self.orgs.get(self.org)
+    }
+}
+
 /// Everything Settings → Sync / Devices render (plain data, every build).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct SyncPanel {
@@ -87,6 +138,9 @@ pub struct SyncPanel {
     pub errors: Vec<String>,
     /// Settings → Devices.
     pub devices: DevicesPanel,
+    // M5-01
+    /// Settings → Team.
+    pub team: TeamPanel,
 }
 
 /// The account flows behind "Connect to a server" (M4-08).
@@ -197,6 +251,58 @@ pub enum SyncEffect {
         user: [u8; 16],
         /// Accept their new key (else mark verified).
         accept_new_key: bool,
+    },
+    // M5-01
+    /// Settings → Team: an org request.
+    Team(TeamOp),
+}
+
+// M5-01
+/// An org request for the sync service (ids as UUID text).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TeamOp {
+    /// Load the orgs and the members of `org` (else the first org).
+    Load {
+        /// The org to show.
+        org: Option<String>,
+    },
+    /// Create an org.
+    Create {
+        /// Name.
+        name: String,
+    },
+    /// Invite to `org` (`email: None`: a link invite).
+    Invite {
+        /// Org.
+        org: String,
+        /// Bound email.
+        email: Option<String>,
+    },
+    /// Accept a pasted invite link.
+    Accept {
+        /// The link.
+        link: String,
+    },
+    /// Change a member's role.
+    SetRole {
+        /// Org.
+        org: String,
+        /// Member.
+        user: String,
+        /// New role.
+        role: sverb_proto::orgs::Role,
+    },
+    /// Remove a member (or leave).
+    Remove {
+        /// Org.
+        org: String,
+        /// Member.
+        user: String,
+    },
+    /// Load the audit log.
+    Audit {
+        /// Org.
+        org: String,
     },
 }
 

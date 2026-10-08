@@ -132,7 +132,8 @@ impl App {
                 Section::Snippets => self.views.snippets.insert_mode(),
                 // M2-02: the Keychain sub-tab's filter.
                 Section::Keychain => self.views.keychain.insert_mode(),
-                _ => false,
+                // M5-01: the Team page's input line.
+                Section::Settings => self.views.settings.insert_mode(),
             }
     }
 

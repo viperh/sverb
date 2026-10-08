@@ -39,7 +39,8 @@ use super::EventSender;
 use super::vault::VaultService;
 use crate::app::UiEvent;
 use crate::app::sync_ui::{
-    DeviceRow, SyncEffect, SyncUiEvent, WizardCmd, WizardFlow, WizardPrompt, WizardScreen,
+    DeviceRow, SyncEffect, SyncUiEvent, TeamOp, TeamResult, WizardCmd, WizardFlow, WizardPrompt,
+    WizardScreen,
 };
 
 /// Owns the running engine (if any) and the account wizard. Cheap to clone.
@@ -114,7 +115,79 @@ impl SyncService {
                 user,
                 accept_new_key,
             } => self.team(Some((user, accept_new_key)), tx),
+            // M5-01
+            SyncEffect::Team(op) => self.team_op(op, tx),
         }
+    }
+
+    // M5-01: Settings → Team (orgs, members, invites, audit).
+    fn team_op(&self, op: TeamOp, tx: &EventSender) {
+        let Some(lmk) = self.lmk() else { return };
+        let this = self.clone();
+        let tx = tx.clone();
+        tokio::spawn(async move {
+            let res = this.run_team_op(op, &lmk).await;
+            let res = res.unwrap_or_else(|e| TeamResult::Failed(e.to_string()));
+            let _ = tx.send(UiEvent::SyncUi(SyncUiEvent::Team(res))).await;
+        });
+    }
+
+    async fn run_team_op(
+        &self,
+        op: TeamOp,
+        lmk: &sverb_crypto::Key32,
+    ) -> Result<TeamResult, AccountError> {
+        use sverb_sync::account::teams;
+        let (store, cfg) = (self.store(), &self.account);
+        let id = |s: &str| {
+            s.parse::<uuid::Uuid>()
+                .map_err(|e| AccountError::Local(format!("bad id: {e}")))
+        };
+        Ok(match op {
+            TeamOp::Load { org } => {
+                let orgs = teams::list_orgs(store, lmk, cfg).await?;
+                let shown = org
+                    .and_then(|o| orgs.iter().find(|x| x.id.to_string() == o))
+                    .or_else(|| orgs.first())
+                    .map(|o| o.id);
+                let members = match shown {
+                    Some(o) => teams::members(store, lmk, cfg, o).await?,
+                    None => Vec::new(),
+                };
+                TeamResult::Loaded {
+                    orgs,
+                    org: shown.map(|o| o.to_string()),
+                    members,
+                }
+            }
+            TeamOp::Create { name } => {
+                let org = teams::create_org(store, lmk, cfg, &name).await?;
+                TeamResult::Changed(format!("Created {}", org.name))
+            }
+            TeamOp::Invite { org, email } => {
+                let role = sverb_proto::orgs::Role::Member;
+                TeamResult::Invited(
+                    teams::invite(store, lmk, cfg, id(&org)?, email.as_deref(), role).await?,
+                )
+            }
+            TeamOp::Accept { link } => {
+                let joined = teams::accept_invite(store, lmk, cfg, &link).await?;
+                TeamResult::Changed(format!("Joined the org as {}", joined.role))
+            }
+            TeamOp::SetRole { org, user, role } => {
+                teams::set_role(store, lmk, cfg, id(&org)?, id(&user)?, role).await?;
+                TeamResult::Changed(format!("Role changed to {role}"))
+            }
+            TeamOp::Remove { org, user } => {
+                teams::remove_member(store, lmk, cfg, id(&org)?, id(&user)?).await?;
+                TeamResult::Changed("Member removed".into())
+            }
+            TeamOp::Audit { org } => TeamResult::Audit(
+                teams::audit(store, lmk, cfg, id(&org)?, None, 50)
+                    .await?
+                    .events,
+            ),
+        })
     }
 
     /// Reads the local state and, when a server is set up, starts the engine for

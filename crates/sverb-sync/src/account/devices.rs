@@ -25,7 +25,7 @@ pub enum Revoked {
     ThisDevice(LogoutReport),
 }
 
-async fn session(
+pub(crate) async fn session(
     store: &Store,
     lmk: &Key32,
     cfg: &AccountConfig,
@@ -40,7 +40,7 @@ async fn session(
 }
 
 /// Runs `f` with an access token; refreshes once after a 401.
-async fn call<T, F, Fut>(tokens: &TokenManager, f: F) -> Result<T, SyncError>
+pub(crate) async fn call<T, F, Fut>(tokens: &TokenManager, f: F) -> Result<T, SyncError>
 where
     F: Fn(ApiClient, String) -> Fut,
     Fut: Future<Output = Result<T, SyncError>>,

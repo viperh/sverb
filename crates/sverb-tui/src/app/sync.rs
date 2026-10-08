@@ -10,7 +10,8 @@ use sverb_store::{PinnedKey, VaultKind};
 use sverb_sync::{LocalSyncInfo, SyncEvent, SyncStatus, ToastLevel as SyncToast};
 
 use super::sync_ui::{
-    DeviceRow, DevicesPanel, SyncEffect, SyncLevel, SyncPanel, WizardCmd, WizardFlow, WizardScreen,
+    DeviceRow, DevicesPanel, MemberEntry, OrgEntry, SyncEffect, SyncLevel, SyncPanel, TeamOp,
+    TeamPanel, WizardCmd, WizardFlow, WizardScreen,
 };
 use super::{App, Effect, ToastLevel};
 use crate::services::vault::vault_display_name;
@@ -54,6 +55,32 @@ pub struct SyncModel {
     pub devices: DevicesPanel,
     /// Devices a clock-skew toast was shown for (once per device per session).
     pub skew_warned: BTreeSet<String>,
+    // M5-01
+    /// Settings → Team.
+    pub team: TeamPanel,
+}
+
+// M5-01
+/// The result of a [`TeamOp`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TeamResult {
+    /// The orgs and the shown org's members.
+    Loaded {
+        /// Orgs.
+        orgs: Vec<sverb_proto::orgs::OrgView>,
+        /// The shown org (id text).
+        org: Option<String>,
+        /// Its members.
+        members: Vec<sverb_proto::orgs::MemberView>,
+    },
+    /// An invite was created.
+    Invited(sverb_proto::orgs::InviteCreated),
+    /// Something changed (toast text); the page reloads.
+    Changed(String),
+    /// The audit log.
+    Audit(Vec<sverb_proto::orgs::AuditEventView>),
+    /// A request failed.
+    Failed(String),
 }
 
 /// From the sync service (`services::sync`), besides engine events.
@@ -78,6 +105,9 @@ pub enum SyncUiEvent {
     Wizard(WizardScreen),
     /// Team pins (Settings → Team).
     TeamPins(Vec<PinnedKey>),
+    // M5-01
+    /// Settings → Team: an org request finished.
+    Team(TeamResult),
 }
 
 /// How a status reads.
@@ -127,6 +157,7 @@ impl SyncModel {
                 .collect(),
             errors: self.errors.clone(),
             devices: self.devices.clone(),
+            team: self.team.clone(),
         }
     }
 
@@ -267,6 +298,8 @@ impl App {
                 self.views.settings.team.set_pins(&pins);
                 self.needs_redraw = true;
             }
+            // M5-01
+            SyncUiEvent::Team(res) => self.on_team_result(res, effects),
         }
     }
 
@@ -396,7 +429,54 @@ impl App {
                     effects,
                 );
             }
-            SettingsRequest::LoadTeam => effects.push(Effect::Sync(SyncEffect::TeamPins)),
+            SettingsRequest::LoadTeam => {
+                effects.push(Effect::Sync(SyncEffect::TeamPins));
+                let org = self.sync.model.team.current().map(|o| o.id.clone());
+                self.team_op(TeamOp::Load { org }, effects);
+            }
+            // M5-01
+            SettingsRequest::Team(op) => self.team_op(op, effects),
+            SettingsRequest::TeamRemove {
+                org,
+                org_name,
+                user,
+                email,
+                me,
+            } => {
+                let (title, body, label) = if me {
+                    (
+                        "Leave the org?",
+                        format!("You leave \"{org_name}\" and lose access to its vaults."),
+                        "Leave",
+                    )
+                } else {
+                    (
+                        "Remove member?",
+                        format!(
+                            "{email} leaves \"{org_name}\" and loses access to its vaults \
+                             (rotate their keys afterwards)."
+                        ),
+                        "Remove",
+                    )
+                };
+                let modal = Modal::confirm(
+                    title,
+                    &body,
+                    vec![
+                        Button::new("remove", label, 'r').danger(),
+                        Button::new("cancel", "Cancel", 'c').safe(),
+                    ],
+                    1,
+                    true,
+                );
+                self.push_modal(
+                    ModalDialog::new(modal).on(
+                        "button:remove",
+                        vec![Effect::Sync(SyncEffect::Team(TeamOp::Remove { org, user }))],
+                    ),
+                    effects,
+                );
+            }
             SettingsRequest::TeamVerify {
                 user,
                 accept_new_key,
@@ -405,5 +485,102 @@ impl App {
                 accept_new_key,
             })),
         }
+    }
+}
+
+/// The first 8 characters of an id (audit lines).
+fn short<T: std::fmt::Display>(id: Option<T>) -> String {
+    id.map_or_else(
+        || "-".to_owned(),
+        |u| u.to_string().chars().take(8).collect(),
+    )
+}
+
+// M5-01: Settings → Team.
+impl App {
+    fn team_op(&mut self, op: TeamOp, effects: &mut Vec<Effect>) {
+        let t = &mut self.sync.model.team;
+        t.loading = true;
+        t.error = None;
+        if !matches!(op, TeamOp::Audit { .. }) {
+            t.audit.clear();
+        }
+        self.sync_changed();
+        effects.push(Effect::Sync(SyncEffect::Team(op)));
+    }
+
+    fn on_team_result(&mut self, res: TeamResult, effects: &mut Vec<Effect>) {
+        self.sync.model.team.loading = false;
+        match res {
+            TeamResult::Loaded { orgs, org, members } => {
+                let t = &mut self.sync.model.team;
+                t.orgs = orgs
+                    .iter()
+                    .map(|o| OrgEntry {
+                        id: o.id.to_string(),
+                        name: o.name.clone(),
+                        role: o.role,
+                    })
+                    .collect();
+                t.org = org
+                    .and_then(|id| t.orgs.iter().position(|o| o.id == id))
+                    .unwrap_or(0);
+                t.members = members
+                    .iter()
+                    .map(|m| MemberEntry {
+                        user_id: m.user_id.to_string(),
+                        user_bytes: *m.user_id.as_bytes(),
+                        email: m.email.clone(),
+                        role: m.role,
+                    })
+                    .collect();
+                t.error = None;
+            }
+            // T-08: a link invite is copied, ready to paste into a chat.
+            TeamResult::Invited(inv) => match inv.link {
+                Some(link) => {
+                    effects.push(Effect::CopyToClipboard(link));
+                    let who = inv.email.as_deref().unwrap_or("anyone with the link");
+                    self.push_toast(
+                        ToastLevel::Info,
+                        format!("Invite for {who} created: link copied to the clipboard"),
+                        effects,
+                    );
+                }
+                None => {
+                    let who = inv.email.as_deref().unwrap_or("the invitee");
+                    self.push_toast(
+                        ToastLevel::Info,
+                        format!("Invite emailed to {who}"),
+                        effects,
+                    );
+                }
+            },
+            TeamResult::Changed(msg) => {
+                self.push_toast(ToastLevel::Info, msg, effects);
+                let org = self.sync.model.team.current().map(|o| o.id.clone());
+                self.team_op(TeamOp::Load { org }, effects);
+                return;
+            }
+            TeamResult::Audit(events) => {
+                self.sync.model.team.audit = events
+                    .iter()
+                    .map(|e| {
+                        format!(
+                            "{}  {:<20} by {}  on {}",
+                            e.at.format("%Y-%m-%d %H:%M"),
+                            e.kind,
+                            short(e.actor),
+                            short(e.target),
+                        )
+                    })
+                    .collect();
+            }
+            TeamResult::Failed(msg) => {
+                self.sync.model.team.error = Some(msg.clone());
+                self.push_toast(ToastLevel::Error, msg, effects);
+            }
+        }
+        self.sync_changed();
     }
 }

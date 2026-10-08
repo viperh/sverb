@@ -476,10 +476,17 @@ fn sync_forms_parse() {
             "devices revoke d1",
             Command::Devices(devices::DevicesCmd::Revoke { id: s("d1") }),
         ),
-        ("team list", Command::Team(team::TeamCmd::List)),
+        (
+            "team list",
+            Command::Team(team::TeamCmd::List { json: false }),
+        ),
         (
             "team invite a@b.c",
-            Command::Team(team::TeamCmd::Invite { email: s("a@b.c") }),
+            Command::Team(team::TeamCmd::Invite {
+                email: s("a@b.c"),
+                org: None,
+                role: sverb_proto::orgs::Role::Member,
+            }),
         ),
         (
             "team verify alice",
@@ -666,7 +673,7 @@ fn errors_map_to_documented_exit_codes() {
 // T-12: every headless command that is still a stub says so and names a task.
 #[test]
 fn stubs_return_not_implemented() {
-    let mut forms = vec![
+    let forms = vec![
         // M1-07: `hosts list | add | rm` are implemented (see `cli/hosts.rs`).
         // M2-03: `keys list | generate | import | export` are implemented (see
         // `cli/keys.rs` tests).
@@ -681,17 +688,10 @@ fn stubs_return_not_implemented() {
         // M2-07: `agent` is implemented (see `cli/agent.rs`; it serves until stopped).
         "doctor",
     ];
-    if cfg!(feature = "sync") {
-        // M4-08: `login`, `logout`, `register` are implemented (see
-        // `account_commands_need_a_terminal` and crates/sverb-sync/tests/account.rs).
-        forms.extend([
-            // M4-07: `sync` is implemented (crates/sverb-sync/tests/engine.rs).
-            // M4-09: `devices list | revoke` are implemented (`cli/sync_tests.rs`).
-            "team list",
-            "team invite e",
-            // M5-03: `team verify` is implemented (see `cli/team.rs` tests).
-        ]);
-    }
+    // Sync builds: every sync command is implemented now. M4-08: `login`, `logout`,
+    // `register` (`account_commands_need_a_terminal`, crates/sverb-sync/tests/account.rs);
+    // M4-07: `sync`; M4-09: `devices list | revoke` (`cli/sync_tests.rs`); M5-01: `team
+    // list | invite | create | accept` and M5-03: `team verify` (`cli/team.rs`).
     // Guard: every leaf command except the TUI launchers and `config` is listed.
     let leaves: Vec<String> = command_paths()
         .into_iter()
@@ -732,6 +732,8 @@ fn stubs_return_not_implemented() {
             | "devices list" | "devices revoke"
             // M5-03: implemented (see the `cli/team.rs` tests).
             | "team verify"
+            // M5-01
+            | "team list" | "team invite" | "team create" | "team accept"
             | "export backup" | "export ssh-config" | "export csv"
             // M4-08
             | "login" | "logout" | "register"

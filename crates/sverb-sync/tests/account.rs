@@ -928,3 +928,70 @@ async fn m4_09_devices_list_revoke_and_local_info() {
     assert!(a.store.get_sync_state().await.unwrap().is_none());
     assert!(!sverb_sync::local_info(&a.store).await.unwrap().connected());
 }
+
+// M5-01: the team calls against the in-process server: create an org, invite by
+// link, accept on a second account, members, roles, the audit log.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn m5_01_teams_round_trip() {
+    use sverb_proto::orgs::Role;
+    use sverb_sync::account::teams;
+
+    let server = TestServer::start().await;
+    let a = Local::init(PW).await;
+    register(&server, &a, "owner@example.test", PW).await;
+    let b = Local::init(PW2).await;
+    register(&server, &b, "bob@example.test", PW2).await;
+    let (ca, cb) = (cfg("a"), cfg("b"));
+
+    assert!(
+        teams::list_orgs(&a.store, &a.lmk, &ca)
+            .await
+            .unwrap()
+            .is_empty()
+    );
+    let org = teams::create_org(&a.store, &a.lmk, &ca, "Acme")
+        .await
+        .unwrap();
+    assert_eq!(org.role, Role::Owner);
+    let inv = teams::invite(&a.store, &a.lmk, &ca, org.id, None, Role::Member)
+        .await
+        .unwrap();
+    let link = inv.link.expect("no SMTP: the link comes back");
+    let joined = teams::accept_invite(&b.store, &b.lmk, &cb, &link)
+        .await
+        .unwrap();
+    assert_eq!((joined.org_id, joined.role), (org.id, Role::Member));
+    assert!(matches!(
+        teams::accept_invite(&b.store, &b.lmk, &cb, &link).await,
+        Err(AccountError::Sync(e)) if e.is_status(404)
+    ));
+    let members = teams::members(&a.store, &a.lmk, &ca, org.id).await.unwrap();
+    assert_eq!(members.len(), 2);
+    let bob = members
+        .iter()
+        .find(|m| m.email == "bob@example.test")
+        .unwrap()
+        .user_id;
+    // A member can't read the audit log; the owner can.
+    assert!(
+        teams::audit(&b.store, &b.lmk, &cb, org.id, None, 50)
+            .await
+            .is_err()
+    );
+    teams::set_role(&a.store, &a.lmk, &ca, org.id, bob, Role::Admin)
+        .await
+        .unwrap();
+    let page = teams::audit(&a.store, &a.lmk, &ca, org.id, None, 50)
+        .await
+        .unwrap();
+    assert!(page.events.iter().any(|e| e.kind == "member.role_changed"));
+    teams::remove_member(&b.store, &b.lmk, &cb, org.id, bob)
+        .await
+        .unwrap();
+    assert!(
+        teams::list_orgs(&b.store, &b.lmk, &cb)
+            .await
+            .unwrap()
+            .is_empty()
+    );
+}

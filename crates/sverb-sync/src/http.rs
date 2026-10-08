@@ -243,6 +243,124 @@ impl ApiClient {
         self.fetch(rb).await.map(drop)
     }
 
+    // M5-01: orgs, members, invites, the audit log.
+    /// `GET /v1/orgs`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] / [`SyncError::Transport`].
+    pub async fn list_orgs(
+        &self,
+        token: &str,
+    ) -> Result<Vec<sverb_proto::orgs::OrgView>, SyncError> {
+        let rb = self.authed(self.http.get(self.url("/orgs")), token);
+        self.send(rb).await
+    }
+
+    /// `POST /v1/orgs`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] / [`SyncError::Transport`].
+    pub async fn create_org(
+        &self,
+        token: &str,
+        name: &str,
+    ) -> Result<sverb_proto::orgs::OrgView, SyncError> {
+        let req = sverb_proto::orgs::CreateOrgRequest {
+            name: name.to_owned(),
+        };
+        self.post_json("/orgs", &req, Some(token)).await
+    }
+
+    /// `GET /v1/orgs/{id}/members`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`404` for an org the caller is not in) / [`SyncError::Transport`].
+    pub async fn org_members(
+        &self,
+        token: &str,
+        org: Uuid,
+    ) -> Result<Vec<sverb_proto::orgs::MemberView>, SyncError> {
+        let rb = self.authed(
+            self.http.get(self.url(&format!("/orgs/{org}/members"))),
+            token,
+        );
+        self.send(rb).await
+    }
+
+    /// `PATCH /v1/orgs/{id}/members/{user}`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`403`, `400` last owner) / [`SyncError::Transport`].
+    pub async fn set_member_role(
+        &self,
+        token: &str,
+        org: Uuid,
+        user: Uuid,
+        role: sverb_proto::orgs::Role,
+    ) -> Result<(), SyncError> {
+        let req = sverb_proto::orgs::UpdateMemberRequest { role };
+        let url = self.url(&format!("/orgs/{org}/members/{user}"));
+        let rb = self.authed(self.http.patch(url).json(&req), token);
+        self.fetch(rb).await.map(drop)
+    }
+
+    /// `DELETE /v1/orgs/{id}/members/{user}` (also leaving: `user` = self).
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] / [`SyncError::Transport`].
+    pub async fn remove_member(&self, token: &str, org: Uuid, user: Uuid) -> Result<(), SyncError> {
+        let url = self.url(&format!("/orgs/{org}/members/{user}"));
+        let rb = self.authed(self.http.delete(url), token);
+        self.fetch(rb).await.map(drop)
+    }
+
+    /// `POST /v1/orgs/{id}/invites`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`403`) / [`SyncError::Transport`].
+    pub async fn create_invite(
+        &self,
+        token: &str,
+        org: Uuid,
+        req: &sverb_proto::orgs::CreateInviteRequest,
+    ) -> Result<sverb_proto::orgs::InviteCreated, SyncError> {
+        self.post_json(&format!("/orgs/{org}/invites"), req, Some(token))
+            .await
+    }
+
+    /// `POST /v1/invites/{token}/accept`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`404` used/expired, `403` other email) / [`SyncError::Transport`].
+    pub async fn accept_invite(
+        &self,
+        token: &str,
+        invite_token: &str,
+    ) -> Result<sverb_proto::orgs::InviteAccepted, SyncError> {
+        let url = self.url(&format!("/invites/{invite_token}/accept"));
+        let rb = self.authed(self.http.post(url), token);
+        self.send(rb).await
+    }
+
+    /// `GET /v1/orgs/{id}/audit?before=&limit=`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`403` for members) / [`SyncError::Transport`].
+    pub async fn org_audit(
+        &self,
+        token: &str,
+        org: Uuid,
+        before: Option<i64>,
+        limit: u32,
+    ) -> Result<sverb_proto::orgs::AuditPage, SyncError> {
+        let mut path = format!("/orgs/{org}/audit?limit={limit}");
+        if let Some(b) = before {
+            path.push_str(&format!("&before={b}"));
+        }
+        let rb = self.authed(self.http.get(self.url(&path)), token);
+        self.send(rb).await
+    }
+
     /// `GET /v1/vaults/{id}/changes?since=&limit=` (§12.2).
     ///
     /// # Errors
