@@ -82,7 +82,7 @@ pkcs1 = { version = "0.8.0-rc.4", features = ["pem", "std"] }
 pkcs8 = { version = "0.11.0", features = ["encryption", "pem", "std"] }
 der = { version = "0.8.2", features = ["pem", "std"] }
 rand_core = { workspace = true }
-md-5 = "0.10.6"
+md-5 = "0.11.0"
 aes = "0.9.3"
 cbc = "0.2.1"
 
