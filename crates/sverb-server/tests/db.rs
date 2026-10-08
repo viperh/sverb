@@ -7,7 +7,6 @@
 mod common;
 
 use std::io::Write;
-use std::sync::{Arc, Mutex};
 
 use axum::body::Body;
 use axum::extract::State;
@@ -74,13 +73,38 @@ async fn post_register(app: &Router, body: serde_json::Value) -> (StatusCode, se
     (st, json(&b))
 }
 
-/// Captures log output written while `f` runs (current-thread runtime).
-#[derive(Clone, Default)]
-struct Captured(Arc<Mutex<Vec<u8>>>);
+/// Log capture. One global JSON subscriber (installed once) writes into a
+/// per-thread buffer, so each test (current-thread runtime) reads only its own
+/// events. A thread-local default subscriber raced with the other tests, which
+/// hit the same callsites without one (tracing caches callsite interest globally).
+#[derive(Clone, Copy, Default)]
+struct Captured;
+
+thread_local! {
+    static CAPTURED: std::cell::RefCell<Vec<u8>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+impl Captured {
+    /// Installs the global subscriber (once) and clears this thread's buffer.
+    fn start() -> Self {
+        static INIT: std::sync::Once = std::sync::Once::new();
+        INIT.call_once(|| {
+            let subscriber = tracing_subscriber::fmt().json().with_writer(Captured).finish();
+            tracing::subscriber::set_global_default(subscriber).unwrap();
+        });
+        CAPTURED.with(|b| b.borrow_mut().clear());
+        Self
+    }
+
+    /// This thread's captured output.
+    fn text(self) -> String {
+        CAPTURED.with(|b| String::from_utf8_lossy(&b.borrow()).into_owned())
+    }
+}
 
 impl Write for Captured {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.0.lock().unwrap().extend_from_slice(buf);
+        CAPTURED.with(|b| b.borrow_mut().extend_from_slice(buf));
         Ok(buf.len())
     }
     fn flush(&mut self) -> std::io::Result<()> {
@@ -91,7 +115,7 @@ impl Write for Captured {
 impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for Captured {
     type Writer = Self;
     fn make_writer(&'a self) -> Self::Writer {
-        self.clone()
+        *self
     }
 }
 
@@ -247,18 +271,12 @@ async fn t09_wrong_server_secret_refuses_to_start() {
 #[tokio::test]
 async fn t10_bootstrap_setup_token_makes_instance_admin_once() {
     let db = db_or_skip!(TestDb::migrated());
-    let logs = Captured::default();
-    let subscriber = tracing_subscriber::fmt()
-        .json()
-        .with_writer(logs.clone())
-        .finish();
-    let guard = tracing::subscriber::set_default(subscriber);
+    let logs = Captured::start();
     let state = prepare_with_pool(config(&[]), db.pool.clone(), false)
         .await
         .unwrap();
-    drop(guard);
 
-    let text = String::from_utf8(logs.0.lock().unwrap().clone()).unwrap();
+    let text = logs.text();
     let line = text
         .lines()
         .map(|l| serde_json::from_str::<serde_json::Value>(l).unwrap())
