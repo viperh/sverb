@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # vergen-gix (crates/sverb/build.rs) needs history and tags
       - name: Install Rust toolchain
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install Rust toolchain
@@ -84,7 +84,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # vergen-gix needs history and tags for VERGEN_GIT_DESCRIBE
       - name: Install Rust toolchain
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install Rust toolchain
@@ -139,7 +139,7 @@ jobs:
       SVERB_E2E_IMAGE: sverb-e2e-sshd:ci
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install Rust toolchain
@@ -148,9 +148,9 @@ jobs:
       - name: Docker info
         run: docker info
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Build the OpenSSH fixture image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: tests/fixtures/sshd
           tags: ${{ env.SVERB_E2E_IMAGE }}
@@ -196,7 +196,7 @@ jobs:
       DATABASE_URL: postgres://sverb:sverb@localhost:5432/sverb
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
@@ -213,7 +213,7 @@ jobs:
       SVERB_PUBLIC_URL: http://localhost:8080
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate compose file
         run: docker compose -f deploy/docker-compose.yml config --quiet
       - name: Build and start
@@ -244,7 +244,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Check advisories, bans, licenses and sources
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
@@ -256,7 +256,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-vet
@@ -274,7 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install stable toolchain (for cargo metadata)
@@ -305,7 +305,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
