@@ -26,4 +26,7 @@ pub mod ws;
 // M5-03: user public keys (`GET /v1/users/{id}/public-keys`), pinned by clients (§13.3).
 pub mod users;
 
+// M5-01: orgs, members, invites, the audit log.
+pub mod orgs;
+
 pub use error::{ErrorBody, ErrorCode, ErrorEnvelope};

@@ -20,9 +20,11 @@ Previous transcript: /home/viperh/.claude/projects/-home-viperh/d8490e3c-b2b8-4a
 
 ## Cloud session progress (2026-10-08)
 - Working directly in the cloud session (no sub-agents, so no locks), branch `claude/focused-tesla-e5wwcs`, committing per task.
-- M4-09 and M7-06 DONE (see tasks/04-PROGRESS.md). Next: M5-01, M5-02, M5-04, M6-03, M7-04, then M7-05 and M7-07.
+- M4-09 and M7-06 DONE; M5-01 server side DONE, client/CLI/TUI parts still open (see tasks/04-PROGRESS.md). Paused here at the user's request.
+- Next: finish M5-01 (client API, `sverb team list/invite`, TUI Team views), then M5-02, M5-04, M6-03, M7-04, then M7-05 and M7-07.
+- A local PostgreSQL 16 can be started in the container (binaries in /usr/lib/postgresql/16/bin; run as a non-root user, e.g. `pgtest`, port 55432) and DATABASE_URL=postgres://postgres@127.0.0.1:55432/postgres runs the *_pg server tests.
 - Disk is tight here: build with `CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0`.
-- Pushing failed (no GitHub access for the Claude app on viperh/sverb); commits are local until access is fixed.
+- Pushing to GitHub works (access fixed by the user).
 
 ## User decision: moving to a cloud session (2026-10-08)
 - "wait until they are done then do not create new agents afterwards. merge the changes. and tell me. i will commit"

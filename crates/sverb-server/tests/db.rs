@@ -89,7 +89,10 @@ impl Captured {
     fn start() -> Self {
         static INIT: std::sync::Once = std::sync::Once::new();
         INIT.call_once(|| {
-            let subscriber = tracing_subscriber::fmt().json().with_writer(Captured).finish();
+            let subscriber = tracing_subscriber::fmt()
+                .json()
+                .with_writer(Captured)
+                .finish();
             tracing::subscriber::set_global_default(subscriber).unwrap();
         });
         CAPTURED.with(|b| b.borrow_mut().clear());

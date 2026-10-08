@@ -8,6 +8,8 @@ pub mod devices;
 pub mod ops;
 // M4-04: vault list, pull and push.
 pub mod vaults;
+// M5-01: orgs, members, invites, the audit log, user public keys.
+pub mod orgs;
 
 use axum::Router;
 
@@ -29,4 +31,6 @@ pub fn api_v1() -> Router<AppState> {
         .merge(crate::ws::router())
         // M6-01
         .merge(crate::share::router())
+        // M5-01
+        .merge(orgs::router())
 }
