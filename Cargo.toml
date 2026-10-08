@@ -187,7 +187,7 @@ tokio-tungstenite = { version = "0.29.0", default-features = false, features = [
 webpki-roots = "1.0.9"
 # M4-05: reconnect backoff jitter.
 fastrand = "2.3.0"
-tower-http = { version = "0.6.11", features = [
+tower-http = { version = "0.7.1", features = [
     "compression-gzip",
     "cors",
     "limit",
