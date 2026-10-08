@@ -1,0 +1,19 @@
+---
+source: crates/sverb-tui/src/widgets/dialog_tests.rs
+expression: screen
+---
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+             ┌ Unknown host key ─────────────────────────────────┐              
+             │ The server's ED25519 key is SHA256:abc. Trust it? │              
+             │                                                   │              
+             │       [A]ccept    Accept [o]nce    [R]eject       │              
+             │                                                   │              
+             │                                        120 s left │              
+             └───────────────────────────────────────────────────┘

@@ -1,0 +1,30 @@
+[package]
+name = "sverb-store"
+description = "SQLite persistence for the sverb client"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+# No ratatui, no crossterm.
+[dependencies]
+sverb-core = { workspace = true }
+sverb-crypto = { workspace = true }
+
+# M1-03: SQLite (bundled), versioned migrations, async wrappers.
+parking_lot = { workspace = true }
+rusqlite = { workspace = true }
+rusqlite_migration = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+# tempfile is not in [workspace.dependencies] (the root Cargo.toml is shared);
+# switch to `workspace = true` when it is added there.
+tempfile = "3.27.0"

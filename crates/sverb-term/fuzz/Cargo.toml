@@ -1,0 +1,33 @@
+# cargo-fuzz targets for sverb-term (M1-09 T-18).
+#   cargo install cargo-fuzz
+#   cd crates/sverb-term/fuzz && cargo +nightly fuzz run emulator_feed
+[package]
+name = "sverb-term-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+sverb-term = { path = ".." }
+
+# Not part of the main workspace (nightly-only tooling).
+[workspace]
+
+[[bin]]
+name = "emulator_feed"
+path = "fuzz_targets/emulator_feed.rs"
+test = false
+doc = false
+bench = false
+
+# M1-11 T-16: arbitrary keys and modes never panic the key encoder.
+[[bin]]
+name = "key_encoder"
+path = "fuzz_targets/key_encoder.rs"
+test = false
+doc = false
+bench = false

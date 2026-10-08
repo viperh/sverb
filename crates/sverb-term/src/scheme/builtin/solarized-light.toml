@@ -1,0 +1,26 @@
+# solarized-light: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: Solarized (light), Ethan Schoonover, https://ethanschoonover.com/solarized/ (MIT).
+
+name = "solarized-light"
+
+[colors]
+foreground = "#657b83"
+background = "#fdf6e3"
+cursor = "#586e75"
+selection_bg = "#eee8d5"
+color0 = "#073642"   # black
+color1 = "#dc322f"   # red
+color2 = "#859900"   # green
+color3 = "#b58900"   # yellow
+color4 = "#268bd2"   # blue
+color5 = "#d33682"   # magenta
+color6 = "#2aa198"   # cyan
+color7 = "#eee8d5"   # white
+color8 = "#002b36"   # bright black
+color9 = "#cb4b16"   # bright red
+color10 = "#586e75"  # bright green
+color11 = "#657b83"  # bright yellow
+color12 = "#839496"  # bright blue
+color13 = "#6c71c4"  # bright magenta
+color14 = "#93a1a1"  # bright cyan
+color15 = "#fdf6e3"  # bright white

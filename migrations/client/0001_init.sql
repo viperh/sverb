@@ -1,0 +1,1 @@
+../../crates/sverb-store/migrations/0001_init.sql

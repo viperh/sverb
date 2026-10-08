@@ -1,0 +1,15 @@
+Host target
+    HostName 10.0.0.5
+    ProxyJump user@bastion:2222,inner
+
+Host inner
+    HostName inner.internal
+
+Host direct
+    ProxyJump none
+
+Host via-uri
+    ProxyJump ssh://ops@gw.example.com:2022
+
+Host cmd
+    ProxyCommand ssh -W %h:%p bastion.example.com

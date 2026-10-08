@@ -1,0 +1,18 @@
+Host web.prod
+    User alice
+
+Host api.prod
+    Port 2200
+
+Host laptop
+
+Host *.prod
+    User deploy
+    ServerAliveInterval 60
+
+Host !jump *
+    ForwardAgent no
+
+Host *
+    User fallback
+    ServerAliveInterval 15

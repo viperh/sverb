@@ -1,0 +1,15 @@
+# A typical user config.
+Host web
+    HostName web.example.com
+    User deploy
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519
+    ForwardAgent yes
+    ServerAliveInterval 30
+    SetEnv LANG=C.UTF-8 TZ=UTC
+
+Host db db-replica
+    HostName %h.internal.example.com
+    User postgres
+
+Host plain

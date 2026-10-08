@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/keymap/tests.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions                         
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│No hosts yet                                                                  │
+│       a  add a host                                                          │
+│    ^\ o  quick connect                                                       │
+│               ┌ Welcome to sverb ────────────────────────────┐               │
+│               │sverb's command key is ctrl-\.                │               │
+│               │Every other key goes to your SSH session.     │               │
+│               │Press ctrl-\ then ? for help.                 │               │
+│               │Press it twice to send ctrl-\ itself.         │               │
+│               │                                              │               │
+│               │If \ is awkward on your keyboard layout, set  │               │
+│               │general.leader = "ctrl-g" in config.toml.     │               │
+│               │                                              │               │
+│               │Enter / Esc close                             │               │
+│               └──────────────────────────────────────────────┘               │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit

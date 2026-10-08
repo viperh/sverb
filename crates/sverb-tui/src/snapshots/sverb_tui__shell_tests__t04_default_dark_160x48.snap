@@ -1,0 +1,465 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: styled(&buf)
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                                                                                         
+│▸ Hosts       │┌ Hosts ───────────────────────────────────────────────────────────────────────────────────────┐┌ Details ─────────────────────────────────────┐
+│  Keychain    ││No hosts yet                                                                                  ││Nothing selected.                             │
+│  Forwards    ││       a  add a host                                                                          ││                                              │
+│  Snippets    ││    ^\ o  quick connect                                                                       ││                                              │
+│  Known       ││                                                                                              ││                                              │
+│  Logs        ││                                                                                              ││                                              │
+│  Settings    ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+└──────────────┘└──────────────────────────────────────────────────────────────────────────────────────────────┘└──────────────────────────────────────────────┘
+ NORMAL                                                                                                                                      ^\ ? help · q quit 
+--- styles (x,y fg bg modifiers) ---
+0,0 Rgb(97, 175, 239) Reset BOLD
+7,0 Rgb(88, 88, 88) Reset NONE
+8,0 Reset Reset NONE
+20,0 Rgb(88, 88, 88) Reset NONE
+0,1 Rgb(88, 88, 88) Reset NONE
+16,1 Rgb(128, 128, 128) Reset NONE
+71,1 Reset Reset NONE
+0,2 Rgb(88, 88, 88) Reset NONE
+1,2 Rgb(97, 175, 239) Reset BOLD
+8,2 Reset Reset NONE
+15,2 Rgb(88, 88, 88) Reset NONE
+16,2 Rgb(97, 175, 239) Reset NONE
+17,2 Rgb(97, 175, 239) Reset BOLD
+24,2 Rgb(97, 175, 239) Reset NONE
+112,2 Rgb(88, 88, 88) Reset NONE
+0,3 Rgb(88, 88, 88) Reset NONE
+1,3 Reset Reset NONE
+15,3 Rgb(88, 88, 88) Reset NONE
+16,3 Rgb(97, 175, 239) Reset NONE
+17,3 Rgb(97, 175, 239) Reset BOLD
+29,3 Reset Reset NONE
+111,3 Rgb(97, 175, 239) Reset NONE
+112,3 Rgb(88, 88, 88) Reset NONE
+113,3 Rgb(128, 128, 128) Reset NONE
+130,3 Reset Reset NONE
+159,3 Rgb(88, 88, 88) Reset NONE
+0,4 Rgb(88, 88, 88) Reset NONE
+1,4 Reset Reset NONE
+15,4 Rgb(88, 88, 88) Reset NONE
+16,4 Rgb(97, 175, 239) Reset NONE
+17,4 Reset Reset NONE
+25,4 Rgb(128, 128, 128) Reset NONE
+37,4 Reset Reset NONE
+111,4 Rgb(97, 175, 239) Reset NONE
+112,4 Rgb(88, 88, 88) Reset NONE
+113,4 Reset Reset NONE
+159,4 Rgb(88, 88, 88) Reset NONE
+0,5 Rgb(88, 88, 88) Reset NONE
+1,5 Reset Reset NONE
+15,5 Rgb(88, 88, 88) Reset NONE
+16,5 Rgb(97, 175, 239) Reset NONE
+17,5 Rgb(128, 128, 128) Reset NONE
+40,5 Reset Reset NONE
+111,5 Rgb(97, 175, 239) Reset NONE
+112,5 Rgb(88, 88, 88) Reset NONE
+113,5 Reset Reset NONE
+159,5 Rgb(88, 88, 88) Reset NONE
+0,6 Rgb(88, 88, 88) Reset NONE
+1,6 Reset Reset NONE
+15,6 Rgb(88, 88, 88) Reset NONE
+16,6 Rgb(97, 175, 239) Reset NONE
+17,6 Reset Reset NONE
+111,6 Rgb(97, 175, 239) Reset NONE
+112,6 Rgb(88, 88, 88) Reset NONE
+113,6 Reset Reset NONE
+159,6 Rgb(88, 88, 88) Reset NONE
+0,7 Rgb(88, 88, 88) Reset NONE
+1,7 Reset Reset NONE
+15,7 Rgb(88, 88, 88) Reset NONE
+16,7 Rgb(97, 175, 239) Reset NONE
+17,7 Reset Reset NONE
+111,7 Rgb(97, 175, 239) Reset NONE
+112,7 Rgb(88, 88, 88) Reset NONE
+113,7 Reset Reset NONE
+159,7 Rgb(88, 88, 88) Reset NONE
+0,8 Rgb(88, 88, 88) Reset NONE
+1,8 Reset Reset NONE
+15,8 Rgb(88, 88, 88) Reset NONE
+16,8 Rgb(97, 175, 239) Reset NONE
+17,8 Reset Reset NONE
+111,8 Rgb(97, 175, 239) Reset NONE
+112,8 Rgb(88, 88, 88) Reset NONE
+113,8 Reset Reset NONE
+159,8 Rgb(88, 88, 88) Reset NONE
+0,9 Rgb(88, 88, 88) Reset NONE
+1,9 Reset Reset NONE
+15,9 Rgb(88, 88, 88) Reset NONE
+16,9 Rgb(97, 175, 239) Reset NONE
+17,9 Reset Reset NONE
+111,9 Rgb(97, 175, 239) Reset NONE
+112,9 Rgb(88, 88, 88) Reset NONE
+113,9 Reset Reset NONE
+159,9 Rgb(88, 88, 88) Reset NONE
+0,10 Rgb(88, 88, 88) Reset NONE
+1,10 Reset Reset NONE
+15,10 Rgb(88, 88, 88) Reset NONE
+16,10 Rgb(97, 175, 239) Reset NONE
+17,10 Reset Reset NONE
+111,10 Rgb(97, 175, 239) Reset NONE
+112,10 Rgb(88, 88, 88) Reset NONE
+113,10 Reset Reset NONE
+159,10 Rgb(88, 88, 88) Reset NONE
+0,11 Rgb(88, 88, 88) Reset NONE
+1,11 Reset Reset NONE
+15,11 Rgb(88, 88, 88) Reset NONE
+16,11 Rgb(97, 175, 239) Reset NONE
+17,11 Reset Reset NONE
+111,11 Rgb(97, 175, 239) Reset NONE
+112,11 Rgb(88, 88, 88) Reset NONE
+113,11 Reset Reset NONE
+159,11 Rgb(88, 88, 88) Reset NONE
+0,12 Rgb(88, 88, 88) Reset NONE
+1,12 Reset Reset NONE
+15,12 Rgb(88, 88, 88) Reset NONE
+16,12 Rgb(97, 175, 239) Reset NONE
+17,12 Reset Reset NONE
+111,12 Rgb(97, 175, 239) Reset NONE
+112,12 Rgb(88, 88, 88) Reset NONE
+113,12 Reset Reset NONE
+159,12 Rgb(88, 88, 88) Reset NONE
+0,13 Rgb(88, 88, 88) Reset NONE
+1,13 Reset Reset NONE
+15,13 Rgb(88, 88, 88) Reset NONE
+16,13 Rgb(97, 175, 239) Reset NONE
+17,13 Reset Reset NONE
+111,13 Rgb(97, 175, 239) Reset NONE
+112,13 Rgb(88, 88, 88) Reset NONE
+113,13 Reset Reset NONE
+159,13 Rgb(88, 88, 88) Reset NONE
+0,14 Rgb(88, 88, 88) Reset NONE
+1,14 Reset Reset NONE
+15,14 Rgb(88, 88, 88) Reset NONE
+16,14 Rgb(97, 175, 239) Reset NONE
+17,14 Reset Reset NONE
+111,14 Rgb(97, 175, 239) Reset NONE
+112,14 Rgb(88, 88, 88) Reset NONE
+113,14 Reset Reset NONE
+159,14 Rgb(88, 88, 88) Reset NONE
+0,15 Rgb(88, 88, 88) Reset NONE
+1,15 Reset Reset NONE
+15,15 Rgb(88, 88, 88) Reset NONE
+16,15 Rgb(97, 175, 239) Reset NONE
+17,15 Reset Reset NONE
+111,15 Rgb(97, 175, 239) Reset NONE
+112,15 Rgb(88, 88, 88) Reset NONE
+113,15 Reset Reset NONE
+159,15 Rgb(88, 88, 88) Reset NONE
+0,16 Rgb(88, 88, 88) Reset NONE
+1,16 Reset Reset NONE
+15,16 Rgb(88, 88, 88) Reset NONE
+16,16 Rgb(97, 175, 239) Reset NONE
+17,16 Reset Reset NONE
+111,16 Rgb(97, 175, 239) Reset NONE
+112,16 Rgb(88, 88, 88) Reset NONE
+113,16 Reset Reset NONE
+159,16 Rgb(88, 88, 88) Reset NONE
+0,17 Rgb(88, 88, 88) Reset NONE
+1,17 Reset Reset NONE
+15,17 Rgb(88, 88, 88) Reset NONE
+16,17 Rgb(97, 175, 239) Reset NONE
+17,17 Reset Reset NONE
+111,17 Rgb(97, 175, 239) Reset NONE
+112,17 Rgb(88, 88, 88) Reset NONE
+113,17 Reset Reset NONE
+159,17 Rgb(88, 88, 88) Reset NONE
+0,18 Rgb(88, 88, 88) Reset NONE
+1,18 Reset Reset NONE
+15,18 Rgb(88, 88, 88) Reset NONE
+16,18 Rgb(97, 175, 239) Reset NONE
+17,18 Reset Reset NONE
+111,18 Rgb(97, 175, 239) Reset NONE
+112,18 Rgb(88, 88, 88) Reset NONE
+113,18 Reset Reset NONE
+159,18 Rgb(88, 88, 88) Reset NONE
+0,19 Rgb(88, 88, 88) Reset NONE
+1,19 Reset Reset NONE
+15,19 Rgb(88, 88, 88) Reset NONE
+16,19 Rgb(97, 175, 239) Reset NONE
+17,19 Reset Reset NONE
+111,19 Rgb(97, 175, 239) Reset NONE
+112,19 Rgb(88, 88, 88) Reset NONE
+113,19 Reset Reset NONE
+159,19 Rgb(88, 88, 88) Reset NONE
+0,20 Rgb(88, 88, 88) Reset NONE
+1,20 Reset Reset NONE
+15,20 Rgb(88, 88, 88) Reset NONE
+16,20 Rgb(97, 175, 239) Reset NONE
+17,20 Reset Reset NONE
+111,20 Rgb(97, 175, 239) Reset NONE
+112,20 Rgb(88, 88, 88) Reset NONE
+113,20 Reset Reset NONE
+159,20 Rgb(88, 88, 88) Reset NONE
+0,21 Rgb(88, 88, 88) Reset NONE
+1,21 Reset Reset NONE
+15,21 Rgb(88, 88, 88) Reset NONE
+16,21 Rgb(97, 175, 239) Reset NONE
+17,21 Reset Reset NONE
+111,21 Rgb(97, 175, 239) Reset NONE
+112,21 Rgb(88, 88, 88) Reset NONE
+113,21 Reset Reset NONE
+159,21 Rgb(88, 88, 88) Reset NONE
+0,22 Rgb(88, 88, 88) Reset NONE
+1,22 Reset Reset NONE
+15,22 Rgb(88, 88, 88) Reset NONE
+16,22 Rgb(97, 175, 239) Reset NONE
+17,22 Reset Reset NONE
+111,22 Rgb(97, 175, 239) Reset NONE
+112,22 Rgb(88, 88, 88) Reset NONE
+113,22 Reset Reset NONE
+159,22 Rgb(88, 88, 88) Reset NONE
+0,23 Rgb(88, 88, 88) Reset NONE
+1,23 Reset Reset NONE
+15,23 Rgb(88, 88, 88) Reset NONE
+16,23 Rgb(97, 175, 239) Reset NONE
+17,23 Reset Reset NONE
+111,23 Rgb(97, 175, 239) Reset NONE
+112,23 Rgb(88, 88, 88) Reset NONE
+113,23 Reset Reset NONE
+159,23 Rgb(88, 88, 88) Reset NONE
+0,24 Rgb(88, 88, 88) Reset NONE
+1,24 Reset Reset NONE
+15,24 Rgb(88, 88, 88) Reset NONE
+16,24 Rgb(97, 175, 239) Reset NONE
+17,24 Reset Reset NONE
+111,24 Rgb(97, 175, 239) Reset NONE
+112,24 Rgb(88, 88, 88) Reset NONE
+113,24 Reset Reset NONE
+159,24 Rgb(88, 88, 88) Reset NONE
+0,25 Rgb(88, 88, 88) Reset NONE
+1,25 Reset Reset NONE
+15,25 Rgb(88, 88, 88) Reset NONE
+16,25 Rgb(97, 175, 239) Reset NONE
+17,25 Reset Reset NONE
+111,25 Rgb(97, 175, 239) Reset NONE
+112,25 Rgb(88, 88, 88) Reset NONE
+113,25 Reset Reset NONE
+159,25 Rgb(88, 88, 88) Reset NONE
+0,26 Rgb(88, 88, 88) Reset NONE
+1,26 Reset Reset NONE
+15,26 Rgb(88, 88, 88) Reset NONE
+16,26 Rgb(97, 175, 239) Reset NONE
+17,26 Reset Reset NONE
+111,26 Rgb(97, 175, 239) Reset NONE
+112,26 Rgb(88, 88, 88) Reset NONE
+113,26 Reset Reset NONE
+159,26 Rgb(88, 88, 88) Reset NONE
+0,27 Rgb(88, 88, 88) Reset NONE
+1,27 Reset Reset NONE
+15,27 Rgb(88, 88, 88) Reset NONE
+16,27 Rgb(97, 175, 239) Reset NONE
+17,27 Reset Reset NONE
+111,27 Rgb(97, 175, 239) Reset NONE
+112,27 Rgb(88, 88, 88) Reset NONE
+113,27 Reset Reset NONE
+159,27 Rgb(88, 88, 88) Reset NONE
+0,28 Rgb(88, 88, 88) Reset NONE
+1,28 Reset Reset NONE
+15,28 Rgb(88, 88, 88) Reset NONE
+16,28 Rgb(97, 175, 239) Reset NONE
+17,28 Reset Reset NONE
+111,28 Rgb(97, 175, 239) Reset NONE
+112,28 Rgb(88, 88, 88) Reset NONE
+113,28 Reset Reset NONE
+159,28 Rgb(88, 88, 88) Reset NONE
+0,29 Rgb(88, 88, 88) Reset NONE
+1,29 Reset Reset NONE
+15,29 Rgb(88, 88, 88) Reset NONE
+16,29 Rgb(97, 175, 239) Reset NONE
+17,29 Reset Reset NONE
+111,29 Rgb(97, 175, 239) Reset NONE
+112,29 Rgb(88, 88, 88) Reset NONE
+113,29 Reset Reset NONE
+159,29 Rgb(88, 88, 88) Reset NONE
+0,30 Rgb(88, 88, 88) Reset NONE
+1,30 Reset Reset NONE
+15,30 Rgb(88, 88, 88) Reset NONE
+16,30 Rgb(97, 175, 239) Reset NONE
+17,30 Reset Reset NONE
+111,30 Rgb(97, 175, 239) Reset NONE
+112,30 Rgb(88, 88, 88) Reset NONE
+113,30 Reset Reset NONE
+159,30 Rgb(88, 88, 88) Reset NONE
+0,31 Rgb(88, 88, 88) Reset NONE
+1,31 Reset Reset NONE
+15,31 Rgb(88, 88, 88) Reset NONE
+16,31 Rgb(97, 175, 239) Reset NONE
+17,31 Reset Reset NONE
+111,31 Rgb(97, 175, 239) Reset NONE
+112,31 Rgb(88, 88, 88) Reset NONE
+113,31 Reset Reset NONE
+159,31 Rgb(88, 88, 88) Reset NONE
+0,32 Rgb(88, 88, 88) Reset NONE
+1,32 Reset Reset NONE
+15,32 Rgb(88, 88, 88) Reset NONE
+16,32 Rgb(97, 175, 239) Reset NONE
+17,32 Reset Reset NONE
+111,32 Rgb(97, 175, 239) Reset NONE
+112,32 Rgb(88, 88, 88) Reset NONE
+113,32 Reset Reset NONE
+159,32 Rgb(88, 88, 88) Reset NONE
+0,33 Rgb(88, 88, 88) Reset NONE
+1,33 Reset Reset NONE
+15,33 Rgb(88, 88, 88) Reset NONE
+16,33 Rgb(97, 175, 239) Reset NONE
+17,33 Reset Reset NONE
+111,33 Rgb(97, 175, 239) Reset NONE
+112,33 Rgb(88, 88, 88) Reset NONE
+113,33 Reset Reset NONE
+159,33 Rgb(88, 88, 88) Reset NONE
+0,34 Rgb(88, 88, 88) Reset NONE
+1,34 Reset Reset NONE
+15,34 Rgb(88, 88, 88) Reset NONE
+16,34 Rgb(97, 175, 239) Reset NONE
+17,34 Reset Reset NONE
+111,34 Rgb(97, 175, 239) Reset NONE
+112,34 Rgb(88, 88, 88) Reset NONE
+113,34 Reset Reset NONE
+159,34 Rgb(88, 88, 88) Reset NONE
+0,35 Rgb(88, 88, 88) Reset NONE
+1,35 Reset Reset NONE
+15,35 Rgb(88, 88, 88) Reset NONE
+16,35 Rgb(97, 175, 239) Reset NONE
+17,35 Reset Reset NONE
+111,35 Rgb(97, 175, 239) Reset NONE
+112,35 Rgb(88, 88, 88) Reset NONE
+113,35 Reset Reset NONE
+159,35 Rgb(88, 88, 88) Reset NONE
+0,36 Rgb(88, 88, 88) Reset NONE
+1,36 Reset Reset NONE
+15,36 Rgb(88, 88, 88) Reset NONE
+16,36 Rgb(97, 175, 239) Reset NONE
+17,36 Reset Reset NONE
+111,36 Rgb(97, 175, 239) Reset NONE
+112,36 Rgb(88, 88, 88) Reset NONE
+113,36 Reset Reset NONE
+159,36 Rgb(88, 88, 88) Reset NONE
+0,37 Rgb(88, 88, 88) Reset NONE
+1,37 Reset Reset NONE
+15,37 Rgb(88, 88, 88) Reset NONE
+16,37 Rgb(97, 175, 239) Reset NONE
+17,37 Reset Reset NONE
+111,37 Rgb(97, 175, 239) Reset NONE
+112,37 Rgb(88, 88, 88) Reset NONE
+113,37 Reset Reset NONE
+159,37 Rgb(88, 88, 88) Reset NONE
+0,38 Rgb(88, 88, 88) Reset NONE
+1,38 Reset Reset NONE
+15,38 Rgb(88, 88, 88) Reset NONE
+16,38 Rgb(97, 175, 239) Reset NONE
+17,38 Reset Reset NONE
+111,38 Rgb(97, 175, 239) Reset NONE
+112,38 Rgb(88, 88, 88) Reset NONE
+113,38 Reset Reset NONE
+159,38 Rgb(88, 88, 88) Reset NONE
+0,39 Rgb(88, 88, 88) Reset NONE
+1,39 Reset Reset NONE
+15,39 Rgb(88, 88, 88) Reset NONE
+16,39 Rgb(97, 175, 239) Reset NONE
+17,39 Reset Reset NONE
+111,39 Rgb(97, 175, 239) Reset NONE
+112,39 Rgb(88, 88, 88) Reset NONE
+113,39 Reset Reset NONE
+159,39 Rgb(88, 88, 88) Reset NONE
+0,40 Rgb(88, 88, 88) Reset NONE
+1,40 Reset Reset NONE
+15,40 Rgb(88, 88, 88) Reset NONE
+16,40 Rgb(97, 175, 239) Reset NONE
+17,40 Reset Reset NONE
+111,40 Rgb(97, 175, 239) Reset NONE
+112,40 Rgb(88, 88, 88) Reset NONE
+113,40 Reset Reset NONE
+159,40 Rgb(88, 88, 88) Reset NONE
+0,41 Rgb(88, 88, 88) Reset NONE
+1,41 Reset Reset NONE
+15,41 Rgb(88, 88, 88) Reset NONE
+16,41 Rgb(97, 175, 239) Reset NONE
+17,41 Reset Reset NONE
+111,41 Rgb(97, 175, 239) Reset NONE
+112,41 Rgb(88, 88, 88) Reset NONE
+113,41 Reset Reset NONE
+159,41 Rgb(88, 88, 88) Reset NONE
+0,42 Rgb(88, 88, 88) Reset NONE
+1,42 Reset Reset NONE
+15,42 Rgb(88, 88, 88) Reset NONE
+16,42 Rgb(97, 175, 239) Reset NONE
+17,42 Reset Reset NONE
+111,42 Rgb(97, 175, 239) Reset NONE
+112,42 Rgb(88, 88, 88) Reset NONE
+113,42 Reset Reset NONE
+159,42 Rgb(88, 88, 88) Reset NONE
+0,43 Rgb(88, 88, 88) Reset NONE
+1,43 Reset Reset NONE
+15,43 Rgb(88, 88, 88) Reset NONE
+16,43 Rgb(97, 175, 239) Reset NONE
+17,43 Reset Reset NONE
+111,43 Rgb(97, 175, 239) Reset NONE
+112,43 Rgb(88, 88, 88) Reset NONE
+113,43 Reset Reset NONE
+159,43 Rgb(88, 88, 88) Reset NONE
+0,44 Rgb(88, 88, 88) Reset NONE
+1,44 Reset Reset NONE
+15,44 Rgb(88, 88, 88) Reset NONE
+16,44 Rgb(97, 175, 239) Reset NONE
+17,44 Reset Reset NONE
+111,44 Rgb(97, 175, 239) Reset NONE
+112,44 Rgb(88, 88, 88) Reset NONE
+113,44 Reset Reset NONE
+159,44 Rgb(88, 88, 88) Reset NONE
+0,45 Rgb(88, 88, 88) Reset NONE
+1,45 Reset Reset NONE
+15,45 Rgb(88, 88, 88) Reset NONE
+16,45 Rgb(97, 175, 239) Reset NONE
+17,45 Reset Reset NONE
+111,45 Rgb(97, 175, 239) Reset NONE
+112,45 Rgb(88, 88, 88) Reset NONE
+113,45 Reset Reset NONE
+159,45 Rgb(88, 88, 88) Reset NONE
+0,46 Rgb(88, 88, 88) Reset NONE
+16,46 Rgb(97, 175, 239) Reset NONE
+112,46 Rgb(88, 88, 88) Reset NONE
+0,47 Rgb(40, 44, 52) Rgb(97, 175, 239) BOLD
+8,47 Rgb(171, 178, 191) Rgb(40, 44, 52) NONE

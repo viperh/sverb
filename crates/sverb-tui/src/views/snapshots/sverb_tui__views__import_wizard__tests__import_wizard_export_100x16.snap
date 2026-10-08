@@ -1,0 +1,19 @@
+---
+source: crates/sverb-tui/src/views/import_wizard.rs
+expression: text(&buf)
+---
+                                                                                                    
+  ┌ Export ──────────────────────────────────────────────────────────────────────────────────────┐  
+  │  Format     ‹ sverb backup (encrypted, everything incl. secrets) ›                           │  
+  │› File       ~/sverb.sverb-backup                                                             │  
+  │  Password                                                                                    │  
+  │  Repeat                                                                                      │  
+  │                                                                                              │  
+  │The backup holds every item, secrets included, encrypted with this export password (zxcvbn    │  
+  │score 3 or more).                                                                             │  
+  │[ ] s include shared vaults (they belong to their organization)                               │  
+  │[ ] f replace an existing file                                                                │  
+  │                                                                                              │  
+  │tab next field · ←/→ format · enter export · esc cancel                                       │  
+  │                                                                                              │  
+  └──────────────────────────────────────────────────────────────────────────────────────────────┘

@@ -1,0 +1,29 @@
+---
+source: crates/sverb-tui/src/views/import_wizard.rs
+expression: text(&buf)
+---
+                                                                                                    
+  ┌ Import preview (dry run) ────────────────────────────────────────────────────────────────────┐  
+  │2 new · 1 duplicate · 1 conflict · 1 skipped                                                  │  
+  │Target: vault Personal · group (top level) · conflicts: skip                                  │  
+  │                                                                                              │  
+  │new       host         web  address=web.example.com user=deploy                               │  
+  │conflict  host         www  address=db.example.com                                            │  
+  │            ~ label: db -> www                                                                │  
+  │                                                                                              │  
+  │Notes                                                                                         │  
+  │  Group "*.prod" will be created                                                              │  
+  │                                                                                              │  
+  │Skipped                                                                                       │  
+  │  config:4: Match host b is not supported                                                     │  
+  │                                                                                              │  
+  │Warnings                                                                                      │  
+  │  Unsupported keywords skipped: Compression (2)                                               │  
+  │                                                                                              │  
+  │[ ] i import these identity files as keys:                                                    │  
+  │  ~/.ssh/id_ed25519                                                                           │  
+  │                                                                                              │  
+  │enter import · c conflicts · v vault · g group · j/k scroll · b back · esc cancel             │  
+  │                                                                                              │  
+  │                                                                                              │  
+  └──────────────────────────────────────────────────────────────────────────────────────────────┘

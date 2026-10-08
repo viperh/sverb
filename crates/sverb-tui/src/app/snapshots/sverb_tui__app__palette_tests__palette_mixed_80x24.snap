@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/app/palette_tests.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ 1 session 1 ┬ +                                                                
+┌ session 1 ────┌ Command palette ─────────────────────────────┐───────────────┐
+│Session pane (t│› de▏                                         │               │
+│               │Hosts                                         │               │
+│               │  web-1  deploy@10.0.0.1                      │               │
+│               │Snippets                                      │               │
+│               │  deploy web  snippet                         │               │
+│               │Actions                                       │               │
+│               │  Send leader key  send_leader           ^\ ^\│               │
+│               │  Copy mode  copy_mode                    ^\ [│               │
+│               │  Toggle sidebar  toggle_sidebar          ^\ s│               │
+│               │  Suspend to shell  suspend              ^\ ^Z│               │
+│               │  Mark broadcast  mark_broadcast_pane     ^\ B│               │
+│               │  Toggle recording  toggle_recording      ^\ R│               │
+│               │  Toggle broadcast  toggle_broadcast      ^\ b│               │
+│               │↑↓ move · enter connect · ctrl-enter split · …│               │
+│               └──────────────────────────────────────────────┘               │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ INSERT                                                               ^\ ? help

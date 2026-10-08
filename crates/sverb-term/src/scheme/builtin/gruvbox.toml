@@ -1,0 +1,26 @@
+# gruvbox: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: Gruvbox (dark, medium), Pavel Pertsev, https://github.com/morhetz/gruvbox (MIT).
+
+name = "gruvbox"
+
+[colors]
+foreground = "#ebdbb2"
+background = "#282828"
+cursor = "#ebdbb2"
+selection_bg = "#504945"
+color0 = "#282828"   # black
+color1 = "#cc241d"   # red
+color2 = "#98971a"   # green
+color3 = "#d79921"   # yellow
+color4 = "#458588"   # blue
+color5 = "#b16286"   # magenta
+color6 = "#689d6a"   # cyan
+color7 = "#a89984"   # white
+color8 = "#928374"   # bright black
+color9 = "#fb4934"   # bright red
+color10 = "#b8bb26"  # bright green
+color11 = "#fabd2f"  # bright yellow
+color12 = "#83a598"  # bright blue
+color13 = "#d3869b"  # bright magenta
+color14 = "#8ec07c"  # bright cyan
+color15 = "#ebdbb2"  # bright white

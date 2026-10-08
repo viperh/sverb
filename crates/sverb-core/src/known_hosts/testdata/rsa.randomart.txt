@@ -1,0 +1,12 @@
+2048 SHA256:/PHoOZALLScZCyZBl8Ko4edboFJprvobFDhBTC8l/fA fixture-rsa (RSA)
++---[RSA 2048]----+
+|=Bo...           |
+|o+B+.            |
+|=o.=+            |
+|.o*+oE..         |
+| +=o.. =S..      |
+|.o.. .* =. +     |
+|... o  = oo .    |
+|.  o    ....     |
+|o.o.      o.     |
++----[SHA256]-----+

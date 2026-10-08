@@ -1,0 +1,5 @@
+# Development toolchain. The minimum supported version (MSRV) is
+# `rust-version` in the workspace Cargo.toml; CI checks it separately.
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]

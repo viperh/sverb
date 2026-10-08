@@ -1,0 +1,26 @@
+# sverb-dark: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: sverb's own dark palette (matches the default-dark UI theme; MIT, this repository).
+
+name = "sverb-dark"
+
+[colors]
+foreground = "#abb2bf"
+background = "#1e2127"
+cursor = "#61afef"
+selection_bg = "#3e4451"
+color0 = "#1e2127"   # black
+color1 = "#e06c75"   # red
+color2 = "#98c379"   # green
+color3 = "#e5c07b"   # yellow
+color4 = "#61afef"   # blue
+color5 = "#c678dd"   # magenta
+color6 = "#56b6c2"   # cyan
+color7 = "#abb2bf"   # white
+color8 = "#5c6370"   # bright black
+color9 = "#ef7c85"   # bright red
+color10 = "#a9d48a"  # bright green
+color11 = "#f0cf8c"  # bright yellow
+color12 = "#7cc0f5"  # bright blue
+color13 = "#d68ee8"  # bright magenta
+color14 = "#6ccbd6"  # bright cyan
+color15 = "#ffffff"  # bright white

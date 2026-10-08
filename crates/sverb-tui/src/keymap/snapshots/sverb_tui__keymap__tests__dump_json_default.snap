@@ -1,0 +1,470 @@
+---
+source: crates/sverb-tui/src/keymap/tests.rs
+expression: "dump::dump(&Config::default(), true)"
+---
+[
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ ctrl-\\",
+    "action": "send_leader",
+    "description": "Send leader key",
+    "group": "App",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ c",
+    "action": "new_tab_pick_host",
+    "description": "New host tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ t",
+    "action": "new_local_tab",
+    "description": "New local tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ o",
+    "action": "quick_connect",
+    "description": "Quick connect",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 1",
+    "action": "go_to_tab_1",
+    "description": "Go to tab 1",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 2",
+    "action": "go_to_tab_2",
+    "description": "Go to tab 2",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 3",
+    "action": "go_to_tab_3",
+    "description": "Go to tab 3",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 4",
+    "action": "go_to_tab_4",
+    "description": "Go to tab 4",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 5",
+    "action": "go_to_tab_5",
+    "description": "Go to tab 5",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 6",
+    "action": "go_to_tab_6",
+    "description": "Go to tab 6",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 7",
+    "action": "go_to_tab_7",
+    "description": "Go to tab 7",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 8",
+    "action": "go_to_tab_8",
+    "description": "Go to tab 8",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ 9",
+    "action": "go_to_tab_9",
+    "description": "Go to tab 9",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ n",
+    "action": "next_tab",
+    "description": "Next tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ N",
+    "action": "prev_tab",
+    "description": "Previous tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ ,",
+    "action": "rename_tab",
+    "description": "Rename tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ <",
+    "action": "move_tab_left",
+    "description": "Move tab left",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ >",
+    "action": "move_tab_right",
+    "description": "Move tab right",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ x",
+    "action": "close_pane",
+    "description": "Close pane",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ X",
+    "action": "close_tab",
+    "description": "Close tab",
+    "group": "Sessions & tabs",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ -",
+    "action": "split_horizontal",
+    "description": "Split horizontal",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ |",
+    "action": "split_vertical",
+    "description": "Split vertical",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ h",
+    "action": "focus_left",
+    "description": "Focus left",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ left",
+    "action": "focus_left",
+    "description": "Focus left",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ j",
+    "action": "focus_down",
+    "description": "Focus down",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ down",
+    "action": "focus_down",
+    "description": "Focus down",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ k",
+    "action": "focus_up",
+    "description": "Focus up",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ up",
+    "action": "focus_up",
+    "description": "Focus up",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ l",
+    "action": "focus_right",
+    "description": "Focus right",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ right",
+    "action": "focus_right",
+    "description": "Focus right",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ H",
+    "action": "resize_left",
+    "description": "Resize left",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ J",
+    "action": "resize_down",
+    "description": "Resize down",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ K",
+    "action": "resize_up",
+    "description": "Resize up",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ L",
+    "action": "resize_right",
+    "description": "Resize right",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ r",
+    "action": "resize_mode",
+    "description": "Resize mode",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ z",
+    "action": "zoom_pane",
+    "description": "Zoom pane",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ b",
+    "action": "toggle_broadcast",
+    "description": "Toggle broadcast",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ B",
+    "action": "mark_broadcast_pane",
+    "description": "Mark broadcast",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ i",
+    "action": "session_info",
+    "description": "Session info",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ S",
+    "action": "share_pane",
+    "description": "Share pane",
+    "group": "Panes",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ p",
+    "action": "palette",
+    "description": "Command palette",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ e",
+    "action": "snippet_picker",
+    "description": "Snippets",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ [",
+    "action": "copy_mode",
+    "description": "Copy mode",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ space",
+    "action": "autocomplete",
+    "description": "Autocomplete",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ tab",
+    "action": "accept_ghost_text",
+    "description": "Accept suggestion",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ R",
+    "action": "toggle_recording",
+    "description": "Toggle recording",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ ?",
+    "action": "help",
+    "description": "Help (all keys)",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ v",
+    "action": "toggle_views",
+    "description": "Views / sessions",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ s",
+    "action": "toggle_sidebar",
+    "description": "Toggle sidebar",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ !",
+    "action": "notification_history",
+    "description": "Notifications",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ D",
+    "action": "toggle_log_pane",
+    "description": "Toggle log pane",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ q",
+    "action": "quit",
+    "description": "Quit sverb",
+    "group": "App",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ ctrl-z",
+    "action": "suspend",
+    "description": "Suspend to shell",
+    "group": "App",
+    "source": "default"
+  },
+  {
+    "mode": "leader",
+    "keys": "ctrl-\\ ctrl-l",
+    "action": "lock_vault",
+    "description": "Lock the vault",
+    "group": "App",
+    "source": "default"
+  },
+  {
+    "mode": "normal",
+    "keys": "ctrl-k",
+    "action": "palette",
+    "description": "Command palette",
+    "group": "Tools",
+    "source": "default"
+  },
+  {
+    "mode": "normal",
+    "keys": "?",
+    "action": "help",
+    "description": "Help (all keys)",
+    "group": "UI",
+    "source": "default"
+  },
+  {
+    "mode": "normal",
+    "keys": "q",
+    "action": "quit",
+    "description": "Quit sverb",
+    "group": "App",
+    "source": "default"
+  },
+  {
+    "mode": "normal",
+    "keys": "ctrl-z",
+    "action": "suspend",
+    "description": "Suspend to shell",
+    "group": "App",
+    "source": "default"
+  }
+]

@@ -1,0 +1,20 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (csv): 9 new, 0 duplicate, 0 conflict, 2 skipped
+STATUS     KIND   LABEL        DETAILS
+new        group  Prod         name=Prod
+new        group  Web          name=Web parent=Prod
+new        group  DB           name=DB parent=Prod
+new        tag    prod         name=prod
+new        tag    web          name=web
+new        tag    db           name=db
+new        host   Web          address=web.example.com group=Web port=22 tags=prod,web user=alice
+new        host   DB, primary  address=db.example.com group=DB port=5432 tags=prod,db user=postgres
+new        host   10.0.0.9     address=10.0.0.9
+Skipped:
+  line 4: invalid port "not-a-port"
+  line 6: invalid address "bad host": must not contain spaces
+Warnings:
+  unknown column "notes" ignored

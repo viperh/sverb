@@ -1,0 +1,100 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: s
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions                         
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│No hosts yet                                                                  │
+│       a  add a host                                                          │
+│    ^\ o  quick connect                                                       │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit 
+--- styles (x,y fg bg modifiers) ---
+0,0 Yellow Black BOLD
+7,0 White Black NONE
+0,1 Gray Black NONE
+55,1 White Black NONE
+0,2 Yellow Black NONE
+1,2 Yellow Black BOLD
+8,2 Yellow Black NONE
+0,3 Yellow Black NONE
+1,3 Yellow Black BOLD
+13,3 White Black NONE
+79,3 Yellow Black NONE
+0,4 Yellow Black NONE
+1,4 White Black NONE
+9,4 Gray Black NONE
+21,4 White Black NONE
+79,4 Yellow Black NONE
+0,5 Yellow Black NONE
+1,5 Gray Black NONE
+24,5 White Black NONE
+79,5 Yellow Black NONE
+0,6 Yellow Black NONE
+1,6 White Black NONE
+79,6 Yellow Black NONE
+0,7 Yellow Black NONE
+1,7 White Black NONE
+79,7 Yellow Black NONE
+0,8 Yellow Black NONE
+1,8 White Black NONE
+79,8 Yellow Black NONE
+0,9 Yellow Black NONE
+1,9 White Black NONE
+79,9 Yellow Black NONE
+0,10 Yellow Black NONE
+1,10 White Black NONE
+79,10 Yellow Black NONE
+0,11 Yellow Black NONE
+1,11 White Black NONE
+79,11 Yellow Black NONE
+0,12 Yellow Black NONE
+1,12 White Black NONE
+79,12 Yellow Black NONE
+0,13 Yellow Black NONE
+1,13 White Black NONE
+79,13 Yellow Black NONE
+0,14 Yellow Black NONE
+1,14 White Black NONE
+79,14 Yellow Black NONE
+0,15 Yellow Black NONE
+1,15 White Black NONE
+79,15 Yellow Black NONE
+0,16 Yellow Black NONE
+1,16 White Black NONE
+79,16 Yellow Black NONE
+0,17 Yellow Black NONE
+1,17 White Black NONE
+79,17 Yellow Black NONE
+0,18 Yellow Black NONE
+1,18 White Black NONE
+79,18 Yellow Black NONE
+0,19 Yellow Black NONE
+1,19 White Black NONE
+79,19 Yellow Black NONE
+0,20 Yellow Black NONE
+1,20 White Black NONE
+79,20 Yellow Black NONE
+0,21 Yellow Black NONE
+1,21 White Black NONE
+79,21 Yellow Black NONE
+0,22 Yellow Black NONE
+0,23 White Yellow BOLD
+8,23 Black White NONE

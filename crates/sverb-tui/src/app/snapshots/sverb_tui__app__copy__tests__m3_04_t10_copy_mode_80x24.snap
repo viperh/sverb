@@ -1,0 +1,54 @@
+---
+source: crates/sverb-tui/src/app/copy_tests.rs
+expression: snap
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ 1 session 1 ┬ +                                                                
+┌ session 1 ───────────────────────────────────────────────────────────── COPY ┐
+│13 error: disk full on host-13                                                │
+│14 error: disk full on host-14                                                │
+│15 error: disk full on host-15                                                │
+│16 error: disk full on host-16                                                │
+│17 error: disk full on host-17                                                │
+│18 error: disk full on host-18                                                │
+│19 error: disk full on host-19                                                │
+│20 error: disk full on host-20                                                │
+│21 error: disk full on host-21                                                │
+│22 error: disk full on host-22                                                │
+│23 error: disk full on host-23                                                │
+│24 error: disk full on host-24                                                │
+│25 error: disk full on host-25                                                │
+│26 error: disk full on host-26                                                │
+│27 error: disk full on host-27                                                │
+│28 error: disk full on host-28                                                │
+│29 error: disk full on host-29                                                │
+│$                                                                             │
+│?host-2 · 11 matches                                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+ COPY                                              ^\ ? help · q exit copy mode 
+
+--- overlays (S selection, C current match, m match) ---
+
+
+
+
+
+
+
+
+
+
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+........................mmmmmm
+.SSSSSSSSSSSSSSSSSSSSSSSCCCCCCSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+.S
+
+
+CCCCCC

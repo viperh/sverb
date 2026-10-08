@@ -1,0 +1,81 @@
+[package]
+name = "sverb"
+description = "SSH TUI"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+# M0-05: `panic.rs` reads CARGO_PKG_REPOSITORY at compile time for the panic message,
+# so `repository` above must stay set.
+
+[lints]
+workspace = true
+
+# `sync` is on by default. `cargo build -p sverb --no-default-features` builds
+# the local-only client, with no sync code linked in (SPEC §1.1).
+[features]
+default = ["sync"]
+sync = ["dep:sverb-sync", "sverb-tui/sync"]
+# M0-05: crash-path hooks (`SVERB_TEST_HOOK`) for the PTY tests in tests/panic_restore.rs.
+# Never enabled in release builds.
+test-hooks = ["sverb-tui/test-hooks"]
+
+[dependencies]
+sverb-core = { workspace = true }
+sverb-store = { workspace = true }
+sverb-sync = { workspace = true, optional = true }
+# M4-08: `Key32` (the LMK handed to the account flows).
+sverb-crypto = { workspace = true }
+sverb-tui = { workspace = true }
+# M2-08: `sverb forward` runs a standalone tunnel through the session manager.
+sverb-conn = { workspace = true }
+# M2-07: `sverb agent` implements the agent's `Confirmer` on the TTY.
+async-trait = { workspace = true }
+
+# M0-05: `better-panic`, `human-panic` and `libc` removed (own panic hook in panic.rs).
+clap = { workspace = true }
+color-eyre = { workspace = true }
+# M0-06: `config` and `json5` removed (config.toml lives in sverb-core::config).
+crossterm = { workspace = true }
+# M0-03: `directories` removed; path resolution moved to sverb-core::paths.
+futures = { workspace = true }
+ratatui = { workspace = true }
+serde = { workspace = true }
+# M0-07: `--json` output envelope.
+serde_json = { workspace = true }
+strip-ansi-escapes = { workspace = true }
+strum = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+tracing-error = { workspace = true }
+tracing-subscriber = { workspace = true }
+# M1-04: `sverb unlock` / `require_unlocked` keep typed passwords in zeroizing buffers.
+zeroize = { workspace = true }
+
+# M0-09: `signal-hook` removed; signal handling lives in sverb-tui (`runtime::signals`).
+
+[build-dependencies]
+anyhow = { workspace = true }
+vergen-gix = { workspace = true }
+
+[dev-dependencies]
+# M0-05: PTY integration tests for terminal restore after a panic.
+portable-pty = { workspace = true }
+# M0-07: help-output snapshots (T-05).
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+# M3-05: `export recording` tests write a real encrypted recording.
+sverb-term = { workspace = true }
+# M2-08: `sverb forward` tests run the in-process russh server (`ssh::testing`).
+sverb-conn = { workspace = true, features = ["test-util"] }
+
+# M0-05: T-01..T-05, T-10 (needs the `test-hooks` feature):
+# `cargo test -p sverb --features test-hooks --test panic_restore`.
+[[test]]
+name = "panic_restore"
+required-features = ["test-hooks"]

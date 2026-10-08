@@ -1,0 +1,1 @@
+../../crates/sverb-store/migrations/0002_local_approvals.sql

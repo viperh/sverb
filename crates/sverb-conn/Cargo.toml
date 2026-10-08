@@ -1,0 +1,62 @@
+[package]
+name = "sverb-conn"
+description = "Transports for sverb: ssh, local pty, forwarding, agent"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+# M1-08: `MockTransport` (in-memory duplex) for other crates' tests.
+[features]
+test-util = []
+
+# No ratatui, no crossterm.
+[dependencies]
+sverb-core = { workspace = true }
+# M1-08: the session actor owns a `Box<dyn Emulator>` (SPEC §2.1, §7.1).
+sverb-term = { workspace = true }
+
+# M1-08: session actor, manager and `Transport` trait.
+async-trait = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+parking_lot = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+
+# M1-12: the local terminal transport (SPEC §6.2).
+portable-pty = { workspace = true }
+
+# M1-13: the SSH transport (SPEC §6.1). All russh API usage stays in `src/ssh/`.
+russh = { workspace = true }
+
+# M1-16: local wall-clock time for the `── reconnected at HH:MM:SS ──` separator.
+chrono = { workspace = true }
+
+# M2-06: proxies (SPEC §6.1.5). tokio-socks is not in the workspace table yet (the root
+# Cargo.toml is held); the merge may move it to `[workspace.dependencies]`.
+base64 = { workspace = true }
+tokio-socks = { version = "0.5.2", default-features = false, features = ["tokio"] }
+
+# M1-08: stub emulators (the `Emulator` trait names ratatui-core and regex types),
+# paused virtual time, and a log-capturing subscriber.
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+ratatui-core = { workspace = true }
+regex = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+tracing-subscriber = { workspace = true }
+# M3-05: recording keys for the recorder tap tests.
+sverb-crypto = { workspace = true }
+# M1-13: `ssh::testing` (the in-process russh server) for the integration tests.
+sverb-conn = { workspace = true, features = ["test-util"] }
+# M2-07: socket tests in private temp dirs (not in [workspace.dependencies] yet;
+# same version as sverb-store's).
+tempfile = "3.27.0"

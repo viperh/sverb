@@ -1,0 +1,46 @@
+{
+  "description": "HKDF-SHA256: RFC 5869 vectors, item-key and recording-key derivation",
+  "vectors": [
+    {
+      "ikm": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "info": "f0f1f2f3f4f5f6f7f8f9",
+      "kind": "raw",
+      "len": 42,
+      "name": "RFC 5869 A.1",
+      "okm": "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865",
+      "salt": "000102030405060708090a0b0c"
+    },
+    {
+      "ikm": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "info": "",
+      "kind": "raw",
+      "len": 42,
+      "name": "RFC 5869 A.3 (no salt, empty info)",
+      "okm": "8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8",
+      "salt": null
+    },
+    {
+      "item_id": "2a107a9d443f61f01ccfd3e697954d9e",
+      "kind": "item_key",
+      "okm": "fd11e66602a1c23b4e17092fe4cc4f2fa3cab3f48b3fd327a3b1dca215650375",
+      "vk": "3d237cd371514aeb3a0dfac6959bf7bb74df7986b6037e534c2e95833769029c"
+    },
+    {
+      "item_id": "b90312f7a8827ad6ff74a51b9e70983f",
+      "kind": "item_key",
+      "okm": "731331fead01b0df10e8e1a098ab516dbf0853f26730d68b3b01ae24eafa7212",
+      "vk": "8b4b11c3fa04023b95ee9f90c3ef90ba1f6bb082f717d54c45c23b3a7d333c27"
+    },
+    {
+      "item_id": "d2a6706b05abfe461de3089795cd9a58",
+      "kind": "item_key",
+      "okm": "fcac46d6c9f8723793d76d5988947794a32add7c6868641307c23b5e68e8cf07",
+      "vk": "b1b98dcdccd8eb9a20587ef6042392f03029c8f432abba8fa919f2df0220bb3d"
+    },
+    {
+      "kind": "recording_key",
+      "lmk": "37fbb6b2a80434b4703cc7e024e0d86076680c86ff113c814d94757b27b318e2",
+      "okm": "6a002526fce336b69c1fafd25307aef6750fb752928b98e2a95273a261f56aa5"
+    }
+  ]
+}

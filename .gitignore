@@ -1,0 +1,9 @@
+/target
+/.state
+/.sverb-home
+*.snap.new
+/.merge
+/.LOCKS.csv.flock
+/.watchdog.log
+/.orchestrator-heartbeat
+/.orch

@@ -1,0 +1,30 @@
+---
+source: crates/sverb-term/tests/replay.rs
+expression: whole.screen_dump(false)
+---
+|UTF-8 test                                                                      |
+|Latin: café naïve façade Ærøskøbing                                             |
+|Greek: Ελληνικά  Cyrillic: Привет мир                                           |
+|CJK: 中文字符 日本語テキスト 한국어                                             |
+|Emoji: 😀 🚀 👍🏽 🇷🇴 ❤️                                                          |
+|Combining: é å ö́ ñ                                                              |
+|Box: ┌──┬──┐                                                                    |
+|     │ab│cd│                                                                    |
+|     └──┴──┘                                                                    |
+|DEC graphics: ┌──┐ │ │ └──┘ back to ASCII                                       |
+|Wide at edge:                                                                 中|
+|x                                                                               |
+|RTL: שלום עולם                                                                  |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+cursor: line=13 col=0 shape=Block blinking=false visible=true
+modes: TermModes { app_cursor: false, app_keypad: false, mouse_mode: None, mouse_encoding: Default, bracketed_paste: false, focus_reporting: false, alt_screen: false, alternate_scroll: true, line_feed_new_line: false, modify_other_keys: 0, kitty_keyboard: KittyKeyboardFlags(0), cursor_shape: Block, cursor_blinking: false, cursor_visible: true }

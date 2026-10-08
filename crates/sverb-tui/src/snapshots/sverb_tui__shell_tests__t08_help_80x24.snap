@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: "hs.render(80, 24)"
+---
+┌ Help · keys ─────────────────────────────────────────────────────────────────┐
+│After the leader (every mode)                                                 │
+│  ctrl-\ ctrl-\  Send leader key             send_leader                      │
+│  ctrl-\ c       New host tab                new_tab_pick_host                │
+│  ctrl-\ t       New local tab               new_local_tab                    │
+│  ctrl-\ o       Quick connect               quick_connect                    │
+│  ctrl-\ 1       Go to tab 1                 go_to_tab_1                      │
+│  ctrl-\ 2       Go to tab 2                 go_to_tab_2                      │
+│  ctrl-\ 3       Go to tab 3                 go_to_tab_3                      │
+│  ctrl-\ 4       Go to tab 4                 go_to_tab_4                      │
+│  ctrl-\ 5       Go to tab 5                 go_to_tab_5                      │
+│  ctrl-\ 6       Go to tab 6                 go_to_tab_6                      │
+│  ctrl-\ 7       Go to tab 7                 go_to_tab_7                      │
+│  ctrl-\ 8       Go to tab 8                 go_to_tab_8                      │
+│  ctrl-\ 9       Go to tab 9                 go_to_tab_9                      │
+│  ctrl-\ n       Next tab                    next_tab                         │
+│  ctrl-\ N       Previous tab                prev_tab                         │
+│  ctrl-\ ,       Rename tab                  rename_tab                       │
+│  ctrl-\ <       Move tab left               move_tab_left                    │
+│  ctrl-\ >       Move tab right              move_tab_right                   │
+│  ctrl-\ x       Close pane                  close_pane                       │
+│  ctrl-\ X       Close tab                   close_tab                        │
+│  ctrl-\ -       Split horizontal            split_horizontal                 │
+└ / search · j k scroll · esc close ───────────────────────────────────────────┘

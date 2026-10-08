@@ -1,0 +1,26 @@
+# dracula: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: Dracula, https://github.com/dracula/alacritty (MIT).
+
+name = "dracula"
+
+[colors]
+foreground = "#f8f8f2"
+background = "#282a36"
+cursor = "#f8f8f2"
+selection_bg = "#44475a"
+color0 = "#21222c"   # black
+color1 = "#ff5555"   # red
+color2 = "#50fa7b"   # green
+color3 = "#f1fa8c"   # yellow
+color4 = "#bd93f9"   # blue
+color5 = "#ff79c6"   # magenta
+color6 = "#8be9fd"   # cyan
+color7 = "#f8f8f2"   # white
+color8 = "#6272a4"   # bright black
+color9 = "#ff6e6e"   # bright red
+color10 = "#69ff94"  # bright green
+color11 = "#ffffa5"  # bright yellow
+color12 = "#d6acff"  # bright blue
+color13 = "#ff92df"  # bright magenta
+color14 = "#a4ffff"  # bright cyan
+color15 = "#ffffff"  # bright white

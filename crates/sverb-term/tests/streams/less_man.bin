@@ -1,0 +1,32 @@
+[?1049h[22;0;0t[24;1H[?1h=[4mSVERB-DEMO[24m(1)                    sverb fixtures                   [4mSVERB-DEMO[24m(1)
+
+[1mNAME(B[m
+     sverb-demo - a made-up manual page used to record the less fixture
+
+[1mSYNOPSIS(B[m
+     [1msverb-demo(B[m [[1m-v(B[m] [[1m--color(B[m [4mWHEN[24m] [4mhost[24m
+
+[1mDESCRIPTION(B[m
+     [1msverb-demo(B[m  does  nothing.  This page exists so that the M1-09 replay test
+     has a real [1mman(B[m(1) rendering,  with  bold  and  underlined  text,  to  page
+     through with [1mless(B[m(1).
+
+     Lorem  ipsum  dolor  sit amet, consectetur adipiscing elit, sed do eiusmod
+     tempor incididunt ut labore et dolore magna aliqua. Ut enim ad  minim  ve‐
+     niam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea com‐
+     modo consequat.
+
+[1mOPTIONS(B[m
+     [1m-v(B[m     Be verbose.
+
+     [1m--color(B[m [4mWHEN[24m
+            Colorize output: [4malways[24m, [4mnever[24m or [4mauto[24m.
+[7m/tmp/tmp.Qb97JGu0kj/page.txt[27m[K[K
+[1mEXIT(B[m [1mSTATUS(B[m
+     Always 0.
+
+[1mSEE(B[m [1mALSO(B[m
+     [1mssh(B[m(1), [1mless(B[m(1)
+
+sverb                              2026-10-07                     [4mSVERB-DEMO[24m(1)
+[7m(END)[27m[K[K[K[7m(END)[27m[K

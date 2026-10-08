@@ -1,0 +1,6 @@
+address,LABEL,port,username,tags,group,notes
+web.example.com,Web,22,alice,prod;web,Prod/Web,first
+"db.example.com","DB, primary",5432,postgres,prod|db,Prod/DB,
+api.example.com,API,not-a-port,bob,,,
+10.0.0.9,,,,,,
+bad host,Bad,22,,,,

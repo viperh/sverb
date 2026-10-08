@@ -1,0 +1,28 @@
+[package]
+name = "sverb-proto"
+description = "API DTOs and sync/share wire types for sverb (serde, versioned)"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+# Wire types only: no ratatui, no crossterm, no rusqlite, no russh.
+[dependencies]
+sverb-crypto = { workspace = true }
+# M4-01: serde DTOs (error envelope).
+serde = { workspace = true }
+# M6-02: CBOR encoding of ShareFrame and the share handshake payloads.
+ciborium = { workspace = true }
+# M4-02: auth/account/device DTOs (base64url binary fields, ids, timestamps).
+base64 = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+uuid = { workspace = true }
+
+# M4-01: wire-format round-trip tests.
+[dev-dependencies]
+serde_json = { workspace = true }

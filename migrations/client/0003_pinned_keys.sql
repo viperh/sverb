@@ -1,0 +1,1 @@
+../../crates/sverb-store/migrations/0003_pinned_keys.sql

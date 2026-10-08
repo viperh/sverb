@@ -1,0 +1,7 @@
+Host tunnels
+    HostName tunnels.example.com
+    LocalForward 5432 db:5432
+    RemoteForward 0 localhost:80
+    DynamicForward 1080
+    LocalForward 0.0.0.0:8080 web.internal:80
+    LocalForward /tmp/sock db:5432

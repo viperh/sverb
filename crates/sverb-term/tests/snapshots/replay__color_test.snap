@@ -1,0 +1,30 @@
+---
+source: crates/sverb-term/tests/replay.rs
+expression: whole.screen_dump(false)
+---
+|SGR test                                                                        |
+| fg30  fg31  fg32  fg33  fg34  fg35  fg36  fg37                                 |
+| fg90  fg91  fg92  fg93  fg94  fg95  fg96  fg97                                 |
+| bg40  bg41  bg42  bg43  bg44  bg45  bg46  bg47                                 |
+| b100  b101  b102  b103  b104  b105  b106  b107                                 |
+|bold dim italic under curly double blink inverse hidden strike                  |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|orange on navy red underline color                                              |
+|bce: erased with blue                                                           |
+|done                                                                            |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+cursor: line=12 col=0 shape=Block blinking=false visible=true
+modes: TermModes { app_cursor: false, app_keypad: false, mouse_mode: None, mouse_encoding: Default, bracketed_paste: false, focus_reporting: false, alt_screen: false, alternate_scroll: true, line_feed_new_line: false, modify_other_keys: 0, kitty_keyboard: KittyKeyboardFlags(0), cursor_shape: Block, cursor_blinking: false, cursor_visible: true }

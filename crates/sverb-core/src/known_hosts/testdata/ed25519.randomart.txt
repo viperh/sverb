@@ -1,0 +1,12 @@
+256 SHA256:uYxmMoF3aflKiV/iuu80yjcxVbhqOX/6YopX8ub8Jko fixture-ed25519 (ED25519)
++--[ED25519 256]--+
+|         .       |
+|        . .      |
+|         o       |
+|   .   oo.       |
+|  . o =+S        |
+|   . =O=..       |
+|    +.EO=        |
+|   . &+*B o      |
+|    *BOB+Oo      |
++----[SHA256]-----+

@@ -1,0 +1,318 @@
+name: CI # Continuous Integration
+
+# SPEC §19 (CI), §17 (supply chain), §1.1 (local-only build), §20 (license policy).
+# Task M0-02 describes every job below.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+
+jobs:
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # vergen-gix (crates/sverb/build.rs) needs history and tags
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Clippy (all features)
+        run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      - name: Clippy (local-only build, SPEC §1.1)
+        run: cargo clippy -p sverb -p sverb-tui --all-targets --no-default-features --locked -- -D warnings
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --no-deps --document-private-items --all-features --workspace --locked
+
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Keep LF endings in fixtures (known_hosts, ssh_config); snapshot tests depend on it.
+      - name: Disable CRLF conversion
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # vergen-gix needs history and tags for VERGEN_GIT_DESCRIBE
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        env:
+          SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
+        run: cargo test --workspace --all-features --locked
+      # T-08: the binary must carry a real `git describe`, not vergen's placeholder.
+      - name: Check vergen version stamp
+        shell: bash
+        env:
+          SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
+        run: |
+          out="$(cargo run -p sverb --locked --quiet -- --version)"
+          echo "$out"
+          # Format: "<pkg version>-<git describe> (<build date>)" (crates/sverb/src/cli.rs).
+          if grep -q 'VERGEN_IDEMPOTENT_OUTPUT' <<<"$out" \
+             || ! head -n1 <<<"$out" | grep -Eq '^[^ ]+ [0-9][^ ]*-[^ (]+ \('; then
+            echo "::error::sverb --version has no real git describe value (vergen placeholder or empty)"
+            exit 1
+          fi
+
+  test-local-only:
+    name: Test (local-only build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests without default features (SPEC §1.1)
+        env:
+          SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
+        run: >-
+          cargo test --workspace --no-default-features --locked
+          --exclude sverb-sync --exclude sverb-server --exclude sverb-e2e
+
+  # M1-18: the docker-based OpenSSH e2e suite (SPEC §19 "Transports (e2e)").
+  # Required check (set in branch protection). The fixture image is built once per
+  # run with layer caching (GitHub Actions cache) and handed to the harness through
+  # SVERB_E2E_IMAGE; the `#[ignore]`d container tests run with `-- --ignored`.
+  e2e:
+    name: E2E (docker)
+    runs-on: ubuntu-latest
+    env:
+      SVERB_E2E: "1"
+      SVERB_E2E_IMAGE: sverb-e2e-sshd:ci
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Docker info
+        run: docker info
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build the OpenSSH fixture image
+        uses: docker/build-push-action@v6
+        with:
+          context: tests/fixtures/sshd
+          tags: ${{ env.SVERB_E2E_IMAGE }}
+          load: true
+          cache-from: type=gha,scope=sverb-e2e-sshd
+          cache-to: type=gha,mode=max,scope=sverb-e2e-sshd
+      - name: Validate every sshd profile in the image
+        run: |
+          for p in password key cert kbd maxauth2 legacy env forward jump windows-like; do
+            docker run --rm -e SSHD_PROFILE="$p" "$SVERB_E2E_IMAGE" --check
+          done
+      # PtyApp drives the real binary; build it up front (the harness would otherwise
+      # build it on first use).
+      - name: Build sverb
+        run: cargo build -p sverb --locked
+      - name: Run e2e tests
+        run: cargo test -p sverb-e2e --locked -- --ignored --test-threads=4
+      - name: Leftover containers
+        if: failure()
+        run: docker ps -a
+
+  # M4-01: sverb-server tests against a real Postgres. Each DB test creates and
+  # drops its own database (the POSTGRES_USER role is a superuser here); without
+  # DATABASE_URL those tests skip, so this job is the one that exercises them.
+  server-db:
+    name: Server (postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sverb
+          POSTGRES_PASSWORD: sverb
+          POSTGRES_DB: sverb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sverb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://sverb:sverb@localhost:5432/sverb
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run server tests
+        run: cargo test -p sverb-server --locked
+
+  # M4-01 T-13: build the server image, bring up the compose stack, wait for
+  # /healthz and check that the container does not run as root.
+  server-docker:
+    name: Server (docker compose)
+    runs-on: ubuntu-latest
+    env:
+      SVERB_SERVER_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
+      SVERB_PUBLIC_URL: http://localhost:8080
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose -f deploy/docker-compose.yml config --quiet
+      - name: Build and start
+        run: docker compose -f deploy/docker-compose.yml up -d --build
+      - name: Wait for /healthz (60 s)
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/healthz; then exit 0; fi
+            sleep 1
+          done
+          docker compose -f deploy/docker-compose.yml logs
+          exit 1
+      - name: Ready and logged a setup token
+        run: |
+          curl -fsS http://localhost:8080/readyz
+          docker compose -f deploy/docker-compose.yml logs sverb-server | grep -q setup_token
+      - name: Runs as non-root
+        run: |
+          user="$(docker inspect --format '{{.Config.User}}' sverb-server:local)"
+          echo "image user: $user"
+          case "$user" in ""|root|0|0:0|root:root) exit 1;; esac
+      - name: Tear down
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml down -v
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check advisories, bans, licenses and sources
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories bans licenses sources
+          arguments: --all-features --locked
+
+  vet:
+    name: cargo-vet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-vet
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-vet
+      - name: Vet dependencies
+        run: cargo vet --locked
+      # SPEC §17: Appendix A crypto crates need a real audit, never an exemption.
+      - name: Crypto crates are audited, not exempted
+        run: python3 scripts/check-vet-crypto.py
+
+  msrv:
+    name: MSRV
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install stable toolchain (for cargo metadata)
+        uses: dtolnay/rust-toolchain@stable
+      # The MSRV lives only in `[workspace.package] rust-version`; read it from there.
+      - name: Read rust-version
+        id: msrv
+        run: |
+          msrv="$(cargo metadata --no-deps --format-version 1 --locked \
+            | jq -r '[.packages[].rust_version // empty] | unique
+                     | if length == 1 then .[0]
+                       else error("workspace crates disagree on rust-version: \(.)") end')"
+          echo "MSRV is $msrv"
+          echo "version=$msrv" >> "$GITHUB_OUTPUT"
+      - name: Install MSRV toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.msrv.outputs.version }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv-${{ steps.msrv.outputs.version }}
+      # `+toolchain` overrides rust-toolchain.toml (channel = "stable").
+      - name: Check on MSRV
+        run: cargo +${{ steps.msrv.outputs.version }} check --workspace --all-features --locked
+
+  layering:
+    name: Crate layering
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Dependency-direction test from M0-01 (T-04/T-05).
+      - name: Workspace metadata and layering test
+        run: cargo test -p sverb-e2e --test workspace_metadata --locked
+      # Independent second implementation of the same rules, over the
+      # all-features and local-only (no-default-features) graphs.
+      - name: Check dependency direction (script)
+        run: python3 scripts/check-layering.py

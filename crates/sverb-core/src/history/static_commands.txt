@@ -1,0 +1,325 @@
+# M7-01: the static completion set (SPEC §9.10 "common commands").
+# One command per line; blank lines and lines starting with `#` are ignored.
+# coreutils and friends
+ls
+ls -la
+ls -lh
+ls -ltr
+cd
+cd ..
+cd -
+pwd
+cat
+tac
+less
+more
+head
+head -n 20
+tail
+tail -f
+tail -n 100
+cp
+cp -r
+mv
+rm
+rm -r
+rm -rf
+mkdir
+mkdir -p
+rmdir
+touch
+ln -s
+chmod
+chmod +x
+chown
+chgrp
+stat
+file
+du -sh
+du -sh *
+df -h
+free -h
+uptime
+uname -a
+whoami
+id
+hostname
+date
+cal
+env
+printenv
+export
+echo
+printf
+which
+whereis
+type
+alias
+history
+clear
+exit
+logout
+sort
+sort -u
+uniq
+uniq -c
+wc -l
+cut
+tr
+sed
+sed -i
+awk
+grep
+grep -r
+grep -rn
+grep -i
+grep -v
+egrep
+find
+find . -name
+find . -type f
+xargs
+tee
+diff
+diff -u
+patch
+cmp
+comm
+join
+paste
+split
+md5sum
+sha1sum
+sha256sum
+base64
+base64 -d
+tar
+tar -czf
+tar -xzf
+tar -tf
+gzip
+gunzip
+zcat
+bzip2
+xz
+unxz
+zip
+unzip
+rsync -av
+rsync -avz --progress
+scp
+sftp
+ssh
+ssh-keygen
+ssh-copy-id
+curl
+curl -I
+curl -fsSL
+wget
+ping
+ping -c 4
+traceroute
+mtr
+dig
+nslookup
+host
+ip a
+ip addr
+ip route
+ip link
+ss -tulpn
+netstat -tulpn
+nc -zv
+lsof -i
+ps aux
+ps -ef
+pgrep
+pkill
+kill
+kill -9
+killall
+top
+htop
+nice
+renice
+nohup
+jobs
+fg
+bg
+watch
+time
+sleep
+crontab -l
+crontab -e
+sudo
+sudo -i
+su -
+passwd
+useradd
+usermod
+userdel
+groupadd
+groups
+last
+w
+who
+dmesg
+dmesg -T
+lsblk
+blkid
+mount
+umount
+fdisk -l
+lscpu
+lsusb
+lspci
+vmstat
+iostat
+journalctl -f
+journalctl -u
+journalctl -xe
+vim
+vi
+nano
+emacs
+man
+tmux
+tmux attach
+tmux ls
+screen -r
+# package managers
+apt update
+apt upgrade
+apt install
+apt search
+apt remove
+dnf install
+dnf update
+yum install
+pacman -Syu
+pacman -S
+apk add
+brew install
+brew update
+pip install
+npm install
+npm run
+cargo build
+cargo test
+cargo run
+make
+make install
+# systemctl
+systemctl status
+systemctl start
+systemctl stop
+systemctl restart
+systemctl reload
+systemctl enable
+systemctl disable
+systemctl daemon-reload
+systemctl list-units
+systemctl list-units --failed
+systemctl is-active
+systemctl --user status
+# git
+git status
+git add
+git add -p
+git commit
+git commit -m
+git commit --amend
+git push
+git push --force-with-lease
+git pull
+git pull --rebase
+git fetch
+git fetch --all
+git clone
+git checkout
+git checkout -b
+git switch
+git switch -c
+git branch
+git branch -a
+git branch -d
+git merge
+git rebase
+git rebase -i
+git log
+git log --oneline
+git log --graph --oneline
+git diff
+git diff --staged
+git show
+git stash
+git stash pop
+git stash list
+git reset
+git reset --hard
+git restore
+git restore --staged
+git tag
+git remote -v
+git blame
+git cherry-pick
+git bisect
+git clean -fd
+git config --global
+git submodule update --init
+# docker
+docker ps
+docker ps -a
+docker images
+docker run
+docker run -it
+docker run -d
+docker exec -it
+docker logs
+docker logs -f
+docker stop
+docker start
+docker restart
+docker rm
+docker rmi
+docker pull
+docker push
+docker build
+docker build -t
+docker inspect
+docker stats
+docker network ls
+docker volume ls
+docker system prune
+docker compose up
+docker compose up -d
+docker compose down
+docker compose logs -f
+docker compose ps
+docker compose pull
+docker compose restart
+# kubectl
+kubectl get pods
+kubectl get pods -A
+kubectl get svc
+kubectl get deployments
+kubectl get nodes
+kubectl get ns
+kubectl get all
+kubectl describe pod
+kubectl describe node
+kubectl logs
+kubectl logs -f
+kubectl exec -it
+kubectl apply -f
+kubectl delete -f
+kubectl delete pod
+kubectl rollout status
+kubectl rollout restart
+kubectl scale
+kubectl port-forward
+kubectl config get-contexts
+kubectl config use-context
+kubectl top pods
+kubectl top nodes
+kubectl get events

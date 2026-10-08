@@ -1,0 +1,13 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 7 new, 0 duplicate, 0 conflict, 0 skipped
+STATUS     KIND  LABEL                          DETAILS
+new        host  target                         address=10.0.0.5 jump=user@bastion:2222,inner
+new        host  inner                          address=inner.internal
+new        host  direct                         address=direct jump=none
+new        host  via-uri                        address=via-uri jump=ssh://ops@gw.example.com:2022
+new        host  cmd                            address=cmd proxy_command=ssh -W %h:%p bastion.example.com
+new        host  user@bastion:2222              address=bastion port=2222 user=user
+new        host  ssh://ops@gw.example.com:2022  address=gw.example.com port=2022 user=ops

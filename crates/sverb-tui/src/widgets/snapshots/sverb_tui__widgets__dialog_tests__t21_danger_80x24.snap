@@ -1,0 +1,18 @@
+---
+source: crates/sverb-tui/src/widgets/dialog_tests.rs
+expression: screen
+---
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                          ┌ ! Delete 3 hosts? ───────┐                          
+                          │ This cannot be undone.   │                          
+                          │                          │                          
+                          │   [D]elete    [C]ancel   │                          
+                          └──────────────────────────┘

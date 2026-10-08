@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: "hs.render(80, 24)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions┌ info ─────────────────┐
+┌ Hosts ───────────────────────────────────────────────│Connected to prod-web-1│
+│No hosts yet                                          └───────────────────────┘
+│       a  add a host                                ┌ warning ────────────────┐
+│    ^\ o  quick connect                             │Host key will expire soon│
+│                                                    └─────────────────────────┘
+│                             ┌ error ─────────────────────────────────────────┐
+│                             │Authentication failed for deploy@db-primary: no │
+│                             │more methods to try after publickey and password│
+│                             └────────────────────────────────────────────────┘
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit

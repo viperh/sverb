@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/app/vault/tests.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ──────────────────────────────────────────────────────── 🔒  
+ no sessions · ^\ o quick connect · ^\ v views/sessions                         
+┌──────────────────────────────────────────────────────────────────────────────┐
+┌ Welcome to sverb ────────────────────────────────────────────────────────────┐
+│sverb keeps your hosts, keys and snippets encrypted on this machine.          │
+│Local-only by default: no account and no server. Choose a master password.    │
+│                                                                              │
+│Master password   ▏                                                           │
+│Confirm                                                                       │
+│                                                                              │
+│Strength          █░░░░ very weak                                             │
+│                                                                              │
+│[ ] Also unlock with OS keyring                                               │
+│                                                                              │
+│There is no way to recover this password. If you forget it, your data is lost │
+│unless you enable keyring unlock.                                             │
+│                                                                              │
+│                                                                              │
+│Tab next field · Space toggle · Enter create                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit

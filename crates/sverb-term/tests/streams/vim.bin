@@ -1,0 +1,70 @@
+[?1049h[22;0;0t[?1h=[H[2J[?2004h[?69$p[?2026$p[?2027$p[?2031$p[?2048$p[0m[4:3mP$qm\[?u[c]11;?[5n[?25h]11;?[5n[?25l(B[m[H                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                [1 q[?1002h[?1006h[H[?25h[?25l[?1004h[?25hP+q5463;524742;73657472676266;73657472676262\[0m[48;2;1;2;3mP$qm\[c[?25l(B[m[23B[J[93mE1568: Terminal did not respond to DSR request for 'background' color. Startup m[H(B[m// sverb fixture: a small file opened in vim for the M1-09 replay test.[K
+(B[0;1mfn(B[m [96mmain(B[m() {[K
+    (B[0;1mlet(B[m greeting = [92m"hello, sverb"(B[m;[K
+    (B[0;1mfor(B[m i (B[0;1min(B[m 0..3 {[K
+        println!([92m"{greeting} #{i}"(B[m);[K
+    }[K
+}[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+(B[0;7msample.rs                                                     1,1            All[2 q[2 q[H(B[m// sverb fixture: a small file opened in vim for the M1-09 replay test.[K
+(B[0;1mfn(B[m [96mmain(B[m() {[K
+    (B[0;1mlet(B[m greeting = [92m"hello, sverb"(B[m;[K
+    (B[0;1mfor(B[m i (B[0;1min(B[m 0..3 {[K
+        println!([92m"{greeting} #{i}"(B[m);[K
+    }[K
+}[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+~[K
+(B[0;7msample.rs                                                     1,1            All
+(B[m[93mE1568: Terminal did not respond to DSR request for 'background' color. Startup m[H[?25h[?25l[2;11H(B[0;1;4m{[5B}[23;63H(B[0;7m7[15A(B[m    // edited in vim[K[23;11H(B[0;7m[+]                                                 8,21
+(B[m[92m-- INSERT --(B[m[K[2;11H{[5B}[6 q[8;21H[?25h[?25l[16B[12X[23;66H(B[0;7m0[2 q[8;20H[?25h[?25l[24;70H(B[m^D[8;20H[?25h[?25l[24;70H  [8;20H[?25h

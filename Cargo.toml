@@ -1,0 +1,226 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+# Values shared by every crate in the workspace. Each crate opts in with
+# `version.workspace = true` etc. in its own Cargo.toml.
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["qviperh <olteanromeodavid34@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/viperh/sverb"
+# MSRV: the highest `rust-version` declared by the pinned dependency set
+# (rusqlite_migration 2.6, vergen-gix 10.0.1). Keep in sync with README.
+rust-version = "1.95"
+
+# Lints shared by every crate (each crate opts in with `[lints] workspace = true`).
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+dbg_macro = "deny"
+todo = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+# The emulator mutex must never be held across `.await` (SPEC §2.1).
+await_holding_lock = "deny"
+large_futures = "warn"
+
+# Central dependency versions. Crates reference these with
+# `some-dep = { workspace = true }` so versions stay in lockstep.
+[workspace.dependencies]
+# --- internal ---
+sverb-conn = { path = "crates/sverb-conn" }
+sverb-core = { path = "crates/sverb-core" }
+sverb-crypto = { path = "crates/sverb-crypto" }
+sverb-proto = { path = "crates/sverb-proto" }
+sverb-server = { path = "crates/sverb-server" }
+sverb-store = { path = "crates/sverb-store" }
+sverb-sync = { path = "crates/sverb-sync" }
+sverb-term = { path = "crates/sverb-term" }
+sverb-tui = { path = "crates/sverb-tui" }
+
+# --- tui / terminal ---
+crossterm = { version = "0.29.0", features = ["serde", "event-stream"] }
+nucleo = "0.5.0"
+# M1-05: the matcher alone (sverb-core::search); deterministic, no worker threads.
+nucleo-matcher = "0.3.1"
+ratatui = { version = "0.30.2", features = ["serde", "macros"] }
+# `Buffer`/`Rect`/`Style` without the widgets; used by sverb-term.
+ratatui-core = "0.1.2"
+signal-hook = "0.4.4"
+
+# --- ssh / terminal emulation ---
+alacritty_terminal = "0.26.0"
+# Host charset conversion (SPEC §7.1).
+encoding_rs = "0.8.35"
+portable-pty = "0.9.0"
+russh = "0.64.1"
+# russh 0.64 requires exactly this pre-release.
+ssh-key = { version = "=0.7.0-rc.11", features = ["ed25519", "encryption"] }
+
+# --- async runtime ---
+# M1-08: the `Transport` trait (SPEC §6) is an `#[async_trait]` used as `Box<dyn Transport>`.
+async-trait = "0.1.92"
+futures = "0.3.32"
+tokio = { version = "1.52.3", features = ["full"] }
+tokio-util = "0.7.18"
+
+# --- cli / config ---
+clap = { version = "4.6.1", features = [
+    "derive",
+    "cargo",
+    "wrap_help",
+    "unicode",
+    "string",
+] }
+# M0-06: `config` and `json5` removed; config.toml is parsed with `toml`.
+directories = "6.0.0"
+# M0-06: config.toml hot reload (sverb-core::config::watch).
+notify = "8.2.0"
+schemars = "1.2.2"
+serde = { version = "1.0.228", features = ["derive"] }
+# M0-06: "did you mean" suggestions for unknown config keys.
+strsim = "0.11.1"
+toml = "1.1.6"
+
+# --- storage / serialization ---
+ciborium = "0.2.2"
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+rusqlite_migration = "2.6.0"
+zstd = "0.14.0"
+
+# --- crypto ---
+# M4-03: BIP39 recovery phrase (§11.2). No `rand` feature (entropy comes from our CryptoRng).
+bip39 = { version = "3.0.0", default-features = false, features = ["zeroize"] }
+argon2 = "0.6.0"
+chacha20poly1305 = "0.11.0"
+ed25519-dalek = { version = "3.0.0", features = ["zeroize"] }
+hkdf = "0.13.0"
+hpke = "0.14.1"
+opaque-ke = { version = "4.0.1", features = ["argon2"] }
+secrecy = "0.10.3"
+sha2 = "0.11.0"
+x25519-dalek = { version = "3.0.0", features = ["static_secrets", "zeroize"] }
+# M1-01: sverb-crypto (rand_core 0.10 is what the RustCrypto 0.11 / dalek 3 generation uses).
+getrandom = { version = "0.4.3", features = ["sys_rng"] }
+rand_core = "0.10.1"
+subtle = "2.6.1"
+zeroize = { version = "1.9.1", features = ["derive"] }
+
+# --- ids / time ---
+uhlc = "0.9.0"
+uuid = { version = "1.27.0", features = ["v7", "serde"] }
+
+# --- errors / diagnostics ---
+# M0-05: `better-panic` and `human-panic` removed (sverb has its own panic hook).
+color-eyre = "0.6.5"
+strip-ansi-escapes = "0.2.1"
+thiserror = "2.0.17"
+
+# --- logging ---
+tracing = "0.1.44"
+# M0-04: daily-rotating, non-blocking log file writer.
+tracing-appender = "0.2.5"
+tracing-error = "0.2.1"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "serde"] }
+
+# --- misc ---
+bytes = "1.12.1"
+parking_lot = "0.12.5"
+regex = "1.13.1"
+# M0-05: `libc` removed (no more `EXIT_FAILURE`).
+strum = { version = "0.28.0", features = ["derive"] }
+
+# --- build scripts ---
+anyhow = "1.0.103"
+vergen-gix = { version = "10.0.1", features = ["build", "cargo"] }
+
+# --- server (M4-01) ---
+# rustls everywhere with `ring` as the provider (static musl build).
+axum = { version = "0.8.9", features = ["macros"] }
+axum-server = { version = "0.8.0", features = ["tls-rustls-no-provider"] }
+base64 = "0.22.1"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+governor = "0.10.4"
+ipnet = "2.12.2"
+lettre = { version = "0.11.23", default-features = false, features = [
+    "builder",
+    "hostname",
+    "ring",
+    "smtp-transport",
+    "tokio1",
+    "tokio1-rustls",
+    "webpki-roots",
+] }
+metrics = "0.24.6"
+metrics-exporter-prometheus = { version = "0.18.3", default-features = false }
+rustls = { version = "0.23.43", default-features = false, features = ["logging", "ring", "std", "tls12"] }
+# Not the `sqlx` facade: its optional sqlx-sqlite pins libsqlite3-sys < 0.38,
+# which conflicts (`links = "sqlite3"`) with rusqlite 0.40 even when unused.
+sqlx-core = { version = "0.8.6", default-features = false, features = [
+    "_rt-tokio",
+    "_tls-rustls-ring-webpki",
+    "chrono",
+    "json",
+    "migrate",
+    "uuid",
+] }
+sqlx-postgres = { version = "0.8.6", default-features = false, features = [
+    "chrono",
+    "json",
+    "migrate",
+    "uuid",
+] }
+tower = { version = "0.5.3", features = ["util"] }
+# M4-05: WebSocket client of sverb-sync (rustls with the `ring` provider,
+# roots from webpki-roots; the same tungstenite generation as axum's `ws`).
+tokio-tungstenite = { version = "0.29.0", default-features = false, features = [
+    "connect",
+    "handshake",
+    "rustls-tls-webpki-roots",
+] }
+webpki-roots = "1.0.9"
+# M4-05: reconnect backoff jitter.
+fastrand = "2.3.0"
+tower-http = { version = "0.6.11", features = [
+    "compression-gzip",
+    "cors",
+    "limit",
+    "timeout",
+    "trace",
+] }
+
+# --- dev ---
+# M1-18: the docker-based OpenSSH e2e harness (sverb-e2e). No TLS provider: the
+# harness talks to the local Docker socket only.
+testcontainers = { version = "0.28.0", default-features = false }
+# M4-01: sverb-server router tests.
+futures-core = "0.3.32"
+http-body-util = "0.1.5"
+cargo_metadata = "0.23.1"
+criterion = "0.8.2"
+# M1-01: sverb-crypto dev-deps. `chacha20`'s `rng` feature provides the
+# deterministic ChaCha20Rng on rand_core 0.10 (rand_chacha 0.9 is still on rand_core 0.9).
+chacha20 = { version = "0.10.2", default-features = false, features = ["rng"] }
+hex = "0.4.3"
+serde_json = "1.0.149"
+insta = "1.49.0"
+pretty_assertions = "1.4.1"
+# M0-04: compile-fail tests (sverb-core T-10).
+trybuild = "1.0.121"
+proptest = "1.11.0"
+
+# Read the optimization guideline for more details: https://ratatui.rs/recipes/apps/release-your-app/#optimizations
+[profile.release]
+codegen-units = 1
+lto = true
+# Speed over size: SPEC §19 performance targets (emulator throughput, render time).
+opt-level = 3
+# Explicit: the panic hook (M0-05) relies on unwinding so destructors restore the terminal.
+panic = "unwind"
+strip = true

@@ -1,0 +1,41 @@
+# M1-18: base sshd configuration of the sverb e2e image.
+#
+# The profile (profiles/<name>.conf, copied to /etc/ssh/sverb-profile.conf by the
+# entrypoint) is included FIRST: for most keywords sshd keeps the first value it
+# reads, so a profile overrides anything below. Profiles must not contain `Match`
+# blocks (a Match would swallow the rest of this file).
+Include /etc/ssh/sverb-profile.conf
+
+Port 22
+AddressFamily inet
+ListenAddress 0.0.0.0
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_rsa_key
+PidFile /run/sshd.pid
+
+# DEBUG1 so the logs show negotiated algorithms and signature types (e.g.
+# `rsa-sha2-512`); the harness dumps them when a test fails.
+LogLevel DEBUG1
+
+PermitRootLogin no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+UsePAM no
+MaxAuthTries 6
+LoginGraceTime 30
+
+AllowTcpForwarding no
+AllowAgentForwarding no
+AllowStreamLocalForwarding no
+GatewayPorts no
+X11Forwarding no
+PermitTunnel no
+
+PrintMotd no
+PrintLastLog no
+UseDNS no
+Subsystem sftp internal-sftp

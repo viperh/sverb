@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1.7
+# sverb-server image (SPEC §10.7, task M4-01).
+#
+#   docker build -f deploy/Dockerfile.server -t sverb-server .
+#
+# Stage 1 builds a fully static musl binary (rustls + ring, no OpenSSL).
+# Stage 2 is distroless/static running as the unprivileged `nonroot` user
+# (uid 65532). Distroless has no shell or curl, so the HEALTHCHECK uses the
+# binary's own `healthcheck` subcommand.
+# The build context is the repository root; deploy/Dockerfile.server.dockerignore
+# keeps target/ and VCS data out of it.
+
+FROM rust:1-alpine AS build
+RUN apk add --no-cache musl-dev build-base
+WORKDIR /src
+COPY . .
+# rust-toolchain.toml pins the channel; add the musl target to whatever it installs.
+RUN rustup target add x86_64-unknown-linux-musl
+ENV RUSTFLAGS="-C target-feature=+crt-static"
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/src/target \
+    cargo build --locked --release -p sverb-server --target x86_64-unknown-linux-musl \
+ && install -D -m 0755 target/x86_64-unknown-linux-musl/release/sverb-server /out/sverb-server
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/sverb-server /usr/local/bin/sverb-server
+USER nonroot:nonroot
+ENV SVERB_BIND=0.0.0.0:8080 \
+    SVERB_LOG_FORMAT=json
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=6s --start-period=20s --retries=3 \
+    CMD ["/usr/local/bin/sverb-server", "healthcheck"]
+ENTRYPOINT ["/usr/local/bin/sverb-server"]
+CMD ["serve"]

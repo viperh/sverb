@@ -1,0 +1,48 @@
+[package]
+name = "sverb-term"
+description = "Terminal emulator wrapper, key/mouse encoding and recording for sverb"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+# No crossterm. Only `ratatui-core` (Buffer/Rect/Style), never the full ratatui.
+[dependencies]
+sverb-core = { workspace = true }
+
+alacritty_terminal = { workspace = true }
+bytes = { workspace = true }
+encoding_rs = { workspace = true }
+parking_lot = { workspace = true }
+ratatui-core = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+# M1-10: color scheme files (sverb format, Alacritty import).
+serde = { workspace = true }
+toml = { workspace = true }
+# M3-05: encrypted session recording (asciicast v2 in sealed chunks), writer task.
+serde_json = { workspace = true }
+sverb-crypto = { workspace = true }
+tokio = { workspace = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+insta = { workspace = true }
+proptest = { workspace = true }
+# M3-05: paused virtual time for the recording writer tests.
+tokio = { workspace = true, features = ["test-util"] }
+
+[[bench]]
+name = "emulator_throughput"
+harness = false
+
+# M1-10: T-15, 300×100 render (SPEC §19: < 2 ms).
+[[bench]]
+name = "render"
+harness = false

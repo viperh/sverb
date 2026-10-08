@@ -1,0 +1,63 @@
+---
+source: crates/sverb-tui/src/keymap/tests.rs
+expression: "dump::dump(&Config::default(), false)"
+---
+MODE    KEYS           ACTION                DESCRIPTION        SOURCE
+leader  ctrl-\ ctrl-\  send_leader           Send leader key    default
+leader  ctrl-\ c       new_tab_pick_host     New host tab       default
+leader  ctrl-\ t       new_local_tab         New local tab      default
+leader  ctrl-\ o       quick_connect         Quick connect      default
+leader  ctrl-\ 1       go_to_tab_1           Go to tab 1        default
+leader  ctrl-\ 2       go_to_tab_2           Go to tab 2        default
+leader  ctrl-\ 3       go_to_tab_3           Go to tab 3        default
+leader  ctrl-\ 4       go_to_tab_4           Go to tab 4        default
+leader  ctrl-\ 5       go_to_tab_5           Go to tab 5        default
+leader  ctrl-\ 6       go_to_tab_6           Go to tab 6        default
+leader  ctrl-\ 7       go_to_tab_7           Go to tab 7        default
+leader  ctrl-\ 8       go_to_tab_8           Go to tab 8        default
+leader  ctrl-\ 9       go_to_tab_9           Go to tab 9        default
+leader  ctrl-\ n       next_tab              Next tab           default
+leader  ctrl-\ N       prev_tab              Previous tab       default
+leader  ctrl-\ ,       rename_tab            Rename tab         default
+leader  ctrl-\ <       move_tab_left         Move tab left      default
+leader  ctrl-\ >       move_tab_right        Move tab right     default
+leader  ctrl-\ x       close_pane            Close pane         default
+leader  ctrl-\ X       close_tab             Close tab          default
+leader  ctrl-\ -       split_horizontal      Split horizontal   default
+leader  ctrl-\ |       split_vertical        Split vertical     default
+leader  ctrl-\ h       focus_left            Focus left         default
+leader  ctrl-\ left    focus_left            Focus left         default
+leader  ctrl-\ j       focus_down            Focus down         default
+leader  ctrl-\ down    focus_down            Focus down         default
+leader  ctrl-\ k       focus_up              Focus up           default
+leader  ctrl-\ up      focus_up              Focus up           default
+leader  ctrl-\ l       focus_right           Focus right        default
+leader  ctrl-\ right   focus_right           Focus right        default
+leader  ctrl-\ H       resize_left           Resize left        default
+leader  ctrl-\ J       resize_down           Resize down        default
+leader  ctrl-\ K       resize_up             Resize up          default
+leader  ctrl-\ L       resize_right          Resize right       default
+leader  ctrl-\ r       resize_mode           Resize mode        default
+leader  ctrl-\ z       zoom_pane             Zoom pane          default
+leader  ctrl-\ b       toggle_broadcast      Toggle broadcast   default
+leader  ctrl-\ B       mark_broadcast_pane   Mark broadcast     default
+leader  ctrl-\ i       session_info          Session info       default
+leader  ctrl-\ S       share_pane            Share pane         default
+leader  ctrl-\ p       palette               Command palette    default
+leader  ctrl-\ e       snippet_picker        Snippets           default
+leader  ctrl-\ [       copy_mode             Copy mode          default
+leader  ctrl-\ space   autocomplete          Autocomplete       default
+leader  ctrl-\ tab     accept_ghost_text     Accept suggestion  default
+leader  ctrl-\ R       toggle_recording      Toggle recording   default
+leader  ctrl-\ ?       help                  Help (all keys)    default
+leader  ctrl-\ v       toggle_views          Views / sessions   default
+leader  ctrl-\ s       toggle_sidebar        Toggle sidebar     default
+leader  ctrl-\ !       notification_history  Notifications      default
+leader  ctrl-\ D       toggle_log_pane       Toggle log pane    default
+leader  ctrl-\ q       quit                  Quit sverb         default
+leader  ctrl-\ ctrl-z  suspend               Suspend to shell   default
+leader  ctrl-\ ctrl-l  lock_vault            Lock the vault     default
+normal  ctrl-k         palette               Command palette    default
+normal  ?              help                  Help (all keys)    default
+normal  q              quit                  Quit sverb         default
+normal  ctrl-z         suspend               Suspend to shell   default

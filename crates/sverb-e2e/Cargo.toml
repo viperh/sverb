@@ -1,0 +1,39 @@
+[package]
+name = "sverb-e2e"
+description = "End-to-end tests for sverb (docker-based openssh integration tests)"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+# M1-18: the e2e harness (SPEC §19): OpenSSH containers (`Sshd`, `JumpNet`), a
+# temporary `SVERB_HOME` (`TestHome`), a headless session driver (`Headless`) and the
+# real binary in a PTY (`PtyApp`). Every container test is `#[ignore]`d; run them with
+# `SVERB_E2E=1 cargo test -p sverb-e2e -- --ignored`.
+[dependencies]
+sverb-conn = { workspace = true }
+sverb-core = { workspace = true }
+sverb-store = { workspace = true }
+sverb-term = { workspace = true }
+sverb-tui = { workspace = true }
+
+async-trait = { workspace = true }
+hex = { workspace = true }
+parking_lot = { workspace = true }
+portable-pty = { workspace = true }
+sha2 = { workspace = true }
+testcontainers = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+cargo_metadata = { workspace = true }
+toml = { workspace = true }
+# M1-18: the in-process russh server (`ssh::testing`) for the harness self-tests
+# that run without Docker.
+sverb-conn = { workspace = true, features = ["test-util"] }

@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 4fa22ebda068adba95578793c304e41384566e18c0574cd3f2c0ad5fb4ef258f # shrinks to a = ItemBody { kind: Host, schema_version: 1, fields: {"port": Stamped { value: Null, hlc: Hlc(0.000000000+3), device: DeviceId(02020202-0202-0202-0202-020202020202) }}, deleted: None }, b = ItemBody { kind: Host, schema_version: 1, fields: {"port": Stamped { value: Integer(Integer(0)), hlc: Hlc(0.000000000+3), device: DeviceId(02020202-0202-0202-0202-020202020202) }}, deleted: None }
+cc 42adb2df7bf113bdb0e3b3d61007dad931514e19c177724ba27aba5bbf824730 # shrinks to a = ItemBody { kind: Host, schema_version: 1, fields: {}, deleted: Some(Stamped { value: false, hlc: Hlc(0.000000000+0), device: DeviceId(00000000-0000-0000-0000-000000000000) }) }, b = ItemBody { kind: Host, schema_version: 1, fields: {}, deleted: Some(Stamped { value: false, hlc: Hlc(0.000000000+3), device: DeviceId(00000000-0000-0000-0000-000000000000) }) }, c = ItemBody { kind: Snippet, schema_version: 1, fields: {}, deleted: Some(Stamped { value: false, hlc: Hlc(0.000000000+0), device: DeviceId(00000000-0000-0000-0000-000000000000) }) }

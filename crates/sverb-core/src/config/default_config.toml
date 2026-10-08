@@ -1,0 +1,78 @@
+# sverb configuration: ~/.config/sverb/config.toml (SPEC §15).
+# Every key is optional; the values below are the defaults.
+# Check a file with `sverb config --check`. Changes are picked up live.
+
+[general]
+leader = "ctrl-\\"               # Ctrl-\ ; "ctrl-g" recommended where \ needs AltGr
+confirm_quit = true
+auto_lock_minutes = 15
+lock_disconnects_sessions = false
+default_vault = "personal"
+
+[ui]
+theme = "default-dark"          # UI chrome theme
+sidebar = "auto"                # auto | always | never
+mouse = true
+truecolor = "auto"              # auto | on | off
+show_which_key = true
+which_key_delay_ms = 400
+date_format = "%Y-%m-%d %H:%M"
+
+[terminal]
+term = "xterm-256color"
+scrollback = 10000
+color_scheme = "terminal"       # default for hosts without one
+bell = "visual"                 # none | visual | audible
+paste_confirm_multiline = true
+use_osc_title = false
+word_separators = " ,│`|:\"'()[]{}<>"
+
+[clipboard]
+osc52 = true
+allow_remote_write = "ask"      # never | ask | always
+
+[ssh]
+multiplex = true
+keepalive_secs = 30
+host_key_policy = "ask"         # strict | ask | accept-new
+use_system_agent = true
+read_ssh_config = false         # also resolve hosts from ~/.ssh/config live (read-only)
+hash_known_hosts = false        # store new known_hosts entries hashed
+exec_timeout_secs = 60
+max_auth_attempts = 5
+connect_timeout_secs = 15
+auto_reconnect = false          # reconnect dropped sessions (backoff 1s→30s, 10 tries); hosts can override
+
+[recording]
+enabled = false
+include_input = false
+retention_days = 0              # delete recordings after N days; 0 = keep until deleted
+
+[history]
+enabled = true
+sync = false
+max_entries_per_host = 5000
+ghost_text = false              # inline suggestion after the cursor (needs shell integration); leader Tab accepts
+
+[sync]
+# Server URL, device id and tokens are set by `sverb login` and stored encrypted in the
+# database (§5.2), not in this file. These are tuning knobs only.
+push_debounce_ms = 2000
+poll_fallback_secs = 300
+
+[logs]
+retention_days = 90
+sync = false
+
+[keys.terminal]                 # bindings after leader
+"p" = "palette"
+"-" = "split_horizontal"
+"|" = "split_vertical"
+
+[keys.normal]
+"ctrl-k" = "palette"
+
+[keys.copy]                     # copy mode (leader [); see docs/keybindings.md
+"y" = "yank"
+"/" = "search_forward"
+"o" = "open_link"

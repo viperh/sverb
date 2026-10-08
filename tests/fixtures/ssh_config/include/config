@@ -1,0 +1,5 @@
+Include conf.d/*.conf
+Include loop_a
+
+Host main
+    HostName main.example.com

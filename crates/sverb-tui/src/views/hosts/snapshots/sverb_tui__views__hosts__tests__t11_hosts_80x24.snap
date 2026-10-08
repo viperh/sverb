@@ -1,0 +1,27 @@
+---
+source: crates/sverb-tui/src/views/hosts/tests.rs
+expression: narrow
+---
+                                                                                
+                                                                                
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│  ▾ Recent                                                                    │
+│      prod-web-5  10.0.0.5 [web] [db]                                         │
+│      prod-web-9  10.0.0.9 [web]                                              │
+│  ★ prod-web-11  10.0.0.11                                                    │
+│  ★ prod-web-3  10.0.0.3 [web]                                                │
+│›   prod-web-5  10.0.0.5 [web] [db]                                           │
+│    prod-web-1  10.0.0.1                                                      │
+│    prod-web-10  10.0.0.10 [web] [db]                                         │
+│    prod-web-12  deploy@10.0.0.12:2222 [web]                                  │
+│    prod-web-13  10.0.0.13                                                    │
+│    prod-web-14  10.0.0.14                                                    │
+│    prod-web-15  10.0.0.15 [web]                                              │
+│    prod-web-16  deploy@10.0.0.16                                             │
+│    prod-web-17  10.0.0.17                                                    │
+│    prod-web-18  10.0.0.18:2222 [web]                                         │
+│    prod-web-19  10.0.0.19                                                    │
+│    prod-web-2  10.0.0.2                                                      │
+│    prod-web-20  deploy@10.0.0.20 [web] [db]                                  │
+│    prod-web-4  deploy@10.0.0.4                                               │
+└─────────────────────────────────────────────────────────────────────── 23/23 ┘

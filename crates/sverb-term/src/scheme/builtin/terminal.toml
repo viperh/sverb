@@ -1,0 +1,7 @@
+# terminal: the default scheme (M1-10, SPEC §7.4).
+#
+# A marker, not a palette: pane content keeps its named and indexed colors, so the
+# outer terminal's own palette is used. Only 24-bit colors are downsampled when needed.
+
+name = "terminal"
+passthrough = true

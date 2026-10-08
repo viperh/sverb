@@ -1,0 +1,30 @@
+---
+source: crates/sverb-term/tests/replay.rs
+expression: whole.screen_dump(false)
+---
+|// sverb fixture: a small file opened in vim for the M1-09 replay test.         |
+|fn main() {                                                                     |
+|    let greeting = "hello, sverb";                                              |
+|    for i in 0..3 {                                                             |
+|        println!("{greeting} #{i}");                                            |
+|    }                                                                           |
+|}                                                                               |
+|    // edited in vim                                                            |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|~                                                                               |
+|sample.rs [+]                                                 8,20           All|
+|                                                                                |
+cursor: line=7 col=19 shape=Block blinking=false visible=true
+modes: TermModes { app_cursor: true, app_keypad: true, mouse_mode: Drag, mouse_encoding: Sgr, bracketed_paste: true, focus_reporting: true, alt_screen: true, alternate_scroll: true, line_feed_new_line: false, modify_other_keys: 0, kitty_keyboard: KittyKeyboardFlags(0), cursor_shape: Block, cursor_blinking: false, cursor_visible: true }

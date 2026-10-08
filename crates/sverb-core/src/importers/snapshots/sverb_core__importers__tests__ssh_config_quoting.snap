@@ -1,0 +1,9 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 1 new, 0 duplicate, 0 conflict, 1 skipped
+STATUS     KIND  LABEL   DETAILS
+new        host  spaced  address=quoted.example.com env=GREETING=hello world identity_files=~/my keys/id ed25519 proxy_command=/usr/bin/nc -X 5 -x proxy:1080 %h %p
+Skipped:
+  quoting:6: cannot read the line: unterminated quote

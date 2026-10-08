@@ -1,0 +1,30 @@
+---
+source: crates/sverb-term/tests/replay.rs
+expression: whole.screen_dump(false)
+---
+|header line (outside region)                                                    |
+|                                                                                |
+|after RI                                                                        |
+|inserted A                                                                      |
+|inserted B                                                                      |
+|scrolled line 24                                                                |
+|scrolled line 25                                                                |
+|scrolled line 26                                                                |
+|scrolled line 27                                                                |
+|scrolled line 28                                                                |
+|scrolled line 32                                                                |
+|scrolled line 33                                                                |
+|scrolled line 34                                                                |
+|scrolled line 35                                                                |
+|scrolled line 36                                                                |
+|scrolled line 37                                                                |
+|scrolled line 38                                                                |
+|scrolled line 39                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|region reset                                                                    |
+|                                                                                |
+|footer line (outside region)                                                    |
+cursor: line=21 col=12 shape=Block blinking=false visible=true
+modes: TermModes { app_cursor: false, app_keypad: false, mouse_mode: None, mouse_encoding: Default, bracketed_paste: false, focus_reporting: false, alt_screen: false, alternate_scroll: true, line_feed_new_line: false, modify_other_keys: 0, kitty_keyboard: KittyKeyboardFlags(0), cursor_shape: Block, cursor_blinking: false, cursor_visible: true }

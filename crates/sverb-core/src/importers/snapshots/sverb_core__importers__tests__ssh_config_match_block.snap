@@ -1,0 +1,10 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 2 new, 0 duplicate, 0 conflict, 1 skipped
+STATUS     KIND  LABEL  DETAILS
+new        host  a      address=a user=alice
+new        host  b      address=b user=bob
+Skipped:
+  match_block:4: Match host b exec true is not supported; its settings are skipped

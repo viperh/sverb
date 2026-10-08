@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/testing.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions                         
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│No hosts yet                                                                  │
+│       a  add a host                                                          │
+│    ^\ o  quick connect                                                       │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit

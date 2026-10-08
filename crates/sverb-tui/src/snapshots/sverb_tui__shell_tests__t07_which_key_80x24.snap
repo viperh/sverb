@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: text
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions                         
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│No hosts yet                                                                  │
+│       a  add a host                                                          │
+┌ ^\ … ────────────────────────────────────────────────────────────────────────┐
+│Sessions & tabs              j ↓ Focus down              [ Copy mode          │
+│     c New host tab          k ↑ Focus up            space Autocomplete       │
+│     t New local tab         l → Focus right           tab Accept suggestion  │
+│     o Quick connect           H Resize left             R Toggle recording   │
+│   1…9 Go to tab 1…9           J Resize down        UI                        │
+│     n Next tab                K Resize up               ? Help (all keys)    │
+│     N Previous tab            L Resize right            v Views / sessions   │
+│     , Rename tab              r Resize mode             s Toggle sidebar     │
+│     < Move tab left           z Zoom pane               ! Notifications      │
+│     > Move tab right          b Toggle broadcast   App                       │
+│     x Close pane              B Mark broadcast          q Quit sverb         │
+│     X Close tab               i Session info       ctrl-z Suspend to shell   │
+│Panes                          S Share pane         ctrl-\ Send leader key    │
+│     - Split horizontal   Tools                     ctrl-l Lock the vault     │
+│     | Split vertical          p Command palette                              │
+│   h ← Focus left              e Snippets                                     │
+└ esc cancel ──────────────────────────────────────────────────────────────────┘
+ NORMAL                                                       ^\ … (esc cancel)

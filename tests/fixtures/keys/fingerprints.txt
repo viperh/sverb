@@ -1,0 +1,20 @@
+# M2-03 TEST-ONLY key fixtures (generated with ssh-keygen / openssl; protect nothing).
+# Passphrase of every encrypted fixture: sverb-test. Format: <file> <SHA256 fingerprint>
+openssh_ed25519 SHA256:xVr5LgWUuENOY/O88eUzmQXq6ZoQ4DWun2GA9KPZHtY
+openssh_ecdsa256 SHA256:OZSUCL/mgBZfJ97mJCWrJ5QxTwLaPSfwCDgExmg3IiI
+pkcs1_rsa.pem SHA256:0I+3Qvr6h2LuOxcFOqZVAZGVHz7IFwar9CA15YELUKM
+sec1_p256.pem SHA256:qaSlCq99Z/kBOoZBBUBF8fYoxrnu4/J//VaCQ2wRfjg
+sec1_p384.pem SHA256:s/fwKiccDbBc8TtVBHKTim4JVQGuT/opxpb4v6hZ51w
+sec1_p521.pem SHA256:z2aNhTl7I8Bi8fLJnlsZoJvmw2DxrOoFwHJzRmZSWCY
+pkcs8_ed25519.pem SHA256:/OZP7v6JDnH06z/BRd0hwnhuwohYulsTikeTF2VHl/E
+pkcs8_rsa.pem SHA256:0I+3Qvr6h2LuOxcFOqZVAZGVHz7IFwar9CA15YELUKM
+pkcs8_p256.pem SHA256:qaSlCq99Z/kBOoZBBUBF8fYoxrnu4/J//VaCQ2wRfjg
+openssh_ed25519_enc SHA256:EcSjRKtXcySpvzyOtwm77a1PVX689OtyPT6/+u11diY
+openssh_rsa_enc SHA256:4xESf0lQ/8Snx3cZE0rCH7fnX34CFdfvHeSwLLFr0qY
+pkcs1_rsa_enc.pem SHA256:0I+3Qvr6h2LuOxcFOqZVAZGVHz7IFwar9CA15YELUKM
+sec1_p384_enc.pem SHA256:s/fwKiccDbBc8TtVBHKTim4JVQGuT/opxpb4v6hZ51w
+pkcs8_p521_enc.pem SHA256:z2aNhTl7I8Bi8fLJnlsZoJvmw2DxrOoFwHJzRmZSWCY
+pkcs8_ed25519_enc.pem SHA256:/OZP7v6JDnH06z/BRd0hwnhuwohYulsTikeTF2VHl/E
+pkcs8_rsa_enc.pem SHA256:0I+3Qvr6h2LuOxcFOqZVAZGVHz7IFwar9CA15YELUKM
+agent_ref.pub SHA256:0IKnoK9hgnG4tCabLdCuufDiQM2UucCxviyZzelcYec
+user_ca.pub SHA256:bvVu7QD3xxOu/tHzAWf/oGMPP3YqHJg5ACRG3I1Uaf4

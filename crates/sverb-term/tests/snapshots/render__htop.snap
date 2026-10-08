@@ -1,0 +1,137 @@
+---
+source: crates/sverb-term/tests/render.rs
+expression: "styled_text(&draw(&e, &view))"
+---
+|                                                                                |
+|    0[||||||||98.2%]   3[||||||||94.6%]   6[||||||||100.0%]  9[||||||||100.0%]  |
+|    1[|||||||100.0%]   4[||||||||99.1%]   7[||||||||100.0%] 10[|||||||||99.1%]  |
+|    2[||||||||98.2%]   5[||||||||99.1%]   8[|||||||||99.1%] 11[||||||||100.0%]  |
+|  Mem[|||||||||||||||||||||7.64G/13.4G] Tasks: 170, 1140 thr, 246 kthr; 12 run  |
+|  Swp[||||||||||           7.06G/26.8G] Load average: 7.71 7.09 4.63            |
+|                                        Uptime: 15:09:33                        |
+|                                                                                |
+|  [Main] [I/O]                                                                  |
+|    PID USER       PRI  NI  VIRT   RES  PRIV S  CPU%▽MEM%   TIME+  Command      |
+|1135764 viperh      20   0  6424  2332   108 S   0.0  0.0  0:00.00 sleep 5      |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|                                                                                |
+|F1Help  F2Setup F3SearchF4FilterF5Tree  F6SortByF7Nice -F8Nice +F9Kill  F10Quit |
+1:2..4 fg=Indexed(6) bg=Reset mod=NONE
+1:5..5 fg=Reset bg=Reset mod=BOLD
+1:6..17 fg=Indexed(2) bg=Reset mod=NONE
+1:18..18 fg=Indexed(1) bg=Reset mod=NONE
+1:19..19 fg=Reset bg=Reset mod=BOLD
+1:21..23 fg=Indexed(6) bg=Reset mod=NONE
+1:24..24 fg=Reset bg=Reset mod=BOLD
+1:25..35 fg=Indexed(2) bg=Reset mod=NONE
+1:36..37 fg=Indexed(1) bg=Reset mod=NONE
+1:38..38 fg=Reset bg=Reset mod=BOLD
+1:40..42 fg=Indexed(6) bg=Reset mod=NONE
+1:43..43 fg=Reset bg=Reset mod=BOLD
+1:44..56 fg=Indexed(2) bg=Reset mod=NONE
+1:57..57 fg=Indexed(1) bg=Reset mod=NONE
+1:58..58 fg=Reset bg=Reset mod=BOLD
+1:59..61 fg=Indexed(6) bg=Reset mod=NONE
+1:62..62 fg=Reset bg=Reset mod=BOLD
+1:63..74 fg=Indexed(2) bg=Reset mod=NONE
+1:75..76 fg=Indexed(1) bg=Reset mod=NONE
+1:77..77 fg=Reset bg=Reset mod=BOLD
+2:2..4 fg=Indexed(6) bg=Reset mod=NONE
+2:5..5 fg=Reset bg=Reset mod=BOLD
+2:6..18 fg=Indexed(2) bg=Reset mod=NONE
+2:19..19 fg=Reset bg=Reset mod=BOLD
+2:21..23 fg=Indexed(6) bg=Reset mod=NONE
+2:24..24 fg=Reset bg=Reset mod=BOLD
+2:25..36 fg=Indexed(2) bg=Reset mod=NONE
+2:37..37 fg=Indexed(1) bg=Reset mod=NONE
+2:38..38 fg=Reset bg=Reset mod=BOLD
+2:40..42 fg=Indexed(6) bg=Reset mod=NONE
+2:43..43 fg=Reset bg=Reset mod=BOLD
+2:44..56 fg=Indexed(2) bg=Reset mod=NONE
+2:57..57 fg=Indexed(1) bg=Reset mod=NONE
+2:58..58 fg=Reset bg=Reset mod=BOLD
+2:59..61 fg=Indexed(6) bg=Reset mod=NONE
+2:62..62 fg=Reset bg=Reset mod=BOLD
+2:63..74 fg=Indexed(2) bg=Reset mod=NONE
+2:75..76 fg=Indexed(1) bg=Reset mod=NONE
+2:77..77 fg=Reset bg=Reset mod=BOLD
+3:2..4 fg=Indexed(6) bg=Reset mod=NONE
+3:5..5 fg=Reset bg=Reset mod=BOLD
+3:6..17 fg=Indexed(2) bg=Reset mod=NONE
+3:18..18 fg=Indexed(1) bg=Reset mod=NONE
+3:19..19 fg=Reset bg=Reset mod=BOLD
+3:21..23 fg=Indexed(6) bg=Reset mod=NONE
+3:24..24 fg=Reset bg=Reset mod=BOLD
+3:25..36 fg=Indexed(2) bg=Reset mod=NONE
+3:37..37 fg=Indexed(1) bg=Reset mod=NONE
+3:38..38 fg=Reset bg=Reset mod=BOLD
+3:40..42 fg=Indexed(6) bg=Reset mod=NONE
+3:43..43 fg=Reset bg=Reset mod=BOLD
+3:44..56 fg=Indexed(2) bg=Reset mod=NONE
+3:57..57 fg=Indexed(1) bg=Reset mod=NONE
+3:58..58 fg=Reset bg=Reset mod=BOLD
+3:59..61 fg=Indexed(6) bg=Reset mod=NONE
+3:62..62 fg=Reset bg=Reset mod=BOLD
+3:63..76 fg=Indexed(2) bg=Reset mod=NONE
+3:77..77 fg=Reset bg=Reset mod=BOLD
+4:2..4 fg=Indexed(6) bg=Reset mod=NONE
+4:5..5 fg=Reset bg=Reset mod=BOLD
+4:6..23 fg=Indexed(2) bg=Reset mod=NONE
+4:24..24 fg=Indexed(5) bg=Reset mod=NONE
+4:25..25 fg=Indexed(4) bg=Reset mod=BOLD
+4:26..37 fg=Indexed(3) bg=Reset mod=NONE
+4:38..38 fg=Reset bg=Reset mod=BOLD
+4:40..46 fg=Indexed(6) bg=Reset mod=NONE
+4:47..49 fg=Indexed(6) bg=Reset mod=BOLD
+4:50..51 fg=Indexed(6) bg=Reset mod=NONE
+4:52..59 fg=Indexed(8) bg=Reset mod=BOLD
+4:60..61 fg=Indexed(6) bg=Reset mod=NONE
+4:62..69 fg=Indexed(8) bg=Reset mod=BOLD
+4:70..71 fg=Indexed(6) bg=Reset mod=NONE
+4:72..73 fg=Indexed(2) bg=Reset mod=BOLD
+4:74..77 fg=Indexed(6) bg=Reset mod=NONE
+5:2..4 fg=Indexed(6) bg=Reset mod=NONE
+5:5..5 fg=Reset bg=Reset mod=BOLD
+5:6..14 fg=Indexed(1) bg=Reset mod=NONE
+5:15..15 fg=Indexed(3) bg=Reset mod=NONE
+5:16..37 fg=Indexed(8) bg=Reset mod=BOLD
+5:38..38 fg=Reset bg=Reset mod=BOLD
+5:40..53 fg=Indexed(6) bg=Reset mod=NONE
+5:54..58 fg=Reset bg=Reset mod=BOLD
+5:59..63 fg=Indexed(6) bg=Reset mod=BOLD
+5:64..68 fg=Indexed(6) bg=Reset mod=NONE
+6:40..47 fg=Indexed(6) bg=Reset mod=NONE
+6:48..55 fg=Indexed(6) bg=Reset mod=BOLD
+8:2..2 fg=Indexed(2) bg=Indexed(2) mod=NONE
+8:3..6 fg=Indexed(0) bg=Indexed(2) mod=NONE
+8:7..7 fg=Indexed(2) bg=Indexed(2) mod=NONE
+8:9..9 fg=Indexed(4) bg=Indexed(4) mod=NONE
+8:10..12 fg=Indexed(0) bg=Indexed(4) mod=NONE
+8:13..13 fg=Indexed(4) bg=Indexed(4) mod=NONE
+9:0..46 fg=Indexed(0) bg=Indexed(2) mod=NONE
+9:47..52 fg=Indexed(0) bg=Indexed(6) mod=NONE
+9:53..73 fg=Indexed(0) bg=Indexed(2) mod=NONE
+9:74..79 fg=Reset bg=Indexed(2) mod=NONE
+10:0..73 fg=Indexed(0) bg=Indexed(6) mod=NONE
+10:74..79 fg=Reset bg=Indexed(6) mod=NONE
+23:2..7 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:10..15 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:18..23 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:26..31 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:34..39 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:42..47 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:50..55 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:58..63 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:66..71 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:75..78 fg=Indexed(0) bg=Indexed(6) mod=NONE
+23:79..79 fg=Reset bg=Indexed(6) mod=NONE

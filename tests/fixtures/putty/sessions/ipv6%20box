@@ -1,0 +1,5 @@
+Present=1
+HostName=2001:db8::1
+Protocol=ssh
+PortNumber=22
+PortForwardings=4L127.0.0.1:5432=db:5432,6L[::1]:8443=[2001:db8::2]:443,Lbad,R9000

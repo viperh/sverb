@@ -1,0 +1,26 @@
+# catppuccin-latte: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: Catppuccin Latte, https://github.com/catppuccin/alacritty (MIT).
+
+name = "catppuccin-latte"
+
+[colors]
+foreground = "#4c4f69"
+background = "#eff1f5"
+cursor = "#dc8a78"
+selection_bg = "#acb0be"
+color0 = "#5c5f77"   # black
+color1 = "#d20f39"   # red
+color2 = "#40a02b"   # green
+color3 = "#df8e1d"   # yellow
+color4 = "#1e66f5"   # blue
+color5 = "#ea76cb"   # magenta
+color6 = "#179299"   # cyan
+color7 = "#acb0be"   # white
+color8 = "#6c6f85"   # bright black
+color9 = "#d20f39"   # bright red
+color10 = "#40a02b"  # bright green
+color11 = "#df8e1d"  # bright yellow
+color12 = "#1e66f5"  # bright blue
+color13 = "#ea76cb"  # bright magenta
+color14 = "#179299"  # bright cyan
+color15 = "#bcc0cc"  # bright white

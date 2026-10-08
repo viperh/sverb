@@ -1,0 +1,24 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: text
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sess… NORMAL  ^\ ? help · q quit 
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│No hosts yet                                                                  │
+│       a  add a host                                                          │
+│    ^\ o  quick connect                                                       │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘

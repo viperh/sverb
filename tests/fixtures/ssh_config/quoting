@@ -1,0 +1,6 @@
+Host "spaced"
+    HostName quoted.example.com
+    IdentityFile "~/my keys/id ed25519"
+    ProxyCommand "/usr/bin/nc" -X 5 -x proxy:1080 %h %p
+    SetEnv GREETING="hello world" # trailing comment
+    User "unterminated

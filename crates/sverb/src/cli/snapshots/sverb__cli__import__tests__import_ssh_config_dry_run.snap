@@ -1,0 +1,16 @@
+---
+source: crates/sverb/src/cli/import_tests.rs
+expression: out
+---
+Import preview (ssh-config): 5 new, 0 duplicate, 0 conflict, 1 skipped
+STATUS     KIND   LABEL              DETAILS
+new        group  Imported defaults  defaults.keepalive=15 defaults.user=fallback name=Imported defaults
+new        group  *.prod             defaults.keepalive=60 defaults.user=deploy name=*.prod parent=Imported defaults
+new        host   web.prod           address=web.prod agent_forwarding=false group=*.prod user=alice
+new        host   api.prod           address=api.prod agent_forwarding=false group=*.prod port=2200
+new        host   laptop             address=laptop agent_forwarding=false group=Imported defaults
+Notes:
+  Group "Imported defaults" will be created
+  Group "Imported defaults/*.prod" will be created
+Skipped:
+  wildcard:13: Host !jump *: negated patterns cannot become a group; its settings are applied to the matching hosts directly

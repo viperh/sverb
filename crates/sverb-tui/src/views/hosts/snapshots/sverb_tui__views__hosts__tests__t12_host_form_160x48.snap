@@ -1,0 +1,53 @@
+---
+source: crates/sverb-tui/src/views/hosts/tests.rs
+assertion_line: 248
+expression: screen
+---
+┌ Edit host · prod-web-5 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│General                                                                                                                                                       │
+│› Label             prod-web-5                                                                                                                                │
+│                    Shown in lists; defaults to the address                                                                                                   │
+│  Address*          10.0.0.5                                                                                                                                  │
+│  Port              22 (default)                                                                                                                              │
+│  Group             (none)                                                                                                                                    │
+│  Tags              web, db                                                                                                                                   │
+│  Pinned            [ ] no                                                                                                                                    │
+│                                                                                                                                                              │
+│Credentials                                                                                                                                                   │
+│  Credentials       Inline                                                                                                                                    │
+│  Username                                                                                                                                                    │
+│  Password          •••••••                                                                                                                                   │
+│  Key               (none)                                                                                                                                    │
+│  Key file                                                                                                                                                    │
+│                                                                                                                                                              │
+│Connection                                                                                                                                                    │
+│  Jump hosts        (none)                                                                                                                                    │
+│  Proxy             none                                                                                                                                      │
+│  Keepalive (s)     15                                                                                                                                        │
+│  Agent forwarding  no (default)                                                                                                                              │
+│  Agent source      built-in (default)                                                                                                                        │
+│  Algorithms                                                                                                                                                  │
+│  PTY for exec      no (default)                                                                                                                              │
+│  Reconnect         no (default)                                                                                                                              │
+│                                                                                                                                                              │
+│Terminal                                                                                                                                                      │
+│  Charset           windows-1252                                                                                                                              │
+│  Backspace         DEL (default)                                                                                                                             │
+│  Color scheme      default                                                                                                                                   │
+│  Startup snippet   (none)                                                                                                                                    │
+│  Environment         LANG = C.UTF-8                                                                                                                          │
+│                                                                                                                                                              │
+│Forwards                                                                                                                                                      │
+│  Port forwards     0 rule(s)                                                                                                                                 │
+│                                                                                                                                                              │
+│Notes                                                                                                                                                         │
+│  Notes             **Primary** web node.                                                                                                                     │
+│                    - runs `nginx`                                                                                                                            │
+│                    - see [runbook](https://wiki/x)                                                                                                           │
+│                                                                                                                                                              │
+│                                                                                                                                                              │
+│                                                                                                                                                              │
+│                                                                                                                                                              │
+│                                                                                                                                                              │
+│                                                                                                                                                              │
+└ tab next · shift-tab prev · ctrl-s save · esc cancel ────────────────────────────────────────────────────────────────────────────────────────────────────────┘

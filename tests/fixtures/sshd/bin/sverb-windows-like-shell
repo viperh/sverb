@@ -1,0 +1,16 @@
+#!/bin/bash
+# M1-18 `windows-like` profile (ForceCommand): behaves like a non-POSIX remote shell
+# for OS detection. Any command mentioning `uname` fails the way cmd.exe would;
+# everything else runs normally, and an interactive login gets bash.
+cmd="${SSH_ORIGINAL_COMMAND:-}"
+case "$cmd" in
+    *uname*)
+        echo "'uname' is not recognized as an internal or external command," >&2
+        echo "operable program or batch file." >&2
+        exit 1
+        ;;
+esac
+if [[ -z "$cmd" ]]; then
+    exec /bin/bash -l
+fi
+exec /bin/bash -c "$cmd"

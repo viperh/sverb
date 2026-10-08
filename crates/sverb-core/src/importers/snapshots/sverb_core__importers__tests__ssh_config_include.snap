@@ -1,0 +1,13 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 5 new, 0 duplicate, 0 conflict, 0 skipped
+STATUS     KIND  LABEL   DETAILS
+new        host  first   address=first.example.com
+new        host  second  address=second user=included
+new        host  from-b  address=from-b
+new        host  from-a  address=from-a
+new        host  main    address=main.example.com
+Warnings:
+  loop_b:1: Include cycle detected (config -> loop_a -> loop_b -> loop_a); not followed

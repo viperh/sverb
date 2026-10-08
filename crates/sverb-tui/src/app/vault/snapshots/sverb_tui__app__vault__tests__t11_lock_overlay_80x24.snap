@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/app/vault/tests.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ──────────────────────────────────────────────────────── 🔒  
+ 1 session 1 ┬ +                                                                
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                🔒  Vault locked                               │
+│                                   ^\ q quit                                  │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│              ┌ 🔒  Unlock sverb ──────────────────────────────┐               │
+│              │The vault is locked. Sessions stay connected.  │               │
+│              │                                               │               │
+│              │Password:                                      │               │
+│              │                                               │               │
+│              │⠋ Unlocking…                                   │               │
+│              │Enter unlock · Esc clear                       │               │
+│              └───────────────────────────────────────────────┘               │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ TERMINAL                                                             ^\ ? help

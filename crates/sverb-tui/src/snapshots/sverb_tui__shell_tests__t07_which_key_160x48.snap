@@ -1,0 +1,52 @@
+---
+source: crates/sverb-tui/src/shell_tests.rs
+expression: text
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                                                                                         
+│▸ Hosts       │┌ Hosts ───────────────────────────────────────────────────────────────────────────────────────┐┌ Details ─────────────────────────────────────┐
+│  Keychain    ││No hosts yet                                                                                  ││Nothing selected.                             │
+│  Forwards    ││       a  add a host                                                                          ││                                              │
+│  Snippets    ││    ^\ o  quick connect                                                                       ││                                              │
+│  Known       ││                                                                                              ││                                              │
+│  Logs        ││                                                                                              ││                                              │
+│  Settings    ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                     ┌ ^\ … ──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│              ││                                     │Sessions & tabs           Panes                          z Zoom pane          UI                        │
+│              ││                                     │     c New host tab            - Split horizontal        b Toggle broadcast        ? Help (all keys)    │
+│              ││                                     │     t New local tab           | Split vertical          B Mark broadcast          v Views / sessions   │
+│              ││                                     │     o Quick connect         h ← Focus left              i Session info            s Toggle sidebar     │
+│              ││                                     │   1…9 Go to tab 1…9         j ↓ Focus down              S Share pane              ! Notifications      │
+│              ││                                     │     n Next tab              k ↑ Focus up           Tools                     App                       │
+│              ││                                     │     N Previous tab          l → Focus right             p Command palette         q Quit sverb         │
+│              ││                                     │     , Rename tab              H Resize left             e Snippets           ctrl-z Suspend to shell   │
+│              ││                                     │     < Move tab left           J Resize down             [ Copy mode          ctrl-\ Send leader key    │
+│              ││                                     │     > Move tab right          K Resize up           space Autocomplete       ctrl-l Lock the vault     │
+│              ││                                     │     x Close pane              L Resize right          tab Accept suggestion                            │
+│              ││                                     │     X Close tab               r Resize mode             R Toggle recording                             │
+└──────────────┘└─────────────────────────────────────└ esc cancel ────────────────────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                                                                                                       ^\ … (esc cancel)

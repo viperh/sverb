@@ -1,0 +1,32 @@
+#!/bin/bash
+# M1-18: host key management inside the e2e container.
+#
+#   sverb-regen-hostkeys               replace every host key (and host cert), then
+#                                      SIGHUP sshd (PID 1) so it re-executes with them
+#   sverb-regen-hostkeys --certs-only  (re)sign the host certificate for the `cert`
+#                                      profile; no-op for other profiles
+set -euo pipefail
+
+profile="$(cat /etc/ssh/sverb/active-profile 2>/dev/null || echo password)"
+
+sign_certs() {
+    [[ "$profile" == "cert" ]] || return 0
+    local principals="localhost,127.0.0.1,$(hostname)"
+    if [[ -n "${SVERB_HOST_CERT_PRINCIPALS:-}" ]]; then
+        principals="${principals},${SVERB_HOST_CERT_PRINCIPALS}"
+    fi
+    rm -f /etc/ssh/ssh_host_ed25519_key-cert.pub
+    ssh-keygen -q -s /etc/ssh/sverb/host_ca -I "sverb-e2e-host-$(hostname)" -h \
+        -n "$principals" -V always:forever /etc/ssh/ssh_host_ed25519_key.pub
+}
+
+if [[ "${1:-}" == "--certs-only" ]]; then
+    sign_certs
+    exit 0
+fi
+
+rm -f /etc/ssh/ssh_host_*
+ssh-keygen -A >&2
+sign_certs
+/usr/sbin/sshd -t
+kill -HUP 1

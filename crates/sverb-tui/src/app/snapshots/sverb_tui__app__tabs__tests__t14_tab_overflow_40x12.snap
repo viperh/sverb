@@ -1,0 +1,16 @@
+---
+source: crates/sverb-tui/src/app/tabs_tests.rs
+expression: screen
+---
+ sverb ─ Personal ▾ ────────────────────
+‹ 4 local ›┬ +      TERMINAL  ^\ ? help 
+┌ local ───────────────────────────────┐
+│$ echo 7                              │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+└──────────────────────────────────────┘

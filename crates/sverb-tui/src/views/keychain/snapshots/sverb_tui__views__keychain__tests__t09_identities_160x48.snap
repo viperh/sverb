@@ -1,0 +1,51 @@
+---
+source: crates/sverb-tui/src/views/keychain/tests.rs
+expression: screen
+---
+                                                                                                                                                                
+                                                                                                                                                                
+                 Keys  │  Certificates  │ [Identities]   [ ] switch                                             ┌ ops ─────────────────────────────────────────┐
+                ┌ Identities ──────────────────────────────────────────────────────────────────────────────────┐│Label     ops                                 │
+                │  backup  bk  none  0 hosts                                                                   ││User      deploy                              │
+                │› ops  deploy  password + key  3 hosts                                                        ││Auth      password + key                      │
+                │                                                                                              ││Key       laptop                              │
+                │                                                                                              ││Vault     Personal                            │
+                │                                                                                              ││                                              │
+                │                                                                                              ││Used by 3 hosts (2 direct, 1 via group)       │
+                │                                                                                              ││  web-1                                       │
+                │                                                                                              ││  web-2                                       │
+                │                                                                                              ││  db-1 (via prod)                             │
+                │                                                                                              ││                                              │
+                │                                                                                              ││enter: go to a host                           │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                └───────────────────────────────────────────────────────────────────────────────────────── 2/2 ┘└──────────────────────────────────────────────┘

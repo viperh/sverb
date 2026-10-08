@@ -1,0 +1,18 @@
+---
+source: crates/sverb-tui/src/widgets/dialog_tests.rs
+expression: screen
+---
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                   ┌ Rename tab ────────────────────────────┐                   
+                   │ Name: prod shell                       │                   
+                   │                                        │                   
+                   │ enter ok · esc cancel                  │                   
+                   └────────────────────────────────────────┘

@@ -1,0 +1,52 @@
+---
+source: crates/sverb-tui/src/app/logs_tests.rs
+expression: "h.render(160, 48)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                                                                                         
+│  Hosts       │┌ Logs ────────────────────────────────────────────────────────────────────────────────────────┐┌ Details ─────────────────────────────────────┐
+│  Keychain    ││Time             Host                      Result            Duration In        Out       Rec ││Host      web-2                               │
+│  Forwards    ││2026-10-07 12:59 web-1                     connected…        —        723.4 KiB 4.6 KiB       ││Target    web-2.example:22                    │
+│  Snippets    ││2026-10-07 12:54 web-2                     host key rejected 1s       602.8 KiB 3.9 KiB   ●   ││Started   2026-10-07 12:54                    │
+│  Known       ││2026-10-07 12:49 bastion                   network error     15s      482.2 KiB 3.1 KiB       ││Ended     2026-10-07 12:54                    │
+│▸ Logs        ││2026-10-07 12:44 local                     ok                45s      361.7 KiB 2.3 KiB   ●   ││Duration  1s                                  │
+│  Settings    ││2026-10-07 12:39 db                        auth failed       2s       241.1 KiB 1.5 KiB       ││Result    host key rejected                   │
+│              ││2026-10-07 12:34 web-1                     ok                1h02m    120.6 KiB 789 B     ●   ││Bytes     602.8 KiB in · 3.9 KiB out          │
+│              ││                                                                                              ││Recording /tmp/rec-5.cast.sv                  │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││                                                                                              ││                                              │
+│              ││⏎ reconnect · i details · p replay · e export · d delete · D clear older · / host · r result  ││                                              │
+└──────────────┘└──────────────────────────────────────────────────────────────────────────────────────────────┘└──────────────────────────────────────────────┘
+ NORMAL                                                                                                                                      ^\ ? help · q quit

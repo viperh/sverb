@@ -1,0 +1,45 @@
+---
+source: crates/sverb-tui/src/views/hosts/tests.rs
+assertion_line: 456
+expression: screen
+---
+┌ New host ────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│General                                                                                                               │
+│› Label                                                                                                               │
+│                 Shown in lists; defaults to the address                                                              │
+│  Address*       db.example                                                                                           │
+│  Port           2222 (from group "prod")                                                                             │
+│  Group          → prod                                                                                               │
+│  Tags           (none)                                                                                               │
+│  Pinned         [ ] no                                                                                               │
+│                                                                                                                      │
+│Credentials                                                                                                           │
+│  Credentials    Inline                                                                                               │
+│  Username                                                                                                            │
+│  Password                                                                                                            │
+│  Key            (none)                                                                                               │
+│  Key file                                                                                                            │
+│                                                                                                                      │
+│Connection                                                                                                            │
+│  Jump hosts     (none)                                                                                               │
+│  Proxy          none                                                                                                 │
+│  Keepalive (s)  60 (from group "prod")                                                                               │
+│  PTY for exec   no (default)                                                                                         │
+│  Reconnect      no (default)                                                                                         │
+│                                                                                                                      │
+│Terminal                                                                                                              │
+│  Charset        UTF-8 (default)                                                                                      │
+│  Backspace      DEL (default)                                                                                        │
+│  Color scheme   default                                                                                              │
+│  Environment    (none)                                                                                               │
+│                                                                                                                      │
+│Notes                                                                                                                 │
+│  Notes                                                                                                               │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+└ tab next · shift-tab prev · ctrl-s save · esc cancel ────────────────────────────────────────────────────────────────┘

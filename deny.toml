@@ -1,0 +1,94 @@
+# cargo-deny policy (task M0-02; SPEC §17 supply chain, §20 license policy).
+# Run locally with: cargo deny --all-features check advisories bans licenses sources
+# Docs: https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+# Check every platform we ship to, not just the host.
+all-features = true
+
+[output]
+feature-depth = 1
+
+# ---------------------------------------------------------------------------
+[advisories]
+version = 2
+db-urls = ["https://github.com/rustsec/advisory-db"]
+# Unmaintained crates fail only when a workspace crate depends on them directly.
+unmaintained = "workspace"
+yanked = "deny"
+# Vulnerabilities are always denied (implicit in version 2); list accepted
+# advisories here with a reason and an expiry milestone.
+ignore = []
+
+# ---------------------------------------------------------------------------
+[licenses]
+version = 2
+# SPEC §20: only licenses compatible with MIT distribution of the binaries.
+# MPL-2.0 is the one explicit weak-copyleft exception. Anything not listed
+# (GPL, LGPL, AGPL, SSPL, unlicensed, ...) is denied.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "CC0-1.0",
+    "MPL-2.0",
+]
+confidence-threshold = 0.9
+# Allowed-but-unused licenses are expected while the dependency set grows.
+unused-allowed-license = "allow"
+# Per-crate exceptions for licenses outside `allow`. Each needs a reason and
+# the task that removes it.
+exceptions = []
+
+[licenses.private]
+# Our own crates are MIT (checked by the M0-01 metadata test); unpublished
+# ones like sverb-e2e have no registry, which would otherwise be flagged.
+ignore = true
+
+# ---------------------------------------------------------------------------
+[bans]
+multiple-versions = "warn"
+# Internal crates are path dependencies without a version (`workspace = true`),
+# which cargo-deny reports as wildcards. crates.io itself rejects wildcard
+# registry deps at publish time, so this check adds nothing for us.
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+
+deny = [
+    # rustls only (SPEC §17): no OpenSSL or platform TLS anywhere in the graph.
+    { crate = "openssl", reason = "rustls only (SPEC §17)" },
+    { crate = "openssl-sys", reason = "rustls only (SPEC §17)" },
+    { crate = "native-tls", reason = "rustls only (SPEC §17)" },
+
+    # Layering (M0-01 §2.3), second line of defense next to
+    # scripts/check-layering.py: these crates may only be pulled in directly
+    # by the listed wrappers.
+    { crate = "ratatui", wrappers = [
+        "sverb",
+        "sverb-tui",
+        "sverb-term",
+    ], reason = "UI crates belong to the TUI layer only" },
+    { crate = "crossterm", wrappers = [
+        "sverb",
+        "sverb-tui",
+        "ratatui-crossterm",
+    ], reason = "terminal I/O belongs to the TUI layer only" },
+    { crate = "sverb-sync", wrappers = [
+        "sverb",
+        "sverb-tui",
+    ], reason = "sync is optional; only the binary and TUI may link it (SPEC §1.1)" },
+]
+
+# ---------------------------------------------------------------------------
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

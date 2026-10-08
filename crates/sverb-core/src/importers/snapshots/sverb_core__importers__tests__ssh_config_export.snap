@@ -1,0 +1,19 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: text
+---
+# Exported from sverb.
+# Secrets (passwords, private keys stored in sverb) are NOT exported.
+
+Host bastion-host
+    HostName bastion.example.com
+    Port 2222
+
+Host db
+    HostName 10.0.0.5
+    User deploy
+    ProxyJump bastion-host
+    LocalForward 127.0.0.1:5432 localhost:5432
+    ForwardAgent yes
+    SetEnv "GREETING=hello world"
+    ServerAliveInterval 30

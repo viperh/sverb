@@ -1,0 +1,537 @@
+{
+  "$defs": {
+    "BellMode": {
+      "description": "What the terminal bell does.",
+      "oneOf": [
+        {
+          "const": "none",
+          "description": "Ignore the bell.",
+          "type": "string"
+        },
+        {
+          "const": "visual",
+          "description": "Flash the pane.",
+          "type": "string"
+        },
+        {
+          "const": "audible",
+          "description": "Ring the outer terminal's bell.",
+          "type": "string"
+        }
+      ]
+    },
+    "ClipboardConfig": {
+      "additionalProperties": false,
+      "description": "`[clipboard]`.",
+      "properties": {
+        "allow_remote_write": {
+          "$ref": "#/$defs/RemoteWritePolicy",
+          "default": "ask",
+          "description": "Remote clipboard writes: never, ask or always."
+        },
+        "osc52": {
+          "default": true,
+          "description": "Copy through the outer terminal with OSC 52.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "GeneralConfig": {
+      "additionalProperties": false,
+      "description": "`[general]`.",
+      "properties": {
+        "auto_lock_minutes": {
+          "default": 15,
+          "description": "Lock the vault after this many idle minutes. 0 disables auto-lock.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "confirm_quit": {
+          "default": true,
+          "description": "Ask before quitting while sessions are open.",
+          "type": "boolean"
+        },
+        "default_vault": {
+          "default": "personal",
+          "description": "Vault selected at unlock.",
+          "type": "string"
+        },
+        "leader": {
+          "$ref": "#/$defs/KeyChordSpec",
+          "default": "ctrl-\\",
+          "description": "The leader (command) key. `\"ctrl-\\\\\"` by default; `\"ctrl-g\"` is recommended where `\\` needs AltGr."
+        },
+        "lock_disconnects_sessions": {
+          "default": false,
+          "description": "Disconnect all sessions when the vault locks.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "HistoryConfig": {
+      "additionalProperties": false,
+      "description": "`[history]`.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Keep a per-host command history.",
+          "type": "boolean"
+        },
+        "ghost_text": {
+          "default": false,
+          "description": "Show an inline ghost-text suggestion after the cursor (needs shell integration,\nOSC 133). Accepted with `leader Tab` only.",
+          "type": "boolean"
+        },
+        "max_entries_per_host": {
+          "default": 5000,
+          "description": "History entries kept per host.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sync": {
+          "default": false,
+          "description": "Sync the history between devices.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "HostKeyPolicy": {
+      "description": "What to do with an unknown host key.",
+      "oneOf": [
+        {
+          "const": "strict",
+          "description": "Refuse unknown host keys.",
+          "type": "string"
+        },
+        {
+          "const": "ask",
+          "description": "Ask the user.",
+          "type": "string"
+        },
+        {
+          "const": "accept-new",
+          "description": "Accept and store new keys; refuse changed ones.",
+          "type": "string"
+        }
+      ]
+    },
+    "KeyChordSpec": {
+      "description": "A key chord as written in the config, e.g. `\"ctrl-\\\\\"` or `\"p\"`.\n\nKept as a string in `sverb-core` (no crossterm here). The TUI parses and\nnormalizes it; [`super::KeymapValidator`] checks it at load time.",
+      "type": "string"
+    },
+    "KeysConfig": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "description": "`[keys.<mode>]` tables: mode name → (chord → action name).\n\nUser tables are merged key by key over the defaults (`p`, `-`, `|` after the\nleader, `ctrl-k` in Normal mode, `y`, `/` and `o` in copy mode), so a user file only\nlists its changes. `[keys.copy]` binds copy-mode actions (M3-04).\nThe full built-in keymap lives in `sverb-tui` (M0-10) and is merged under this.",
+      "type": "object"
+    },
+    "LogsConfig": {
+      "additionalProperties": false,
+      "description": "`[logs]`.",
+      "properties": {
+        "retention_days": {
+          "default": 90,
+          "description": "Keep connection logs this many days. 0 keeps them forever.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sync": {
+          "default": false,
+          "description": "Sync connection logs between devices.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "RecordingConfig": {
+      "additionalProperties": false,
+      "description": "`[recording]`.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Record new sessions.",
+          "type": "boolean"
+        },
+        "include_input": {
+          "default": false,
+          "description": "Also record keyboard input.",
+          "type": "boolean"
+        },
+        "retention_days": {
+          "default": 0,
+          "description": "Delete recordings this many days old. 0 keeps them until deleted.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "RemoteWritePolicy": {
+      "description": "Whether remote programs may write the local clipboard (OSC 52).",
+      "oneOf": [
+        {
+          "const": "never",
+          "description": "Never.",
+          "type": "string"
+        },
+        {
+          "const": "ask",
+          "description": "Ask each time.",
+          "type": "string"
+        },
+        {
+          "const": "always",
+          "description": "Always allow.",
+          "type": "string"
+        }
+      ]
+    },
+    "SidebarMode": {
+      "description": "When the sidebar is shown.",
+      "oneOf": [
+        {
+          "const": "auto",
+          "description": "Shown when the terminal is wide enough.",
+          "type": "string"
+        },
+        {
+          "const": "always",
+          "description": "Always shown.",
+          "type": "string"
+        },
+        {
+          "const": "never",
+          "description": "Never shown.",
+          "type": "string"
+        }
+      ]
+    },
+    "SshConfig": {
+      "additionalProperties": false,
+      "description": "`[ssh]`.",
+      "properties": {
+        "auto_reconnect": {
+          "default": false,
+          "description": "Reconnect dropped sessions automatically (exponential backoff 1 s → 30 s, at most\n10 tries). A host's `auto_reconnect` overrides it.",
+          "type": "boolean"
+        },
+        "connect_timeout_secs": {
+          "default": 15,
+          "description": "TCP and handshake timeout in seconds (at least 1).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "exec_timeout_secs": {
+          "default": 60,
+          "description": "Timeout for remote commands run by sverb, in seconds (at least 1).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hash_known_hosts": {
+          "default": false,
+          "description": "Store new known_hosts entries hashed.",
+          "type": "boolean"
+        },
+        "host_key_policy": {
+          "$ref": "#/$defs/HostKeyPolicy",
+          "default": "ask",
+          "description": "Unknown host keys: strict, ask or accept-new."
+        },
+        "keepalive_secs": {
+          "default": 30,
+          "description": "Keepalive interval in seconds. 0 disables keepalives.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_auth_attempts": {
+          "default": 5,
+          "description": "Authentication attempts per connection (1..=20).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "multiplex": {
+          "default": true,
+          "description": "Reuse one connection for several sessions to the same host.",
+          "type": "boolean"
+        },
+        "read_ssh_config": {
+          "default": false,
+          "description": "Also resolve hosts from `~/.ssh/config` (read-only).",
+          "type": "boolean"
+        },
+        "use_system_agent": {
+          "default": true,
+          "description": "Also offer keys from the system ssh-agent.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "SyncConfig": {
+      "additionalProperties": false,
+      "description": "`[sync]` (tuning only; no server URL or tokens).",
+      "properties": {
+        "poll_fallback_secs": {
+          "default": 300,
+          "description": "Poll interval when push notifications are unavailable, in seconds (at least 30).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "push_debounce_ms": {
+          "default": 2000,
+          "description": "Wait this long after a change before pushing, in milliseconds (at least 100).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "TerminalConfig": {
+      "additionalProperties": false,
+      "description": "`[terminal]`.",
+      "properties": {
+        "bell": {
+          "$ref": "#/$defs/BellMode",
+          "default": "visual",
+          "description": "What the bell does: none, visual or audible."
+        },
+        "color_scheme": {
+          "default": "terminal",
+          "description": "Color scheme for hosts without one.",
+          "type": "string"
+        },
+        "paste_confirm_multiline": {
+          "default": true,
+          "description": "Ask before pasting text that contains newlines.",
+          "type": "boolean"
+        },
+        "scrollback": {
+          "default": 10000,
+          "description": "Scrollback lines per pane (at most 1000000).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "term": {
+          "default": "xterm-256color",
+          "description": "`TERM` sent to the remote side. ASCII, no whitespace, at most 64 characters.",
+          "type": "string"
+        },
+        "use_osc_title": {
+          "default": false,
+          "description": "Let the remote side set the tab title with OSC 0/2.",
+          "type": "boolean"
+        },
+        "word_separators": {
+          "default": " ,│`|:\"'()[]{}<>",
+          "description": "Characters that end a word for double-click selection.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "TruecolorMode": {
+      "description": "Whether 24-bit color is used.",
+      "oneOf": [
+        {
+          "const": "auto",
+          "description": "Detected from `COLORTERM` and the terminal's answers.",
+          "type": "string"
+        },
+        {
+          "const": "on",
+          "description": "Always use 24-bit color.",
+          "type": "string"
+        },
+        {
+          "const": "off",
+          "description": "Never use 24-bit color.",
+          "type": "string"
+        }
+      ]
+    },
+    "UiConfig": {
+      "additionalProperties": false,
+      "description": "`[ui]`.",
+      "properties": {
+        "date_format": {
+          "default": "%Y-%m-%d %H:%M",
+          "description": "strftime-style format for dates shown in the UI.",
+          "type": "string"
+        },
+        "mouse": {
+          "default": true,
+          "description": "Capture the mouse.",
+          "type": "boolean"
+        },
+        "show_which_key": {
+          "default": true,
+          "description": "Show the which-key popup after the leader.",
+          "type": "boolean"
+        },
+        "sidebar": {
+          "$ref": "#/$defs/SidebarMode",
+          "default": "auto",
+          "description": "When the sidebar is shown: auto, always or never."
+        },
+        "theme": {
+          "default": "default-dark",
+          "description": "UI chrome theme (built-in or a file in `themes/`).",
+          "type": "string"
+        },
+        "truecolor": {
+          "$ref": "#/$defs/TruecolorMode",
+          "default": "auto",
+          "description": "24-bit color: auto, on or off."
+        },
+        "which_key_delay_ms": {
+          "default": 400,
+          "description": "Delay before the which-key popup appears, in milliseconds (0..=10000).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The whole configuration file.",
+  "properties": {
+    "clipboard": {
+      "$ref": "#/$defs/ClipboardConfig",
+      "default": {
+        "allow_remote_write": "ask",
+        "osc52": true
+      },
+      "description": "Clipboard integration."
+    },
+    "general": {
+      "$ref": "#/$defs/GeneralConfig",
+      "default": {
+        "auto_lock_minutes": 15,
+        "confirm_quit": true,
+        "default_vault": "personal",
+        "leader": "ctrl-\\",
+        "lock_disconnects_sessions": false
+      },
+      "description": "General behaviour: leader key, quitting and the vault lock."
+    },
+    "history": {
+      "$ref": "#/$defs/HistoryConfig",
+      "default": {
+        "enabled": true,
+        "ghost_text": false,
+        "max_entries_per_host": 5000,
+        "sync": false
+      },
+      "description": "Command history."
+    },
+    "keys": {
+      "$ref": "#/$defs/KeysConfig",
+      "default": {
+        "copy": {
+          "/": "search_forward",
+          "o": "open_link",
+          "y": "yank"
+        },
+        "normal": {
+          "ctrl-k": "palette"
+        },
+        "terminal": {
+          "-": "split_horizontal",
+          "p": "palette",
+          "|": "split_vertical"
+        }
+      },
+      "description": "Key binding overrides, one table per mode (`[keys.terminal]` is the after-leader table)."
+    },
+    "logs": {
+      "$ref": "#/$defs/LogsConfig",
+      "default": {
+        "retention_days": 90,
+        "sync": false
+      },
+      "description": "Connection log retention."
+    },
+    "recording": {
+      "$ref": "#/$defs/RecordingConfig",
+      "default": {
+        "enabled": false,
+        "include_input": false,
+        "retention_days": 0
+      },
+      "description": "Session recording defaults."
+    },
+    "ssh": {
+      "$ref": "#/$defs/SshConfig",
+      "default": {
+        "auto_reconnect": false,
+        "connect_timeout_secs": 15,
+        "exec_timeout_secs": 60,
+        "hash_known_hosts": false,
+        "host_key_policy": "ask",
+        "keepalive_secs": 30,
+        "max_auth_attempts": 5,
+        "multiplex": true,
+        "read_ssh_config": false,
+        "use_system_agent": true
+      },
+      "description": "SSH connection defaults."
+    },
+    "sync": {
+      "$ref": "#/$defs/SyncConfig",
+      "default": {
+        "poll_fallback_secs": 300,
+        "push_debounce_ms": 2000
+      },
+      "description": "Sync tuning knobs. The server URL and tokens are set with `sverb login`, never here."
+    },
+    "terminal": {
+      "$ref": "#/$defs/TerminalConfig",
+      "default": {
+        "bell": "visual",
+        "color_scheme": "terminal",
+        "paste_confirm_multiline": true,
+        "scrollback": 10000,
+        "term": "xterm-256color",
+        "use_osc_title": false,
+        "word_separators": " ,│`|:\"'()[]{}<>"
+      },
+      "description": "Defaults for terminal panes."
+    },
+    "ui": {
+      "$ref": "#/$defs/UiConfig",
+      "default": {
+        "date_format": "%Y-%m-%d %H:%M",
+        "mouse": true,
+        "show_which_key": true,
+        "sidebar": "auto",
+        "theme": "default-dark",
+        "truecolor": "auto",
+        "which_key_delay_ms": 400
+      },
+      "description": "The look of the sverb UI."
+    }
+  },
+  "title": "sverb config.toml",
+  "type": "object"
+}

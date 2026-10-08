@@ -1,0 +1,30 @@
+---
+source: crates/sverb-term/tests/replay.rs
+expression: whole.screen_dump(false)
+---
+|left pane                               │right pane                             |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|                                        │                                       |
+|[rec] 0:rec*                                                               sverb|
+cursor: line=1 col=41 shape=Block blinking=false visible=true
+modes: TermModes { app_cursor: true, app_keypad: true, mouse_mode: None, mouse_encoding: Default, bracketed_paste: true, focus_reporting: false, alt_screen: true, alternate_scroll: true, line_feed_new_line: false, modify_other_keys: 0, kitty_keyboard: KittyKeyboardFlags(0), cursor_shape: Block, cursor_blinking: false, cursor_visible: true }

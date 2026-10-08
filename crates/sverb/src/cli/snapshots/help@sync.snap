@@ -1,0 +1,1043 @@
+---
+source: crates/sverb/src/cli/tests.rs
+expression: all
+---
+===== sverb --help
+SSH TUI
+
+Usage: sverb [OPTIONS] [COMMAND]
+
+Commands:
+  connect   Launch the TUI with a session open (fuzzy host match or user@host:port)
+  join      Join a shared terminal
+  hosts     List, add and remove hosts
+  keys      Manage SSH keys, or print the effective keymap with --dump
+  forward   Run a port-forward rule headless
+  snippet   Run snippets on hosts
+  import    Import hosts, keys and settings
+  export    Export hosts, backups and recordings
+  approve   Review and approve locally-acting fields from sync
+  agent     Run the built-in agent exposing forwardable vault keys
+  lock      Lock the vault
+  unlock    Unlock the vault
+  login     Log in to a sync server
+  logout    Log out of the sync server
+  register  Create an account on a sync server
+  sync      Sync now or show the sync status
+  devices   List or revoke devices
+  team      Manage the team vault
+  config    Check, print or locate config.toml
+  doctor    Diagnose terminal capabilities, agent and sync; list SSH algorithms
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --workspace <NAME>
+          Launch the TUI and open this workspace
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+Exit codes:
+  0  success
+  1  failure
+  2  usage error
+  3  vault locked or unlock failed
+  4  not found (or ambiguous host)
+  5  approval required (run `sverb approve <host>`)
+  6  network or server error
+  7  partial failure
+
+===== sverb connect --help
+Launch the TUI with a session open (fuzzy host match or user@host:port)
+
+Usage: sverb connect [OPTIONS] <TARGET>
+
+Arguments:
+  <TARGET>
+          A host label, address or fuzzy match, or `user@host:port`
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb join --help
+Join a shared terminal
+
+Usage: sverb join [OPTIONS] <LINK>
+
+Arguments:
+  <LINK>
+          The share link
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb hosts --help
+List, add and remove hosts
+
+Usage: sverb hosts [OPTIONS] <COMMAND>
+
+Commands:
+  list  List hosts
+  add   Add a host
+  rm    Remove a host
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb hosts list --help
+List hosts
+
+Usage: sverb hosts list [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --json
+          Print JSON (`{"version":1,"data":…}`)
+
+      --tag <TAG>
+          Only hosts with this tag (repeatable; all must match)
+
+      --group <GROUP>
+          Only hosts in this group
+
+  -h, --help
+          Print help
+
+===== sverb hosts add --help
+Add a host
+
+Usage: sverb hosts add [OPTIONS] <ADDRESS>
+
+Arguments:
+  <ADDRESS>
+          Hostname or IP address
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --label <LABEL>
+          Display label (defaults to the address)
+
+      --user <USER>
+          Login user
+
+      --port <PORT>
+          SSH port
+
+      --group <GROUP>
+          Group to put the host in (must exist unless --create-group)
+
+      --create-group
+          Create the group if it does not exist
+
+      --tag <TAG>
+          Tag (repeatable; missing tags are created)
+
+  -h, --help
+          Print help
+
+===== sverb hosts rm --help
+Remove a host
+
+Usage: sverb hosts rm [OPTIONS] <HOST>
+
+Arguments:
+  <HOST>
+          Label, address or unique fuzzy match
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -y, --yes
+          Do not ask for confirmation (required without a terminal)
+
+  -h, --help
+          Print help
+
+===== sverb keys --help
+Manage SSH keys, or print the effective keymap with --dump
+
+Usage: sverb keys [OPTIONS]
+       sverb keys <COMMAND>
+
+Commands:
+  list      List keys in the vault (no private material)
+  generate  Generate a key
+  import    Import a key file (OpenSSH, PEM, PKCS#8, or a .pub agent / hardware key)
+  export    Export a key
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dump
+          Print the effective keymap (built-ins and config overrides)
+
+      --json
+          With --dump: print JSON (`{"version":1,"data":…}`)
+
+  -h, --help
+          Print help
+
+===== sverb keys list --help
+List keys in the vault (no private material)
+
+Usage: sverb keys list [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --json
+          Print JSON (`{"version":1,"data":…}`)
+
+  -h, --help
+          Print help
+
+===== sverb keys generate --help
+Generate a key
+
+Usage: sverb keys generate [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --type <KEY_TYPE>
+          Key algorithm
+          
+          [default: ed25519]
+          [possible values: ed25519, ecdsa-p256, ecdsa-p384, ecdsa-p521, rsa-2048, rsa-3072,
+          rsa-4096]
+
+      --label <LABEL>
+          Label for the key
+
+      --comment <COMMENT>
+          Key comment (default `user@hostname-sverb`)
+
+      --no-passphrase
+          Do not ask for a passphrase (scripts)
+
+  -h, --help
+          Print help
+
+===== sverb keys import --help
+Import a key file (OpenSSH, PEM, PKCS#8, or a .pub agent / hardware key)
+
+Usage: sverb keys import [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          The key file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --label <LABEL>
+          Label for the key (default: its comment, else the file name)
+
+  -h, --help
+          Print help
+
+===== sverb keys export --help
+Export a key
+
+Usage: sverb keys export [OPTIONS] <KEY>
+
+Arguments:
+  <KEY>
+          Key label or id
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --public
+          Export only the public key
+
+  -o, --output <OUTPUT>
+          Write to this file (private keys: mode 0600)
+
+  -h, --help
+          Print help
+
+===== sverb keymap --help
+Print the effective keymap (alias of `sverb keys --dump`)
+
+Usage: sverb keymap [OPTIONS] --dump
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dump
+          Print the effective keymap
+
+      --json
+          Print JSON (`{"version":1,"data":…}`)
+
+  -h, --help
+          Print help
+
+===== sverb forward --help
+Run a port-forward rule headless
+
+Usage: sverb forward [OPTIONS] <RULE>
+
+Arguments:
+  <RULE>
+          Port-forward rule name or id
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --detach
+          Keep running in the background
+
+  -h, --help
+          Print help
+
+===== sverb snippet --help
+Run snippets on hosts
+
+Usage: sverb snippet [OPTIONS] <COMMAND>
+
+Commands:
+  run   Run a snippet on one or more hosts
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb snippet run --help
+Run a snippet on one or more hosts
+
+Usage: sverb snippet run [OPTIONS] --on <HOST|#TAG|GROUP> <SNIPPET>
+
+Arguments:
+  <SNIPPET>
+          Snippet name or id
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --on <HOST|#TAG|GROUP>
+          Target: a host, `#tag` or group (repeatable)
+
+      --json
+          Print JSON (`{"version":1,"data":…}`)
+
+      --var <NAME=VALUE>
+          A variable value, `name=value` (repeatable)
+
+      --concurrency <CONCURRENCY>
+          Hosts worked on at once (default 10)
+
+      --timeout <S>
+          Seconds per command (default `ssh.exec_timeout_secs`)
+
+  -h, --help
+          Print help
+
+===== sverb import --help
+Import hosts, keys and settings
+
+Usage: sverb import [OPTIONS] <COMMAND>
+
+Commands:
+  ssh-config   Hosts from an OpenSSH config (default ~/.ssh/config)
+  known-hosts  Host keys from a known_hosts file (default ~/.ssh/known_hosts)
+  putty        Sessions from PuTTY (default ~/.putty/sessions; the registry on Windows)
+  csv          Hosts from a CSV file (label,address,port,username,group,tags; tags split on ; or |)
+  backup       A sverb backup
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb import ssh-config --help
+Hosts from an OpenSSH config (default ~/.ssh/config)
+
+Usage: sverb import ssh-config [OPTIONS] [PATH]
+
+Arguments:
+  [PATH]
+          Path to the config file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb import known-hosts --help
+Host keys from a known_hosts file (default ~/.ssh/known_hosts)
+
+Usage: sverb import known-hosts [OPTIONS] [PATH]
+
+Arguments:
+  [PATH]
+          Path to the known_hosts file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb import putty --help
+Sessions from PuTTY (default ~/.putty/sessions; the registry on Windows)
+
+Usage: sverb import putty [OPTIONS] [PATH]
+
+Arguments:
+  [PATH]
+          A PuTTY sessions directory (one file per session)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb import csv --help
+Hosts from a CSV file (label,address,port,username,group,tags; tags split on ; or |)
+
+Usage: sverb import csv [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          CSV file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb import backup --help
+A sverb backup
+
+Usage: sverb import backup [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          Backup file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --dry-run
+          Show what would be imported without changing anything
+
+      --vault <VAULT>
+          Vault to import into (default: Personal)
+
+      --group <GROUP>
+          Group to import into (a name or a path like a/b; default: the top level)
+
+      --on-conflict <ON_CONFLICT>
+          What to do with items that already exist with other values
+
+          Possible values:
+          - skip:      Keep the existing item
+          - overwrite: Write the imported values over it (backups: merge by timestamp)
+          - keep-both: Import it next to the existing one
+          
+          [default: skip]
+
+  -y, --yes
+          Import without asking (required without a terminal)
+
+      --identity-files
+          Also import the IdentityFiles of an ssh_config as keys
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== sverb export --help
+Export hosts, backups and recordings
+
+Usage: sverb export [OPTIONS] <COMMAND>
+
+Commands:
+  backup      Write an encrypted backup of the vault
+  ssh-config  Write hosts as an OpenSSH config (no secrets)
+  csv         Write hosts as CSV (no secrets)
+  recording   Export a session recording as asciicast
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb export backup --help
+Write an encrypted backup of the vault
+
+Usage: sverb export backup [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          Output file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --force
+          Replace an existing file
+
+      --include-shared
+          Also include shared vaults (they belong to their organization)
+
+  -h, --help
+          Print help
+
+===== sverb export ssh-config --help
+Write hosts as an OpenSSH config (no secrets)
+
+Usage: sverb export ssh-config [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          Output file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --force
+          Replace an existing file
+
+  -h, --help
+          Print help
+
+===== sverb export csv --help
+Write hosts as CSV (no secrets)
+
+Usage: sverb export csv [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          Output file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --force
+          Replace an existing file
+
+  -h, --help
+          Print help
+
+===== sverb export recording --help
+Export a session recording as asciicast
+
+Usage: sverb export recording [OPTIONS] <ID> <OUT>
+
+Arguments:
+  <ID>
+          Recording id (connection id, or the `.cast.sv` file name or path)
+
+  <OUT>
+          Output `.cast` file
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --yes
+          Skip the plain-text confirmation (required without a terminal)
+
+  -h, --help
+          Print help
+
+===== sverb approve --help
+Review and approve locally-acting fields from sync
+
+Usage: sverb approve [OPTIONS] <HOST>
+
+Arguments:
+  <HOST>
+          Label, address or unique fuzzy match
+
+Options:
+      --all
+          Approve every listed value with one question
+
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --yes
+          Approve without asking (scripts; required without a terminal)
+
+  -h, --help
+          Print help
+
+===== sverb agent --help
+Run the built-in agent exposing forwardable vault keys
+
+Usage: sverb agent [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --socket <PATH>
+          Listen on this socket instead of the default in the runtime directory
+
+  -h, --help
+          Print help
+
+===== sverb lock --help
+Lock the vault
+
+Usage: sverb lock [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb unlock --help
+Unlock the vault
+
+Usage: sverb unlock [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb login --help
+Log in to a sync server
+
+Usage: sverb login [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --server <URL>
+          Sync server URL
+
+      --email <EMAIL>
+          Account email
+
+  -h, --help
+          Print help
+
+===== sverb logout --help
+Log out of the sync server
+
+Usage: sverb logout [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --keep-local
+          Keep the local vault copy
+
+  -h, --help
+          Print help
+
+===== sverb register --help
+Create an account on a sync server
+
+Usage: sverb register [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --server <URL>
+          Sync server URL
+
+      --email <EMAIL>
+          Account email
+
+  -h, --help
+          Print help
+
+===== sverb sync --help
+Sync now or show the sync status
+
+Usage: sverb sync [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --now
+          Sync immediately
+
+      --status
+          Show the sync status
+
+  -h, --help
+          Print help
+
+===== sverb devices --help
+List or revoke devices
+
+Usage: sverb devices [OPTIONS] <COMMAND>
+
+Commands:
+  list    List this account's devices
+  revoke  Revoke a device
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb devices list --help
+List this account's devices
+
+Usage: sverb devices list [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb devices revoke --help
+Revoke a device
+
+Usage: sverb devices revoke [OPTIONS] <ID>
+
+Arguments:
+  <ID>
+          Device id
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb team --help
+Manage the team vault
+
+Usage: sverb team [OPTIONS] <COMMAND>
+
+Commands:
+  list    List team members
+  invite  Invite someone by email
+  verify  Verify a member's safety number
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb team list --help
+List team members
+
+Usage: sverb team list [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb team invite --help
+Invite someone by email
+
+Usage: sverb team invite [OPTIONS] <EMAIL>
+
+Arguments:
+  <EMAIL>
+          Email address
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb team verify --help
+Verify a member's safety number
+
+Usage: sverb team verify [OPTIONS] <USER>
+
+Arguments:
+  <USER>
+          User name or email
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb config --help
+Check, print or locate config.toml
+
+Usage: sverb config [OPTIONS] <--check|--print-default|--path|--schema>
+
+Options:
+      --check
+          Validate config.toml; prints `OK` or `file:line:col: …` errors
+
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --print-default
+          Print the default config.toml
+
+      --path
+          Print the path of config.toml
+
+      --file <FILE>
+          With --check: validate this file instead
+
+  -h, --help
+          Print help
+
+===== sverb doctor --help
+Diagnose terminal capabilities, agent and sync; list SSH algorithms
+
+Usage: sverb doctor [OPTIONS]
+
+Options:
+      --algos
+          List the supported SSH algorithms
+
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help

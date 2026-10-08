@@ -1,0 +1,60 @@
+# sverb-server + PostgreSQL (SPEC §10.7).
+#
+#   export SVERB_SERVER_SECRET="$(openssl rand -base64 48)"   # keep a copy!
+#   export SVERB_PUBLIC_URL=https://sync.example.com
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#   docker compose -f deploy/docker-compose.yml logs sverb-server | grep setup_token
+#
+# BACKUPS: back up the `pgdata` volume AND SVERB_SERVER_SECRET together.
+# The secret decrypts the OPAQUE server setup stored in the database; losing
+# either one invalidates every login (user data stays safe because it is
+# end-to-end encrypted, but every user has to re-register). See
+# docs/self-hosting.md.
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sverb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sverb}
+      POSTGRES_DB: sverb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sverb -d sverb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sverb-server:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.server
+    image: sverb-server:local
+    restart: unless-stopped
+    # `--migrate` applies pending migrations on start; drop it if you prefer
+    # to run `sverb-server migrate` by hand after taking a backup.
+    command: ["serve", "--migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://sverb:${POSTGRES_PASSWORD:-sverb}@postgres:5432/sverb
+      SVERB_BIND: 0.0.0.0:8080
+      SVERB_PUBLIC_URL: ${SVERB_PUBLIC_URL:-http://localhost:8080}
+      SVERB_SERVER_SECRET: ${SVERB_SERVER_SECRET:?set SVERB_SERVER_SECRET (openssl rand -base64 48) and back it up with the database}
+      SVERB_METRICS_TOKEN: ${SVERB_METRICS_TOKEN:-}
+      SVERB_LOG_FORMAT: json
+      # Optional invite mail:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    ports:
+      - "8080:8080"
+
+volumes:
+  # Back this up together with SVERB_SERVER_SECRET.
+  pgdata:

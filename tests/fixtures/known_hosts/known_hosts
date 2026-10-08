@@ -1,0 +1,7 @@
+# fixture for M2-11 import
+example.com,10.0.0.1 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBhYxpK5M9dWWLkngJsG1h11alcrHTyZO7bn447uw5it fixture
+|1|TiLoG1eC3mmpBNtvUXd6mbrVn8Y=|gOIVmUZAweBiA2FDlKYdy6QlUmA= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBhYxpK5M9dWWLkngJsG1h11alcrHTyZO7bn447uw5it
+@cert-authority *.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEIsaL0r6CYoLA9Pw7UTwU0s+Jt/BSebghUqZ1D8Qu3N test-ca
+@revoked old.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBhYxpK5M9dWWLkngJsG1h11alcrHTyZO7bn447uw5it
+example.com,10.0.0.1 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBhYxpK5M9dWWLkngJsG1h11alcrHTyZO7bn447uw5it fixture
+broken line

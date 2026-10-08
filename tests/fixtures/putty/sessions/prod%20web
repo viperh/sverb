@@ -1,0 +1,11 @@
+Present=1
+HostName=deploy@web.example.com
+LogFileName=putty.log
+Protocol=ssh
+PortNumber=2222
+UserName=ignored
+PublicKeyFile=/nonexistent/putty/prod.ppk
+AgentFwd=1
+ProxyMethod=0
+PortForwardings=L8080=localhost:80,R2222=127.0.0.1:22,D1080
+TerminalType=xterm

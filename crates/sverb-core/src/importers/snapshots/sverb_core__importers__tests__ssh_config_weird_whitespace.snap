@@ -1,0 +1,9 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 1 new, 0 duplicate, 0 conflict, 0 skipped
+STATUS     KIND  LABEL  DETAILS
+new        host  tabs   address=tabs.example.com port=22 user=bob
+Warnings:
+  Unsupported keywords skipped: Compression (2), StrictHostKeyChecking (1)

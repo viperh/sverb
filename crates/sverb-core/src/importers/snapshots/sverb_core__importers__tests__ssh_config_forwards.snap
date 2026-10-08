@@ -1,0 +1,13 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 5 new, 0 duplicate, 0 conflict, 1 skipped
+STATUS     KIND          LABEL          DETAILS
+new        host          tunnels        address=tunnels.example.com forwards=4
+new        port-forward  tunnels L5432  bind=127.0.0.1:5432 dest=db:5432 host=tunnels kind=local
+new        port-forward  tunnels R0     bind=127.0.0.1:0 dest=localhost:80 host=tunnels kind=remote
+new        port-forward  tunnels D1080  bind=127.0.0.1:1080 host=tunnels kind=dynamic
+new        port-forward  tunnels L8080  bind=0.0.0.0:8080 dest=web.internal:80 host=tunnels kind=local
+Skipped:
+  forwards:7: LocalForward: Unix-socket forwards are not supported

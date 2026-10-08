@@ -1,0 +1,14 @@
+---
+source: crates/sverb-tui/src/widgets/form/tests.rs
+expression: screen
+---
+┌ Edit host ───────────────────────────────────────────────┐
+│Connection                                                │
+│› Address    10.0.0.1                                     │
+│  Port       22 (default)                                 │
+│  Keepalive  30 (from group "prod")                       │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+└ tab next · shift-tab prev · ctrl-s save · esc cancel ────┘

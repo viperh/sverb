@@ -1,0 +1,10 @@
+---
+source: crates/sverb-core/src/importers/tests.rs
+expression: plan.render_table()
+---
+Import preview (ssh-config): 4 new, 0 duplicate, 0 conflict, 0 skipped
+STATUS     KIND  LABEL       DETAILS
+new        host  web         address=web.example.com agent_forwarding=true env=LANG=C.UTF-8;TZ=UTC identity_files=~/.ssh/id_ed25519 keepalive=30 port=2222 user=deploy
+new        host  db          address=db.internal.example.com user=postgres
+new        host  db-replica  address=db-replica.internal.example.com user=postgres
+new        host  plain       address=plain

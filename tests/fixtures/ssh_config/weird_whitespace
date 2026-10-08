@@ -1,0 +1,9 @@
+Host   tabs	 
+	HOSTNAME	= tabs.example.com  
+   user=bob
+
+  	# indented comment
+PORT 22
+Compression yes
+compression no
+StrictHostKeyChecking accept-new

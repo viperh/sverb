@@ -1,0 +1,78 @@
+{
+  "description": "Canonical AAD / info builders",
+  "vectors": [
+    {
+      "item_id": "3aafe0168bcb44ebe325b7ef85379573",
+      "key_version": 7,
+      "kind": "aad_item",
+      "output": "73766572622d6974656d2d7631db11c5fc94890fe3a17eaec2df42b4b03aafe0168bcb44ebe325b7ef8537957300000007",
+      "vault_id": "db11c5fc94890fe3a17eaec2df42b4b0"
+    },
+    {
+      "item_id": "3aafe0168bcb44ebe325b7ef85379573",
+      "key_version": 3735928559,
+      "kind": "aad_item",
+      "output": "73766572622d6974656d2d7631db11c5fc94890fe3a17eaec2df42b4b03aafe0168bcb44ebe325b7ef85379573deadbeef",
+      "vault_id": "db11c5fc94890fe3a17eaec2df42b4b0"
+    },
+    {
+      "kind": "info_item_key",
+      "output": "73766572622f6974656d2f7631"
+    },
+    {
+      "kind": "info_recording_key",
+      "output": "73766572622f7265636f7264696e672f7631"
+    },
+    {
+      "key_version": 3,
+      "kind": "info_vk",
+      "output": "73766572622f766b2f7631db11c5fc94890fe3a17eaec2df42b4b000000003",
+      "vault_id": "db11c5fc94890fe3a17eaec2df42b4b0"
+    },
+    {
+      "kind": "aad_wrap",
+      "output": "73766572622d6c6d6b2d777261702d7631000000036c6d6b",
+      "purpose": "lmk"
+    },
+    {
+      "kind": "aad_wrap",
+      "output": "73766572622d6c6d6b2d777261702d7631000000097661756c742d6b6579db11c5fc94890fe3a17eaec2df42b4b0",
+      "purpose": "vault-key",
+      "purpose_vault_id": "db11c5fc94890fe3a17eaec2df42b4b0"
+    },
+    {
+      "kind": "aad_wrap",
+      "output": "73766572622d6c6d6b2d777261702d76310000000b73796e632d746f6b656e73",
+      "purpose": "sync-tokens"
+    },
+    {
+      "kind": "aad_wrap",
+      "output": "73766572622d6c6d6b2d777261702d76310000000d7265636f7264696e672d6b6579",
+      "purpose": "recording-key"
+    },
+    {
+      "chunk_index": 72623859790382856,
+      "conn_id": "3aafe0168bcb44ebe325b7ef85379573",
+      "is_last": true,
+      "kind": "aad_recording_chunk",
+      "output": "3aafe0168bcb44ebe325b7ef85379573010203040506070801"
+    },
+    {
+      "chunk_index": 0,
+      "conn_id": "3aafe0168bcb44ebe325b7ef85379573",
+      "is_last": false,
+      "kind": "aad_recording_chunk",
+      "output": "3aafe0168bcb44ebe325b7ef85379573000000000000000000"
+    },
+    {
+      "input": "616263",
+      "kind": "len_prefixed",
+      "output": "00000003616263"
+    },
+    {
+      "input": "",
+      "kind": "len_prefixed",
+      "output": "00000000"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/widgets/form/tests.rs
+expression: "text(&draw(&form, 80, 24, false))"
+---
+┌ Edit host * ─────────────────────────────────────────────────────────────────┐
+│General                                                                       │
+│  Label     web                                                               │
+│  Address*  10.0.0.1                                                          │
+│  Port      70000                                                             │
+│            ! must be between 1 and 65535                                     │
+│› Pinned    [ ] no                                                            │
+│                                                                              │
+│Credentials                                                                   │
+│  Identity  (none)                                                            │
+│  Username                                                                    │
+│  Password  •••••••                                                           │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└ tab next · shift-tab prev · ctrl-s save · esc cancel ────────────────────────┘

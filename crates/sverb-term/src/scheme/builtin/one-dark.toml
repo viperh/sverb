@@ -1,0 +1,26 @@
+# one-dark: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: One Dark, Atom, https://github.com/atom/atom/tree/master/packages/one-dark-syntax (MIT).
+
+name = "one-dark"
+
+[colors]
+foreground = "#abb2bf"
+background = "#282c34"
+cursor = "#528bff"
+selection_bg = "#3e4451"
+color0 = "#1e2127"   # black
+color1 = "#e06c75"   # red
+color2 = "#98c379"   # green
+color3 = "#d19a66"   # yellow
+color4 = "#61afef"   # blue
+color5 = "#c678dd"   # magenta
+color6 = "#56b6c2"   # cyan
+color7 = "#abb2bf"   # white
+color8 = "#5c6370"   # bright black
+color9 = "#e06c75"   # bright red
+color10 = "#98c379"  # bright green
+color11 = "#d19a66"  # bright yellow
+color12 = "#61afef"  # bright blue
+color13 = "#c678dd"  # bright magenta
+color14 = "#56b6c2"  # bright cyan
+color15 = "#ffffff"  # bright white

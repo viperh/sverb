@@ -1,0 +1,47 @@
+---
+source: crates/sverb-term/tests/render.rs
+expression: "styled_text(&draw(&e, &view))"
+---
+|DESCRIPTION                                                                     |
+|     sverb-demo  does  nothing.  This page exists so that the M1-09 replay test |
+|     has a real man(1) rendering,  with  bold  and  underlined  text,  to  page |
+|     through with less(1).                                                      |
+|                                                                                |
+|     Lorem  ipsum  dolor  sit amet, consectetur adipiscing elit, sed do eiusmod |
+|     tempor incididunt ut labore et dolore magna aliqua. Ut enim ad  minim  ve‐ |
+|     niam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea com‐ |
+|     modo consequat.                                                            |
+|                                                                                |
+|OPTIONS                                                                         |
+|     -v     Be verbose.                                                         |
+|                                                                                |
+|     --color WHEN                                                               |
+|            Colorize output: always, never or auto.                             |
+|                                                                                |
+|EXIT STATUS                                                                     |
+|     Always 0.                                                                  |
+|                                                                                |
+|SEE ALSO                                                                        |
+|     ssh(1), less(1)                                                            |
+|                                                                                |
+|sverb                              2026-10-07                     SVERB-DEMO(1) |
+|(END)                                                                           |
+0:0..10 fg=Reset bg=Reset mod=BOLD
+1:5..14 fg=Reset bg=Reset mod=BOLD
+2:16..18 fg=Reset bg=Reset mod=BOLD
+3:18..21 fg=Reset bg=Reset mod=BOLD
+10:0..6 fg=Reset bg=Reset mod=BOLD
+11:5..6 fg=Reset bg=Reset mod=BOLD
+13:5..11 fg=Reset bg=Reset mod=BOLD
+13:13..16 fg=Reset bg=Reset mod=UNDERLINED
+14:29..34 fg=Reset bg=Reset mod=UNDERLINED
+14:37..41 fg=Reset bg=Reset mod=UNDERLINED
+14:46..49 fg=Reset bg=Reset mod=UNDERLINED
+16:0..3 fg=Reset bg=Reset mod=BOLD
+16:5..10 fg=Reset bg=Reset mod=BOLD
+19:0..2 fg=Reset bg=Reset mod=BOLD
+19:4..7 fg=Reset bg=Reset mod=BOLD
+20:5..7 fg=Reset bg=Reset mod=BOLD
+20:13..16 fg=Reset bg=Reset mod=BOLD
+22:66..75 fg=Reset bg=Reset mod=UNDERLINED
+23:0..4 fg=Reset bg=Reset mod=REVERSED

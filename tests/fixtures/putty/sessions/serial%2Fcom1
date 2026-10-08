@@ -1,0 +1,4 @@
+Present=1
+HostName=
+Protocol=serial
+SerialLine=/dev/ttyS0

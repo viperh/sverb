@@ -1,0 +1,7 @@
+Present=1
+HostName=legacy.example.com
+Protocol=ssh
+PortNumber=22
+ProxyMethod=1
+ProxyHost=socks4.example.com
+ProxyPort=1080

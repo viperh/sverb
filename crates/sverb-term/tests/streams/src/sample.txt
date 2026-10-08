@@ -1,0 +1,7 @@
+// sverb fixture: a small file opened in vim for the M1-09 replay test.
+fn main() {
+    let greeting = "hello, sverb";
+    for i in 0..3 {
+        println!("{greeting} #{i}");
+    }
+}

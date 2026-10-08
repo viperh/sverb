@@ -1,0 +1,4 @@
+Present=1
+HostName=192.168.1.1
+Protocol=telnet
+PortNumber=23

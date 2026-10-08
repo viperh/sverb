@@ -1,0 +1,19 @@
+---
+source: crates/sverb-tui/src/widgets/dialog_tests.rs
+expression: screen
+---
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                          ┌ Connect all ─────────────┐                          
+                          │ Open 3 hosts as:         │                          
+                          │                          │                          
+                          │ › 1. New tabs            │                          
+                          │   2. Splits in one tab   │                          
+                          └──────────────────────────┘

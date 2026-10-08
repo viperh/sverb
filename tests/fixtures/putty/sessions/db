@@ -1,0 +1,13 @@
+Present=1
+HostName=db.internal
+Protocol=ssh
+PortNumber=22
+UserName=postgres
+AgentFwd=0
+ProxyMethod=2
+ProxyHost=bastion.example.com
+ProxyPort=1080
+ProxyUsername=jump
+ProxyPassword=hunter2
+TerminalType=xterm-256color
+PortForwardings=

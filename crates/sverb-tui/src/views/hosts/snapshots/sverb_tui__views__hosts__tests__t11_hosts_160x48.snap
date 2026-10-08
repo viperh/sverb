@@ -1,0 +1,51 @@
+---
+source: crates/sverb-tui/src/views/hosts/tests.rs
+expression: wide
+---
+                                                                                                                                                                
+                                                                                                                                                                
+                ┌ Hosts ───────────────────────────────────────────────────────────────────────────────────────┐┌ prod-web-5 ──────────────────────────────────┐
+                │  ▾ Recent                                                                                    ││Label         prod-web-5                      │
+                │      prod-web-5  10.0.0.5 [web] [db]                                                         ││Address       10.0.0.5                        │
+                │      prod-web-9  10.0.0.9 [web]                                                              ││Port          22 (default)                    │
+                │  ★ prod-web-11  10.0.0.11                                                                    ││User          (local user)                    │
+                │  ★ prod-web-3  10.0.0.3 [web]                                                                ││Tags          #web #db                        │
+                │›   prod-web-5  10.0.0.5 [web] [db]                                                           ││Keepalive     15 s                            │
+                │    prod-web-1  10.0.0.1                                                                      ││Env           LANG=C.UTF-8                    │
+                │    prod-web-10  10.0.0.10 [web] [db]                                                         ││Connected     3 minutes ago                   │
+                │    prod-web-12  deploy@10.0.0.12:2222 [web]                                                  ││Vault         Personal                        │
+                │    prod-web-13  10.0.0.13                                                                    ││                                              │
+                │    prod-web-14  10.0.0.14                                                                    ││Notes                                         │
+                │    prod-web-15  10.0.0.15 [web]                                                              ││Primary web node.                             │
+                │    prod-web-16  deploy@10.0.0.16                                                             ││• runs nginx                                  │
+                │    prod-web-17  10.0.0.17                                                                    ││• see runbook <https://wiki/x>                │
+                │    prod-web-18  10.0.0.18:2222 [web]                                                         ││                                              │
+                │    prod-web-19  10.0.0.19                                                                    ││                                              │
+                │    prod-web-2  10.0.0.2                                                                      ││                                              │
+                │    prod-web-20  deploy@10.0.0.20 [web] [db]                                                  ││                                              │
+                │    prod-web-4  deploy@10.0.0.4                                                               ││                                              │
+                │    prod-web-6  10.0.0.6:2222 [web]                                                           ││                                              │
+                │    prod-web-7  10.0.0.7                                                                      ││                                              │
+                │    prod-web-8  deploy@10.0.0.8                                                               ││                                              │
+                │    prod-web-9  10.0.0.9 [web]                                                                ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                └─────────────────────────────────────────────────────────────────────────────────────── 23/23 ┘└──────────────────────────────────────────────┘

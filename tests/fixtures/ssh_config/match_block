@@ -1,0 +1,8 @@
+Host a
+    User alice
+
+Match host b exec "true"
+    User matched
+
+Host b
+    User bob

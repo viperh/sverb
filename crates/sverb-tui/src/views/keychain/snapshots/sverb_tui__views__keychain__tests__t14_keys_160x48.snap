@@ -1,0 +1,51 @@
+---
+source: crates/sverb-tui/src/views/keychain/tests.rs
+expression: screen
+---
+                                                                                                                                                                
+                                                                                                                                                                
+                [Keys] │  Certificates  │  Identities    [ ] switch                                             ┌ laptop ──────────────────────────────────────┐
+                ┌ Keys ────────────────────────────────────────────────────────────────────────────────────────┐│Label       laptop                            │
+                │  ci  Ed25519  SHA256:bvVu7QD3xxOu/tHzAWf/oGMPP3YqHJg5ACRG3I1Uaf4  enc fwd                    ││Type        Ed25519                           │
+                │› laptop [expiring]  Ed25519  SHA256:8r2Zo2DYEkwCU/W3kUHLo/Der4rSqlbFytwo4QuQrxs  used by 4   ││SHA256:8r2Zo2DYEkwCU/W3kUHLo/Der4rSqlbFytwo4Qu│
+                │  yubikey  Ed25519  SHA256:0IKnoK9hgnG4tCabLdCuufDiQM2UucCxviyZzelcYec  agent                 ││Qrxs                                          │
+                │                                                                                              ││Private key plain (vault-protected)           │
+                │                                                                                              ││Forwardable no                                │
+                │                                                                                              ││Confirm use no                                │
+                │                                                                                              ││Vault       Personal                          │
+                │                                                                                              ││                                              │
+                │                                                                                              ││Public key                                    │
+                │                                                                                              ││ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMcqUDPtNj│
+                │                                                                                              ││/2/ixbV5aJpGnKUFlsnbd5hUUqoH3svKKZ cert@sverb │
+                │                                                                                              ││                                              │
+                │                                                                                              ││1 certificate                                 │
+                │                                                                                              ││  alice@sverb [expiring]                      │
+                │                                                                                              ││    until 2036-01-01 00:00                    │
+                │                                                                                              ││                                              │
+                │                                                                                              ││Used by 3 host(s), 1 identity(ies)            │
+                │                                                                                              ││                                              │
+                │                                                                                              ││a generate · I import · p paste               │
+                │                                                                                              ││c copy · x / X export · P passphrase          │
+                │                                                                                              ││t attach cert · f forwardable                 │
+                │                                                                                              ││o confirm · H install · d delete              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                │                                                                                              ││                                              │
+                └───────────────────────────────────────────────────────────────────────────────────────── 3/3 ┘└──────────────────────────────────────────────┘

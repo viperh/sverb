@@ -1,0 +1,26 @@
+# catppuccin-frappe: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# Source: Catppuccin Frappé, https://github.com/catppuccin/alacritty (MIT).
+
+name = "catppuccin-frappe"
+
+[colors]
+foreground = "#c6d0f5"
+background = "#303446"
+cursor = "#f2d5cf"
+selection_bg = "#626880"
+color0 = "#51576d"   # black
+color1 = "#e78284"   # red
+color2 = "#a6d189"   # green
+color3 = "#e5c890"   # yellow
+color4 = "#8caaee"   # blue
+color5 = "#f4b8e4"   # magenta
+color6 = "#81c8be"   # cyan
+color7 = "#b5bfe2"   # white
+color8 = "#626880"   # bright black
+color9 = "#e78284"   # bright red
+color10 = "#a6d189"  # bright green
+color11 = "#e5c890"  # bright yellow
+color12 = "#8caaee"  # bright blue
+color13 = "#f4b8e4"  # bright magenta
+color14 = "#81c8be"  # bright cyan
+color15 = "#a5adce"  # bright white

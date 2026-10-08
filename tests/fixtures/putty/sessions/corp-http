@@ -1,0 +1,8 @@
+Present=1
+HostName=10.0.0.5
+Protocol=ssh
+PortNumber=22
+ProxyMethod=3
+ProxyHost=proxy.corp
+ProxyPort=3128
+ProxyPassword=
