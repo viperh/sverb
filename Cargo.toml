@@ -144,7 +144,7 @@ vergen-gix = { version = "10.0.1", features = ["build", "cargo"] }
 # rustls everywhere with `ring` as the provider (static musl build).
 axum = { version = "0.8.9", features = ["macros"] }
 axum-server = { version = "0.8.0", features = ["tls-rustls-no-provider"] }
-base64 = "0.22.1"
+base64 = "0.23.1"
 chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
 governor = "0.10.4"
 ipnet = "2.12.2"

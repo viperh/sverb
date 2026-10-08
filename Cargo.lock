@@ -7312,7 +7312,7 @@ name = "sverb-conn"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
+ "base64 0.23.1",
  "bytes",
  "chrono",
  "futures",
@@ -7341,7 +7341,7 @@ version = "0.1.0"
 dependencies = [
  "aes",
  "argon2 0.6.0",
- "base64 0.22.1",
+ "base64 0.23.1",
  "cbc",
  "ciborium",
  "criterion",
@@ -7444,7 +7444,7 @@ dependencies = [
 name = "sverb-proto"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "chrono",
  "ciborium",
  "serde",
@@ -7459,7 +7459,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "axum-server",
- "base64 0.22.1",
+ "base64 0.23.1",
  "chrono",
  "clap",
  "futures",
@@ -7569,7 +7569,7 @@ name = "sverb-tui"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
+ "base64 0.23.1",
  "chrono",
  "crossterm 0.29.0",
  "futures",
