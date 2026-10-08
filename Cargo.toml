@@ -179,7 +179,7 @@ sqlx-postgres = { version = "0.8.6", default-features = false, features = [
 tower = { version = "0.5.3", features = ["util"] }
 # M4-05: WebSocket client of sverb-sync (rustls with the `ring` provider,
 # roots from webpki-roots; the same tungstenite generation as axum's `ws`).
-tokio-tungstenite = { version = "0.29.0", default-features = false, features = [
+tokio-tungstenite = { version = "0.30.0", default-features = false, features = [
     "connect",
     "handshake",
     "rustls-tls-webpki-roots",
