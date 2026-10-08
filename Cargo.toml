@@ -162,7 +162,7 @@ metrics-exporter-prometheus = { version = "0.18.3", default-features = false }
 rustls = { version = "0.23.43", default-features = false, features = ["logging", "ring", "std", "tls12"] }
 # Not the `sqlx` facade: its optional sqlx-sqlite pins libsqlite3-sys < 0.38,
 # which conflicts (`links = "sqlite3"`) with rusqlite 0.40 even when unused.
-sqlx-core = { version = "0.8.6", default-features = false, features = [
+sqlx-core = { version = "0.9.0", default-features = false, features = [
     "_rt-tokio",
     "_tls-rustls-ring-webpki",
     "chrono",
