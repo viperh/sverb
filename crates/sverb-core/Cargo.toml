@@ -100,7 +100,7 @@ argon2 = { workspace = true }
 
 # M7-03: PuTTY sessions in the Windows registry.
 [target.'cfg(windows)'.dependencies]
-winreg = "0.10.1"
+winreg = "0.56.0"
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
