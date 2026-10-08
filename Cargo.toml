@@ -170,7 +170,7 @@ sqlx-core = { version = "0.8.6", default-features = false, features = [
     "migrate",
     "uuid",
 ] }
-sqlx-postgres = { version = "0.8.6", default-features = false, features = [
+sqlx-postgres = { version = "0.9.0", default-features = false, features = [
     "chrono",
     "json",
     "migrate",
