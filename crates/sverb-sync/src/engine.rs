@@ -175,7 +175,8 @@ pub(crate) struct Ctx {
     pub(crate) missing_key: HashSet<VaultId>,
     pub(crate) unknown_vaults: HashSet<VaultId>,
     pub(crate) undecryptable: HashSet<ItemId>,
-    pub(crate) skew_warned: bool,
+    // M4-09: one warning per device (the TUI also dedups per session).
+    pub(crate) skew_warned: HashSet<sverb_core::model::DeviceId>,
     pub(crate) needs_login: bool,
 }
 
@@ -230,17 +231,14 @@ impl Ctx {
 
     pub(crate) fn warn_skew(&mut self, skew: Option<ClockSkew>) {
         if let Some(s) = skew
-            && !self.skew_warned
+            && self.skew_warned.insert(s.device)
         {
-            self.skew_warned = true;
             tracing::warn!(device = %s.device, ahead_s = s.ahead_by.as_secs(), "clock skew");
-            self.toast(
-                ToastLevel::Warn,
-                format!(
-                    "Another device's clock is {}s ahead; check its time settings",
-                    s.ahead_by.as_secs()
-                ),
-            );
+            // M4-09: the UI turns this into "Clock skew detected on device X".
+            self.emit(SyncEvent::ClockSkew {
+                device: s.device.short(),
+                ahead_secs: s.ahead_by.as_secs(),
+            });
         }
     }
 
@@ -338,6 +336,13 @@ impl Ctx {
     /// One cycle: optionally the vault list, then pull, push, and pull again
     /// when something was pushed (so the cursor moves past our revisions).
     pub(crate) async fn cycle(&mut self, refresh: bool) -> Result<(), SyncError> {
+        self.cycle_inner(refresh).await?;
+        // M4-09: "last successful sync" for the status panel and `sverb sync --status`.
+        crate::info::record_sync(&self.store).await;
+        Ok(())
+    }
+
+    async fn cycle_inner(&mut self, refresh: bool) -> Result<(), SyncError> {
         if refresh {
             self.refresh_vaults().await?;
         }
@@ -481,7 +486,7 @@ impl SyncEngine {
                 missing_key: HashSet::new(),
                 unknown_vaults: HashSet::new(),
                 undecryptable: HashSet::new(),
-                skew_warned: false,
+                skew_warned: HashSet::new(),
                 needs_login: false,
             },
         })

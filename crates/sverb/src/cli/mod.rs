@@ -31,6 +31,9 @@ pub(crate) mod vault;
 
 #[cfg(test)]
 mod tests;
+// M4-09
+#[cfg(test)]
+mod sync_tests;
 
 #[cfg(not(feature = "sync"))]
 use std::ffi::OsString;
@@ -245,11 +248,13 @@ pub(crate) struct Ctx {
 
 /// Run `cli` and print any error. Returns the process exit code.
 pub(crate) async fn dispatch(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> u8 {
-    match run(cli, ctx, out).await {
+    // M5-01: boxed, the TUI future is large (clippy::large_futures).
+    match Box::pin(run(cli, ctx, out)).await {
         Ok(code) => code,
         Err(err) => {
             tracing::debug!(code = err.exit_code(), "command failed");
-            eprintln!("{}", err.report());
+            // Not `eprintln!`: it panics when stderr is gone (the terminal closed).
+            let _ = writeln!(std::io::stderr(), "{}", err.report());
             err.exit_code()
         }
     }
@@ -262,12 +267,14 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
             Some(name) => LaunchIntent::Workspace(name),
             None => LaunchIntent::Plain,
         };
-        return launch_tui(intent, ctx).await;
+        return Box::pin(launch_tui(intent, ctx)).await;
     };
     match command {
-        Command::Connect { target } => launch_tui(LaunchIntent::Connect(target), ctx).await,
+        Command::Connect { target } => {
+            Box::pin(launch_tui(LaunchIntent::Connect(target), ctx)).await
+        }
         #[cfg(feature = "sync")]
-        Command::Join { link } => launch_tui(LaunchIntent::Join(link), ctx).await,
+        Command::Join { link } => Box::pin(launch_tui(LaunchIntent::Join(link), ctx)).await,
         // M1-07: unlocks the vault (async).
         Command::Hosts(cmd) => hosts::run(cmd, ctx, out).await,
         // M2-03: `keys list | generate | import | export` unlock the vault (async).
@@ -305,7 +312,7 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
         // M4-07: one headless engine cycle (async).
         Command::Sync(args) => account::sync(args, ctx, out).await,
         #[cfg(feature = "sync")]
-        Command::Devices(cmd) => devices::run(cmd, ctx, out),
+        Command::Devices(cmd) => devices::run(cmd, ctx, out).await,
         #[cfg(feature = "sync")]
         // M5-03: `team verify` opens the store (async).
         Command::Team(cmd) => team::run_async(cmd, ctx, out).await,

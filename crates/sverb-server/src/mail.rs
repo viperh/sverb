@@ -70,3 +70,84 @@ pub async fn send_invite(cfg: &SmtpConfig, to: &str, link: &str) -> Result<(), M
     );
     send(cfg, to, "Your sverb invite", body).await
 }
+
+// M5-01
+/// Mails an org invite link.
+///
+/// # Errors
+/// [`MailError`].
+pub async fn send_org_invite(
+    cfg: &SmtpConfig,
+    to: &str,
+    org_name: &str,
+    link: &str,
+) -> Result<(), MailError> {
+    let body = format!(
+        "You have been invited to join \"{org_name}\" on a sverb sync server.\n\n\
+         Paste this link into sverb (Settings > Team, or `sverb team accept <link>`),\n\
+         or use it when registering:\n\n{link}\n\n\
+         The invite can be used once and expires in 7 days.\n"
+    );
+    send(cfg, to, "You're invited to a sverb team", body).await
+}
+
+// M5-01
+/// One mail a [`Mailer::Recording`] kept.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SentMail {
+    /// Recipient.
+    pub to: String,
+    /// Subject.
+    pub subject: String,
+    /// Body.
+    pub body: String,
+}
+
+// M5-01
+/// Where invite mail goes: SMTP, nowhere (no SMTP configured: invites are links),
+/// or a recording fake (tests).
+#[derive(Debug, Clone, Default)]
+pub enum Mailer {
+    /// No SMTP: nothing is sent.
+    #[default]
+    Disabled,
+    /// The configured relay.
+    Smtp(SmtpConfig),
+    /// Keeps the mails (tests).
+    Recording(std::sync::Arc<std::sync::Mutex<Vec<SentMail>>>),
+}
+
+impl Mailer {
+    /// SMTP when configured, else disabled.
+    #[must_use]
+    pub fn from_config(smtp: Option<&SmtpConfig>) -> Self {
+        smtp.map_or(Self::Disabled, |c| Self::Smtp(c.clone()))
+    }
+
+    /// Whether mail can be sent.
+    #[must_use]
+    pub const fn enabled(&self) -> bool {
+        !matches!(self, Self::Disabled)
+    }
+
+    /// Mails an org invite.
+    ///
+    /// # Errors
+    /// [`MailError`]; a disabled mailer does nothing.
+    pub async fn org_invite(&self, to: &str, org_name: &str, link: &str) -> Result<(), MailError> {
+        match self {
+            Self::Disabled => Ok(()),
+            Self::Smtp(cfg) => send_org_invite(cfg, to, org_name, link).await,
+            Self::Recording(sent) => {
+                if let Ok(mut s) = sent.lock() {
+                    s.push(SentMail {
+                        to: to.to_owned(),
+                        subject: "You're invited to a sverb team".into(),
+                        body: format!("Join \"{org_name}\": {link}"),
+                    });
+                }
+                Ok(())
+            }
+        }
+    }
+}

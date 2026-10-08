@@ -211,8 +211,20 @@ async fn register_finish(
         .register(&acct, cred, &tokens, Uuid::now_v7(), now)
         .await?;
     if let Some(invite) = grant.org_invite {
-        // M5-01 adds the org membership for this pending invite.
-        tracing::info!(user_id = %acct.user_id, %invite, "registered with an org invite");
+        // M5-01: the org membership for the invite presented at registration.
+        match state
+            .orgs()
+            .accept_invite_id(invite, acct.user_id, now)
+            .await
+        {
+            Ok((org_id, role)) => {
+                tracing::info!(user_id = %acct.user_id, %invite, %org_id, %role, "registered with an org invite");
+            }
+            // The account exists either way; the invite can be accepted again later.
+            Err(e) => {
+                tracing::warn!(user_id = %acct.user_id, %invite, error = %e, "org invite not applied")
+            }
+        }
     }
     tracing::info!(
         user_id = %acct.user_id,
@@ -380,6 +392,18 @@ async fn login_finish(
                     ApiError::internal(std::io::Error::other("account keys missing"))
                 })?;
             tracing::info!(user_id = %user.id, %device_id, "login");
+            // M5-01: a new device shows in the audit log of the user's orgs.
+            if !matches!(&choice, DeviceChoice::Existing(id, _) if *id == device_id) {
+                state
+                    .orgs()
+                    .record_for_user_orgs(
+                        user.id,
+                        crate::orgs::kinds::DEVICE_ADDED,
+                        Some(device_id),
+                        now,
+                    )
+                    .await?;
+            }
             Ok(Json(SessionResponse {
                 user_id: user.id,
                 device_id,

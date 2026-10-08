@@ -1,0 +1,5 @@
+---
+source: crates/sverb-tui/src/app/sync_tests.rs
+expression: top
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────── ⟳ synced

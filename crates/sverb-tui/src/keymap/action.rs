@@ -152,6 +152,15 @@ pub enum ActionName {
     OpenWorkspace,
     /// List, rename, delete and duplicate workspaces.
     ManageWorkspaces,
+    // M4-09 (unbound by default; in the palette only when sync is set up)
+    /// Settings → Sync: status, server, last sync, pending changes, errors.
+    SyncStatus,
+    /// Run a sync cycle now.
+    SyncNow,
+    /// Settings → Devices.
+    Devices,
+    /// Settings → Team: team keys and safety numbers.
+    TeamKeys,
 }
 
 /// Which-key popup groups (`tasks/03-KEYBINDINGS.md` §4.5), in display order.
@@ -470,6 +479,27 @@ pub const REGISTRY: &[ActionInfo] = &[
         description: "Manage workspaces",
         group: Group::SessionsTabs,
     },
+    // M4-09
+    ActionInfo {
+        name: ActionName::SyncStatus,
+        description: "Sync status",
+        group: Group::App,
+    },
+    ActionInfo {
+        name: ActionName::SyncNow,
+        description: "Sync now",
+        group: Group::App,
+    },
+    ActionInfo {
+        name: ActionName::Devices,
+        description: "Devices",
+        group: Group::App,
+    },
+    ActionInfo {
+        name: ActionName::TeamKeys,
+        description: "Team keys",
+        group: Group::App,
+    },
 ];
 
 // M3-01
@@ -480,6 +510,11 @@ pub const UNBOUND_BY_DEFAULT: &[ActionName] = &[
     ActionName::SaveWorkspace,
     ActionName::OpenWorkspace,
     ActionName::ManageWorkspaces,
+    // M4-09
+    ActionName::SyncStatus,
+    ActionName::SyncNow,
+    ActionName::Devices,
+    ActionName::TeamKeys,
 ];
 
 /// The static action registry (used by which-key, help and the palette).

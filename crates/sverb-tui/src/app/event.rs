@@ -93,6 +93,10 @@ pub enum UiEvent {
     // M7-01:
     /// From the history service: entries loaded, added, trimmed or purged.
     History(super::history::HistoryEvent),
+    // M4-09
+    /// From the sync service: local state, devices, the account wizard, team pins.
+    #[cfg(feature = "sync")]
+    SyncUi(super::sync::SyncUiEvent),
 }
 
 // M0-07

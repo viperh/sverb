@@ -1,0 +1,36 @@
+# M7-06: hard gates for the spec's performance targets, read by
+# `scripts/bench-gate.py gate`. `bench` is criterion's `group/function` directory.
+# The spec value is for the reference machine (`--local`); CI runners get 2x
+# (half the throughput, twice the time). Informational benches (envelope_seal_open_1k,
+# argon2_unlock, key_encode) have no gate; regressions in every bench are caught by
+# `bench-gate.py compare` (> 15%). Startup is gated by `crates/sverb/tests/startup.rs`.
+
+# SPEC §19: the emulator parses >= 100 MB/s.
+[[gate]]
+bench = "emulator_parse/mixed_1MiB"
+min_mb_s = 100
+ci_min_mb_s = 50
+
+# SPEC §19: a dense 300x100 frame renders in < 2 ms.
+[[gate]]
+bench = "render_300x100/terminal_truecolor"
+max_ms = 2
+ci_max_ms = 4
+
+[[gate]]
+bench = "render_300x100/dracula_truecolor"
+max_ms = 2
+ci_max_ms = 4
+
+# SPEC §5.2: decrypting and indexing 10k items takes about 50 ms. "About": the
+# reference gate allows 75 ms.
+[[gate]]
+bench = "index_build_10k/decrypt_and_index"
+max_ms = 75
+ci_max_ms = 150
+
+# M1-05: a query over 10k items in < 5 ms.
+[[gate]]
+bench = "search_query_10k/5char"
+max_ms = 5
+ci_max_ms = 10

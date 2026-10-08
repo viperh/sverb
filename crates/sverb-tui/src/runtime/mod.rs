@@ -261,6 +261,11 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         events_tx: ev_tx,
         signals: signal_rx,
     };
+    // M4-09: the sync engine (started on unlock), devices, the account wizard.
+    #[cfg(feature = "sync")]
+    let sync = vault
+        .clone()
+        .map(|v| crate::services::sync::SyncService::new(v, Arc::clone(app.config())));
     let mut services = Services::new()
         // M1-04
         .with_vault_opt(vault)
@@ -275,6 +280,10 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         .with_agent(agent)
         // M7-01
         .with_history(history.clone());
+    #[cfg(feature = "sync")]
+    if let Some(sync) = sync.clone() {
+        services = services.with_sync(sync);
+    }
     // M3-05: encrypted recordings in `state_dir/recordings`.
     if let Some(paths) = &paths {
         services = services.with_recordings_dir(paths.recordings_dir());
@@ -300,6 +309,11 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     connlog.shutdown().await;
     // M7-01: flush history writes.
     history.shutdown().await;
+    // M4-09: stop the sync engine (closes its WebSocket).
+    #[cfg(feature = "sync")]
+    if let Some(sync) = &sync {
+        sync.stop();
+    }
     // M1-03: flush the store.
     // M1-10: give the user's cursor shape back (panes pass theirs through with DECSCUSR).
     if let Err(err) = guard.set_cursor_shape(None) {

@@ -39,6 +39,9 @@ pub use self::engine::{
     Initialized, UnlockMethod, UnlockedVault, VaultEngine, VaultStatus, vault_display_name,
 };
 pub use self::os_keyring::{KEYRING_ENV, OsKeyring, keyring_from_env};
+// M7-06
+#[cfg(feature = "test-hooks")]
+pub use self::os_keyring::FileKeyring;
 use super::EventSender;
 use crate::app::{
     MetaFlag, MetaFlags, UiEvent, UnlockFailure, UnlockRequest, VaultEffect, VaultEvent,

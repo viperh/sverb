@@ -1,0 +1,34 @@
+---
+source: crates/sverb-tui/src/app/sync_tests.rs
+expression: screen
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────────────────
+┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                             
+│  Hosts       │┌ Settings ────────────────────────────────────────────────────────────────────────┐
+│  Keychain    ││Sync                                                                              │
+│  Forwards    ││                                                                                  │
+│  Snippets    ││Not connected · Connect to a server                                               │
+│  Known       ││                                                                                  │
+│  Logs        ││[Enter] Log in to a server   [n] Create an account                                │
+│▸ Settings    ││                                                                                  │
+│              ││sverb works fully offline. Nothing is sent anywhere until you connect a server.   │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+└──────────────┘└──────────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                                          ^\ ? help · q quit

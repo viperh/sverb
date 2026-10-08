@@ -9,6 +9,8 @@
 //! | Online password change (2.4) | [`password`] | [`change_password`] |
 //! | Forgotten password with the recovery key (2.7) | [`recovery`] | [`recover_account`] |
 //! | Disconnect (2.8) | [`logout`] | [`logout()`](logout::logout) |
+//! | Devices (M4-09) | [`devices`] | [`list_devices`], [`revoke_device`] |
+//! | Orgs, invites, audit (M5-01) | [`teams`] | [`teams::list_orgs`], [`teams::invite`], … |
 //! | Wizard state machines for the UI | [`wizard`] | [`RecoveryConfirm`], [`RegisterWizard`] |
 //!
 //! # One password (§11.2.1)
@@ -47,6 +49,8 @@ use sverb_proto::auth::DeviceInfo;
 use crate::error::SyncError;
 use crate::http::{ApiClient, HTTP_TIMEOUT};
 
+// M4-09: list / revoke devices.
+pub mod devices;
 pub mod grants;
 pub mod local;
 pub mod login;
@@ -55,8 +59,11 @@ pub mod merge_local;
 pub mod password;
 pub mod recovery;
 pub mod register;
+// M5-01: orgs, members, invites, the audit log.
+pub mod teams;
 pub mod wizard;
 
+pub use devices::{Revoked, list_devices, revoke_device};
 pub use grants::{GrantKeySource, TrustedGranters};
 pub use local::{LocalAccount, load_account, load_account_keys};
 pub use login::{LoggedIn, LoginRequest, LoginSession, start_login};

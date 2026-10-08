@@ -129,6 +129,10 @@ pub enum DialogKind {
     /// The autocomplete / history overlay (`leader Space`), anchored at the pane's
     /// cursor. The reducer takes its answer after each key (`App::take_autocomplete_answer`).
     Autocomplete(Box<super::sessions::autocomplete::Autocomplete>),
+    // M4-09
+    /// The account wizard (log in / create an account). The reducer takes its answer
+    /// after each key (`App::take_wizard_answer`); screens come from the sync service.
+    AccountWizard(Box<super::settings::account_wizard::AccountWizardDialog>),
 }
 
 // M1-06
@@ -487,6 +491,10 @@ impl View for Dialog {
             DialogKind::Workspaces(w) => {
                 w.handle(ev, cx);
             }
+            // M4-09
+            DialogKind::AccountWizard(w) => {
+                w.handle(ev, cx);
+            }
             // M7-01
             DialogKind::Autocomplete(a) => {
                 cx.request_redraw();
@@ -545,6 +553,8 @@ impl View for Dialog {
             DialogKind::Palette(p) => return p.render(frame, area, cx),
             // M3-03
             DialogKind::Workspaces(w) => return w.render(frame, area, cx),
+            // M4-09
+            DialogKind::AccountWizard(w) => return w.render(frame, area, cx),
             // M7-01: anchored at the cursor (absolute screen cells).
             DialogKind::Autocomplete(a) => return a.render(frame, area, cx.theme),
             // M0-10

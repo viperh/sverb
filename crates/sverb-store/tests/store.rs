@@ -262,6 +262,8 @@ async fn t05_outbox_coalescing() {
     assert_eq!(rows[0].base_revision, 7);
     assert_eq!(rows[0].queued_at, clock.now_millis());
     assert_eq!(store.pending_count().await.unwrap(), 1);
+    // M4-09
+    assert_eq!(store.pending_by_vault().await.unwrap(), [(vault, 1)]);
     let dirty = store.list_dirty(vault).await.unwrap();
     assert_eq!(dirty.len(), 1);
     assert!(dirty[0].dirty);
@@ -274,11 +276,18 @@ async fn t06_rebase() {
     let (store, _) = open(dir.path());
     let vault = with_vault(&store).await;
     let item = ItemId::new();
+    // M4-09: queuing a local change wakes outbox listeners (the sync engine).
+    let mut changes = store.outbox_changes();
+    assert!(!changes.has_changed().unwrap());
     store
         .put_item(vault, item, KV, seal(vault, item, b"a"), false, true)
         .await
         .unwrap();
+    assert!(changes.has_changed().unwrap());
+    changes.mark_unchanged();
     assert_eq!(store.list_outbox(vault).await.unwrap()[0].base_revision, 0);
+    store.set_meta("x", vec![1]).await.unwrap();
+    assert!(!changes.has_changed().unwrap(), "no outbox row, no wake-up");
 
     store.rebase(item, 12).await.unwrap();
     store
@@ -296,6 +305,7 @@ async fn t06_rebase() {
     assert_eq!(store.bump_attempts(item).await.unwrap(), 2);
     store.dequeue(item).await.unwrap();
     assert_eq!(store.pending_count().await.unwrap(), 0);
+    assert!(store.pending_by_vault().await.unwrap().is_empty());
 }
 
 // T-07: an error in the 3rd item of 5 rolls back the whole page and the cursor.

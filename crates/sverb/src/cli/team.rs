@@ -1,5 +1,10 @@
 //! M0-07: `sverb team list | invite <email> | verify <user>` (sync builds only).
-//! `list` / `invite` land in M5-01.
+//!
+//! M5-01: `team list [--json]` prints each org with its members and roles;
+//! `team invite <email> [--org O] [--role member]` creates an invite and prints the
+//! link when the server has no SMTP (otherwise it says the mail went out);
+//! `team create <name>` and `team accept <link>` create and join orgs. `--org`
+//! takes a name or an id; it may be left out when the account is in one org.
 //!
 //! M5-03: `sverb team verify <user>` prints the 60-digit safety number between this
 //! account and a pinned member (12 groups of 5 digits, the same on both devices,
@@ -16,17 +21,45 @@ use sverb_store::pins::find_pin;
 use sverb_store::{PinState, Store};
 use sverb_tui::services::vault::VaultService;
 
-use super::{CliError, Ctx, exit, not_implemented, vault::require_unlocked, write_out};
+use sverb_proto::orgs::{InviteCreated, MemberView, OrgView, Role};
+use sverb_sync::account::{AccountError, teams};
+
+use super::account::{account_config, account_error};
+use super::output::write_json;
+use super::{CliError, Ctx, exit, vault::require_unlocked, write_out};
 
 /// `sverb team …`
 #[derive(Subcommand, Debug, PartialEq, Eq)]
 pub(crate) enum TeamCmd {
     /// List team members
-    List,
+    List {
+        // M5-01
+        /// Machine-readable output
+        #[arg(long)]
+        json: bool,
+    },
     /// Invite someone by email
     Invite {
         /// Email address
         email: String,
+        // M5-01
+        /// Org name or id (needed when you are in several)
+        #[arg(long, value_name = "ORG")]
+        org: Option<String>,
+        /// Role to grant: member, admin or owner
+        #[arg(long, default_value = "member", value_parser = parse_role)]
+        role: Role,
+    },
+    // M5-01
+    /// Create an org (you become its owner)
+    Create {
+        /// Org name
+        name: String,
+    },
+    /// Join an org with an invite link
+    Accept {
+        /// The invite link (or token)
+        link: String,
     },
     /// Verify a member's safety number
     Verify {
@@ -35,13 +68,178 @@ pub(crate) enum TeamCmd {
     },
 }
 
-pub(crate) fn run(cmd: TeamCmd, _ctx: &Ctx, _out: &mut dyn Write) -> Result<u8, CliError> {
-    match cmd {
-        TeamCmd::List => not_implemented("team list", "M5-01"),
-        TeamCmd::Invite { .. } => not_implemented("team invite", "M5-01"),
-        // M5-03: `cli/mod.rs` dispatches through `run_async`, which handles `verify`.
-        TeamCmd::Verify { .. } => unreachable!("`team verify` is handled by `run_async`"),
+fn parse_role(s: &str) -> Result<Role, String> {
+    Role::parse(&s.to_ascii_lowercase())
+        .ok_or_else(|| format!("unknown role `{s}` (member, admin, owner)"))
+}
+
+// M5-01
+/// The org `query` names (name, case-insensitive, or id), or the only one.
+pub(crate) fn pick_org<'a>(
+    orgs: &'a [OrgView],
+    query: Option<&str>,
+) -> Result<&'a OrgView, CliError> {
+    match query {
+        None => match orgs {
+            [one] => Ok(one),
+            [] => Err(CliError::Usage(
+                "you are not in any org: create one with `sverb team create <name>`".into(),
+            )),
+            _ => Err(CliError::Usage(format!(
+                "you are in {} orgs: pick one with --org ({})",
+                orgs.len(),
+                orgs.iter()
+                    .map(|o| o.name.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ))),
+        },
+        Some(q) => {
+            let q = q.trim();
+            let hits: Vec<_> = orgs
+                .iter()
+                .filter(|o| o.id.to_string() == q || o.name.eq_ignore_ascii_case(q))
+                .collect();
+            match hits.as_slice() {
+                [one] => Ok(one),
+                [] => Err(CliError::NotFound(format!(
+                    "no org `{q}` (see `sverb team list`)"
+                ))),
+                _ => Err(CliError::Usage(format!(
+                    "`{q}` names several orgs: use its id"
+                ))),
+            }
+        }
     }
+}
+
+// M5-01
+/// What `team invite` prints.
+pub(crate) fn invite_text(inv: &InviteCreated, org: &str) -> String {
+    let who = inv.email.as_deref().unwrap_or("anyone with the link");
+    let mut t = format!("Invited {who} to {org} as {}.\n", inv.role);
+    match &inv.link {
+        Some(link) => {
+            t.push_str("Send them this link (single use, expires in 7 days):\n");
+            t.push_str(link);
+            t.push('\n');
+        }
+        None if inv.emailed => t.push_str("The invite link was sent by email.\n"),
+        None => {}
+    }
+    t
+}
+
+// M5-01
+/// What `team list` prints.
+pub(crate) fn list_text(orgs: &[(OrgView, Vec<MemberView>)]) -> String {
+    use std::fmt::Write as _;
+    if orgs.is_empty() {
+        return "You are not in any org. Create one with `sverb team create <name>`.\n".into();
+    }
+    let mut t = String::new();
+    for (org, members) in orgs {
+        let _ = writeln!(t, "{} (you: {})", org.name, org.role);
+        for m in members {
+            let _ = writeln!(t, "  {:<6} {}", m.role.as_str(), m.email);
+        }
+    }
+    t
+}
+
+/// The `team list --json` entries.
+#[derive(serde::Serialize)]
+struct OrgJson<'a> {
+    id: uuid::Uuid,
+    name: &'a str,
+    role: Role,
+    members: &'a [MemberView],
+}
+
+fn account_failure(e: AccountError) -> CliError {
+    match e {
+        AccountError::NotSignedIn => CliError::Usage(
+            "this device is not signed in to a sync server; run `sverb login`".into(),
+        ),
+        AccountError::Sync(ref s) if s.is_status(404) => {
+            CliError::NotFound("no such org or invite (or it expired or was used)".into())
+        }
+        AccountError::Sync(ref s) if s.is_status(403) => {
+            CliError::Failure(sverb_core::error_report::ErrorReport::msg(e.to_string()))
+        }
+        e => account_error(e),
+    }
+}
+
+// M5-01: list, invite, create, accept.
+async fn run_remote(cmd: TeamCmd, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
+    let unlocked = require_unlocked(ctx).await?;
+    let store = unlocked.engine.store().clone();
+    let lmk = unlocked.vault.lmk().clone();
+    drop(unlocked);
+    let cfg = account_config();
+    match cmd {
+        TeamCmd::List { json } => {
+            let orgs = teams::list_orgs(&store, &lmk, &cfg)
+                .await
+                .map_err(account_failure)?;
+            let mut full = Vec::new();
+            for o in orgs {
+                let m = teams::members(&store, &lmk, &cfg, o.id)
+                    .await
+                    .map_err(account_failure)?;
+                full.push((o, m));
+            }
+            if json {
+                let data: Vec<OrgJson<'_>> = full
+                    .iter()
+                    .map(|(o, m)| OrgJson {
+                        id: o.id,
+                        name: &o.name,
+                        role: o.role,
+                        members: m,
+                    })
+                    .collect();
+                write_json(out, &data)?;
+            } else {
+                write_out(out, &list_text(&full))?;
+            }
+        }
+        TeamCmd::Invite { email, org, role } => {
+            let orgs = teams::list_orgs(&store, &lmk, &cfg)
+                .await
+                .map_err(account_failure)?;
+            let target = pick_org(&orgs, org.as_deref())?;
+            let inv = teams::invite(&store, &lmk, &cfg, target.id, Some(&email), role)
+                .await
+                .map_err(account_failure)?;
+            write_out(out, &invite_text(&inv, &target.name))?;
+        }
+        TeamCmd::Create { name } => {
+            let org = teams::create_org(&store, &lmk, &cfg, &name)
+                .await
+                .map_err(account_failure)?;
+            write_out(
+                out,
+                &format!("Created {} ({}). You are its owner.\n", org.name, org.id),
+            )?;
+        }
+        TeamCmd::Accept { link } => {
+            let joined = teams::accept_invite(&store, &lmk, &cfg, &link)
+                .await
+                .map_err(account_failure)?;
+            let orgs = teams::list_orgs(&store, &lmk, &cfg)
+                .await
+                .map_err(account_failure)?;
+            let name = orgs
+                .iter()
+                .find(|o| o.id == joined.org_id)
+                .map_or_else(|| joined.org_id.to_string(), |o| o.name.clone());
+            write_out(out, &format!("Joined {name} as {}.\n", joined.role))?;
+        }
+        TeamCmd::Verify { .. } => unreachable!("handled by run_async"),
+    }
+    Ok(exit::OK)
 }
 
 // M5-03: `cli/mod.rs` dispatches `team` here (async: `verify` opens the store).
@@ -58,7 +256,7 @@ pub(crate) async fn run_async(
             let store = vault.store().clone();
             verify(&store, &user, interactive, ask_yes, out).await
         }
-        other => run(other, ctx, out),
+        other => run_remote(other, ctx, out).await,
     }
 }
 
@@ -146,6 +344,76 @@ fn ask_yes(question: &str) -> bool {
     let mut line = String::new();
     std::io::stdin().lock().read_line(&mut line).is_ok()
         && matches!(line.trim().to_lowercase().as_str(), "y" | "yes")
+}
+
+// M5-01 T-09: `team invite` output and org picking.
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod team_tests {
+    use super::*;
+
+    fn org(name: &str) -> OrgView {
+        OrgView {
+            id: uuid::Uuid::now_v7(),
+            name: name.into(),
+            role: Role::Owner,
+            created_at: None,
+        }
+    }
+
+    #[test]
+    fn t09_invite_prints_the_link_without_smtp() {
+        let inv = InviteCreated {
+            id: uuid::Uuid::nil(),
+            org_id: uuid::Uuid::nil(),
+            email: Some("bob@example.test".into()),
+            role: Role::Member,
+            expires_at: chrono::DateTime::from_timestamp(0, 0).unwrap(),
+            link: Some("https://sync.example.test/invite/tok".into()),
+            emailed: false,
+        };
+        let t = invite_text(&inv, "Acme");
+        assert_eq!(
+            t,
+            "Invited bob@example.test to Acme as member.\n\
+             Send them this link (single use, expires in 7 days):\n\
+             https://sync.example.test/invite/tok\n"
+        );
+        let mailed = InviteCreated {
+            link: None,
+            emailed: true,
+            ..inv
+        };
+        assert!(invite_text(&mailed, "Acme").ends_with("The invite link was sent by email.\n"));
+    }
+
+    #[test]
+    fn org_picking() {
+        let one = [org("Acme")];
+        assert_eq!(pick_org(&one, None).unwrap().name, "Acme");
+        assert_eq!(pick_org(&one, Some("acme")).unwrap().name, "Acme");
+        assert_eq!(
+            pick_org(&one, Some(&one[0].id.to_string())).unwrap().name,
+            "Acme"
+        );
+        assert_eq!(
+            pick_org(&one, Some("nope")).unwrap_err().exit_code(),
+            exit::NOT_FOUND
+        );
+        let two = [org("Acme"), org("Beta")];
+        assert_eq!(pick_org(&two, None).unwrap_err().exit_code(), exit::USAGE);
+        assert_eq!(pick_org(&[], None).unwrap_err().exit_code(), exit::USAGE);
+        assert!(list_text(&[]).starts_with("You are not in any org"));
+        let members = vec![MemberView {
+            user_id: uuid::Uuid::nil(),
+            email: "a@example.test".into(),
+            role: Role::Owner,
+        }];
+        assert_eq!(
+            list_text(&[(org("Acme"), members)]),
+            "Acme (you: owner)\n  owner  a@example.test\n"
+        );
+    }
 }
 
 #[cfg(test)]

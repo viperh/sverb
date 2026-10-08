@@ -175,14 +175,34 @@ pub struct MemMember {
 /// An `invites` row (instance or org invite).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemInvite {
+    // M5-01
+    /// Id.
+    pub id: Uuid,
     /// Token hash.
     pub token_hash: [u8; 32],
     /// Bound email.
     pub email: Option<String>,
-    /// Org invite (accepted later by M5-01) rather than an instance invite.
-    pub org: bool,
+    // M5-01: `org: bool` became the org id.
+    /// The org of an org invite; `None` for an instance invite.
+    pub org_id: Option<Uuid>,
+    /// Granted role (org invites).
+    pub role: Option<sverb_proto::orgs::Role>,
+    /// Creator.
+    pub created_by: Option<Uuid>,
+    /// Expiry.
+    pub expires_at: Option<DateTime<Utc>>,
     /// Accepted.
     pub accepted: bool,
+}
+
+// M5-01
+/// An `orgs` row.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MemOrg {
+    /// Name.
+    pub name: String,
+    /// Creation time.
+    pub created_at: DateTime<Utc>,
 }
 
 /// A `recovery_codes` row.
@@ -199,6 +219,13 @@ pub struct MemRecoveryCode {
 /// An `audit_events` row.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MemAudit {
+    // M5-01
+    /// Id (1, 2, …).
+    pub id: i64,
+    /// The org (`None`: an instance-level event).
+    pub org_id: Option<Uuid>,
+    /// Time.
+    pub at: Option<DateTime<Utc>>,
     /// Actor.
     pub actor: Option<Uuid>,
     /// Kind.
@@ -242,6 +269,11 @@ pub struct MemData {
     pub setup_token_hash: Option<[u8; 32]>,
     /// `invites`.
     pub invites: Vec<MemInvite>,
+    // M5-01
+    /// `orgs`.
+    pub orgs: BTreeMap<Uuid, MemOrg>,
+    /// `org_members`: (org, user) → role.
+    pub org_members: BTreeMap<(Uuid, Uuid), sverb_proto::orgs::Role>,
     /// Failure injection: the personal-vault insert of the next
     /// registrations fails.
     pub fail_vault_insert: bool,
@@ -265,6 +297,8 @@ impl Default for MemData {
             registration_mode: RegistrationMode::InviteOnly,
             setup_token_hash: None,
             invites: Vec::new(),
+            orgs: BTreeMap::new(),
+            org_members: BTreeMap::new(),
             fail_vault_insert: false,
         }
     }
@@ -279,9 +313,13 @@ impl MemData {
     /// Adds an email-bound instance invite.
     pub fn add_invite(&mut self, token: &str, email: Option<&str>) {
         self.invites.push(MemInvite {
+            id: Uuid::now_v7(),
             token_hash: hash_token(token),
             email: email.map(str::to_lowercase),
-            org: false,
+            org_id: None,
+            role: None,
+            created_by: None,
+            expires_at: None,
             accepted: false,
         });
     }
@@ -311,6 +349,7 @@ impl MemData {
         &self,
         email: &str,
         cred: RegistrationCredential<'_>,
+        now: DateTime<Utc>,
     ) -> Res<(RegistrationGrant, Option<usize>, bool)> {
         if self.registration_mode == RegistrationMode::Closed {
             return Err(ApiError::Forbidden(
@@ -339,13 +378,22 @@ impl MemData {
                 let found = self.invites.iter().position(|i| {
                     i.token_hash == hash
                         && !i.accepted
-                        && i.email.as_deref().is_none_or(|e| e == email)
+                        && i.expires_at.is_none_or(|e| e > now)
+                        && i.email.as_deref().is_none_or(|e| e.to_lowercase() == email)
                 });
                 match found {
-                    Some(i) if !self.invites[i].org => {
+                    Some(i) if self.invites[i].org_id.is_none() => {
                         Ok((RegistrationGrant::default(), Some(i), false))
                     }
-                    Some(_) => Ok((RegistrationGrant::default(), None, false)),
+                    // M5-01: the membership is added once the account exists.
+                    Some(i) => Ok((
+                        RegistrationGrant {
+                            org_invite: Some(self.invites[i].id),
+                            ..RegistrationGrant::default()
+                        },
+                        None,
+                        false,
+                    )),
                     None => Err(ApiError::Forbidden(
                         "invalid, expired or already used invite".into(),
                     )),
@@ -442,7 +490,11 @@ impl MemData {
         target: Option<Uuid>,
         meta: serde_json::Value,
     ) {
+        let id = i64::try_from(self.audit.len()).unwrap_or(i64::MAX) + 1;
         self.audit.push(MemAudit {
+            id,
+            org_id: None,
+            at: None,
             actor,
             kind: kind.to_owned(),
             target,
@@ -462,7 +514,7 @@ impl MemStore {
         Self::default()
     }
 
-    fn lock(&self) -> MutexGuard<'_, MemData> {
+    pub(crate) fn lock(&self) -> MutexGuard<'_, MemData> {
         // A panic while holding the lock can only come from a failing test.
         self.0
             .lock()
@@ -479,7 +531,10 @@ impl MemStore {
         email: &str,
         cred: RegistrationCredential<'_>,
     ) -> Res<()> {
-        self.lock().authorize(email, cred).map(|_| ())
+        // The policy check has no clock: expiry is enforced by `register`.
+        self.lock()
+            .authorize(email, cred, DateTime::<Utc>::MIN_UTC)
+            .map(|_| ())
     }
 
     pub(super) fn register(
@@ -491,7 +546,7 @@ impl MemStore {
         now: DateTime<Utc>,
     ) -> Res<RegistrationGrant> {
         let mut d = self.lock();
-        let (grant, invite, setup_used) = d.authorize(&a.email, cred)?;
+        let (grant, invite, setup_used) = d.authorize(&a.email, cred, now)?;
         if d.users.contains_key(&a.user_id) || d.user_id_by_email(&a.email).is_some() {
             return Err(ApiError::Conflict(
                 "an account with this email or id already exists".into(),

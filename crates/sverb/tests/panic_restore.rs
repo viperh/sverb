@@ -305,8 +305,14 @@ fn drop_with_closed_terminal_never_panics() -> TestResult {
         std::thread::sleep(Duration::from_millis(20));
     };
     assert_eq!(status.signal(), None, "{status:?}");
-    assert_eq!(status.exit_code(), 0, "{status:?}");
-    assert!(crash_reports(&home).is_empty());
+    // 0 normally; 1 when the terminal was already gone while sverb set it up (the
+    // setup error is reported, still without a panic: no exit 101, no crash report).
+    assert!(matches!(status.exit_code(), 0 | 1), "{status:?}");
+    assert!(
+        crash_reports(&home).is_empty(),
+        "{:?}",
+        crash_reports(&home)
+    );
     let log = log_text(&home);
     assert!(!log.contains("panicked"), "{log}");
     let _ = std::fs::remove_dir_all(&home);

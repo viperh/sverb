@@ -1,0 +1,34 @@
+---
+source: crates/sverb-tui/src/app/sync_tests.rs
+expression: screen
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────── ⟳ synced 
+┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                             
+│  Hosts       │┌ Settings ────────────────────────────────────────────────────────────────────────┐
+│  Keychain    ││Sync · Devices · Team                                                             │
+│  Forwards    ││                                                                                  │
+│  Snippets    ││› laptop              linux     created 2026-10-08 12:00  seen -  this device     │
+│  Known       ││  phone               linux     created 2026-10-08 12:00  seen -                  │
+│  Logs        ││                                                                                  │
+│▸ Settings    ││[x] Revoke   [r] Reload                                                           │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+│              ││                                                                                  │
+└──────────────┘└──────────────────────────────────────────────────────────────────────────────────┘
+ NORMAL  │ ⟳ synced                                                              ^\ ? help · q quit

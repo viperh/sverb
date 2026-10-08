@@ -65,6 +65,26 @@ impl ReadTx<'_> {
             .query_row("SELECT COUNT(*) FROM outbox", [], |r| r.get(0))?;
         Ok(u64::try_from(n).unwrap_or(0))
     }
+
+    // M4-09: the sync status panel and `sverb sync --status` list it per vault.
+    /// Queued items per vault (vaults with nothing queued are left out), in
+    /// vault id order.
+    pub fn pending_by_vault(&self) -> Result<Vec<(VaultId, u64)>> {
+        let mut stmt = self.conn.prepare_cached(
+            "SELECT vault_id, COUNT(*) FROM outbox GROUP BY vault_id ORDER BY vault_id",
+        )?;
+        let raws = stmt
+            .query_map([], |r| Ok((r.get::<_, Vec<u8>>(0)?, r.get::<_, i64>(1)?)))?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        raws.into_iter()
+            .map(|(vault, n)| {
+                Ok((
+                    VaultId::from_bytes(id16(vault, "outbox.vault_id")?),
+                    u64::try_from(n).unwrap_or(0),
+                ))
+            })
+            .collect()
+    }
 }
 
 impl WriteTx<'_> {
@@ -78,6 +98,7 @@ impl WriteTx<'_> {
                 vault_id = excluded.vault_id",
             params![item.as_bytes(), vault.as_bytes(), base_revision, self.now],
         )?;
+        self.enqueued.set(true);
         Ok(())
     }
 
@@ -153,6 +174,12 @@ impl Store {
     /// See [`ReadTx::pending_count`].
     pub async fn pending_count(&self) -> Result<u64> {
         self.read(|r| r.pending_count()).await
+    }
+
+    // M4-09
+    /// See [`ReadTx::pending_by_vault`].
+    pub async fn pending_by_vault(&self) -> Result<Vec<(VaultId, u64)>> {
+        self.read(|r| r.pending_by_vault()).await
     }
 
     /// See [`ReadTx::list_outbox`].

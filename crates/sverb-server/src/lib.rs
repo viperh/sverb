@@ -18,6 +18,7 @@
 //! * [`sync`]: vaults, pull, push, quota, tombstone GC (M4-04),
 //! * [`ws`]: `/v1/ws` notifications and `LISTEN/NOTIFY` fan-out (M4-05),
 //! * [`share`]: terminal-share relay, `/v1/shares` (M6-01),
+//! * [`orgs`]: orgs, roles, invites and the audit log (M5-01),
 //! * [`admin`]: admin CLI operations, [`cli`]: argument parsing,
 //! * [`serve`]: startup checks and listeners.
 
@@ -34,6 +35,8 @@ pub mod logging;
 pub mod mail;
 pub mod metrics;
 pub mod middleware;
+// M5-01: orgs, roles, invites, the audit log.
+pub mod orgs;
 pub mod registration;
 pub mod routes;
 pub mod secrets;

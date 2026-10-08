@@ -41,7 +41,10 @@ fn vault_error(err: VaultError) -> CliError {
 
 /// Open the store with the binary's keyring. `None` when there is no database yet
 /// (a fresh home is never created by a headless command).
-async fn open_engine(ctx: &Ctx, keyring: Arc<dyn KeyringStore>) -> Result<Option<VaultEngine>, CliError> {
+async fn open_engine(
+    ctx: &Ctx,
+    keyring: Arc<dyn KeyringStore>,
+) -> Result<Option<VaultEngine>, CliError> {
     if !ctx.paths.db_file().exists() {
         return Ok(None);
     }
@@ -50,7 +53,11 @@ async fn open_engine(ctx: &Ctx, keyring: Arc<dyn KeyringStore>) -> Result<Option
         .await
         .map_err(|e| CliError::failure(&e))?
         .map_err(|e| CliError::failure(&e))?;
-    Ok(Some(VaultEngine::new(store, keyring, Argon2Cost::PRODUCTION)))
+    Ok(Some(VaultEngine::new(
+        store,
+        keyring,
+        Argon2Cost::PRODUCTION,
+    )))
 }
 
 /// Unlock the vault for a headless command, or fail without blocking.
@@ -66,7 +73,9 @@ pub(crate) async fn require_unlocked(ctx: &Ctx) -> Result<Unlocked, CliError> {
     if status.keyring_enabled {
         match engine.unlock_with_keyring().await {
             Ok(vault) => return Ok(Unlocked { engine, vault }),
-            Err(e) => tracing::info!(error = %e, "keyring unlock failed; falling back to the prompt"),
+            Err(e) => {
+                tracing::info!(error = %e, "keyring unlock failed; falling back to the prompt")
+            }
         }
     }
     if !(ctx.tty.stdin && ctx.tty.stderr) {
@@ -97,7 +106,9 @@ pub(crate) async fn require_unlocked_with_password(
     if status.keyring_enabled {
         match engine.unlock_with_keyring().await {
             Ok(vault) => return Ok((Unlocked { engine, vault }, None)),
-            Err(e) => tracing::info!(error = %e, "keyring unlock failed; falling back to the prompt"),
+            Err(e) => {
+                tracing::info!(error = %e, "keyring unlock failed; falling back to the prompt")
+            }
         }
     }
     if !(ctx.tty.stdin && ctx.tty.stderr) {
@@ -124,7 +135,10 @@ pub(crate) async fn unlock_with_handoff(
         return Err(vault_error(VaultError::NotInitialized));
     };
     if let Some(pw) = password {
-        let vault = engine.unlock_with_password(&pw).await.map_err(vault_error)?;
+        let vault = engine
+            .unlock_with_password(&pw)
+            .await
+            .map_err(vault_error)?;
         return Ok(Unlocked { engine, vault });
     }
     let vault = engine.unlock_with_keyring().await.map_err(vault_error)?;
@@ -146,7 +160,10 @@ where
     let mut last = VaultError::Locked;
     for _ in 0..MAX_ATTEMPTS {
         if let Some(wait) = engine.status().await.map_err(vault_error)?.retry_after {
-            eprintln!("Too many failed attempts; waiting {}s…", wait.as_secs().max(1));
+            eprintln!(
+                "Too many failed attempts; waiting {}s…",
+                wait.as_secs().max(1)
+            );
             tokio::time::sleep(wait).await;
         }
         let pw = read_password("Master password: ").map_err(|e| CliError::failure(&e))?;
@@ -166,9 +183,14 @@ where
 /// Ctrl-C / Ctrl-D / Esc abort.
 fn read_password(prompt: &str) -> io::Result<Zeroizing<String>> {
     let mut err = io::stderr();
-    write!(err, "{prompt}")?;
-    err.flush()?;
+    // Raw mode first, then the prompt: a password typed right after the prompt
+    // appears is never echoed by the cooked tty, and its line end can't arrive as
+    // `\n` (which raw mode reads as ctrl-j, not Enter).
     crossterm::terminal::enable_raw_mode()?;
+    if let Err(e) = write!(err, "{prompt}").and_then(|()| err.flush()) {
+        let _ = crossterm::terminal::disable_raw_mode();
+        return Err(e);
+    }
     let result = (|| {
         let mut pw = Zeroizing::new(String::new());
         loop {
@@ -181,10 +203,14 @@ fn read_password(prompt: &str) -> io::Result<Zeroizing<String>> {
             let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
             match key.code {
                 KeyCode::Enter => return Ok(pw),
+                // Line ends typed ahead in cooked mode (`\n`, `\r`).
+                KeyCode::Char('j' | 'm') if ctrl => return Ok(pw),
                 KeyCode::Char('c' | 'd') if ctrl => {
                     return Err(io::Error::new(io::ErrorKind::Interrupted, "cancelled"));
                 }
-                KeyCode::Esc => return Err(io::Error::new(io::ErrorKind::Interrupted, "cancelled")),
+                KeyCode::Esc => {
+                    return Err(io::Error::new(io::ErrorKind::Interrupted, "cancelled"));
+                }
                 KeyCode::Backspace => {
                     pw.pop();
                 }
@@ -212,7 +238,9 @@ pub(crate) async fn unlock(ctx: &Ctx) -> Result<u8, CliError> {
     let engine = match open_engine(ctx, keyring_from_env()).await? {
         Some(engine) => engine,
         None if tty => {
-            ctx.paths.ensure(sverb_core::paths::DirKind::Data).map_err(|e| CliError::failure(&e))?;
+            ctx.paths
+                .ensure(sverb_core::paths::DirKind::Data)
+                .map_err(|e| CliError::failure(&e))?;
             open_engine(ctx, keyring_from_env())
                 .await?
                 .ok_or_else(|| vault_error(VaultError::NotInitialized))?

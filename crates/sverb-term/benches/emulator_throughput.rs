@@ -1,6 +1,8 @@
 //! T-19 (M1-09): emulator parse throughput on a mixed text + SGR stream (SPEC §19: ≥ 100 MB/s).
 //!
-//! `cargo bench -p sverb-term --bench emulator_throughput`. The gate is enforced in M7-06.
+//! `cargo bench -p sverb-term --bench emulator_throughput`. M7-06: `emulator_parse`,
+//! gated by `scripts/bench-gate.py` (≥ 100 MB/s locally, ≥ 50 MB/s on CI). Each
+//! iteration feeds 1 MiB; criterion runs enough iterations to cover well over 100 MB.
 #![allow(missing_docs, clippy::unwrap_used)]
 
 use std::hint::black_box;
@@ -29,10 +31,10 @@ fn mixed_stream(target_len: usize) -> Vec<u8> {
 
 fn bench(c: &mut Criterion) {
     let chunk = mixed_stream(1024 * 1024);
-    let mut group = c.benchmark_group("emulator");
+    let mut group = c.benchmark_group("emulator_parse");
     group.throughput(Throughput::Bytes(chunk.len() as u64));
     group.sample_size(20);
-    group.bench_function("feed_mixed_1MiB", |b| {
+    group.bench_function("mixed_1MiB", |b| {
         let mut emu = AlacrittyEmulator::new(EmulatorConfig::default());
         b.iter(|| {
             // Feed in 16 KiB reads, as the session read loop does.

@@ -249,6 +249,19 @@ impl ProxyCommandStream {
 
     /// On stdout EOF: wait (briefly) for stderr to end, then report its tail.
     fn poll_eof(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        let tail = std::task::ready!(self.poll_tail(cx));
+        if tail.is_empty() {
+            Poll::Ready(Ok(()))
+        } else {
+            Poll::Ready(Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                format!("ProxyCommand closed the connection: {}", tail.join(" | ")),
+            )))
+        }
+    }
+
+    /// The stderr tail once stderr ended or the grace period ran out.
+    fn poll_tail(&mut self, cx: &mut Context<'_>) -> Poll<Vec<String>> {
         {
             let mut s = self.stderr.0.lock();
             if !s.done {
@@ -264,15 +277,7 @@ impl ProxyCommandStream {
                 return Poll::Pending;
             }
         }
-        let tail = self.stderr_tail();
-        if tail.is_empty() {
-            Poll::Ready(Ok(()))
-        } else {
-            Poll::Ready(Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                format!("ProxyCommand closed the connection: {}", tail.join(" | ")),
-            )))
-        }
+        Poll::Ready(self.stderr_tail())
     }
 }
 
@@ -316,9 +321,26 @@ impl AsyncWrite for ProxyCommandStream {
         cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        match &mut self.get_mut().stdin {
-            Some(stdin) => Pin::new(stdin).poll_write(cx, buf),
-            None => Poll::Ready(Err(io::ErrorKind::BrokenPipe.into())),
+        let this = self.get_mut();
+        let res = match &mut this.stdin {
+            Some(stdin) => std::task::ready!(Pin::new(stdin).poll_write(cx, buf)),
+            None => Err(io::ErrorKind::BrokenPipe.into()),
+        };
+        match res {
+            // The command exited: report what it said on stderr, like a read does
+            // (the SSH handshake may write before it reads).
+            Err(e) if e.kind() == io::ErrorKind::BrokenPipe => {
+                let tail = std::task::ready!(this.poll_tail(cx));
+                Poll::Ready(Err(if tail.is_empty() {
+                    e
+                } else {
+                    io::Error::new(
+                        io::ErrorKind::BrokenPipe,
+                        format!("ProxyCommand closed the connection: {}", tail.join(" | ")),
+                    )
+                }))
+            }
+            other => Poll::Ready(other),
         }
     }
 

@@ -1,0 +1,72 @@
+name: Benchmarks
+
+# M7-06: performance targets (SPEC §1, §5.2, §19). Not run on every PR (shared
+# runners are noisy): nightly on main and on demand.
+#
+# * Hard gates for the spec targets, CI-adjusted (2x): scripts/bench-gates.toml.
+# * Startup to the host list with keyring unlock: median of 20 runs < 200 ms.
+# * Regressions: every bench is compared with the last main baseline (cached); a
+#   median more than 15% slower fails the run (scripts/bench-gate.py compare).
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  bench:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # vergen-gix needs history and tags
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Restore the main baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: target/criterion
+          key: criterion-main-${{ github.run_id }}
+          restore-keys: criterion-main-
+      - name: Run benchmarks
+        run: cargo bench --workspace --locked --bench '*' -- --save-baseline ci --noplot
+      - name: Spec gates (CI thresholds)
+        run: python3 scripts/bench-gate.py gate --baseline ci
+      - name: Regressions against main (> 15%)
+        run: |
+          if ls target/criterion/*/*/main/estimates.json >/dev/null 2>&1; then
+            python3 scripts/bench-gate.py compare --old main --new ci --threshold 15
+          else
+            echo "No main baseline yet; this run becomes it."
+          fi
+      - name: Startup to the host list (keyring unlock, 1k hosts)
+        env:
+          SVERB_STARTUP_GATE_MS: "200"
+        run: >
+          cargo test --release --locked -p sverb --features test-hooks --test startup
+          -- --ignored --nocapture
+      # The new results become the baseline for the next run (main only).
+      - name: Promote the baseline
+        if: github.ref == 'refs/heads/main'
+        run: |
+          for d in target/criterion/*/*/ci; do
+            rm -rf "$(dirname "$d")/main"
+            cp -r "$d" "$(dirname "$d")/main"
+          done
+      - name: Save the main baseline
+        if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: target/criterion
+          key: criterion-main-${{ github.run_id }}

@@ -12,7 +12,7 @@ rust-version.workspace = true
 workspace = true
 
 [features]
-sync = ["dep:sverb-sync"]
+sync = ["dep:sverb-sync", "dep:uuid"]
 # M0-08: exposes `sverb_tui::testing` (AppHarness, FakeSessionRegistry) to other crates' tests.
 test-util = []
 # M0-05: crash-path hooks (`SVERB_TEST_HOOK`) used by the binary's PTY tests.
@@ -30,6 +30,8 @@ sverb-crypto = { workspace = true }
 sverb-proto = { workspace = true }
 sverb-store = { workspace = true }
 sverb-sync = { workspace = true, optional = true }
+# M5-01: org and member ids in the sync service.
+uuid = { workspace = true, optional = true }
 sverb-term = { workspace = true }
 
 # M0-11: notification timestamps in `ui.date_format`.
@@ -65,6 +67,9 @@ open = "5.4.3"
 # M0-08: suspend raises SIGTSTP, which only exists on unix.
 [target.'cfg(unix)'.dependencies]
 signal-hook = { workspace = true }
+# M7-06: the startup kitty-keyboard probe polls the tty with a 50 ms budget (safe
+# `poll`; crossterm's own probe waits up to 2 s). Same major as crossterm's rustix.
+rustix = { version = "1.1.4", features = ["event"] }
 
 # M0-08: reducer property tests and TestBackend snapshots.
 [dev-dependencies]

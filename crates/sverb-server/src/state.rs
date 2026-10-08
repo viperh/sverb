@@ -63,6 +63,9 @@ struct Inner {
     ws: WsRuntime,
     // M6-01
     shares: ShareRuntime,
+    // M5-01
+    orgs: crate::orgs::OrgStore,
+    mailer: std::sync::RwLock<crate::mail::Mailer>,
 }
 
 /// Cheaply clonable state (`Arc` inside).
@@ -116,6 +119,9 @@ impl AppState {
         sync.set_notifier(ws.notifier());
         // M6-01: share sessions on the same backend as auth.
         let shares = ShareRuntime::for_auth(&auth, &config);
+        // M5-01: orgs on the same backend as auth; invite mail when SMTP is set.
+        let orgs = crate::orgs::OrgStore::for_auth(auth.store());
+        let mailer = std::sync::RwLock::new(crate::mail::Mailer::from_config(config.smtp.as_ref()));
         Self(Arc::new(Inner {
             config,
             db,
@@ -127,6 +133,8 @@ impl AppState {
             sync,
             ws,
             shares,
+            orgs,
+            mailer,
         }))
     }
 
@@ -182,6 +190,25 @@ impl AppState {
     #[must_use]
     pub fn shares(&self) -> &ShareRuntime {
         &self.0.shares
+    }
+
+    /// M5-01: orgs, members, invites, the audit log.
+    #[must_use]
+    pub fn orgs(&self) -> &crate::orgs::OrgStore {
+        &self.0.orgs
+    }
+
+    /// M5-01: the invite mailer.
+    #[must_use]
+    pub fn mailer(&self) -> crate::mail::Mailer {
+        self.0.mailer.read().map(|m| m.clone()).unwrap_or_default()
+    }
+
+    /// M5-01: replaces the mailer (tests: [`crate::mail::Mailer::Recording`]).
+    pub fn set_mailer(&self, mailer: crate::mail::Mailer) {
+        if let Ok(mut m) = self.0.mailer.write() {
+            *m = mailer;
+        }
     }
 
     /// Non-fatal readiness flags.

@@ -65,6 +65,8 @@ fn dialog_wants_text(kind: &DialogKind) -> bool {
         DialogKind::Palette(_) => true,
         // M3-03: the list's filter line and the name prompts.
         DialogKind::Workspaces(w) => w.wants_text(),
+        // M4-09: the wizard's fields.
+        DialogKind::AccountWizard(w) => w.screen.prompt.is_some(),
         _ => false,
     }
 }
@@ -130,7 +132,8 @@ impl App {
                 Section::Snippets => self.views.snippets.insert_mode(),
                 // M2-02: the Keychain sub-tab's filter.
                 Section::Keychain => self.views.keychain.insert_mode(),
-                _ => false,
+                // M5-01: the Team page's input line.
+                Section::Settings => self.views.settings.insert_mode(),
             }
     }
 

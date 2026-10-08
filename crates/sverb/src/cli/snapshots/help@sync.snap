@@ -882,7 +882,10 @@ Options:
           Sync immediately
 
       --status
-          Show the sync status
+          Show the sync status (the default)
+
+      --json
+          Machine-readable output
 
   -h, --help
           Print help
@@ -915,6 +918,9 @@ Options:
           Log at debug level and keep recent log lines for the log pane (log files may then contain
           hostnames)
 
+      --json
+          Machine-readable output
+
   -h, --help
           Print help
 
@@ -943,6 +949,8 @@ Usage: sverb team [OPTIONS] <COMMAND>
 Commands:
   list    List team members
   invite  Invite someone by email
+  create  Create an org (you become its owner)
+  accept  Join an org with an invite link
   verify  Verify a member's safety number
   help    Print this message or the help of the given subcommand(s)
 
@@ -964,6 +972,9 @@ Options:
           Log at debug level and keep recent log lines for the log pane (log files may then contain
           hostnames)
 
+      --json
+          Machine-readable output
+
   -h, --help
           Print help
 
@@ -975,6 +986,48 @@ Usage: sverb team invite [OPTIONS] <EMAIL>
 Arguments:
   <EMAIL>
           Email address
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --org <ORG>
+          Org name or id (needed when you are in several)
+
+      --role <ROLE>
+          Role to grant: member, admin or owner
+          
+          [default: member]
+
+  -h, --help
+          Print help
+
+===== sverb team create --help
+Create an org (you become its owner)
+
+Usage: sverb team create [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>
+          Org name
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb team accept --help
+Join an org with an invite link
+
+Usage: sverb team accept [OPTIONS] <LINK>
+
+Arguments:
+  <LINK>
+          The invite link (or token)
 
 Options:
       --debug

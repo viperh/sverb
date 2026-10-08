@@ -7276,6 +7276,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "chrono",
  "clap",
  "color-eyre",
  "crossterm 0.29.0",
@@ -7291,6 +7292,7 @@ dependencies = [
  "sverb-conn",
  "sverb-core",
  "sverb-crypto",
+ "sverb-proto",
  "sverb-store",
  "sverb-sync",
  "sverb-term",
@@ -7300,6 +7302,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "tracing-subscriber",
+ "uuid",
  "vergen-gix",
  "zeroize",
 ]
@@ -7578,6 +7581,7 @@ dependencies = [
  "proptest",
  "ratatui",
  "ratatui-textarea",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "signal-hook 0.4.4",
@@ -7592,6 +7596,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+ "uuid",
  "zeroize",
 ]
 

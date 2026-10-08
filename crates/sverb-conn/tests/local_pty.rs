@@ -60,12 +60,22 @@ fn screen(handle: &SessionHandle) -> String {
     )
 }
 
-/// Wait until some grid line, trimmed, equals `line`.
+/// A grid line, trimmed, without a leading `sh` prompt. Input typed before the
+/// shell printed its first prompt is echoed by the tty first, so the command's
+/// output can land on the prompt line (`$ hello`, or `# hello` as root).
+fn output_line(l: &str) -> &str {
+    let l = l.trim();
+    l.strip_prefix("$ ")
+        .or_else(|| l.strip_prefix("# "))
+        .unwrap_or(l)
+}
+
+/// Wait until some grid line, trimmed (and without a prompt), equals `line`.
 async fn wait_line(handle: &SessionHandle, line: &str, within: Duration) {
     let deadline = Instant::now() + within;
     loop {
         let text = screen(handle);
-        if text.lines().any(|l| l.trim() == line) {
+        if text.lines().any(|l| output_line(l) == line) {
             return;
         }
         assert!(
@@ -250,7 +260,7 @@ async fn t06_close_kills_the_child() {
     let pid = loop {
         let text = screen(&h);
         if let Some(pid) = text.lines().find_map(|l| {
-            l.trim()
+            output_line(l)
                 .strip_prefix("pid=")
                 .and_then(|p| p.strip_suffix('.'))
                 .and_then(|p| p.parse::<u32>().ok())

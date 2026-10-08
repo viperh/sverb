@@ -216,6 +216,9 @@ pub struct Views {
     // M2-09
     /// The Snippets section.
     pub snippets: snippets::SnippetsView,
+    // M4-09
+    /// The Settings section (Sync, Devices, Team).
+    pub settings: settings::SettingsView,
 }
 
 impl Views {

@@ -64,6 +64,10 @@ pub mod palette;
 mod sync;
 #[cfg(test)]
 mod palette_tests;
+// M4-09: the sync facade (the UI's only `cfg(feature = "sync")` boundary).
+#[cfg(all(test, feature = "sync"))]
+mod sync_tests;
+pub mod sync_ui;
 // M3-03: workspaces (save, open with bounded concurrency, `--workspace`, manage).
 pub mod workspaces;
 // M7-01: command history (capture tiers, storage), the autocomplete overlay, ghost text.
@@ -184,6 +188,9 @@ pub struct App {
     // M7-01
     /// Command history: entries, per-pane prompt learning (`app/history.rs`).
     pub(crate) history: history::HistoryUi,
+    // M4-09
+    /// Sync status, Settings → Sync / Devices / Team, the account wizard.
+    pub(crate) sync: sync_ui::SyncUi,
 }
 
 impl App {
@@ -234,7 +241,10 @@ impl App {
             palette: palette::PaletteUi::default(),
             // M7-01
             history: history::HistoryUi::default(),
+            // M4-09
+            sync: sync_ui::SyncUi::default(),
         }
+        .with_settings_panel()
     }
 
     /// Replace the keymap (construction only; [`App::new`] derives it from the config).
@@ -304,6 +314,9 @@ impl App {
             // M4-07
             #[cfg(feature = "sync")]
             UiEvent::Sync(ev) => self.on_sync(ev, &mut effects),
+            // M4-09
+            #[cfg(feature = "sync")]
+            UiEvent::SyncUi(ev) => self.on_sync_ui(ev, &mut effects),
             // M2-07: the `confirm_on_use` modal (60 s, then deny).
             UiEvent::AgentConfirm(prompt) => {
                 self.push_modal(
@@ -324,6 +337,8 @@ impl App {
         self.palette_lock_transition(was_locked);
         // M7-01: the decrypted history goes on lock and is reloaded on unlock.
         self.history_lock_transition(was_locked, &mut effects);
+        // M4-09: the sync engine runs while unlocked.
+        self.sync_lock_transition(was_locked, &mut effects);
         // M1-14: locking cancels outstanding auth prompts.
         self.auth_lock_transition(was_locked, &mut effects);
         // M1-17: tabs follow the sessions and focus; closes, new panes, resize debounce.
@@ -422,6 +437,10 @@ impl App {
                 if self.pane_ops_on_mouse(mouse) {
                     return;
                 }
+                // M4-09: the top bar's sync indicator opens Settings → Sync.
+                if self.sync_indicator_click(mouse, effects) {
+                    return;
+                }
                 // M1-17: tab bar clicks, pane focus, mouse input for the focused pane.
                 if self.tabs_on_mouse(mouse, effects) {
                     return;
@@ -463,6 +482,8 @@ impl App {
                 self.take_workspaces_answer(effects);
                 // M7-01: the autocomplete overlay's choice.
                 self.take_autocomplete_answer(effects);
+                // M4-09: the account wizard's input.
+                self.take_sync_dialog_answer(effects);
                 return outcome;
             }
         }
@@ -495,6 +516,8 @@ impl App {
         self.take_keychain_requests(effects);
         // M1-07: the Hosts view's request and a quick-connect answer.
         self.take_hosts_requests(effects);
+        // M4-09: Settings → Sync / Devices / Team.
+        self.take_settings_request(effects);
         outcome
     }
 
@@ -520,6 +543,8 @@ impl App {
             ActionName::AcceptGhostText => self.accept_ghost_text(effects),
             // M0-09: Windows has no job control; say so instead of doing nothing.
             ActionName::Suspend => self.on_suspend(SUSPEND_SUPPORTED, effects),
+            // M4-09: sync status, sync now, devices, team keys.
+            other if self.apply_sync_action(other, effects) => {}
             // M3-01: resize, resize mode, zoom, rename / move tab, equalize.
             other if self.apply_pane_ops_action(other, effects) => {}
             // M3-02: `leader b` / `leader B`.

@@ -8,6 +8,7 @@
 //! runtime → [`cli::dispatch`]. The runtime is built by hand (not `#[tokio::main]`)
 //! so the panic hook and logging exist before it, and it is shut down with a timeout.
 
+use std::io::Write as _;
 use std::{process::ExitCode, time::Duration};
 
 use cli::{Cli, Ctx, Tty};
@@ -31,7 +32,8 @@ fn main() -> ExitCode {
         Ok(code) => ExitCode::from(code),
         // Unexpected internal errors only: the color-eyre report (exit 1).
         Err(report) => {
-            eprintln!("{report:?}");
+            // Not `eprintln!`: it panics when stderr is gone (the terminal closed).
+            let _ = writeln!(std::io::stderr(), "{report:?}");
             ExitCode::FAILURE
         }
     }

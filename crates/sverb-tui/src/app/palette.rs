@@ -131,7 +131,6 @@ impl App {
             | A::CopyMode
             | A::SessionInfo
             | A::ToggleRecording
-            | A::SharePane
             | A::Autocomplete
             | A::AcceptGhostText
             | A::MarkBroadcastPane => session,
@@ -154,6 +153,9 @@ impl App {
             | A::ZoomPane
             | A::EqualizePanes => panes > 1,
             A::ToggleLogPane => self.action_available(action),
+            // M4-09: sharing and team / sync actions need a connected server (§1.1).
+            A::SharePane => session && self.sync.connected(),
+            A::SyncStatus | A::SyncNow | A::Devices | A::TeamKeys => self.sync.connected(),
             A::LockVault => self.vault.active,
             A::Suspend => cfg!(unix),
             _ => true,

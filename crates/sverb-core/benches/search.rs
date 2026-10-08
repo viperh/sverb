@@ -1,6 +1,8 @@
 //! M1-05 T-12: full index build of 10k synthetic items (decrypt included) and a
 //! 5-char query over them. Targets: build ≈ 50 ms on a modern CPU (< 150 ms on CI),
 //! query < 5 ms.
+//!
+//! M7-06: `index_build_10k` and `search_query_10k` (gated by `scripts/bench-gate.py`).
 #![allow(missing_docs, clippy::unwrap_used, clippy::expect_used)]
 
 use std::hint::black_box;
@@ -87,14 +89,16 @@ fn bench_search(c: &mut Criterion) {
     let vault = VaultId::new();
     let items = synthetic(vault, &key);
 
-    let mut g = c.benchmark_group("search");
+    let mut g = c.benchmark_group("index_build_10k");
     g.sample_size(10);
-    g.bench_function("build 10k (decrypt included)", |b| {
+    g.bench_function("decrypt_and_index", |b| {
         b.iter(|| black_box(build(vault, &key, &items)));
     });
+    g.finish();
     let snap = build(vault, &key, &items).snapshot();
     let q = Query::parse("hwb12");
-    g.bench_function("query 10k, 5-char pattern", |b| {
+    let mut g = c.benchmark_group("search_query_10k");
+    g.bench_function("5char", |b| {
         b.iter(|| black_box(snap.query(&q, Scope::Hosts)));
     });
     g.finish();

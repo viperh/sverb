@@ -1,4 +1,4 @@
-//! Seal / open of a 1 KiB item envelope.
+//! Seal / open of a 1 KiB item envelope (M7-06 `envelope_seal_open_1k`, informational).
 #![allow(missing_docs, clippy::unwrap_used)]
 
 use std::hint::black_box;
@@ -15,12 +15,14 @@ fn bench_envelope(c: &mut Criterion) {
     let mut rng = os_rng();
     let env = seal_item(&vk, &vault, &item, 1, &body, &mut rng).unwrap();
 
-    c.bench_function("seal_item 1KiB", |b| {
+    let mut g = c.benchmark_group("envelope_seal_open_1k");
+    g.bench_function("seal_1KiB", |b| {
         b.iter(|| seal_item(&vk, &vault, &item, 1, black_box(&body), &mut rng).unwrap());
     });
-    c.bench_function("open_item 1KiB", |b| {
+    g.bench_function("open_1KiB", |b| {
         b.iter(|| open_item(|_| Some(&vk), &vault, &item, black_box(&env)).unwrap());
     });
+    g.finish();
 }
 
 criterion_group!(benches, bench_envelope);

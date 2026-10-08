@@ -125,21 +125,26 @@ impl TestServer {
 
     fn serve(&self, listener: TcpListener) {
         let log = self.requests.clone();
-        // M5-03: the public-keys hook.
+        // M5-03: the public-keys hook. M5-01: the server serves the endpoint now, so
+        // the hook is a middleware that answers only for users a test overrides.
         let keys = self.user_keys.clone();
-        let hook = axum::Router::new().route(
-            "/v1/users/{id}/public-keys",
-            axum::routing::get(move |axum::extract::Path(id): axum::extract::Path<Uuid>| {
-                let found = keys.lock().get(&id).cloned();
-                async move {
-                    match found {
-                        Some(k) => axum::Json(k).into_response(),
-                        None => axum::http::StatusCode::NOT_FOUND.into_response(),
-                    }
+        let hook = axum::middleware::from_fn(move |req: Request, next: Next| {
+            let keys = keys.clone();
+            async move {
+                let found = req
+                    .uri()
+                    .path()
+                    .strip_prefix("/v1/users/")
+                    .and_then(|rest| rest.strip_suffix("/public-keys"))
+                    .and_then(|id| id.parse::<Uuid>().ok())
+                    .and_then(|id| keys.lock().get(&id).cloned());
+                match found {
+                    Some(k) => axum::Json(k).into_response(),
+                    None => next.run(req).await,
                 }
-            }),
-        );
-        let router = app::router(self.state.clone()).merge(hook).layer(axum::middleware::from_fn(
+            }
+        });
+        let router = app::router(self.state.clone()).layer(hook).layer(axum::middleware::from_fn(
             move |req: Request, next: Next| record(log.clone(), req, next),
         ));
         let task = tokio::spawn(async move {

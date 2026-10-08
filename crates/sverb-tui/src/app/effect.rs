@@ -180,6 +180,11 @@ pub enum Effect {
     /// command, purge a host, the `[history]` policy. Results come back as
     /// `UiEvent::History`.
     History(super::history::HistoryEffect),
+    // M4-09
+    /// A sync request (`services::sync`): start / stop with the lock, sync now, the
+    /// local state, devices, disconnect, the account wizard, team pins. Results come
+    /// back as `UiEvent::Sync` / `UiEvent::SyncUi`; local-only builds drop it.
+    Sync(super::sync_ui::SyncEffect),
 }
 
 // M0-10
