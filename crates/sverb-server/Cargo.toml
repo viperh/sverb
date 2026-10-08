@@ -54,7 +54,7 @@ sqlx-postgres = { workspace = true }
 tower = { workspace = true }
 tower-http = { workspace = true }
 # M4-02: TOTP second factor (RFC 6238); secrets and otpauth URIs are built here.
-totp-rs = { version = "5.7.0", default-features = false }
+totp-rs = { version = "6.0.0", default-features = false }
 # M4-05: the WebSocket session is written against futures Stream/Sink.
 futures = { workspace = true }
 
