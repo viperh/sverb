@@ -65,6 +65,8 @@ fn dialog_wants_text(kind: &DialogKind) -> bool {
         DialogKind::Palette(_) => true,
         // M3-03: the list's filter line and the name prompts.
         DialogKind::Workspaces(w) => w.wants_text(),
+        // M4-09: the wizard's fields.
+        DialogKind::AccountWizard(w) => w.screen.prompt.is_some(),
         _ => false,
     }
 }

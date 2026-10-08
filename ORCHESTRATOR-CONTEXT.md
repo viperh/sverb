@@ -18,6 +18,12 @@ Previous transcript: /home/viperh/.claude/projects/-home-viperh/d8490e3c-b2b8-4a
 - Final check (no agents running): `cargo test --workspace` gave 1635 passed and 2 failed, both fixed afterwards: docs/keybindings.md regenerated; team_verify tests moved to services/team_verify_tests.rs because of the no-I/O scan. Then `cargo test -p sverb-tui --features sync` gave 507 passed and 0 failed, and `cargo test -p sverb --no-default-features` gave 73 passed and 0 failed. Clippy is clean with and without sync. 48 tests are ignored (Docker/PostgreSQL/manual).
 - Follow-ups are listed per task in tasks/04-PROGRESS.md (notably M4-09 must render the M4-08 wizards and wire SyncService/TrustedKeySource; M5-01 must add GET /v1/users/{id}/public-keys).
 
+## Cloud session progress (2026-10-08)
+- Working directly in the cloud session (no sub-agents, so no locks), branch `claude/focused-tesla-e5wwcs`, committing per task.
+- M4-09 DONE (see tasks/04-PROGRESS.md). Next: M7-06, then M5-01, M5-02, M5-04, M6-03, M7-04, M7-05, M7-07.
+- Disk is tight here: build with `CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0`.
+- Pushing failed (no GitHub access for the Claude app on viperh/sverb); commits are local until access is fixed.
+
 ## User decision: moving to a cloud session (2026-10-08)
 - "wait until they are done then do not create new agents afterwards. merge the changes. and tell me. i will commit"
 - So: let M7-01, M3-03, M7-02, M4-08 and M5-03 finish. Start NO new agents. Merge everything, report, and the USER commits (I don't).

@@ -92,7 +92,10 @@ pub async fn revoke_device(
     let tokens = session(store, lmk, cfg).await?;
     let list = call(&tokens, |api, t| async move { api.list_devices(&t).await }).await?;
     let current = list.iter().any(|d| d.id == device && d.current);
-    call(&tokens, |api, t| async move { api.revoke_device(&t, device).await }).await?;
+    call(&tokens, |api, t| async move {
+        api.revoke_device(&t, device).await
+    })
+    .await?;
     drop(tokens);
     if !current {
         return Ok(Revoked::Other);

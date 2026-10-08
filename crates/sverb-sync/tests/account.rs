@@ -921,7 +921,10 @@ async fn m4_09_devices_list_revoke_and_local_info() {
     let r = revoke_device(&a.store, &a.lmk, &cfg("a"), me)
         .await
         .unwrap();
-    assert!(matches!(r, Revoked::ThisDevice(ref rep) if rep.kept_items == 1), "{r:?}");
+    assert!(
+        matches!(r, Revoked::ThisDevice(ref rep) if rep.kept_items == 1),
+        "{r:?}"
+    );
     assert!(a.store.get_sync_state().await.unwrap().is_none());
     assert!(!sverb_sync::local_info(&a.store).await.unwrap().connected());
 }

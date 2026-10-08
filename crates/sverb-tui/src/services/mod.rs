@@ -91,6 +91,11 @@ pub struct Services {
     // M7-01
     /// `None` in loop tests: history effects are dropped.
     history: Option<history::HistoryService>,
+    // M4-09
+    /// The sync engine, devices, the account wizard (`None`: local-only build, or no
+    /// vault).
+    #[cfg(feature = "sync")]
+    sync: Option<sync::SyncService>,
 }
 
 impl Services {
@@ -147,6 +152,15 @@ impl Services {
     #[must_use]
     pub fn with_history(mut self, history: history::HistoryService) -> Self {
         self.history = Some(history);
+        self
+    }
+
+    // M4-09
+    /// Execute `Effect::Sync` through `sync`.
+    #[cfg(feature = "sync")]
+    #[must_use]
+    pub fn with_sync(mut self, sync: sync::SyncService) -> Self {
+        self.sync = Some(sync);
         self
     }
 
@@ -371,6 +385,14 @@ impl Services {
             }
             // M3-03
             Effect::Workspaces(op) => workspaces::execute(self.vault.as_ref(), op, ev_tx),
+            // M4-09
+            #[cfg(feature = "sync")]
+            Effect::Sync(op) => match &self.sync {
+                Some(sync) => sync.execute(op, ev_tx),
+                None => debug!(?op, "sync effect dropped: no sync service"),
+            },
+            #[cfg(not(feature = "sync"))]
+            Effect::Sync(op) => debug!(?op, "sync effect dropped: built without sync"),
             Effect::Quit { .. }
             | Effect::Suspend
             | Effect::SetMouseCapture(_)

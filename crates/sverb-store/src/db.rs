@@ -52,6 +52,10 @@ pub(crate) struct Inner {
     /// The device's `local_approvals`, in memory (§17.1); persists through a weak
     /// handle back to this store (`approvals::StoreSink`).
     pub(crate) approvals: Arc<sverb_core::resolve::approval::DeviceApprovals>,
+    // M4-09
+    /// Bumped after every committed write that queued an outbox row
+    /// ([`Store::outbox_changes`]).
+    outbox: tokio::sync::watch::Sender<u64>,
 }
 
 // M2-10
@@ -105,6 +109,9 @@ pub struct WriteTx<'a> {
     pub(crate) conn: &'a Connection,
     pub(crate) now: i64,
     pub(crate) read_only: &'a RwLock<HashSet<ItemId>>,
+    // M4-09
+    /// Set when this transaction queued an outbox row.
+    pub(crate) enqueued: &'a std::cell::Cell<bool>,
 }
 
 impl fmt::Debug for WriteTx<'_> {
@@ -188,6 +195,13 @@ impl Store {
         &self.inner.path
     }
 
+    // M4-09
+    /// Changes whenever a committed write queued an outbox row (a local change to
+    /// push). The sync engine's push debounce listens to it.
+    pub fn outbox_changes(&self) -> tokio::sync::watch::Receiver<u64> {
+        self.inner.outbox.subscribe()
+    }
+
     /// The current time from the store's clock (UNIX ms).
     pub fn now(&self) -> i64 {
         self.inner.clock.now_millis()
@@ -210,15 +224,21 @@ impl Store {
         let inner = Arc::clone(&self.inner);
         join(tokio::task::spawn_blocking(move || {
             let tx = guard.transaction_with_behavior(TransactionBehavior::Immediate)?;
+            let enqueued = std::cell::Cell::new(false);
             let out = {
                 let w = WriteTx {
                     conn: &tx,
                     now: inner.clock.now_millis(),
                     read_only: &inner.read_only,
+                    enqueued: &enqueued,
                 };
                 f(&w)?
             };
             tx.commit()?;
+            // M4-09: wake the sync engine's push debounce.
+            if enqueued.get() {
+                inner.outbox.send_modify(|n| *n = n.wrapping_add(1));
+            }
             Ok(out)
         }))
         .await
@@ -368,6 +388,8 @@ fn open_inner(path: &Path, clock: Arc<dyn Clock>, extra: &[&'static str]) -> Res
             read_only: RwLock::new(HashSet::new()),
             // M2-10
             approvals: crate::approvals::device_approvals(WeakStore(weak.clone()), approval_rows),
+            // M4-09
+            outbox: tokio::sync::watch::channel(0).0,
         }),
     })
 }

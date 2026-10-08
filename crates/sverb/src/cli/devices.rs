@@ -67,7 +67,10 @@ impl From<&DeviceView> for DeviceJson {
 pub(crate) fn table(devices: &[DeviceView]) -> String {
     use std::fmt::Write as _;
     let day = |t: Option<chrono::DateTime<chrono::Utc>>| {
-        t.map_or_else(|| "-".to_owned(), |t| t.format("%Y-%m-%d %H:%M").to_string())
+        t.map_or_else(
+            || "-".to_owned(),
+            |t| t.format("%Y-%m-%d %H:%M").to_string(),
+        )
     };
     let rows: Vec<[String; 5]> = devices
         .iter()

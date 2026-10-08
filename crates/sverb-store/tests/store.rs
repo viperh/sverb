@@ -276,11 +276,18 @@ async fn t06_rebase() {
     let (store, _) = open(dir.path());
     let vault = with_vault(&store).await;
     let item = ItemId::new();
+    // M4-09: queuing a local change wakes outbox listeners (the sync engine).
+    let mut changes = store.outbox_changes();
+    assert!(!changes.has_changed().unwrap());
     store
         .put_item(vault, item, KV, seal(vault, item, b"a"), false, true)
         .await
         .unwrap();
+    assert!(changes.has_changed().unwrap());
+    changes.mark_unchanged();
     assert_eq!(store.list_outbox(vault).await.unwrap()[0].base_revision, 0);
+    store.set_meta("x", vec![1]).await.unwrap();
+    assert!(!changes.has_changed().unwrap(), "no outbox row, no wake-up");
 
     store.rebase(item, 12).await.unwrap();
     store

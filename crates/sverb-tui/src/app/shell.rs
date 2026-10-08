@@ -292,6 +292,10 @@ impl App {
             (Region::Main, MainView::Sections) if self.shell.section == Section::Snippets => {
                 Some(&mut self.views.snippets)
             }
+            // M4-09
+            (Region::Main, MainView::Sections) if self.shell.section == Section::Settings => {
+                Some(&mut self.views.settings)
+            }
             _ => None,
         }
     }
@@ -375,6 +379,8 @@ impl App {
             ))
         });
         // M3-02: `BROADCAST ×N` while the focused pane's input is broadcast.
+        // M4-09: `⟳ synced` / `offline (3 pending)` (`None` in local-only mode).
+        info.sync = self.sync.indicator().map(|(text, _)| text);
         if let Some(b) = self.broadcast_status() {
             info.broadcast = Some(b.count);
             info.broadcast_note = b.note;
@@ -415,7 +421,14 @@ impl App {
             debug: self.debug(),
         };
 
-        topbar::render(frame, rects.top_bar, &TopBarInfo::default(), theme);
+        // M4-09: the sync indicator (hidden in local-only mode).
+        let (sync, sync_level) = self.sync.indicator().unzip();
+        let top = TopBarInfo {
+            sync,
+            sync_level,
+            ..TopBarInfo::default()
+        };
+        topbar::render(frame, rects.top_bar, &top, theme);
 
         // Tab bar (with the status segments on its right when merged).
         let info = self.status_info();
@@ -460,6 +473,9 @@ impl App {
                 } else if self.shell.section == Section::Snippets {
                     // M2-09
                     self.views.snippets.render(frame, rects.main, &rcx(focused));
+                } else if self.shell.section == Section::Settings {
+                    // M4-09
+                    self.views.settings.render(frame, rects.main, &rcx(focused));
                 } else {
                     render_placeholder(frame, rects.main, self.shell.section, &rcx(focused));
                 }

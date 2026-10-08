@@ -98,6 +98,7 @@ impl WriteTx<'_> {
                 vault_id = excluded.vault_id",
             params![item.as_bytes(), vault.as_bytes(), base_revision, self.now],
         )?;
+        self.enqueued.set(true);
         Ok(())
     }
 

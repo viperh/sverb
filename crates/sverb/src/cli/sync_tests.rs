@@ -5,7 +5,6 @@
 #![cfg(feature = "sync")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-
 use pretty_assertions::assert_eq;
 use sverb_core::config::{Config, Validators};
 use sverb_core::model::VaultId;
@@ -58,12 +57,21 @@ fn t06_status_text_and_json() {
 
     let info = synced_info();
     let text = status_text(&info);
-    assert!(text.contains("server:     https://sync.example.test\n"), "{text}");
+    assert!(
+        text.contains("server:     https://sync.example.test\n"),
+        "{text}"
+    );
     assert!(text.contains("account:    me@example.test\n"), "{text}");
     assert!(text.contains("signed in:  yes\n"), "{text}");
-    assert!(text.contains("last sync:  2026-10-08 12:00:00 UTC\n"), "{text}");
+    assert!(
+        text.contains("last sync:  2026-10-08 12:00:00 UTC\n"),
+        "{text}"
+    );
     assert!(text.contains("pending:    4\n"), "{text}");
-    insta::assert_snapshot!("sync_status_json", to_json(&StatusJson::from_info(&info)).unwrap());
+    insta::assert_snapshot!(
+        "sync_status_json",
+        to_json(&StatusJson::from_info(&info)).unwrap()
+    );
 }
 
 // T-06: without flags `sync` prints the status; a fresh home stays untouched.
@@ -158,17 +166,34 @@ fn t07_devices_table_and_pick() {
     assert!(lines.next().unwrap().starts_with("  ID"));
     let first = lines.next().unwrap();
     assert!(first.starts_with("* 11111111-"), "{t}");
-    assert!(first.contains("laptop") && first.contains("2026-10-08 12:00"), "{t}");
+    assert!(
+        first.contains("laptop") && first.contains("2026-10-08 12:00"),
+        "{t}"
+    );
     assert!(t.ends_with("(* this device)\n"));
     assert_eq!(pick(&list, "1111").unwrap().id, list[0].id);
     assert_eq!(
-        pick(&list, "22222222-0000-4000-8000-000000000002").unwrap().id,
+        pick(&list, "22222222-0000-4000-8000-000000000002")
+            .unwrap()
+            .id,
         list[1].id
     );
-    assert_eq!(pick(&list, "2222").unwrap_err().exit_code(), exit::NOT_FOUND);
+    assert_eq!(
+        pick(&list, "2222").unwrap_err().exit_code(),
+        exit::NOT_FOUND
+    );
     assert_eq!(pick(&list, "9").unwrap_err().exit_code(), exit::NOT_FOUND);
-    let json = to_json(&list.iter().map(devices::DeviceJson::from).collect::<Vec<_>>()).unwrap();
-    assert!(json.contains(r#""created_at":"2026-10-08T12:00:00Z","last_seen_at":null,"current":true"#), "{json}");
+    let json = to_json(
+        &list
+            .iter()
+            .map(devices::DeviceJson::from)
+            .collect::<Vec<_>>(),
+    )
+    .unwrap();
+    assert!(
+        json.contains(r#""created_at":"2026-10-08T12:00:00Z","last_seen_at":null,"current":true"#),
+        "{json}"
+    );
 }
 
 // T-07: not signed in: `devices list` explains how to sign in (exit 2).
@@ -196,7 +221,10 @@ fn t07_devices_need_a_sign_in() {
         )
         .await
     });
-    assert!(matches!(res, Err(sverb_sync::account::AccountError::NotSignedIn)));
+    assert!(matches!(
+        res,
+        Err(sverb_sync::account::AccountError::NotSignedIn)
+    ));
     let _ = std::fs::remove_dir_all(&home);
 }
 

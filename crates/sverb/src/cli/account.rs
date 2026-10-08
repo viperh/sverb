@@ -14,15 +14,15 @@ use clap::Args;
 use std::sync::Arc;
 
 use sverb_core::error_report::ErrorReport;
+use sverb_core::model::UnixMillis;
 use sverb_core::vault::{Argon2Cost, VaultError};
 use sverb_crypto::Key32;
 use sverb_store::Store;
+use sverb_store::VaultKind;
 use sverb_sync::account::{
     self as acct, AccountConfig, AccountError, DuplicateChoice, LoginRequest, RecoveryConfirm,
     RegistrationToken,
 };
-use sverb_core::model::UnixMillis;
-use sverb_store::VaultKind;
 use sverb_sync::{
     EngineConfig, LocalSyncInfo, NoKeySource, SyncEngine, SyncError, SyncStatus, VaultKeySource,
     shared_hlc,
@@ -31,8 +31,8 @@ use sverb_tui::services::vault::{VaultEngine, keyring_from_env, vault_display_na
 use sverb_tui::views::logs::list::format_time;
 use zeroize::Zeroizing;
 
-use super::vault::{read_secret, require_unlocked};
 use super::output::write_json;
+use super::vault::{read_secret, require_unlocked};
 use super::{CliError, Ctx, exit, write_out};
 
 /// `sverb login …`
