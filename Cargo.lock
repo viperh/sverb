@@ -7276,6 +7276,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "chrono",
  "clap",
  "color-eyre",
  "crossterm 0.29.0",
@@ -7291,6 +7292,7 @@ dependencies = [
  "sverb-conn",
  "sverb-core",
  "sverb-crypto",
+ "sverb-proto",
  "sverb-store",
  "sverb-sync",
  "sverb-term",

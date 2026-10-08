@@ -21,13 +21,18 @@ use sverb_sync::account::{
     self as acct, AccountConfig, AccountError, DuplicateChoice, LoginRequest, RecoveryConfirm,
     RegistrationToken,
 };
+use sverb_core::model::UnixMillis;
+use sverb_store::VaultKind;
 use sverb_sync::{
-    EngineConfig, NoKeySource, SyncEngine, SyncError, SyncStatus, VaultKeySource, shared_hlc,
+    EngineConfig, LocalSyncInfo, NoKeySource, SyncEngine, SyncError, SyncStatus, VaultKeySource,
+    shared_hlc,
 };
-use sverb_tui::services::vault::{VaultEngine, keyring_from_env};
+use sverb_tui::services::vault::{VaultEngine, keyring_from_env, vault_display_name};
+use sverb_tui::views::logs::list::format_time;
 use zeroize::Zeroizing;
 
 use super::vault::{read_secret, require_unlocked};
+use super::output::write_json;
 use super::{CliError, Ctx, exit, write_out};
 
 /// `sverb login …`
@@ -68,16 +73,20 @@ pub(crate) struct SyncArgs {
     /// Sync immediately
     #[arg(long)]
     pub now: bool,
-    /// Show the sync status
+    /// Show the sync status (the default)
     #[arg(long)]
     pub status: bool,
+    // M4-09
+    /// Machine-readable output
+    #[arg(long)]
+    pub json: bool,
 }
 
 // ------------------------------------------------------------------- M4-08
 
 const NEEDS_TTY: &str = "needs an interactive terminal (passwords are only read from a TTY)";
 
-fn account_config() -> AccountConfig {
+pub(crate) fn account_config() -> AccountConfig {
     let name = std::env::var("HOSTNAME")
         .or_else(|_| std::env::var("COMPUTERNAME"))
         .ok()
@@ -86,7 +95,7 @@ fn account_config() -> AccountConfig {
     AccountConfig::new(name)
 }
 
-fn account_error(e: AccountError) -> CliError {
+pub(crate) fn account_error(e: AccountError) -> CliError {
     match e {
         e if e.is_offline() => CliError::Network(ErrorReport::msg(e.to_string())),
         e @ (AccountError::IncompatibleServer(_) | AccountError::Sync(_)) => {
@@ -410,30 +419,61 @@ pub(crate) async fn logout(args: LogoutArgs, ctx: &Ctx) -> Result<u8, CliError> 
     Ok(exit::OK)
 }
 
-// M4-07
-/// `sverb sync`: one full cycle (vault list, pull, push) with the unlocked vault
-/// and prints the resulting status. `--status` alone prints the local state
-/// without unlocking or contacting the server.
+// M4-07, M4-09
+/// `sverb sync`: without `--now` (or with `--status` alone) prints the local
+/// state (server, account, last sync, pending changes per vault) without
+/// unlocking or contacting the server. `--now` unlocks and runs one full cycle
+/// (vault list, pull, push, pull) headlessly: exit 0 when it worked, 6 when the
+/// server can't be reached; `--now --status` prints the state afterwards too.
 pub(crate) async fn sync(args: SyncArgs, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
-    if args.status && !args.now {
-        return status(ctx, out).await;
+    if !args.now {
+        return status(ctx, args.json, out).await;
     }
     let unlocked = require_unlocked(ctx).await?;
     let store = unlocked.engine.store().clone();
+    let lmk = unlocked.vault.lmk().clone();
+    let hlc = unlocked.vault.hlc();
+    drop(unlocked);
+    let res = sync_now(&store, &lmk, hlc, ctx, args.json, out).await;
+    if res.is_ok() && args.status {
+        let info = sverb_sync::local_info(&store)
+            .await
+            .map_err(|e| CliError::failure(&e))?;
+        write_status(&info, args.json, out)?;
+    }
+    res
+}
+
+// M4-09: GrantKeySource like the TUI, so new vault keys (rotation) open headlessly too.
+async fn key_source(store: &Store, lmk: &Key32) -> Arc<dyn VaultKeySource> {
+    match acct::load_account_keys(store, lmk).await {
+        Ok(Some((a, k))) => Arc::new(acct::GrantKeySource::new(a.user_id, k)),
+        _ => Arc::new(NoKeySource),
+    }
+}
+
+/// One headless cycle with the unlocked vault's `store` and `lmk`.
+pub(crate) async fn sync_now(
+    store: &Store,
+    lmk: &Key32,
+    hlc: sverb_core::model::HlcClock,
+    ctx: &Ctx,
+    json: bool,
+    out: &mut dyn Write,
+) -> Result<u8, CliError> {
     let config = EngineConfig {
         websocket: false,
         ..EngineConfig::from_config(&ctx.config)
     };
     let engine = SyncEngine::new(
-        store,
-        unlocked.vault.lmk().clone(),
-        shared_hlc(unlocked.vault.hlc()),
-        Arc::new(NoKeySource),
+        store.clone(),
+        lmk.clone(),
+        shared_hlc(hlc),
+        key_source(store, lmk).await,
         config,
         None,
     )
     .await;
-    drop(unlocked);
     let mut engine = match engine {
         Ok(e) => e,
         Err(SyncError::NotConfigured(why)) => {
@@ -449,7 +489,29 @@ pub(crate) async fn sync(args: SyncArgs, ctx: &Ctx, out: &mut dyn Write) -> Resu
         Err(e) => return Err(CliError::failure(&e)),
     };
     let st = engine.sync_once().await;
-    write_out(out, &format!("{st}\n"))?;
+    if json {
+        #[derive(serde::Serialize)]
+        struct Now {
+            status: String,
+            pending: u64,
+            error: Option<String>,
+        }
+        let (pending, error) = match &st {
+            SyncStatus::Offline { pending } => (*pending, None),
+            SyncStatus::Error { message } => (0, Some(message.clone())),
+            _ => (0, None),
+        };
+        write_json(
+            out,
+            &Now {
+                status: st.short(),
+                pending,
+                error,
+            },
+        )?;
+    } else {
+        write_out(out, &format!("{st}\n"))?;
+    }
     match st {
         SyncStatus::Synced | SyncStatus::Syncing | SyncStatus::Disabled => Ok(exit::OK),
         SyncStatus::Offline { .. } => Err(CliError::Network(ErrorReport::msg(format!(
@@ -462,28 +524,110 @@ pub(crate) async fn sync(args: SyncArgs, ctx: &Ctx, out: &mut dyn Write) -> Resu
     }
 }
 
-// M4-07
-async fn status(ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
-    let paths = ctx.paths.clone();
-    let store = tokio::task::spawn_blocking(move || sverb_store::Store::open(&paths))
-        .await
-        .map_err(|e| CliError::failure(&e))?
-        .map_err(|e| CliError::failure(&e))?;
-    let state = store
-        .get_sync_state()
-        .await
-        .map_err(|e| CliError::failure(&e))?;
-    let pending = store
-        .pending_count()
-        .await
-        .map_err(|e| CliError::failure(&e))?;
-    let text = match state.and_then(|s| s.server_url.map(|u| (u, s.tokens_enc.is_some()))) {
-        None => format!("{}\n", SyncStatus::Disabled),
-        Some((url, signed_in)) => format!(
-            "server: {url}\nsigned in: {}\npending: {pending}\n",
-            if signed_in { "yes" } else { "no" }
-        ),
+// M4-07, M4-09
+async fn status(ctx: &Ctx, json: bool, out: &mut dyn Write) -> Result<u8, CliError> {
+    // A fresh home has no database: local-only, and nothing is created.
+    let info = match open_store(ctx).await? {
+        Some(store) => sverb_sync::local_info(&store)
+            .await
+            .map_err(|e| CliError::failure(&e))?,
+        None => LocalSyncInfo::default(),
     };
-    write_out(out, &text)?;
+    write_status(&info, json, out)?;
     Ok(exit::OK)
+}
+
+/// `sync --status --json` data (`docs/cli-json.md`).
+#[derive(serde::Serialize, Debug, PartialEq, Eq)]
+pub(crate) struct StatusJson {
+    /// Sync is set up (`false`: local-only).
+    pub connected: bool,
+    pub server: Option<String>,
+    pub signed_in: bool,
+    pub email: Option<String>,
+    /// RFC 3339 (UTC), `null` before the first successful sync.
+    pub last_sync: Option<String>,
+    pub pending_total: u64,
+    pub pending: Vec<PendingJson>,
+}
+
+/// Pending changes of one vault.
+#[derive(serde::Serialize, Debug, PartialEq, Eq)]
+pub(crate) struct PendingJson {
+    pub vault: String,
+    /// `personal`, `shared` or `unknown`.
+    pub kind: &'static str,
+    pub pending: u64,
+}
+
+fn rfc3339(ms: i64) -> String {
+    format_time(UnixMillis(ms), "%Y-%m-%dT%H:%M:%SZ", Some(0))
+}
+
+impl StatusJson {
+    pub(crate) fn from_info(info: &LocalSyncInfo) -> Self {
+        Self {
+            connected: info.connected(),
+            server: info.server_url.clone(),
+            signed_in: info.signed_in,
+            email: info.email.clone(),
+            last_sync: info.last_sync_ms.map(rfc3339),
+            pending_total: info.pending_total(),
+            pending: info
+                .pending
+                .iter()
+                .map(|p| PendingJson {
+                    vault: p.vault.uuid().to_string(),
+                    kind: match p.kind {
+                        Some(VaultKind::Personal) => "personal",
+                        Some(VaultKind::Shared) => "shared",
+                        None => "unknown",
+                    },
+                    pending: p.pending,
+                })
+                .collect(),
+        }
+    }
+}
+
+/// The text of `sverb sync --status`.
+pub(crate) fn status_text(info: &LocalSyncInfo) -> String {
+    use std::fmt::Write as _;
+    let Some(server) = &info.server_url else {
+        return "local-only: not connected to a sync server (`sverb login` or `sverb register`)\n"
+            .to_owned();
+    };
+    let mut t = String::new();
+    let _ = writeln!(t, "server:     {server}");
+    if let Some(email) = &info.email {
+        let _ = writeln!(t, "account:    {email}");
+    }
+    let signed_in = if info.signed_in {
+        "yes"
+    } else {
+        "no (run `sverb login`)"
+    };
+    let _ = writeln!(t, "signed in:  {signed_in}");
+    let last = info.last_sync_ms.map_or_else(
+        || "never".to_owned(),
+        |ms| format_time(UnixMillis(ms), "%Y-%m-%d %H:%M:%S UTC", Some(0)),
+    );
+    let _ = writeln!(t, "last sync:  {last}");
+    let _ = writeln!(t, "pending:    {}", info.pending_total());
+    for p in &info.pending {
+        let name = match p.kind {
+            Some(kind) => vault_display_name(p.vault, kind),
+            None => format!("vault {}", p.vault.short()),
+        };
+        let _ = writeln!(t, "  {name}: {}", p.pending);
+    }
+    t
+}
+
+fn write_status(info: &LocalSyncInfo, json: bool, out: &mut dyn Write) -> Result<(), CliError> {
+    if json {
+        write_json(out, &StatusJson::from_info(info))
+    } else {
+        write_out(out, &status_text(info))
+    }
 }

@@ -220,6 +220,29 @@ impl ApiClient {
         self.send(rb).await
     }
 
+    // M4-09: Settings → Devices and `sverb devices`.
+    /// `GET /v1/devices`.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] / [`SyncError::Transport`].
+    pub async fn list_devices(
+        &self,
+        token: &str,
+    ) -> Result<Vec<sverb_proto::auth::DeviceView>, SyncError> {
+        let rb = self.authed(self.http.get(self.url("/devices")), token);
+        self.send(rb).await
+    }
+
+    /// `DELETE /v1/devices/{id}`: revokes the device and its tokens.
+    ///
+    /// # Errors
+    /// [`SyncError::Api`] (`404 not_found`) / [`SyncError::Transport`].
+    pub async fn revoke_device(&self, token: &str, device: Uuid) -> Result<(), SyncError> {
+        let url = self.url(&format!("/devices/{device}"));
+        let rb = self.authed(self.http.delete(url), token);
+        self.fetch(rb).await.map(drop)
+    }
+
     /// `GET /v1/vaults/{id}/changes?since=&limit=` (§12.2).
     ///
     /// # Errors

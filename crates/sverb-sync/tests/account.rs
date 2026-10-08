@@ -858,3 +858,70 @@ async fn register_needs_an_invite_on_a_closed_server() {
     assert!(a.store.get_sync_state().await.unwrap().is_none());
     assert_eq!(a.store.pending_count().await.unwrap(), 0);
 }
+
+// M4-09 T-07 (logic): two logins give two devices; revoking the other one
+// works; revoking this device logs it out locally. Also the local status
+// (`sverb sync --status`, the Settings → Sync panel).
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn m4_09_devices_list_revoke_and_local_info() {
+    use sverb_sync::account::{Revoked, list_devices, revoke_device};
+
+    let server = TestServer::start().await;
+    let a = Local::init(PW).await;
+    a.host("h0", "h0.example", "u").await;
+
+    // Local-only: no server, nothing signed in.
+    let info = sverb_sync::local_info(&a.store).await.unwrap();
+    assert!(!info.connected());
+    assert!(!info.signed_in);
+    assert_eq!(info.last_sync_ms, None);
+    assert!(matches!(
+        list_devices(&a.store, &a.lmk, &cfg("a")).await,
+        Err(AccountError::NotSignedIn)
+    ));
+
+    register(&server, &a, "m409@example.test", PW).await;
+    let info = sverb_sync::local_info(&a.store).await.unwrap();
+    assert_eq!(info.server_url.as_deref(), Some(server.url().as_str()));
+    assert!(info.signed_in);
+    assert_eq!(info.email.as_deref(), Some("m409@example.test"));
+    assert_eq!(info.pending_total(), 1, "queued until the first sync");
+    assert_eq!(info.pending[0].vault, a.vault);
+    assert_eq!(info.pending[0].kind, Some(VaultKind::Personal));
+    assert_eq!(a.sync().await, SyncStatus::Synced);
+    let info = sverb_sync::local_info(&a.store).await.unwrap();
+    assert!(info.last_sync_ms.is_some_and(|t| t > 0));
+    assert_eq!(info.pending_total(), 0);
+
+    let b = fresh_login(&server, "m409@example.test", PW).await;
+    let list = list_devices(&a.store, &a.lmk, &cfg("a")).await.unwrap();
+    assert_eq!(list.len(), 2, "{list:?}");
+    assert!(list[0].current, "this device first");
+    assert!(!list[1].current);
+    let other = list[1].id;
+    let from_b = list_devices(&b.store, &b.lmk, &cfg("b")).await.unwrap();
+    assert_eq!(from_b[0].id, other, "b sees itself as current");
+
+    // Revoke b from a.
+    assert_eq!(
+        revoke_device(&a.store, &a.lmk, &cfg("a"), other)
+            .await
+            .unwrap(),
+        Revoked::Other
+    );
+    let list = list_devices(&a.store, &a.lmk, &cfg("a")).await.unwrap();
+    assert_eq!(list.len(), 1);
+    assert!(
+        list_devices(&b.store, &b.lmk, &cfg("b")).await.is_err(),
+        "b's tokens are gone"
+    );
+
+    // Revoke a itself: logged out, personal data kept.
+    let me = list[0].id;
+    let r = revoke_device(&a.store, &a.lmk, &cfg("a"), me)
+        .await
+        .unwrap();
+    assert!(matches!(r, Revoked::ThisDevice(ref rep) if rep.kept_items == 1), "{r:?}");
+    assert!(a.store.get_sync_state().await.unwrap().is_none());
+    assert!(!sverb_sync::local_info(&a.store).await.unwrap().connected());
+}

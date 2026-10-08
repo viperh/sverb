@@ -882,7 +882,10 @@ Options:
           Sync immediately
 
       --status
-          Show the sync status
+          Show the sync status (the default)
+
+      --json
+          Machine-readable output
 
   -h, --help
           Print help
@@ -914,6 +917,9 @@ Options:
       --debug
           Log at debug level and keep recent log lines for the log pane (log files may then contain
           hostnames)
+
+      --json
+          Machine-readable output
 
   -h, --help
           Print help

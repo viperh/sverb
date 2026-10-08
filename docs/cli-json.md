@@ -28,3 +28,6 @@ in `crates/sverb/src/cli/tests.rs` (`json_envelope`).
 | `sverb hosts list --json` | array of `{id, label, address, port, user, group, tags}` (`port` is the effective port, 22 by default; `user`/`group` may be `null`; `tags` are names; no secrets) | M1-07 |
 | `sverb snippet run … --json` | per-host results | M2-09 |
 | `sverb keys --dump --json` | array of bindings | M0-10 |
+| `sverb sync --status --json` (also `sync --json`) | `{connected, server, signed_in, email, last_sync, pending_total, pending: [{vault, kind, pending}]}` (`last_sync` is RFC 3339 UTC or `null`; `kind` is `personal`, `shared` or `unknown`; local-only: `connected: false`) | M4-09 |
+| `sverb sync --now --json` | `{status, pending, error}` (`status` is the short form: `⟳ synced`, `offline (3 pending)`, `error`, …) | M4-09 |
+| `sverb devices list --json` | array of `{id, name, platform, created_at, last_seen_at, current}` (times RFC 3339 UTC or `null`; revoked devices are left out) | M4-09 |

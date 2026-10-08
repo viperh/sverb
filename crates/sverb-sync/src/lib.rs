@@ -23,11 +23,15 @@ pub mod tokens;
 // M4-08: account flows (register, login, password change, recovery, logout).
 pub mod account;
 
+// M4-09: local sync state for the status panel and `sverb sync --status`.
+pub mod info;
+
 pub use engine::{
     EngineConfig, MAX_CONFLICT_ROUNDS, SharedHlc, SyncEngine, SyncHandle, SyncPolicy, shared_hlc,
 };
 pub use error::SyncError;
 pub use http::ApiClient;
+pub use info::{LocalSyncInfo, VaultPending, local_info};
 pub use keys::{NoKeySource, VaultKeySource, VaultKeys};
 pub use status::{SyncEvent, SyncStatus, ToastLevel};
 pub use tokens::TokenManager;

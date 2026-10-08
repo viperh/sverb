@@ -465,9 +465,13 @@ fn sync_forms_parse() {
             Command::Sync(account::SyncArgs {
                 now: true,
                 status: true,
+                json: false,
             }),
         ),
-        ("devices list", Command::Devices(devices::DevicesCmd::List)),
+        (
+            "devices list --json",
+            Command::Devices(devices::DevicesCmd::List { json: true }),
+        ),
         (
             "devices revoke d1",
             Command::Devices(devices::DevicesCmd::Revoke { id: s("d1") }),
@@ -682,8 +686,7 @@ fn stubs_return_not_implemented() {
         // `account_commands_need_a_terminal` and crates/sverb-sync/tests/account.rs).
         forms.extend([
             // M4-07: `sync` is implemented (crates/sverb-sync/tests/engine.rs).
-            "devices list",
-            "devices revoke d",
+            // M4-09: `devices list | revoke` are implemented (`cli/sync_tests.rs`).
             "team list",
             "team invite e",
             // M5-03: `team verify` is implemented (see `cli/team.rs` tests).
@@ -725,6 +728,8 @@ fn stubs_return_not_implemented() {
             | "import putty"
             // M4-07: one headless engine cycle / the local sync state.
             | "sync"
+            // M4-09
+            | "devices list" | "devices revoke"
             // M5-03: implemented (see the `cli/team.rs` tests).
             | "team verify"
             | "export backup" | "export ssh-config" | "export csv"

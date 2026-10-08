@@ -86,6 +86,16 @@ pub enum SyncEvent {
         /// Text.
         message: String,
     },
+    // M4-09
+    /// A stamp from another device was ahead of this clock. Sent once per
+    /// device per engine; the TUI shows "Clock skew detected on device X"
+    /// once per device per session.
+    ClockSkew {
+        /// The other device (short id).
+        device: String,
+        /// How far ahead its stamp was.
+        ahead_secs: u64,
+    },
     /// The account only has read access to `vault`: these local changes were
     /// kept locally and not uploaded. The UI offers "Revert to server
     /// version" and "Copy to personal vault" (M4-09).

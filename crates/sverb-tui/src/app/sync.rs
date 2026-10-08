@@ -21,6 +21,13 @@ impl App {
                 };
                 self.push_toast(level, message, effects);
             }
+            SyncEvent::ClockSkew { device, .. } => {
+                self.push_toast(
+                    ToastLevel::Warning,
+                    format!("Clock skew detected on device {device}"),
+                    effects,
+                );
+            }
             SyncEvent::Status(status) => tracing::debug!(%status, "sync status"),
             SyncEvent::Applied { .. } | SyncEvent::ReadOnly { .. } => {}
         }

@@ -1,0 +1,5 @@
+---
+source: crates/sverb/src/cli/sync_tests.rs
+expression: "to_json(&StatusJson::from_info(&info)).unwrap()"
+---
+{"version":1,"data":{"connected":true,"server":"https://sync.example.test","signed_in":true,"email":"me@example.test","last_sync":"2026-10-08T12:00:00Z","pending_total":4,"pending":[{"vault":"01010101-0101-0101-0101-010101010101","kind":"personal","pending":3},{"vault":"02020202-0202-0202-0202-020202020202","kind":"shared","pending":1}]}}

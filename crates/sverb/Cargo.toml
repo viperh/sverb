@@ -19,7 +19,7 @@ workspace = true
 # the local-only client, with no sync code linked in (SPEC §1.1).
 [features]
 default = ["sync"]
-sync = ["dep:sverb-sync", "sverb-tui/sync"]
+sync = ["dep:sverb-sync", "dep:sverb-proto", "dep:chrono", "sverb-tui/sync"]
 # M0-05: crash-path hooks (`SVERB_TEST_HOOK`) for the PTY tests in tests/panic_restore.rs.
 # Never enabled in release builds.
 test-hooks = ["sverb-tui/test-hooks"]
@@ -28,6 +28,9 @@ test-hooks = ["sverb-tui/test-hooks"]
 sverb-core = { workspace = true }
 sverb-store = { workspace = true }
 sverb-sync = { workspace = true, optional = true }
+# M4-09: `sverb devices` (`DeviceView`, its timestamps).
+sverb-proto = { workspace = true, optional = true }
+chrono = { workspace = true, optional = true }
 # M4-08: `Key32` (the LMK handed to the account flows).
 sverb-crypto = { workspace = true }
 sverb-tui = { workspace = true }

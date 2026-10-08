@@ -31,6 +31,9 @@ pub(crate) mod vault;
 
 #[cfg(test)]
 mod tests;
+// M4-09
+#[cfg(test)]
+mod sync_tests;
 
 #[cfg(not(feature = "sync"))]
 use std::ffi::OsString;
@@ -305,7 +308,7 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
         // M4-07: one headless engine cycle (async).
         Command::Sync(args) => account::sync(args, ctx, out).await,
         #[cfg(feature = "sync")]
-        Command::Devices(cmd) => devices::run(cmd, ctx, out),
+        Command::Devices(cmd) => devices::run(cmd, ctx, out).await,
         #[cfg(feature = "sync")]
         // M5-03: `team verify` opens the store (async).
         Command::Team(cmd) => team::run_async(cmd, ctx, out).await,
