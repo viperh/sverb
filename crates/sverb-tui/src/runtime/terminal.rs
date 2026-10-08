@@ -482,13 +482,26 @@ impl TerminalGuard {
 
     // M1-11
     /// Use the kitty keyboard protocol when the outer terminal supports it: query with
-    /// crossterm's `supports_keyboard_enhancement` (`CSI ? u` followed by DA1, waiting up to
-    /// 2 s for a terminal that answers neither) and push [`SVERB_KITTY_FLAGS`]; the restore
-    /// path pops them. Call it in raw mode, **before** the input reader starts, so the
-    /// reply isn't read as keys. Returns whether the protocol is on.
+    /// `CSI ? u` followed by DA1 and push [`SVERB_KITTY_FLAGS`]; the restore path pops
+    /// them. Call it in raw mode, **before** the input reader starts, so the reply isn't
+    /// read as keys. Returns whether the protocol is on.
+    ///
+    /// M7-06: on unix the reply is awaited for at most [`KITTY_PROBE_TIMEOUT`] (50 ms)
+    /// instead of crossterm's 2 s, so a terminal that answers neither query does not
+    /// delay the first frame (SPEC §1: < 100 ms to the host list). A late reply is
+    /// harmless: crossterm's reader parses both answers as internal events, not keys.
+    /// Keys typed during the probe window itself (before the first frame) are
+    /// dropped; with a terminal that answers, the window is about a millisecond.
     pub fn enable_kitty_keyboard(&mut self) -> bool {
         TerminalModes::global().negotiate_kitty(&mut io::stdout(), || {
-            crossterm::terminal::supports_keyboard_enhancement()
+            #[cfg(unix)]
+            {
+                kitty_probe::probe(KITTY_PROBE_TIMEOUT)
+            }
+            #[cfg(not(unix))]
+            {
+                crossterm::terminal::supports_keyboard_enhancement()
+            }
         })
     }
 
@@ -727,5 +740,106 @@ mod tests {
         modes.disable(Mode::Mouse, &mut out, &mut raw)?;
         assert_eq!(out.bytes.len(), second);
         Ok(())
+    }
+}
+
+// M7-06
+/// How long startup waits for the terminal to answer the kitty keyboard query.
+pub const KITTY_PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(50);
+
+// M7-06
+/// The kitty keyboard probe with a short timeout (unix).
+#[cfg(unix)]
+pub mod kitty_probe {
+    use std::fs::OpenOptions;
+    use std::io::{self, Read, Write};
+    use std::time::{Duration, Instant};
+
+    use rustix::event::{PollFd, PollFlags, Timespec, poll};
+
+    /// `CSI ? u` (kitty flags) then DA1, the detection the kitty docs recommend.
+    pub const QUERY: &[u8] = b"\x1b[?u\x1b[c";
+
+    /// What the bytes read so far say: `Some(supported)` once the DA1 reply is in
+    /// (a kitty flags reply `CSI ? <n> u` before it means supported), `None` while
+    /// it is still missing.
+    pub fn parse(reply: &[u8]) -> Option<bool> {
+        let mut kitty = false;
+        let mut i = 0;
+        while let Some(start) = find(&reply[i..], b"\x1b[?") {
+            let body = &reply[i + start + 3..];
+            let end = body
+                .iter()
+                .position(|b| !(b.is_ascii_digit() || *b == b';'))?;
+            match body[end] {
+                b'u' => kitty = true,
+                b'c' => return Some(kitty),
+                _ => {}
+            }
+            i += start + 3 + end + 1;
+        }
+        None
+    }
+
+    fn find(hay: &[u8], needle: &[u8]) -> Option<usize> {
+        hay.windows(needle.len()).position(|w| w == needle)
+    }
+
+    /// Sends [`QUERY`] to the controlling terminal and waits up to `timeout` for the
+    /// DA1 reply. No reply in time: not supported.
+    ///
+    /// # Errors
+    /// The terminal can't be opened or written.
+    pub fn probe(timeout: Duration) -> io::Result<bool> {
+        let mut tty = OpenOptions::new().read(true).write(true).open("/dev/tty")?;
+        tty.write_all(QUERY)?;
+        tty.flush()?;
+        let deadline = Instant::now() + timeout;
+        let mut reply = Vec::new();
+        loop {
+            let left = deadline.saturating_duration_since(Instant::now());
+            if left.is_zero() {
+                return Ok(false);
+            }
+            let ready = {
+                let mut fds = [PollFd::new(&tty, PollFlags::IN)];
+                let ts = Timespec::try_from(left).unwrap_or(Timespec {
+                    tv_sec: 0,
+                    tv_nsec: 50_000_000,
+                });
+                match poll(&mut fds, Some(&ts)) {
+                    Ok(n) => n > 0,
+                    Err(rustix::io::Errno::INTR) => continue,
+                    Err(e) => return Err(e.into()),
+                }
+            };
+            if !ready {
+                return Ok(false);
+            }
+            let mut chunk = [0u8; 256];
+            let n = tty.read(&mut chunk)?;
+            if n == 0 {
+                return Ok(false);
+            }
+            reply.extend_from_slice(&chunk[..n]);
+            if let Some(supported) = parse(&reply) {
+                return Ok(supported);
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::parse;
+
+        #[test]
+        fn replies() {
+            assert_eq!(parse(b""), None);
+            assert_eq!(parse(b"\x1b[?62;22c"), Some(false));
+            assert_eq!(parse(b"\x1b[?1u\x1b[?62;22c"), Some(true));
+            assert_eq!(parse(b"\x1b[?0u"), None, "flags alone: wait for DA1");
+            assert_eq!(parse(b"\x1b[?0u\x1b[?6"), None);
+            assert_eq!(parse(b"x\x1b[?0u\x1b[?64;1;2c"), Some(true));
+        }
     }
 }

@@ -109,6 +109,24 @@ jobs:
             exit 1
           fi
 
+  # M7-06 T-01: every benchmark compiles (they run on a schedule in bench.yml), and
+  # the gate script's own checks pass.
+  bench-build:
+    name: Benchmarks compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build benchmarks
+        run: cargo bench --workspace --no-run --locked
+      - name: Gate script self-test
+        run: python3 scripts/bench-gate.py self-test
+
   test-local-only:
     name: Test (local-only build)
     runs-on: ubuntu-latest

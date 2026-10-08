@@ -46,3 +46,8 @@ harness = false
 [[bench]]
 name = "render"
 harness = false
+
+# M7-06
+[[bench]]
+name = "key_encode"
+harness = false

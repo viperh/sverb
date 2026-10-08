@@ -1,6 +1,7 @@
 //! T-15 (M1-10): render a full 300×100 grid with dense SGR (SPEC §19: < 2 ms per frame).
 //!
-//! `cargo bench -p sverb-term --bench render`. The gate is enforced in M7-06.
+//! `cargo bench -p sverb-term --bench render`. M7-06: `render_300x100`, gated by
+//! `scripts/bench-gate.py` (< 2 ms locally, < 4 ms on CI).
 #![allow(missing_docs, clippy::unwrap_used)]
 
 use std::hint::black_box;
@@ -63,7 +64,7 @@ fn bench(c: &mut Criterion) {
     emu.feed(&dense_screen());
     let area = Rect::new(0, 0, COLS, ROWS);
     let mut buf = Buffer::empty(area);
-    let mut group = c.benchmark_group("render");
+    let mut group = c.benchmark_group("render_300x100");
     for (name, view) in [
         ("terminal_truecolor", ViewState::default()),
         (
@@ -82,7 +83,7 @@ fn bench(c: &mut Criterion) {
             },
         ),
     ] {
-        group.bench_function(format!("300x100_{name}"), |b| {
+        group.bench_function(name, |b| {
             b.iter(|| emu.render(black_box(area), black_box(&mut buf), black_box(&view)));
         });
     }

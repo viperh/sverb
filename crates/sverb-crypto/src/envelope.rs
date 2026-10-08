@@ -60,6 +60,45 @@ pub fn encode_plaintext(body: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
 /// invalid zstd data or output above the cap.
 pub fn decode_plaintext(padded: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
     let compressed = unpad256(padded)?;
+    // M7-06: our frames declare their size, so they decompress in one pass with a
+    // reused per-thread context (a fresh streaming decoder per item allocated its
+    // window every time: most of the 10k-item unlock was spent there). One-pass
+    // decompression writes straight into `out`; the context keeps no plaintext window.
+    match zstd::zstd_safe::get_frame_content_size(compressed) {
+        Ok(Some(n)) if n > MAX_DECOMPRESSED as u64 => return Err(CryptoError::Decompress),
+        Ok(Some(n)) => {
+            if let Some(out) = decompress_known_size(compressed, n as usize) {
+                return Ok(out);
+            }
+        }
+        // Unknown size (or not a valid header): the bounded streaming path decides.
+        _ => {}
+    }
+    decode_streaming(compressed)
+}
+
+/// One-pass decompression of a frame that declares `size` bytes; `None` when it
+/// does not decode to exactly that (the streaming path then reports the error).
+fn decompress_known_size(compressed: &[u8], size: usize) -> Option<Zeroizing<Vec<u8>>> {
+    thread_local! {
+        static DCTX: std::cell::RefCell<Option<zstd::bulk::Decompressor<'static>>> =
+            const { std::cell::RefCell::new(None) };
+    }
+    let mut out = Zeroizing::new(Vec::with_capacity(size));
+    let n = DCTX.with(|cell| {
+        let mut slot = cell.try_borrow_mut().ok()?;
+        if slot.is_none() {
+            *slot = zstd::bulk::Decompressor::new().ok();
+        }
+        slot.as_mut()?
+            .decompress_to_buffer(compressed, &mut *out)
+            .ok()
+    })?;
+    (n == size).then_some(out)
+}
+
+/// The streaming decoder with the output cap (frames without a declared size).
+fn decode_streaming(compressed: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
     let decoder = zstd::stream::read::Decoder::with_buffer(compressed)
         .map_err(|_| CryptoError::Decompress)?;
     let mut out = Zeroizing::new(Vec::new());

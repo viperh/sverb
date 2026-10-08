@@ -65,6 +65,9 @@ open = "5.4.3"
 # M0-08: suspend raises SIGTSTP, which only exists on unix.
 [target.'cfg(unix)'.dependencies]
 signal-hook = { workspace = true }
+# M7-06: the startup kitty-keyboard probe polls the tty with a 50 ms budget (safe
+# `poll`; crossterm's own probe waits up to 2 s). Same major as crossterm's rustix.
+rustix = { version = "1.1.4", features = ["event"] }
 
 # M0-08: reducer property tests and TestBackend snapshots.
 [dev-dependencies]

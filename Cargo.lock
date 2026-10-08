@@ -7580,6 +7580,7 @@ dependencies = [
  "proptest",
  "ratatui",
  "ratatui-textarea",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "signal-hook 0.4.4",

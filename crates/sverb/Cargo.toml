@@ -82,3 +82,9 @@ sverb-conn = { workspace = true, features = ["test-util"] }
 [[test]]
 name = "panic_restore"
 required-features = ["test-hooks"]
+
+# M7-06: startup_to_hosts_keyring (the test-only file keyring needs `test-hooks`):
+# `cargo test --release -p sverb --features test-hooks --test startup -- --ignored`.
+[[test]]
+name = "startup"
+required-features = ["test-hooks"]

@@ -125,3 +125,8 @@ harness = false
 [[bench]]
 name = "search"
 harness = false
+
+# M7-06
+[[bench]]
+name = "argon2_unlock"
+harness = false
