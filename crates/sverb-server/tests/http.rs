@@ -482,3 +482,24 @@ async fn cors_denies_by_default_and_allows_configured_origins() {
         "https://viewer.example.test"
     );
 }
+
+/// The container HEALTHCHECK (`sverb-server healthcheck`) succeeds against the real
+/// router on a socket: the probe the Docker image uses must report healthy.
+#[tokio::test]
+async fn healthcheck_probe_accepts_the_real_server() {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    let router = app::router(lazy_state(config(&[])));
+    tokio::spawn(async move {
+        axum::serve(
+            listener,
+            router.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .unwrap();
+    });
+    let bind: std::net::SocketAddr = format!("0.0.0.0:{}", addr.port()).parse().unwrap();
+    let probe = sverb_server::healthcheck::probe_addr(bind);
+    let result = sverb_server::healthcheck::run(probe, false).await;
+    assert_eq!(result, Ok(()), "probe of {probe}");
+}

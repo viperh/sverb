@@ -332,6 +332,15 @@ jobs:
               sleep 2
             done
             docker compose -f deploy/docker-compose.yml logs sverb-server | tail -20
+            if ! $ok; then
+              cid="$(docker compose -f deploy/docker-compose.yml ps -q sverb-server)"
+              echo "::group::$arch health diagnostics"
+              docker inspect --format '{{json .State.Health}}' "$cid" || true
+              docker inspect --format '{{json .Config.Healthcheck}} env={{json .Config.Env}}' "$cid" || true
+              docker exec "$cid" /usr/local/bin/sverb-server healthcheck; echo "healthcheck exit $?"
+              curl -sS -m 5 -i http://localhost:8080/healthz || true
+              echo "::endgroup::"
+            fi
             docker compose -f deploy/docker-compose.yml down -v
             $ok || { echo "::error::$arch container never became healthy"; exit 1; }
           done
