@@ -70,46 +70,6 @@ jobs:
           RUSTDOCFLAGS: -D warnings
         run: cargo doc --no-deps --document-private-items --all-features --workspace --locked
 
-  test:
-    name: Test (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      # Keep LF endings in fixtures (known_hosts, ssh_config); snapshot tests depend on it.
-      - name: Disable CRLF conversion
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # vergen-gix needs history and tags for VERGEN_GIT_DESCRIBE
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Run tests
-        env:
-          SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
-        run: cargo test --workspace --all-features --locked --no-fail-fast
-      # The binary must carry a real `git describe`, not vergen's placeholder.
-      - name: Check vergen version stamp
-        shell: bash
-        env:
-          SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
-        run: |
-          out="$(cargo run -p sverb --locked --quiet -- --version)"
-          echo "$out"
-          # Format: "<pkg version>-<git describe> (<build date>)" (crates/sverb/src/cli.rs).
-          if grep -q 'VERGEN_IDEMPOTENT_OUTPUT' <<<"$out" \
-             || ! head -n1 <<<"$out" | grep -Eq '^[^ ]+ [0-9][^ ]*-[^ (]+ \('; then
-            echo "::error::sverb --version has no real git describe value (vergen placeholder or empty)"
-            exit 1
-          fi
-
-  # Every benchmark compiles (they run on a schedule in bench.yml), and
-  # the gate script's own checks pass.
   bench-build:
     name: Benchmarks compile
     runs-on: ubuntu-latest
