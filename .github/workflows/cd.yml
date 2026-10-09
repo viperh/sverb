@@ -44,7 +44,7 @@ jobs:
       publish: ${{ steps.meta.outputs.publish }}
       source-date-epoch: ${{ steps.meta.outputs.source-date-epoch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: meta
@@ -75,7 +75,7 @@ jobs:
     needs: meta
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
@@ -94,7 +94,7 @@ jobs:
           bash -n assets/completions/sverb.bash
           sudo apt-get install -y --no-install-recommends groff-base >/dev/null
           groff -man -ww -z assets/man/sverb.1
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: sverb-assets
           path: assets
@@ -117,7 +117,7 @@ jobs:
       VERSION: ${{ needs.meta.outputs.version }}
       SOURCE_DATE_EPOCH: ${{ needs.meta.outputs.source-date-epoch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # vergen stamps `git describe`
       - uses: dtolnay/rust-toolchain@stable
@@ -163,7 +163,7 @@ jobs:
             sha256sum "$a" "$b2"
             cmp "$a" "$b2" || { echo "::error::$b is not reproducible"; exit 1; }
           done
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: sverb-assets
           path: assets
@@ -176,11 +176,11 @@ jobs:
           mkdir -p image
           arch=$([[ ${{ matrix.arch }} == x86_64 ]] && echo amd64 || echo arm64)
           install -m 0755 "$r/sverb-server" "image/sverb-server-$arch"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: dist-linux-${{ matrix.arch }}
           path: dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: image-linux-${{ matrix.arch }}
           path: image
@@ -193,7 +193,7 @@ jobs:
       VERSION: ${{ needs.meta.outputs.version }}
       SOURCE_DATE_EPOCH: ${{ needs.meta.outputs.source-date-epoch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
@@ -242,7 +242,7 @@ jobs:
             xcrun notarytool submit "$RUNNER_TEMP/sverb.zip" --wait \
               --key "$RUNNER_TEMP/notary.p8" --key-id "$APPLE_NOTARY_KEY_ID" --issuer "$APPLE_NOTARY_ISSUER"
           fi
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: sverb-assets
           path: assets
@@ -250,7 +250,7 @@ jobs:
         run: |
           brew list gnu-tar >/dev/null 2>&1 || brew install gnu-tar
           scripts/release-package.sh sverb "$VERSION" macos-universal universal/sverb dist assets
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: dist-macos-universal
           path: dist
@@ -268,7 +268,7 @@ jobs:
     steps:
       - name: Disable CRLF conversion
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
@@ -276,7 +276,7 @@ jobs:
           targets: x86_64-pc-windows-msvc
       - name: Build
         run: cargo build --locked --release -p sverb --target x86_64-pc-windows-msvc
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: sverb-assets
           path: assets
@@ -284,7 +284,7 @@ jobs:
         run: |
           scripts/release-package.sh sverb "$VERSION" windows-x86_64 \
             target/x86_64-pc-windows-msvc/release/sverb.exe dist assets
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: dist-windows-x86_64
           path: dist
@@ -300,8 +300,8 @@ jobs:
       VERSION: ${{ needs.meta.outputs.version }}
       IMAGE: ghcr.io/${{ github.repository_owner }}/sverb-server
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
         with:
           pattern: image-linux-*
           merge-multiple: true
@@ -311,8 +311,8 @@ jobs:
           chmod 0755 ctx/dist/*
           ls -l ctx/dist
           cp deploy/Dockerfile.server.release ctx/Dockerfile
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
       - name: Smoke test each architecture (T-04)
         env:
           SVERB_SERVER_SECRET: c1c1c1c1000102030405060708090a0b0c0d0e0f101112131415161718191a1b  # CI-only test value (hex, 32 bytes)
@@ -337,7 +337,7 @@ jobs:
           done
       - name: Log in to ghcr.io
         if: needs.meta.outputs.publish == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -359,8 +359,8 @@ jobs:
     env:
       VERSION: ${{ needs.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
         with:
           pattern: dist-*
           merge-multiple: true
@@ -388,14 +388,14 @@ jobs:
           [[ -s notes.md ]] || echo "See CHANGELOG.md." >notes.md
       - name: Upload to the release
         if: needs.meta.outputs.publish == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ env.VERSION }}
           body_path: notes.md
           files: dist/*
       - name: Keep the artifacts of a dry run
         if: needs.meta.outputs.publish != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-dry-run
           path: |
@@ -413,7 +413,7 @@ jobs:
       TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
       SCOOP_TOKEN: ${{ secrets.SCOOP_BUCKET_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Checksums of the release
         env:
           GH_TOKEN: ${{ github.token }}
