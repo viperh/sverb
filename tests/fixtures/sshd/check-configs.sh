@@ -15,7 +15,9 @@ trap 'rm -rf "$work"' EXIT
 for t in ed25519 ecdsa rsa; do
     ssh-keygen -q -t "$t" -N '' -f "$work/ssh_host_${t}_key"
 done
-ssh-keygen -q -s "$here/keys/host_ca" -I check -h -n localhost -V always:forever \
+# A checkout doesn't keep the CA key's 0600 mode, and ssh-keygen refuses a readable key.
+install -m 0600 "$here/keys/host_ca" "$work/host_ca"
+ssh-keygen -q -s "$work/host_ca" -I check -h -n localhost -V always:forever \
     "$work/ssh_host_ed25519_key.pub"
 cp "$here/keys/user_ca.pub" "$work/user_ca.pub"
 chmod 600 "$work"/ssh_host_*_key

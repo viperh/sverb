@@ -1,6 +1,7 @@
 //! The snippet service (SPEC §9.7).
 //!
-//! - `Load` / `Save` / `Export` / `StartupCheck` go through the vault's item service.
+//! - `Load` / `Save` / `Export` / `StartupCheck` go through the vault's item service;
+//!   a save updates the search index, whose update reloads the Snippets view.
 //! - `Run` works on at most `job.concurrency` hosts at a time
 //!   (`sverb_conn::ssh::exec::snippets::run_on_hosts`) with the TUI's SSH connector;
 //!   each host gets a dedicated connection whose host-key and auth prompts go to the UI
@@ -138,7 +139,11 @@ pub fn execute(vault: Option<&VaultService>, op: SnippetsEffect, tx: &EventSende
                     })
                     .await;
                 match written {
-                    Ok(_) => send(&tx, SnippetsEvent::Saved(name)),
+                    Ok(w) => {
+                        // The index update reloads the view (and feeds the palette).
+                        vault.index_upsert(w.id, w.vault, &w.body, &tx);
+                        send(&tx, SnippetsEvent::Saved(name));
+                    }
                     Err(e) => send(&tx, SnippetsEvent::Failed(e.report())),
                 }
             });

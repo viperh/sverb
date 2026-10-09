@@ -438,6 +438,16 @@ fn line_is(screen: &str, line: &str) -> bool {
     screen.lines().any(|l| l.trim_end() == line)
 }
 
+/// The readiness probe's output (`READY_21`) is on screen. When the command is typed
+/// before the shell prints its first prompt, the tty echoes it at once and the output
+/// then follows the prompt on the same line (`$ READY_21`).
+fn shell_ready(screen: &str) -> bool {
+    screen.lines().any(|l| {
+        let l = l.trim_end();
+        l == "READY_21" || l.ends_with("$ READY_21")
+    })
+}
+
 /// Viewer and host show the same screen, cursor and modes.
 async fn assert_mirrors(viewer: &mut Viewer, session: &SessionHandle) {
     let start = Instant::now();
@@ -488,7 +498,7 @@ async fn t01_view_share_snapshot_and_live_output() {
     let mgr = manager();
     let session = local_shell(&mgr);
     type_into(&session, "echo READY_$((20+1))\r").await;
-    wait_host(&session, "shell ready", |s| line_is(s, "READY_21")).await;
+    wait_host(&session, "shell ready", shell_ready).await;
 
     let mut hosted = share(&server, &session, opts(ShareMode::View)).await;
     let info = hosted.handle.info().clone();
@@ -609,7 +619,7 @@ async fn t04_control_grant_and_revoke() {
     let mgr = manager();
     let session = local_shell(&mgr);
     type_into(&session, "echo READY_$((20+1))\r").await;
-    wait_host(&session, "shell ready", |s| line_is(s, "READY_21")).await;
+    wait_host(&session, "shell ready", shell_ready).await;
     let mut hosted = share(&server, &session, opts(ShareMode::Control)).await;
     let mut viewer = join_link(&server, &hosted.handle.info().link.clone());
     let id = hosted.approval().await;
@@ -678,7 +688,7 @@ async fn t05_view_mode_drops_input() {
     let mgr = manager();
     let session = local_shell(&mgr);
     type_into(&session, "echo READY_$((20+1))\r").await;
-    wait_host(&session, "shell ready", |s| line_is(s, "READY_21")).await;
+    wait_host(&session, "shell ready", shell_ready).await;
     let mut hosted = share(&server, &session, opts(ShareMode::View)).await;
     let mut viewer = join_link(&server, &hosted.handle.info().link.clone());
     let id = hosted.approval().await;

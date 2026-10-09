@@ -99,6 +99,8 @@ path = "src/lib.rs"
         .args(["check", "--offline", "--quiet", "--manifest-path"])
         .arg(dir.join("Cargo.toml"))
         .env("CARGO_TARGET_DIR", dir.join("target"))
+        // Plain diagnostics: CI sets CARGO_TERM_COLOR=always.
+        .env("CARGO_TERM_COLOR", "never")
         .env_remove("RUSTFLAGS")
         .env_remove("CARGO_ENCODED_RUSTFLAGS")
         .output()

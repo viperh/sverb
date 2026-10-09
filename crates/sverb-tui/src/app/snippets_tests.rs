@@ -318,3 +318,42 @@ fn t08_startup_snippet_form() {
     });
     assert_eq!(history.as_deref(), Some("export TOKEN={{token}}"));
 }
+
+/// A saved snippet reaches the view and the `leader e` picker through the index
+/// update that follows the write, also when a load is already in flight.
+#[test]
+fn index_update_reloads_list_and_picker() {
+    const DF: ItemId = ItemId::from_bytes([3; 16]);
+    let mut h = harness();
+    h.app_mut().open_section(Section::Snippets);
+    let index = || UiEvent::IndexUpdated(std::sync::Arc::new(Default::default()));
+    let loads = |effects: &[Effect]| {
+        effects
+            .iter()
+            .filter(|e| matches!(e, Effect::Snippets(SnippetsEffect::Load)))
+            .count()
+    };
+    h.send(index());
+    assert_eq!(loads(&h.take_effects()), 1);
+    // The save's index update arrives while that load runs: one more load after it.
+    h.send(index());
+    assert_eq!(loads(&h.take_effects()), 0);
+    h.send(loaded());
+    assert_eq!(loads(&h.take_effects()), 1);
+    let UiEvent::Snippets(SnippetsEvent::Loaded { mut snippets, tags }) = loaded() else {
+        unreachable!()
+    };
+    snippets.push((DF, snippet("disk", "df -h", RunMode::Paste, vec![])));
+    h.send(UiEvent::Snippets(SnippetsEvent::Loaded { snippets, tags }));
+    assert_eq!(loads(&h.take_effects()), 0);
+    assert_eq!(
+        h.app().views.snippets.get(DF).map(|s| s.name.as_str()),
+        Some("disk")
+    );
+    assert!(h.render(120, 30).contains("disk"));
+    h.keys("ctrl-\\ e");
+    let Some(SnippetDialogKind::Picker(p)) = top_snippet_dialog(&h) else {
+        panic!("{:?}", h.app().dialogs())
+    };
+    assert!(p.entries.iter().any(|(id, _)| *id == DF));
+}
