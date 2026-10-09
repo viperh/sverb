@@ -25,7 +25,7 @@
 | 2026-10-07 | **License:** MIT for the whole repository, including `sverb-server`. |
 | 2026-10-07 | **SSH only.** Every remote shell and command goes through `russh`. Mosh, Telnet and Serial are out of scope. |
 | 2026-10-07 | **No file transfer.** sverb has no SFTP, SCP or file manager. |
-| 2026-10-07 | **Default leader is `Ctrl-\`.** `Ctrl-g` conflicts with Emacs `keyboard-quit` and readline abort, and `Ctrl-b`/`Ctrl-a` with remote tmux/screen. A pass-through guarantee is added to §8.2, and the §8.3 key collisions (`h`, `l`, `L`) are resolved. See `tasks/03-KEYBINDINGS.md`. |
+| 2026-10-07 | **Default leader is `Ctrl-\`.** `Ctrl-g` conflicts with Emacs `keyboard-quit` and readline abort, and `Ctrl-b`/`Ctrl-a` with remote tmux/screen. A pass-through guarantee is added to §8.2, and the §8.3 key collisions (`h`, `l`, `L`) are resolved. See `docs/keybindings.md`. |
 | 2026-10-07 | **The client binary stays at `crates/sverb/`** (not `bin/sverb/`): the `crates/*` workspace glob picks it up and `cargo install sverb` is unaffected (§3). |
 | 2026-10-08 | **No AI assistant.** §9.11 is removed; there are no `ai.*` config keys and no `leader a` binding. |
 | 2026-10-08 | **Field-level LWW for lists (§22 Q1).** `tags`, `env`, `jump_chain`, `broadcast_groups` and every other list field are whole-value LWW registers in v1 (§12.4). No OR-sets: concurrent tag edits on two devices keep the later list. Revisit after 1.0 if users lose tag edits in practice. |
@@ -2137,5 +2137,5 @@ in its task and is part of the 1.0 contract. Details are in the linked docs.
 | WebSocket | close codes `4403`, `4404`, `4408`, `4409`, `4410`, `4411`, `4429` (M4-05, M6-01) | §10.4 |
 | CLI | `team create`, `team accept` (M5-01); `config --check --file`; `doctor --json --ascii` (M7-04); hidden `keymap` and `generate` (M7-07) | §16 |
 | Environment | `SVERB_HOME`, `SVERB_KEYRING=off`, `SVERB_EXPORT_PASSWORD`; `SVERB_PANE` set in local shells (M1-12); `SVERB_INSECURE_ACCEPT_ANY_HOST_KEY=1` (development only, M1-13) | §16, README |
-| Keys | Hosts view `A T D I X H V M C O` and group-row keys; Settings → Vaults keys (M2-01, M2-11, M5-02, M5-04, M7-01) | `docs/keybindings.md` "View keys", `tasks/03-KEYBINDINGS.md` |
+| Keys | Hosts view `A T D I X H V M C O` and group-row keys; Settings → Vaults keys (M2-01, M2-11, M5-02, M5-04, M7-01) | `docs/keybindings.md` "View keys" |
 | Lints | `unsafe_code = "deny"` with two exception modules (M7-05) | §17 |

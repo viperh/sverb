@@ -1,4 +1,4 @@
-# M1-18: OpenSSH server image for the sverb e2e suite (SPEC §19, tasks/M1-18).
+# M1-18: OpenSSH server image for the sverb e2e suite (SPEC §19).
 #
 # One image, many scenarios: the sshd profile is chosen at container start with
 # `SSHD_PROFILE=<name>` (see profiles/ and entrypoint.sh). Host keys are generated

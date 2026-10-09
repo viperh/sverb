@@ -125,8 +125,8 @@ that every single event yields fewer than 64 effects.
 
 `UiEvent`, `Effect`, the state enums, `Views`, `DialogKind` and the `ActionName`
 registry are extended by almost every UI task. Add new variants and fields **at the
-end**, in one block per task that starts with a `// <task-id>` comment, so parallel
-merges stay mechanical (`tasks/01-DEPENDENCIES.md` §3).
+end**, in one block per change that starts with a short marker comment, so parallel
+changes merge mechanically.
 
 ## How to add a view
 

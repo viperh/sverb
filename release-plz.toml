@@ -1,14 +1,11 @@
 # M7-07: release-plz (SPEC §20). https://release-plz.dev/docs/config
 #
-# Flow: every push to `main` (re)opens a release PR that bumps the version of every
-# published crate together (they share `workspace.package.version`) and adds the
-# conventional-commit changelog to CHANGELOG.md. Merging that PR publishes the crates to
-# crates.io in dependency order (`cargo install sverb` needs all of them), tags
-# `vX.Y.Z` and creates the GitHub release; the tag starts .github/workflows/cd.yml, which
-# attaches the binaries, pushes the image and updates the package channels.
-#
-# The tag must be pushed with a personal access token (RELEASE_PLZ_TOKEN in
-# release-plz.yml): tags pushed with the default GITHUB_TOKEN do not start workflows.
+# Used only to PREPARE releases: every push to `master` (re)opens a release PR that bumps
+# the version of every crate together (they share `workspace.package.version`) and adds
+# the conventional-commit changelog to CHANGELOG.md. release-plz never tags, publishes or
+# creates GitHub releases here (.github/workflows/release-plz.yml runs only `release-pr`).
+# A release is made by pushing a tag `vX.Y.Z` after merging the release PR; the tag starts
+# .github/workflows/cd.yml (binaries, image, package channels).
 #
 # The sync protocol is versioned separately (`/v1`, `Sverb-Proto: 1`; SPEC §20) and is
 # not touched by these version bumps.
@@ -80,9 +77,9 @@ changelog_include = [
     "sverb-term",
     "sverb-tui",
 ]
-git_tag_enable = true
+git_tag_enable = false  # tags are pushed by hand
 git_tag_name = "v{{ version }}"
-git_release_enable = true
+git_release_enable = false  # cd.yml creates the release from the tag
 git_release_name = "sverb v{{ version }}"
 version_group = "sverb"
 

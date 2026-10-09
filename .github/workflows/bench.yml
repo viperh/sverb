@@ -1,7 +1,7 @@
 name: Benchmarks
 
 # M7-06: performance targets (SPEC §1, §5.2, §19). Not run on every PR (shared
-# runners are noisy): nightly on main and on demand.
+# runners are noisy): nightly on master and on demand.
 #
 # * Hard gates for the spec targets, CI-adjusted (2x): scripts/bench-gates.toml.
 # * Startup to the host list with keyring unlock: median of 20 runs < 200 ms.
@@ -56,16 +56,16 @@ jobs:
         run: >
           cargo test --release --locked -p sverb --features test-hooks --test startup
           -- --ignored --nocapture
-      # The new results become the baseline for the next run (main only).
+      # The new results become the baseline for the next run (master only).
       - name: Promote the baseline
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           for d in target/criterion/*/*/ci; do
             rm -rf "$(dirname "$d")/main"
             cp -r "$d" "$(dirname "$d")/main"
           done
       - name: Save the main baseline
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: actions/cache/save@v4
         with:
           path: target/criterion

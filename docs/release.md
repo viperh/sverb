@@ -7,19 +7,32 @@ remain. The files involved: `release-plz.toml`, `.github/workflows/release-plz.y
 
 ## 1. The flow
 
-1. Merge to `main` with [conventional commits](https://www.conventionalcommits.org/)
+Releases are made **only by pushing a version tag** (`v1.0.0`, `v1.2.3`, …). Nothing is
+published on a push to `master`, a merged PR or a manual workflow run.
+
+1. Merge to `master` with [conventional commits](https://www.conventionalcommits.org/)
    (`feat:`, `fix:`, `sec:`, `perf:`, `refactor:`, `docs:`; `build:`/`ci:`/`chore:`/`test:`
    are left out of the changelog).
-2. `release-plz.yml` opens or updates the **release PR**. It bumps `workspace.package.version`
-   and the internal dependency versions together (all published crates share one version)
-   and adds a `## [X.Y.Z] - date` section to `CHANGELOG.md`. Edit the changelog in the PR if
-   needed; that is the release note.
-3. Before merging, do the [manual checks](#3-manual-checks-t-07) on the release PR's head (the
-   `cd.yml` dry run gives you the archives).
-4. Merging the PR publishes every `sverb-*` crate to crates.io in dependency order, pushes the
-   tag `vX.Y.Z` and creates the GitHub release.
-5. The tag starts `cd.yml`, which builds, checks and uploads everything below, then updates the
-   package channels.
+2. `release-plz.yml` opens or updates a **release PR** (optional helper). It bumps
+   `workspace.package.version` and the internal dependency versions together and adds a
+   `## [X.Y.Z] - date` section to `CHANGELOG.md`. Edit the changelog in the PR if needed;
+   that is the release note. Merging it only changes files: it never tags or publishes.
+   Without the release PR, bump `version` in the root `Cargo.toml` and edit
+   `CHANGELOG.md` by hand.
+3. Do a dry run: **Actions → CD → Run workflow** builds and checks everything and attaches the
+   archives to the run, publishing nothing. Do the [manual checks](#3-manual-checks-t-07) with
+   those archives.
+4. Tag the commit and push the tag. The tag must equal the workspace version, or `cd.yml`
+   stops with an error:
+
+   ```sh
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+5. The tag starts `cd.yml`, which builds, checks and uploads everything below, creates the
+   GitHub release and pushes the server image, then updates the package channels.
+   crates.io publishing is not automated (`cargo publish` per crate, in dependency order).
 
 The sync protocol version (`/v1`, `Sverb-Proto: 1`) is separate: bump it only for an
 incompatible wire change, and keep the server serving N and N−1.
@@ -36,8 +49,8 @@ incompatible wire change, and keep the server serving N and N−1.
 | `release` | `SHA256SUMS`, `*.sha256`, CycloneDX SBOM, release notes from `CHANGELOG.md` | `sha256sum -c` |
 | `channels` | AUR `sverb` and `sverb-bin`, Homebrew `homebrew-sverb`, Scoop `scoop-sverb` | |
 
-Run it without publishing from the Actions tab: **CD → Run workflow** with `dry-run` checked
-(the default). The archives and notes are attached to the run as `release-dry-run`.
+Run it without publishing from the Actions tab: **CD → Run workflow** (a manual run is always a
+dry run). The archives and notes are attached to the run as `release-dry-run`.
 
 `ci.yml` also runs on every push: `nix` (`nix build .#sverb`, **T-03**) and `packaging`
 (channel-file self-test and syntax, reproducible archives, `cargo package --workspace`, which
@@ -52,8 +65,7 @@ name or time (`scripts/release-package.sh`).
 
 | Secret | Used by | Without it |
 |---|---|---|
-| `RELEASE_PLZ_TOKEN` | release-plz (a PAT: contents and pull-requests write) | the tag pushed with `GITHUB_TOKEN` doesn't start `cd.yml` |
-| `CARGO_REGISTRY_TOKEN` | crates.io publish | no crates.io release |
+| `RELEASE_PLZ_TOKEN` | release-plz's release PR (a PAT: contents and pull-requests write) | the PR is opened with `GITHUB_TOKEN`, and CI doesn't run on it automatically |
 | `AUR_SSH_PRIVATE_KEY` | AUR push | AUR skipped |
 | `HOMEBREW_TAP_TOKEN` | push to `<owner>/homebrew-sverb` | tap skipped |
 | `SCOOP_BUCKET_TOKEN` | push to `<owner>/scoop-sverb` | bucket skipped |
@@ -78,8 +90,7 @@ Record the results in the release PR. On a clean VM or container for each channe
 
 ## 4. Before the first 1.0 tag
 
-Things the 1.0 release candidate could not finish or verify offline; see the M7-07 report and
-`tasks/04-PROGRESS.md` for detail.
+Things the 1.0 release candidate could not finish or verify offline.
 
 - Run the release pipeline for real: a `cd.yml` dry run (musl builds, the reproducibility
   comparison, `lipo`, the arm64 image under qemu), the `nix` CI job, and the first crates.io

@@ -1,7 +1,8 @@
 name: CD # Continuous Deployment
 
-# M7-07 (SPEC §20, §10.7, §17 reproducible builds). Tag `vX.Y.Z` (pushed by release-plz,
-# see release-plz.toml and release-plz.yml) builds and publishes:
+# M7-07 (SPEC §20, §10.7, §17 reproducible builds). A release is made ONLY by pushing a
+# tag `vX.Y.Z` (e.g. `git tag v1.0.0 && git push origin v1.0.0`); the tag must match
+# `workspace.package.version` in Cargo.toml. The tag builds and publishes:
 #   - sverb-<v>-linux-{x86_64,aarch64}.tar.gz      static musl client
 #   - sverb-<v>-macos-universal.tar.gz              lipo of x86_64 + aarch64
 #   - sverb-<v>-windows-x86_64.zip
@@ -11,9 +12,9 @@ name: CD # Continuous Deployment
 #   - the AUR (sverb, sverb-bin), Homebrew tap and Scoop bucket updates
 # Every archive holds the man page and shell completions (`sverb generate`).
 #
-# `workflow_dispatch` with `dry-run: true` (the default) runs every build and check
-# (T-01 static/universal, T-02 reproducibility, T-04 image smoke test) and uploads the
-# artifacts to the run instead of publishing anything.
+# `workflow_dispatch` (Actions tab, "Run workflow") is always a dry run: every build and
+# check (T-01 static/universal, T-02 reproducibility, T-04 image smoke test) runs and the
+# artifacts are uploaded to the run; nothing is published.
 #
 # Secrets (all optional except GITHUB_TOKEN; a missing one skips its channel):
 #   AUR_SSH_PRIVATE_KEY, HOMEBREW_TAP_TOKEN, SCOOP_BUCKET_TOKEN,
@@ -25,12 +26,8 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
+  # Manual runs are dry runs only (see `meta`): releases come from tags.
   workflow_dispatch:
-    inputs:
-      dry-run:
-        description: Build and check everything, publish nothing
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -53,8 +50,6 @@ jobs:
           fetch-depth: 0
       - id: meta
         name: Version, publish flag, SOURCE_DATE_EPOCH
-        env:
-          DRY_RUN: ${{ inputs.dry-run }}
         run: |
           cargo_version="$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml","rb"))["workspace"]["package"]["version"])')"
           if [[ "$GITHUB_REF_TYPE" == tag ]]; then
@@ -65,8 +60,9 @@ jobs:
             fi
             publish=true
           else
+            # Not a tag (a manual run): never publish.
             version="$cargo_version"
-            publish=$([[ "$DRY_RUN" == false ]] && echo true || echo false)
+            publish=false
           fi
           {
             echo "version=$version"

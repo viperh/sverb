@@ -7272,7 +7272,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "sverb"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7309,7 +7309,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-conn"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -7339,7 +7339,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-core"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "aes",
  "argon2 0.6.0",
@@ -7399,7 +7399,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-crypto"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "argon2 0.6.0",
  "bip39",
@@ -7426,7 +7426,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-e2e"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "cargo_metadata",
@@ -7446,7 +7446,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-proto"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -7459,7 +7459,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-server"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "axum",
  "axum-server",
@@ -7499,7 +7499,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-store"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "parking_lot",
  "rusqlite",
@@ -7514,7 +7514,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-sync"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "axum",
  "chrono",
@@ -7549,7 +7549,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-term"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "alacritty_terminal",
  "bytes",
@@ -7572,7 +7572,7 @@ dependencies = [
 
 [[package]]
 name = "sverb-tui"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "base64 0.22.1",

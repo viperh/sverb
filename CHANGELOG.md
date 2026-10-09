@@ -7,7 +7,7 @@ the sync protocol is versioned separately (`/v1`, `Sverb-Proto: 1`).
 
 Release PRs (release-plz) add a section per release from conventional commits.
 
-## [Unreleased]
+## [1.0.1] - 2026-10-09
 
 The first release candidate for 1.0: everything below is new. SPEC.md (v0.4) describes the
 product; its decisions log and Appendix B list what changed from the draft.
