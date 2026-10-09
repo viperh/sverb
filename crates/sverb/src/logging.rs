@@ -2,7 +2,7 @@
 //!
 //! The subscriber itself (daily-rotated file in the state dir, `SVERB_LOG`, crash and
 //! debug rings, `ErrorLayer`) lives in [`sverb_core::logging`], so the TUI log pane
-//!  and the panic hook can share its rings. This module only adds the
+//! and the panic hook can share its rings. This module only adds the
 //! user-facing `--debug` warning for headless commands (the TUI shows it as a one-time
 
 use sverb_core::{

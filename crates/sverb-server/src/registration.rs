@@ -7,7 +7,7 @@
 //!   from the log. A new token replaces the previous one on every start until
 //!   someone registers, so the latest log line is always valid.
 //! * [`authorize`] is the single policy check the registration endpoint
-//!    runs inside its transaction, before creating the user.
+//!   runs inside its transaction, before creating the user.
 
 use std::str::FromStr;
 

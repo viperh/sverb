@@ -1,7 +1,7 @@
 //! Shared vault routes (SPEC §10.4, §13.1, §13.2; DTOs in
 //! [`sverb_proto::vaults`]). The rules live in [`crate::sync::shared`]; these
 //! handlers add the audit rows (§13.5) and the `vault_access` notifications
-//!  after the change committed.
+//! after the change committed.
 //!
 //! `POST /v1/vaults` is routed from [`super::vaults`] (same path as the list).
 

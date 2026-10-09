@@ -315,7 +315,7 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - name: Smoke test each architecture (T-04)
         env:
-          SVERB_SERVER_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
+          SVERB_SERVER_SECRET: c1c1c1c1000102030405060708090a0b0c0d0e0f101112131415161718191a1b  # CI-only test value (hex, 32 bytes)
           SVERB_PUBLIC_URL: http://localhost:8080
         run: |
           for arch in amd64 arm64; do

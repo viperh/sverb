@@ -21,7 +21,7 @@
 //! rotation.
 //!
 //! Granting fetches the member's public keys and checks them against the pins
-//!  in the sync service: a changed key is refused with an error that says
+//! in the sync service: a changed key is refused with an error that says
 //! to compare safety numbers in Settings → Team. "needs key" marks a vault an org
 //! admin manages implicitly but holds no grant for yet (§13.1): any `manage`
 //! member's client grants it (`g`, and in the background after a sync).

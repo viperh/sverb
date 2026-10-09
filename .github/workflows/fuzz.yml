@@ -66,12 +66,12 @@ jobs:
         env:
           SECONDS_PER_TARGET: ${{ inputs.seconds || '600' }}
         run: >-
-          cargo +nightly fuzz run ${{ matrix.target }}
+          cargo +nightly fuzz run --target x86_64-unknown-linux-gnu ${{ matrix.target }}
           fuzz/corpus/${{ matrix.target }}
           -- -max_total_time=${SECONDS_PER_TARGET} -rss_limit_mb=2048 -timeout=10
       - name: Minimize the corpus
         if: success()
-        run: cargo +nightly fuzz cmin ${{ matrix.target }} fuzz/corpus/${{ matrix.target }}
+        run: cargo +nightly fuzz cmin --target x86_64-unknown-linux-gnu ${{ matrix.target }} fuzz/corpus/${{ matrix.target }}
       - name: Upload crashes
         if: failure()
         uses: actions/upload-artifact@v4

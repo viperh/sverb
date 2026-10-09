@@ -16,8 +16,14 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 unmaintained = "workspace"
 yanked = "deny"
 # Vulnerabilities are always denied (implicit in version 2); list accepted
-# advisories here with a reason and an expiry milestone.
-ignore = []
+# advisories here with a reason.
+ignore = [
+    # Marvin timing side channel in `rsa` (via russh, for RSA SSH keys). No fixed
+    # release exists (`patched = []` upstream). sverb only signs with RSA keys the user
+    # chose; Ed25519/ECDSA keys are unaffected and are the default for new keys.
+    # Remove once russh ships a constant-time RSA.
+    { id = "RUSTSEC-2023-0071", reason = "no patched rsa release; RSA keys are opt-in, Ed25519 is the default" },
+]
 
 # ---------------------------------------------------------------------------
 [licenses]
@@ -35,14 +41,18 @@ allow = [
     "Zlib",
     "Unicode-3.0",
     "CC0-1.0",
+    "0BSD",
     "MPL-2.0",
 ]
 confidence-threshold = 0.9
 # Allowed-but-unused licenses are expected while the dependency set grows.
 unused-allowed-license = "allow"
-# Per-crate exceptions for licenses outside `allow`. Each needs a reason and
-# the task that removes it.
-exceptions = []
+# Per-crate exceptions for licenses outside `allow`. Each needs a reason.
+exceptions = [
+    # Mozilla's CA certificate list as data (rustls / sqlx / hyper-rustls roots):
+    # a permissive data license, no obligations for the binary.
+    { allow = ["CDLA-Permissive-2.0"], crate = "webpki-roots" },
+]
 
 [licenses.private]
 # ones like sverb-e2e have no registry, which would otherwise be flagged.

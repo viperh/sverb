@@ -720,7 +720,9 @@ mod tests {
         assert!(completions(Shell::Zsh).starts_with("#compdef sverb\n"));
     }
 
-    /// The bash script is valid bash (when bash is installed): `bash -n`.
+    /// The bash script is valid bash (when bash is installed): `bash -n`. Unix only: on
+    /// Windows `bash` is the WSL launcher, which fails without an installed distribution.
+    #[cfg(unix)]
     #[test]
     fn bash_and_zsh_syntax() {
         for (shell, kind) in [

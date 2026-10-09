@@ -74,9 +74,17 @@ struct ExecServer {
     chans: Arc<Mutex<HashMap<ChannelId, Chan>>>,
 }
 
+/// Send `sig` to the process group `pgid` (`kill -s SIG -- -PGID`).
+///
+/// The `--` matters: without it, procps-ng's `kill` (Ubuntu) parses `-PGID` as an
+/// option, which on a CI runner signalled every process of the user, the runner
+/// included. Groups 0 and 1 are never signalled.
 fn kill_group(pgid: u32, sig: &str) {
+    if pgid <= 1 {
+        return;
+    }
     let _ = std::process::Command::new("kill")
-        .arg(format!("-{sig}"))
+        .args(["-s", sig, "--"])
         .arg(format!("-{pgid}"))
         .stdout(Stdio::null())
         .stderr(Stdio::null())

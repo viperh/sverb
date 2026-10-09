@@ -92,7 +92,7 @@ jobs:
       - name: Run tests
         env:
           SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
-        run: cargo test --workspace --all-features --locked
+        run: cargo test --workspace --all-features --locked --no-fail-fast
       # The binary must carry a real `git describe`, not vergen's placeholder.
       - name: Check vergen version stamp
         shell: bash
@@ -184,7 +184,7 @@ jobs:
       - name: Build sverb
         run: cargo build -p sverb --locked
       - name: Run e2e tests
-        run: cargo test -p sverb-e2e --locked -- --ignored --test-threads=4
+        run: cargo test -p sverb-e2e --locked --no-fail-fast -- --ignored --test-threads=4
       - name: Leftover containers
         if: failure()
         run: docker ps -a
@@ -226,7 +226,7 @@ jobs:
     name: Server (docker compose)
     runs-on: ubuntu-latest
     env:
-      SVERB_SERVER_SECRET: ci-only-secret-0123456789abcdef0123456789abcdef
+      SVERB_SERVER_SECRET: c1c1c1c1000102030405060708090a0b0c0d0e0f101112131415161718191a1b  # CI-only test value (hex, 32 bytes)
       SVERB_PUBLIC_URL: http://localhost:8080
     steps:
       - name: Checkout repository
@@ -416,13 +416,13 @@ jobs:
       - name: Seed corpus
         run: fuzz/seed-corpus.sh
       - name: Build every target
-        run: cargo +nightly fuzz build
+        run: cargo +nightly fuzz build --target x86_64-unknown-linux-gnu
       - name: Run every target for 30 s
         run: |
           status=0
           for target in $(cargo +nightly fuzz list); do
             echo "::group::$target"
-            if ! cargo +nightly fuzz run "$target" "fuzz/corpus/$target" -- \
+            if ! cargo +nightly fuzz run --target x86_64-unknown-linux-gnu "$target" "fuzz/corpus/$target" -- \
                  -max_total_time=30 -rss_limit_mb=2048 -timeout=10; then
               echo "::error::fuzz target $target crashed"
               status=1
@@ -476,7 +476,6 @@ jobs:
           bash -n packaging/aur/sverb-bin/PKGBUILD
           ruby -c packaging/homebrew/sverb.rb
           jq -e . packaging/scoop/sverb.json >/dev/null
-          python3 -c 'import tomllib; tomllib.load(open("release-plz.toml", "rb"))'
       - name: Archives are reproducible
         run: |
           export SVERB_HOME="$RUNNER_TEMP/home" SVERB_KEYRING=off

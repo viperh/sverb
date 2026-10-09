@@ -21,7 +21,7 @@ pub fn from_core(r: layout::Rect) -> Rect {
 }
 
 /// Each pane's rect inside `area` (the main area), in layout order. A zoomed pane
-///  takes the whole area.
+/// takes the whole area.
 pub fn pane_rects(layout: &Layout, zoomed: Option<PaneId>, area: Rect) -> Vec<(PaneId, Rect)> {
     if let Some(z) = zoomed.filter(|z| layout.contains(*z)) {
         return vec![(z, area)];

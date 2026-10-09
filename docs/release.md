@@ -1,9 +1,8 @@
 # Releasing sverb
 
 How a release is cut (SPEC §20), what the automation checks, and the manual checks that
-remain. The files involved: `release-plz.toml`, `.github/workflows/release-plz.yml`,
-`.github/workflows/cd.yml`, `scripts/release-package.sh`, `scripts/update-packaging.py`,
-`packaging/`, `flake.nix`, `deploy/Dockerfile.server.release`.
+remain. The files involved: `.github/workflows/cd.yml`, `scripts/release-package.sh`,
+`scripts/update-packaging.py`, `packaging/`, `flake.nix`, `deploy/Dockerfile.server.release`.
 
 ## 1. The flow
 
@@ -13,12 +12,11 @@ published on a push to `master`, a merged PR or a manual workflow run.
 1. Merge to `master` with [conventional commits](https://www.conventionalcommits.org/)
    (`feat:`, `fix:`, `sec:`, `perf:`, `refactor:`, `docs:`; `build:`/`ci:`/`chore:`/`test:`
    are left out of the changelog).
-2. `release-plz.yml` opens or updates a **release PR** (optional helper). It bumps
-   `workspace.package.version` and the internal dependency versions together and adds a
-   `## [X.Y.Z] - date` section to `CHANGELOG.md`. Edit the changelog in the PR if needed;
-   that is the release note. Merging it only changes files: it never tags or publishes.
-   Without the release PR, bump `version` in the root `Cargo.toml` and edit
-   `CHANGELOG.md` by hand.
+2. Bump the version in the root `Cargo.toml`: `workspace.package.version` and the
+   `version = "…"` of every internal `sverb-*` entry in `[workspace.dependencies]` (all
+   crates share one version). Add a `## [X.Y.Z] - date` section to `CHANGELOG.md`; that
+   section is the release note. Run `cargo test` once so `Cargo.lock` and the
+   version-dependent snapshots (the man page) follow, and commit.
 3. Do a dry run: **Actions → CD → Run workflow** builds and checks everything and attaches the
    archives to the run, publishing nothing. Do the [manual checks](#3-manual-checks-t-07) with
    those archives.
@@ -65,7 +63,6 @@ name or time (`scripts/release-package.sh`).
 
 | Secret | Used by | Without it |
 |---|---|---|
-| `RELEASE_PLZ_TOKEN` | release-plz's release PR (a PAT: contents and pull-requests write) | the PR is opened with `GITHUB_TOKEN`, and CI doesn't run on it automatically |
 | `AUR_SSH_PRIVATE_KEY` | AUR push | AUR skipped |
 | `HOMEBREW_TAP_TOKEN` | push to `<owner>/homebrew-sverb` | tap skipped |
 | `SCOOP_BUCKET_TOKEN` | push to `<owner>/scoop-sverb` | bucket skipped |
@@ -76,7 +73,7 @@ registered once by hand (push the first `PKGBUILD` and `.SRCINFO` from `packagin
 
 ## 3. Manual checks (T-07)
 
-Record the results in the release PR. On a clean VM or container for each channel:
+Record the results with the release commit. On a clean VM or container for each channel:
 
 - [ ] `cargo install sverb --locked` (and `--no-default-features`), then `sverb doctor`
 - [ ] the Linux tarball (x86_64 and aarch64) on a distribution without Rust: `sverb doctor`, `man ./man/sverb.1`

@@ -741,7 +741,8 @@ pub const KITTY_PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_m
 #[cfg(unix)]
 pub mod kitty_probe {
     use std::fs::OpenOptions;
-    use std::io::{self, Read, Write};
+    use std::io::{self, IsTerminal, Write};
+    use std::os::fd::{AsFd, BorrowedFd};
     use std::time::{Duration, Instant};
 
     use rustix::event::{PollFd, PollFlags, Timespec, poll};
@@ -777,12 +778,25 @@ pub mod kitty_probe {
     /// Sends [`QUERY`] to the controlling terminal and waits up to `timeout` for the
     /// DA1 reply. No reply in time: not supported.
     ///
+    /// The reply is read from stdin when stdin is the terminal: on macOS `poll()` doesn't
+    /// work on `/dev/tty` (it reports `POLLNVAL` at once, and a `read` would then block
+    /// forever). Anything but readable input ends the probe as "not supported".
+    ///
     /// # Errors
     /// The terminal can't be opened or written.
     pub fn probe(timeout: Duration) -> io::Result<bool> {
         let mut tty = OpenOptions::new().read(true).write(true).open("/dev/tty")?;
         tty.write_all(QUERY)?;
         tty.flush()?;
+        let stdin = io::stdin();
+        if stdin.is_terminal() {
+            read_reply(stdin.as_fd(), timeout)
+        } else {
+            read_reply(tty.as_fd(), timeout)
+        }
+    }
+
+    fn read_reply(fd: BorrowedFd<'_>, timeout: Duration) -> io::Result<bool> {
         let deadline = Instant::now() + timeout;
         let mut reply = Vec::new();
         loop {
@@ -790,23 +804,30 @@ pub mod kitty_probe {
             if left.is_zero() {
                 return Ok(false);
             }
-            let ready = {
-                let mut fds = [PollFd::new(&tty, PollFlags::IN)];
+            let readable = {
+                let mut fds = [PollFd::new(&fd, PollFlags::IN)];
                 let ts = Timespec::try_from(left).unwrap_or(Timespec {
                     tv_sec: 0,
                     tv_nsec: 50_000_000,
                 });
                 match poll(&mut fds, Some(&ts)) {
-                    Ok(n) => n > 0,
+                    Ok(0) => false,
+                    // Only real input counts: POLLNVAL / POLLERR / POLLHUP must not lead
+                    // to a blocking read.
+                    Ok(_) => fds[0].revents().contains(PollFlags::IN),
                     Err(rustix::io::Errno::INTR) => continue,
                     Err(e) => return Err(e.into()),
                 }
             };
-            if !ready {
+            if !readable {
                 return Ok(false);
             }
             let mut chunk = [0u8; 256];
-            let n = tty.read(&mut chunk)?;
+            let n = match rustix::io::read(fd, &mut chunk) {
+                Ok(n) => n,
+                Err(rustix::io::Errno::INTR) => continue,
+                Err(e) => return Err(e.into()),
+            };
             if n == 0 {
                 return Ok(false);
             }

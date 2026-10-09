@@ -269,7 +269,7 @@ impl Theme {
 }
 
 /// The real [`ThemeCatalog`] for `config.toml` validation: the built-in UI themes and
-///  the terminal color schemes: built-ins plus the user schemes published by the
+/// the terminal color schemes: built-ins plus the user schemes published by the
 /// last `SchemeCatalog::load` (`widgets::terminal_pane::load_schemes`).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct UiThemeCatalog;

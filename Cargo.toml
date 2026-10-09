@@ -42,7 +42,7 @@ large_futures = "warn"
 [workspace.dependencies]
 # --- internal ---
 # `version` is required to publish (`cargo install sverb` needs every library
-# crate on crates.io); release-plz bumps these together with `workspace.package.version`.
+# crate on crates.io); bump these together with `workspace.package.version`.
 sverb-conn = { path = "crates/sverb-conn", version = "1.0.1" }
 sverb-core = { path = "crates/sverb-core", version = "1.0.1" }
 sverb-crypto = { path = "crates/sverb-crypto", version = "1.0.1" }

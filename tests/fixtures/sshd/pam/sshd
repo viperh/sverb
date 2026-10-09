@@ -1,10 +1,14 @@
-# M1-18: PAM stack for sshd in the e2e image. Only the `kbd` profile sets
+# PAM stack for sshd in the e2e image. Only the `kbd` profile sets
 # `UsePAM yes`; the others never read this file.
 #
 # auth: one keyboard-interactive round. pam_exec prompts "Password: " and hands the
 # answer to sverb-otp-check, which accepts only the fixed TEST code 424242 for the
 # users of the image.
 auth     required  pam_exec.so expose_authtok quiet /usr/local/bin/sverb-otp-check
+# pam_exec ignores pam_setcred; a stack where every module ignores it fails with
+# "Permission denied" after a successful login. pam_permit answers setcred (it adds
+# nothing to auth: pam_exec above must still accept the code).
+auth     required  pam_permit.so
 account  required  pam_unix.so
 session  required  pam_permit.so
 password required  pam_deny.so

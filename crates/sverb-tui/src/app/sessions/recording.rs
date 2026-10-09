@@ -4,7 +4,7 @@
 //!   flag is set at once (the status bar shows `REC ●`); the recording service answers
 //!   with `SessionEvent::Recording` and a `Failed` clears the flag with an error toast.
 //! - New local sessions are recorded when `recording.enabled` is on. SSH sessions
-//!    call [`App::auto_record`] with
+//!   call [`App::auto_record`] with
 //!   `sverb_core::model::resolve_record_sessions` (host → groups → global).
 //! - With `recording.include_input`, the first recording shows a one-time warning that
 //!   typed passwords end up in the recording.

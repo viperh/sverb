@@ -59,8 +59,8 @@ target: add `fuzz_targets/<name>.rs`, a `[[bin]]` in `fuzz/Cargo.toml`, seeds in
 ## Releases and documentation
 
 - Use [conventional commits](https://www.conventionalcommits.org) (`feat:`, `fix:`,
-  `sec:`, `perf:`, `refactor:`, `docs:`). release-plz turns them into the changelog and
-  the version bump. The whole flow is in [`docs/release.md`](docs/release.md).
+  `sec:`, `perf:`, `refactor:`, `docs:`). They make the changelog easy to write. The
+  release flow is in [`docs/release.md`](docs/release.md).
 - Some docs are generated, and a test fails when they are stale:
   `docs/keybindings.md` (`SVERB_BLESS=1 cargo test -p sverb-tui --test keybindings_doc`),
   and `docs/config.md` with `docs/config.schema.json`

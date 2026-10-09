@@ -5,7 +5,7 @@ All notable changes to sverb are recorded here. The format follows
 [Semantic Versioning](https://semver.org/) for the CLI, `config.toml` and the vault format;
 the sync protocol is versioned separately (`/v1`, `Sverb-Proto: 1`).
 
-Release PRs (release-plz) add a section per release from conventional commits.
+Each release adds a section here before its tag is pushed (`docs/release.md`).
 
 ## [1.0.1] - 2026-10-09
 
@@ -58,7 +58,7 @@ product; its decisions log and Appendix B list what changed from the draft.
 - **Accessibility:** no status conveyed by color alone, `ui.ascii` (ASCII glyph fallback,
   automatic on non-UTF-8 locales and the Linux console), `ui.reduce_motion`, and a test that
   every action has a key or a palette entry.
-- **Packaging:** release automation with release-plz; static musl Linux, universal macOS and
+- **Packaging:** tag-driven release automation; static musl Linux, universal macOS and
   Windows archives with a man page and bash, zsh, fish and PowerShell completions
   (`sverb generate`); reproducible builds; a multi-arch distroless server image; AUR,
   Homebrew, Nix and Scoop packages; `cargo install sverb`.

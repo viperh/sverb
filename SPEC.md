@@ -36,7 +36,7 @@
 | 2026-10-09 | **No web share viewer in 1.0 (§22 Q3).** Viewers join with `sverb join <link>`; a browser viewer is post-1.0. The share protocol (§14.2) needs no change for it. |
 | 2026-10-09 | **Emulator: `alacritty_terminal` stays (§22 Q4).** 0.26 behind the `sverb-term` wrapper, so a switch touches one crate. Known workaround: split UTF-8 sequences across reads are re-joined before `vte` 0.15. Re-evaluate at each alacritty_terminal release; `wezterm-term` or vendoring remain the fallbacks. |
 | 2026-10-09 | **Accessibility (§8.8).** `ui.ascii` (ASCII glyph fallback) and `ui.reduce_motion` (static spinners) are added; every status indicator has a text label, so monochrome is complete. |
-| 2026-10-09 | **Packaging (§20).** Releases are cut by release-plz; one tag `vX.Y.Z` produces static musl Linux, universal macOS and Windows archives (with man page and completions), static server archives, a multi-arch distroless image, `SHA256SUMS` and an SBOM, and updates the AUR, Homebrew, Scoop and Nix channels. All library crates are published with the `sverb-` prefix so `cargo install sverb` works. |
+| 2026-10-09 | **Packaging (§20).** Releases are cut by pushing a tag `vX.Y.Z`, which produces static musl Linux, universal macOS and Windows archives (with man page and completions), static server archives, a multi-arch distroless image, `SHA256SUMS` and an SBOM, and updates the AUR, Homebrew, Scoop and Nix channels. All library crates are published with the `sverb-` prefix so `cargo install sverb` works. |
 
 ---
 
@@ -244,7 +244,6 @@ sverb/
 │   └── Dockerfile.server.release  # published image, from the release binaries
 ├── packaging/                 # AUR (sverb, sverb-bin), Homebrew formula, Scoop manifest
 ├── flake.nix                  # Nix packages sverb, sverb-server and a dev shell
-├── release-plz.toml           # release automation (§20)
 ├── CHANGELOG.md
 ├── fuzz/                      # cargo-fuzz targets (own workspace, nightly)
 ├── scripts/                   # CI helpers: layering, unsafe, canary scan, bench gate, release
@@ -2052,10 +2051,10 @@ cargo-deny and an MSRV check.
   Linux musl binaries twice from different directories and compares them.
 - **Versioning:** SemVer. The sync protocol is versioned separately (`/v1`), and the client sends
   `Sverb-Proto: 1`. The server supports N and N-1.
-- `release-plz` handles changelogs and releases: a release PR bumps every crate's version together
-  and updates `CHANGELOG.md` from conventional commits; merging it publishes the crates, tags
-  `vX.Y.Z` and creates the GitHub release, and the tag starts `cd.yml` (binaries, image, package
-  channels). `docs/release.md` has the checklist, including the manual install test per channel.
+- Releases are made only by pushing a tag `vX.Y.Z` after bumping every crate's version together
+  and adding the `CHANGELOG.md` section. The tag starts `cd.yml` (binaries, image, GitHub release,
+  package channels). `docs/release.md` has the checklist, including the manual install test per
+  channel.
 - **License:** MIT for the whole repository. A single `LICENSE` file sits at the root, and every
   crate sets `license = "MIT"` in `Cargo.toml`. `cargo-deny` rejects dependencies with licenses
   that aren't compatible with MIT distribution of the binaries (for example GPL), with

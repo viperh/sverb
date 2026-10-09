@@ -1,5 +1,5 @@
 #!/bin/bash
-# M1-18: the scripted "OTP module" of the `kbd` profile (run by pam_exec with
+# The scripted "OTP module" of the `kbd` profile (run by pam_exec with
 # expose_authtok: the answer arrives on stdin, NUL-terminated). Accepts only the
 # fixed test code 424242, for the image's users.
 code=""
