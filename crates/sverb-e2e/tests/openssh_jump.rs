@@ -137,6 +137,15 @@ async fn run(handle: &SessionHandle, rx: &mut Events, answer: Option<Decision>) 
                             .unwrap();
                     }
                 }
+                // After a stored password is refused, sverb asks again; the test
+                // dismisses that prompt like a user would.
+                SessionEvent::Prompt(_) => {
+                    handle
+                        .cmd_tx
+                        .send(SessionCmd::AuthAnswer(sverb_conn::AuthAnswer::Cancel))
+                        .await
+                        .unwrap();
+                }
                 SessionEvent::Error(r) => out.errors.push(r.short),
                 SessionEvent::State(SessionState::Connected { .. }) => {
                     out.connected = true;

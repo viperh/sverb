@@ -151,7 +151,7 @@
         },
         "type": "object"
       },
-      "description": "`[keys.<mode>]` tables: mode name → (chord → action name).\n\nUser tables are merged key by key over the defaults (`p`, `-`, `|` after the\nleader, `ctrl-k` in Normal mode, `y`, `/` and `o` in copy mode), so a user file only\nlists its changes. `[keys.copy]` binds copy-mode actions (M3-04).\nThe full built-in keymap lives in `sverb-tui` (M0-10) and is merged under this.",
+      "description": "`[keys.<mode>]` tables: mode name → (chord → action name).\n\nUser tables are merged key by key over the defaults (`p`, `-`, `|` after the\nleader, `ctrl-k` in Normal mode, `y`, `/` and `o` in copy mode), so a user file only\nlists its changes. `[keys.copy]` binds copy-mode actions.\nThe full built-in keymap lives in `sverb-tui` and is merged under this.",
       "type": "object"
     },
     "LogsConfig": {
