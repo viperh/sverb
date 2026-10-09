@@ -1,4 +1,4 @@
-//! M1-15: known hosts in the vault.
+//! Known hosts in the vault.
 //!
 //! - [`VaultKnownHosts`] is the SSH verifier's [`KnownHostsStore`]: before each
 //!   connection (and jump hop) it reloads the KnownHost items from the vault; saves
@@ -7,7 +7,6 @@
 //!   Personal vault), replacing the host's old entry of that key type. Each save is
 //!   reported as `KnownHostsEvent::Saved` (the "Added host key for X" toast).
 //! - [`execute`] runs the Known Hosts view's effects: load, save (edit), import from a
-//!   `known_hosts` file (the parser shared with M2-11; duplicates skipped), export as
 //!   OpenSSH text.
 
 use std::sync::{Arc, PoisonError, RwLock};

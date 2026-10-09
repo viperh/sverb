@@ -1,11 +1,11 @@
-//! In-memory ring buffers of recent log lines (M0-04 §2.1).
+//! In-memory ring buffers of recent log lines.
 //!
 //! Two independent [`LogRing`] instances exist (we chose two rings over one ring with
 //! a reader-side level filter, so the crash ring can never be flooded out by debug
 //! chatter and never holds a debug line, not even transiently):
-//! - the **crash ring** (200 lines, `info`+, always on) feeds crash reports (M0-05),
+//! - the **crash ring** (200 lines, `info`+, always on) feeds crash reports,
 //! - the **debug ring** (5,000 lines, same filter as the log file, only with `--debug`
-//!   in the TUI) feeds the log pane (M0-11).
+//!   in the TUI) feeds the log pane.
 
 use std::{
     collections::VecDeque,
@@ -115,7 +115,7 @@ impl LogRing {
     }
 
     /// Like [`LogRing::tail`], but gives up after `timeout` instead of blocking
-    /// forever. For the panic hook (M0-05), which may run while a thread that
+    /// forever. For the panic hook, which may run while a thread that
     /// panicked mid-push still holds the lock.
     pub fn try_tail(&self, n: usize, timeout: Duration) -> Option<Vec<LogLine>> {
         let inner = self.inner.try_lock_for(timeout)?;

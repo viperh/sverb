@@ -1,4 +1,4 @@
-//! Tests for `views::settings::team_verify` (M5-03). They live outside `views/`
+//! Tests for `views::settings::team_verify`. They live outside `views/`
 //! because they open a temp store with `tokio` and `std::fs`, which the reducer
 //! no-I/O scan (`testing::t02`) forbids in view code.
 
@@ -28,7 +28,7 @@ fn line_of<'a>(screen: &'a str, needle: &str) -> &'a str {
         .unwrap_or_else(|| panic!("no line with {needle:?} in\n{screen}"))
 }
 
-// T-04: verify flow → ✓ shown and persisted; after a key change the ✓ is
+// Verify flow → ✓ shown and persisted; after a key change the ✓ is
 // cleared and the warning shown.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_verify_flow_and_key_change() {

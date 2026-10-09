@@ -1,4 +1,4 @@
-//! M1-14: throwaway key fixtures for tests (`test-util`), made with `ssh-keygen` for
+//! Throwaway key fixtures for tests (`test-util`), made with `ssh-keygen` for
 //! these tests only. They protect nothing; never use them anywhere else.
 
 #![allow(missing_docs)]

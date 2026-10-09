@@ -1,4 +1,3 @@
-//! M4-09 CLI tests: `sync --status [--json]` (T-06), `sync --now` with the server
 //! down (exit 6), `devices list` / `revoke` formatting and id picking (T-07; the
 //! list / revoke round trip against the in-process server is
 //! `crates/sverb-sync/tests/account.rs::m4_09_devices_list_revoke_and_local_info`).
@@ -45,7 +44,7 @@ fn synced_info() -> LocalSyncInfo {
     }
 }
 
-// T-06: the text and `--json` forms.
+// The text and `--json` forms.
 #[test]
 fn t06_status_text_and_json() {
     let local = LocalSyncInfo::default();
@@ -74,7 +73,7 @@ fn t06_status_text_and_json() {
     );
 }
 
-// T-06: without flags `sync` prints the status; a fresh home stays untouched.
+// Without flags `sync` prints the status; a fresh home stays untouched.
 #[test]
 fn t06_sync_defaults_to_status_and_creates_nothing() {
     let home = tempfile_home("status");
@@ -100,7 +99,7 @@ fn t06_sync_defaults_to_status_and_creates_nothing() {
     let _ = std::fs::remove_dir_all(&home);
 }
 
-// T-06: `sync --now` with the server down: exit 6, the changes stay queued.
+// `sync --now` with the server down: exit 6, the changes stay queued.
 #[test]
 fn t06_sync_now_server_down_exits_6() {
     let home = tempfile_home("now");
@@ -196,7 +195,7 @@ fn t07_devices_table_and_pick() {
     );
 }
 
-// T-07: not signed in: `devices list` explains how to sign in (exit 2).
+// Not signed in: `devices list` explains how to sign in (exit 2).
 #[test]
 fn t07_devices_need_a_sign_in() {
     let home = tempfile_home("devices");

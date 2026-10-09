@@ -1,4 +1,4 @@
-//! M1-11: the clipboard service (`Effect::CopyToClipboard`, SPEC §7.3).
+//! The clipboard service (`Effect::CopyToClipboard`, SPEC §7.3).
 //!
 //! Strategy:
 //! - sverb itself runs over SSH (`SSH_CONNECTION` or `SSH_TTY` set): **OSC 52 only** — the
@@ -166,7 +166,7 @@ impl ClipboardService {
     /// The real service: OSC 52 to stdout, the platform's clipboard tool, and SSH
     /// detection from `SSH_CONNECTION` / `SSH_TTY`.
     pub fn from_env(osc52: bool) -> Self {
-        // M7-04: the shared detection (`runtime::capabilities`, also used by `sverb doctor`).
+        // The shared detection (`runtime::capabilities`, also used by `sverb doctor`).
         let over_ssh = crate::runtime::capabilities::TermEnv::from_process().over_ssh();
         let local = if over_ssh {
             None
@@ -218,7 +218,7 @@ mod tests {
 
     use super::*;
 
-    /// T-13: the OSC 52 format and the 100 KB cap.
+    /// The OSC 52 format and the 100 KB cap.
     #[test]
     fn t13_osc52_format_and_cap() {
         let (seq, cut) = osc52_sequence("hello");

@@ -1,4 +1,4 @@
-//! M3-04: copy mode (`leader [`, SPEC §8.2, `tasks/03-KEYBINDINGS.md` §4.3).
+//! Copy mode (`leader [`, SPEC §8.2).
 //!
 //! Vim-style motions over the screen and scrollback, `v`/`V`/`ctrl-v` selections, `y`/`Y`
 //! yanks, `/`/`?` regex search with `n`/`N`, `o` on a link (open after confirmation), and
@@ -112,7 +112,7 @@ pub enum CopyAction {
     Exit,
 }
 
-/// Built-in bindings (`tasks/03-KEYBINDINGS.md` §4.3).
+/// Built-in bindings.
 pub const COPY_DEFAULTS: &[(&str, CopyAction)] = &[
     ("h", CopyAction::MoveLeft),
     ("left", CopyAction::MoveLeft),
@@ -740,7 +740,7 @@ mod tests {
         }
     }
 
-    /// T-11: `5j` moves 5 lines, `3w` moves 3 words.
+    /// `5j` moves 5 lines, `3w` moves 3 words.
     #[test]
     fn t11_counts() {
         let lines: Vec<String> = (0..20).map(|i| format!("a{i} b c d e")).collect();

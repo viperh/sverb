@@ -1,5 +1,4 @@
-//! M2-01 tests: resolution chains (T-01), provenance (T-02), cycles (T-03) and a
-//! property test against a naive reference (T-04).
+//! property test against a naive reference.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -63,7 +62,6 @@ impl World {
                 keepalive_secs: 15,
                 color_scheme: "solarized".into(),
                 record_sessions: false,
-                // M1-16
                 auto_reconnect: false,
             },
         }
@@ -299,7 +297,6 @@ fn rows() -> Vec<Row> {
             value: Some("yes"),
             source: group_src(ROOT),
         },
-        // M1-16
         Row {
             name: "auto_reconnect from config",
             setup: |_| {},
@@ -324,7 +321,6 @@ fn rows() -> Vec<Row> {
     ]
 }
 
-// M2-01 T-01, T-02
 #[test]
 fn resolution_table() {
     let rows = rows();
@@ -339,7 +335,7 @@ fn resolution_table() {
             "value: {}",
             row.name
         );
-        // T-02: provenance for every row.
+        // Provenance for every row.
         assert_eq!(r.source(row.key), &row.source, "source: {}", row.name);
     }
 }
@@ -375,7 +371,6 @@ fn details_of_the_table() {
     assert_eq!(r.warnings, vec![ResolveWarning::MissingItem(id(96))]);
 }
 
-// M2-01 T-03
 #[test]
 fn group_cycle_terminates() {
     let mut w = World::new();
@@ -567,7 +562,6 @@ fn naive<T: Clone>(
 }
 
 proptest! {
-    // M2-01 T-04
     #[test]
     fn matches_the_naive_reference((groups, host_group, host, vault) in world()) {
         let gid = |i: usize| id(100 + u8::try_from(i).unwrap_or(0));

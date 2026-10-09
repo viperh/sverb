@@ -1,4 +1,4 @@
-//! M5-02: shared-vault actions of the Hosts view in the reducer (SPEC §13.1,
+//! Shared-vault actions of the Hosts view in the reducer (SPEC §13.1,
 //! §13.4, §4.13):
 //! * **Move / copy to vault** (`M` / `C`): a choice of target vaults (not the
 //!   items' own, not read-only ones), then `ItemEffect::Transfer`. When the hosts

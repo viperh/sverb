@@ -1,5 +1,3 @@
-//! M3-02 reducer tests: broadcast input (T-01…T-11; T-12 is an e2e test, see the task).
-
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::collections::BTreeMap;
@@ -93,7 +91,6 @@ fn status_line(h: &AppHarness) -> String {
         .to_owned()
 }
 
-// T-01
 #[test]
 fn t01_all_panes_receive_every_key() {
     let mut h = harness(None);
@@ -125,7 +122,6 @@ fn t01_all_panes_receive_every_key() {
     assert!(!status_line(&h).contains("BROADCAST"));
 }
 
-// T-02
 #[test]
 fn t02_each_pane_encodes_with_its_own_modes() {
     let mut h = harness(None);
@@ -160,7 +156,6 @@ fn t02_each_pane_encodes_with_its_own_modes() {
     assert_eq!(bytes[&ids[1]], b"\x1b[A");
 }
 
-// T-03
 #[test]
 fn t03_custom_set() {
     let mut h = harness(None);
@@ -192,7 +187,6 @@ fn t03_custom_set() {
     assert_eq!(sent(&h.take_effects()), [(ids[0], key("z"))], "pending now");
 }
 
-// T-04
 #[test]
 fn t04_single_member_is_pending_and_highlighted() {
     let mut h = harness(None);
@@ -214,7 +208,6 @@ fn t04_single_member_is_pending_and_highlighted() {
     assert!(h.render(160, 48).contains("≋"));
 }
 
-// T-05
 #[test]
 fn t05_resize_is_never_broadcast() {
     let mut h = harness(None);
@@ -237,7 +230,6 @@ fn t05_resize_is_never_broadcast() {
     assert_eq!(resized, ids, "one geometric resize per pane");
 }
 
-// T-06
 #[test]
 fn t06_paste_is_broadcast() {
     let mut h = harness(None);
@@ -258,7 +250,6 @@ fn t06_paste_is_broadcast() {
     }
 }
 
-// T-07
 #[test]
 fn t07_snippet_runs_are_broadcast() {
     let mut h = harness(None);
@@ -297,7 +288,6 @@ fn t07_snippet_runs_are_broadcast() {
     }
 }
 
-// T-08
 #[test]
 fn t08_unavailable_members_are_skipped() {
     let mut h = harness(None);
@@ -322,7 +312,6 @@ fn t08_unavailable_members_are_skipped() {
     );
 }
 
-// T-09
 #[test]
 fn t09_leader_and_actions_are_not_broadcast() {
     let mut h = harness(None);
@@ -344,7 +333,6 @@ fn t09_leader_and_actions_are_not_broadcast() {
     assert_eq!(sent(&h.take_effects()).len(), 3);
 }
 
-// T-10
 #[test]
 fn t10_large_broadcast_asks_once_per_run() {
     let mut h = harness(None);
@@ -377,7 +365,6 @@ fn t10_large_broadcast_asks_once_per_run() {
     assert!(h.app().broadcast_highlight(ids[4]));
 }
 
-// T-11
 fn render_buffer(h: &AppHarness) -> ratatui::buffer::Buffer {
     use crate::widgets::terminal_pane::tests::new_emulator;
     let source = |id: SessionId| {

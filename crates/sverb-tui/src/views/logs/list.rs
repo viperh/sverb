@@ -1,4 +1,4 @@
-//! M3-06: the Logs section list (SPEC §9.12, §8.5).
+//! The Logs section list (SPEC §9.12, §8.5).
 //!
 //! ```text
 //! ┌ Logs · failed · host: web ─────────────────────────────────────────────────────┐
@@ -14,7 +14,7 @@
 //! effects) are left in [`LogsView::request`] and taken by the reducer right after the
 //! key (`app/logs.rs`).
 //!
-//! The list is a small local table: the shared list component (M1-06, `widgets/list.rs`)
+//! The list is a small local table: the shared list component (`widgets/list.rs`)
 //! was not merged when this was written. Switching means feeding [`LogsView::visible`]
 //! rows to `ListView` and keeping [`LogsView::selected`] as the selection id.
 
@@ -377,7 +377,7 @@ impl View for LogsView {
         }
     }
 
-    // M1-06: Insert mode while the host filter is edited (`q`, `?` are typed, not run).
+    // Insert mode while the host filter is edited (`q`, `?` are typed, not run).
     fn insert_mode(&self) -> bool {
         self.editing_filter
     }

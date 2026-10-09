@@ -1,4 +1,4 @@
-//! M1-14: the system SSH agent client (SPEC §6.1.1 step 4.3, §9.4).
+//! The system SSH agent client (SPEC §6.1.1 step 4.3, §9.4).
 //!
 //! Lists identities and signs through an agent reached over a Unix socket
 //! (`SSH_AUTH_SOCK`) or, on Windows, the OpenSSH named pipe
@@ -7,7 +7,6 @@
 //!
 //! [`AgentConnector`] opens a connection ([`Agent`]); the auth chain asks for a fresh one
 //! per authentication. Failing to reach the agent is not an error for the user: the
-//! chain logs it at `debug` and skips the agent step. Shared with M2-07 (system agent
 //! passthrough).
 //!
 //! This module is the one russh user outside `ssh/` (the task places the agent client
@@ -92,7 +91,7 @@ impl StreamAgent {
         }
     }
 
-    /// Add `key` to the agent (tests, M2-07).
+    /// Add `key` to the agent (tests).
     ///
     /// # Errors
     /// The agent refused.
@@ -164,7 +163,6 @@ impl AgentConnector for SystemAgent {
     }
 }
 
-/// An agent at a Unix socket path (M2-07's own agent, tests with a real `ssh-agent`).
 #[cfg(unix)]
 #[derive(Debug, Clone)]
 pub struct SocketAgent {

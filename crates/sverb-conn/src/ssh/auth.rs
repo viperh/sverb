@@ -1,4 +1,4 @@
-//! M1-14: the authentication chain (SPEC §6.1.1 step 4).
+//! The authentication chain (SPEC §6.1.1 step 4).
 //!
 //! After `none` (which learns the server's method list), methods are tried in this order,
 //! skipping any the server's latest `USERAUTH_FAILURE` continuation doesn't list:
@@ -7,7 +7,7 @@
 //! 2. `publickey` with the configured key: RSA picks `rsa-sha2-512`, then `rsa-sha2-256`
 //!    from the server's `server-sig-algs` (RFC 8308); `ssh-rsa` (SHA-1) only with the
 //!    host's legacy opt-in, otherwise the key is skipped ([`rsa_hash`]),
-//!    M2-03: an agent / hardware **reference** key (no private part, [`agent_reference`])
+//!    An agent / hardware **reference** key (no private part, [`agent_reference`])
 //!    is signed by the system agent instead, with that key only,
 //! 3. `publickey` through the system agent, one request per identity: **only when no key
 //!    is configured** (OpenSSH `IdentitiesOnly`) and `ssh.use_system_agent` is on,
@@ -464,7 +464,7 @@ impl Chain<'_, '_> {
         if !self.allows(PUBLICKEY) {
             return Ok(Flow::Next);
         }
-        // M2-03: an agent / hardware reference key: the system agent signs with it.
+        // An agent / hardware reference key: the system agent signs with it.
         if let Some(public) = agent_reference(km) {
             return self.agent_ref_step(&public).await;
         }
@@ -589,7 +589,6 @@ impl Chain<'_, '_> {
         Ok(None)
     }
 
-    // M2-03
     /// The configured key is an agent / hardware reference (SPEC §9.4): ask the system
     /// agent to sign with **that** key only (IdentitiesOnly still holds). Skipped when
     /// the agent is unavailable or doesn't hold the key. Independent of
@@ -825,7 +824,6 @@ impl Chain<'_, '_> {
     }
 }
 
-// M2-03
 /// The public key of an agent / hardware reference key (SPEC §9.4). Such a Key item has
 /// no private key; the resolver (`sverb-tui` `services::ssh::key_material`) hands its
 /// OpenSSH **public** line in [`KeyMaterial::private_key`], which never parses as a

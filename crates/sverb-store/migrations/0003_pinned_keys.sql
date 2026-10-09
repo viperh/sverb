@@ -1,4 +1,4 @@
--- sverb client schema v3 (M5-03, SPEC §13.3): TOFU pins of account public keys.
+-- sverb client schema v3 (SPEC §13.3): TOFU pins of account public keys.
 --
 -- One row per user whose keys this device has seen (org members, granters, and this
 -- account itself with is_self = 1). The first key seen is pinned; a different key

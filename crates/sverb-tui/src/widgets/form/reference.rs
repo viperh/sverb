@@ -1,11 +1,11 @@
-//! M1-06: the `Reference` field: an item of one kind (identity, key, group, …) picked
-//! with a fuzzy picker over the search index (M1-05).
+//! The `Reference` field: an item of one kind (identity, key, group, …) picked
+//! with a fuzzy picker over the search index.
 //!
 //! Closed: `Enter`/`Space` opens the picker, `Del`/`Backspace` clears the reference.
 //! Picker: typing filters (the [`Query`] language, restricted to the field's kind),
 //! `↑/↓` (`ctrl-p/ctrl-n`) move, `Enter` picks, `Esc` closes.
 //!
-//! M2-02: a picker can be limited to one vault ([`ReferenceInput::set_vault`]:
+//! A picker can be limited to one vault ([`ReferenceInput::set_vault`]:
 //! identities are referenced only within their vault, §13.4) and can end with a
 //! "create" entry ([`ReferenceInput::set_create`], e.g. `+ new identity`); picking it
 //! leaves the value alone and raises a request the owner takes with
@@ -62,7 +62,6 @@ pub struct ReferenceInput {
     /// The current reference.
     pub value: Option<RefValue>,
     picker: Option<Picker>,
-    // M2-02
     /// Only items of this vault are offered.
     vault: Option<VaultId>,
     /// The label of a trailing "create" entry.
@@ -76,7 +75,6 @@ pub fn candidates(index: &IndexSnapshot, kind: ItemKind, query: &str) -> Vec<Can
     candidates_in(index, kind, query, None)
 }
 
-// M2-02
 /// [`candidates`] limited to `vault` (all vaults when `None`).
 pub fn candidates_in(
     index: &IndexSnapshot,
@@ -107,44 +105,37 @@ impl ReferenceInput {
             kind,
             value,
             picker: None,
-            // M2-02
             vault: None,
             create: None,
             create_requested: false,
         }
     }
 
-    // M2-02
     /// Offer only items of `vault` (`None`: every vault).
     pub fn set_vault(&mut self, vault: Option<VaultId>) {
         self.vault = vault;
     }
 
-    // M2-02
     /// The vault the picker is limited to.
     pub fn vault(&self) -> Option<VaultId> {
         self.vault
     }
 
-    // M2-02
     /// End the picker with a "create" entry labelled `label`.
     pub fn set_create(&mut self, label: impl Into<String>) {
         self.create = Some(label.into());
     }
 
-    // M2-02
     /// Whether the "create" entry was picked (taken once).
     pub fn take_create(&mut self) -> bool {
         std::mem::take(&mut self.create_requested)
     }
 
-    // M2-02
     fn create_index(&self) -> Option<usize> {
         let p = self.picker.as_ref()?;
         self.create.as_ref().map(|_| p.hits.len())
     }
 
-    // M2-02
     fn entries(&self) -> usize {
         self.picker
             .as_ref()
@@ -195,7 +186,7 @@ impl ReferenceInput {
 
     /// Apply one key. `index` is the current search snapshot (`None` before unlock).
     pub fn handle_key(&mut self, key: &KeyEvent, index: Option<&IndexSnapshot>) -> TextEdit {
-        // M2-02: the "create" entry counts as one more row.
+        // The "create" entry counts as one more row.
         let entries = self.entries();
         let create_at = self.create_index();
         if let Some(p) = &mut self.picker {
@@ -266,7 +257,6 @@ impl ReferenceInput {
                 checked: None,
             })
             .collect();
-        // M2-02
         if let Some(label) = &self.create {
             items.push(PopupItem {
                 text: label.clone(),

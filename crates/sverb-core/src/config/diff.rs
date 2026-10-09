@@ -1,5 +1,4 @@
 //! What changed between two configs, and the reload state machine the TUI reducer
-//! delegates to (`UiEvent::Config`, wired by M0-08).
 
 use std::sync::Arc;
 

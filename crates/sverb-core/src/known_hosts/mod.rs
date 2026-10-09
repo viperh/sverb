@@ -1,8 +1,8 @@
-//! M1-15: known hosts and host-key verification (SPEC §9.5, §4.7). Pure: no I/O, no
+//! Known hosts and host-key verification (SPEC §9.5, §4.7). Pure: no I/O, no
 //! clock (callers pass `now`), randomness only for new hashed salts.
 //!
 //! - [`parse`]: the OpenSSH `known_hosts` text format (`parse_known_hosts`, export).
-//!   Shared with the `~/.ssh/known_hosts` importer (M2-11).
+//!   Shared with the `~/.ssh/known_hosts` importer.
 //! - [`lookup`](mod@lookup): the lookup key (`host` / `[host]:port`), OpenSSH pattern lists
 //!   (`*`, `?`, `!negation`, commas) and the entries that apply to a host.
 //! - [`hashed`]: `|1|base64(salt)|base64(HMAC-SHA1(salt, host))` entries.

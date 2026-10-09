@@ -1,4 +1,3 @@
-//! M7-06 `key_encode` (informational): encoding a mix of key presses (M1-11), legacy
 //! and kitty keyboard protocol.
 #![allow(missing_docs, clippy::unwrap_used)]
 

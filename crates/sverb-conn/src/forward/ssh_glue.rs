@@ -161,7 +161,7 @@ fn host_id(spec: &SshSpec) -> Option<sverb_core::model::ItemId> {
 /// authentication): report the connection to the forward hook. Returns the guard
 /// task to own: when the transport drops, the task is aborted and the connection's
 /// token is cancelled.
-#[allow(dead_code)] // M3-07: connect.rs calls `attach_under` after the merge.
+#[allow(dead_code)] // connect.rs calls `attach_under` after the merge.
 pub(crate) fn attach(
     ctx: &ConnectCtx<'_>,
     spec: &SshSpec,
@@ -171,7 +171,6 @@ pub(crate) fn attach(
     attach_under(ctx, spec, handle, routes, None)
 }
 
-// M3-07
 /// [`attach`] on a shared connection: the forwards' token is a child of `parent` (the
 /// connection's token), so they also stop when the connection closes.
 pub(crate) fn attach_under(
@@ -211,7 +210,7 @@ pub(crate) struct TunnelTransport {
     reader: ClosedReader,
     guard: Option<tokio::task::AbortHandle>,
     closed: bool,
-    // M3-07: the connection is shared; closing the tunnel only releases it.
+    // The connection is shared; closing the tunnel only releases it.
     shared: bool,
 }
 
@@ -242,7 +241,6 @@ impl TunnelTransport {
         }
     }
 
-    // M3-07
     /// The connection is shared with other users (`ssh.multiplex`): `close` releases
     /// it (the guard holds the lease) instead of disconnecting.
     #[must_use]
@@ -251,7 +249,6 @@ impl TunnelTransport {
         self
     }
 
-    // M3-07
     /// When the connection ends, report why (`shared.end`, as a shell channel on the
     /// same connection does), so every user of a shared connection disconnects with
     /// the same reason. Without it the reader just ends.
@@ -273,7 +270,7 @@ impl Drop for TunnelTransport {
 struct ClosedReader {
     handle: Arc<Handle<ClientHandler>>,
     sleep: Pin<Box<tokio::time::Sleep>>,
-    // M3-07: the connection's end cause and keepalive interval.
+    // The connection's end cause and keepalive interval.
     end: Option<(Arc<Shared>, u32)>,
 }
 
@@ -285,7 +282,7 @@ impl AsyncRead for ClosedReader {
     ) -> Poll<io::Result<()>> {
         loop {
             if self.handle.is_closed() {
-                // M3-07: the same reason as the connection's other users.
+                // The same reason as the connection's other users.
                 if let Some((shared, keepalive_secs)) = &self.end
                     && let Some(err) = crate::ssh::channel::connection_end(shared, *keepalive_secs)
                 {
@@ -325,7 +322,7 @@ impl Transport for TunnelTransport {
             return Ok(());
         }
         self.closed = true;
-        // M3-07: a shared connection stays up for its other users.
+        // A shared connection stays up for its other users.
         if self.shared {
             if let Some(guard) = self.guard.take() {
                 guard.abort();

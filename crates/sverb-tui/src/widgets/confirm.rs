@@ -1,4 +1,4 @@
-//! M1-06: ready-made confirmations built on [`Modal`].
+//! Ready-made confirmations built on [`Modal`].
 
 use super::dialog::{Button, Modal};
 

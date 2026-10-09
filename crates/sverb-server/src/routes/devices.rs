@@ -54,7 +54,6 @@ async fn revoke(
         return Err(ApiError::NotFound("no such device".into()));
     }
     tracing::info!(user_id = %ctx.user_id, device_id = %id, by = %ctx.device_id, "device revoked");
-    // M5-01
     state
         .orgs()
         .record_for_user_orgs(
@@ -64,7 +63,7 @@ async fn revoke(
             auth.now(),
         )
         .await?;
-    // M4-05: the device's open sockets close with 4401 right away.
+    // The device's open sockets close with 4401 right away.
     state.ws().device_revoked(ctx.user_id, id);
     Ok(StatusCode::NO_CONTENT)
 }

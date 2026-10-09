@@ -135,7 +135,6 @@ struct LoginResolver(Login, Option<sverb_core::model::AgentSource>);
 impl HostResolver for LoginResolver {
     async fn resolve(&self, _spec: &SshSpec) -> Result<SshTarget, SshError> {
         let mut target = self.0.target();
-        // M2-07
         if let Some(source) = self.1 {
             target.agent_forwarding = true;
             target.agent_source = source;
@@ -176,7 +175,6 @@ pub struct HeadlessOptions {
     pub verifier: Option<Arc<dyn HostKeyVerifier>>,
     /// Authenticator (default: the full chain without any system agent).
     pub authenticator: Option<Arc<dyn Authenticator>>,
-    // M2-07
     /// Agent forwarding: the agents answering forwarded channels and the source; the
     /// host gets `agent_forwarding = true` with that source.
     pub agent: Option<(
@@ -192,7 +190,6 @@ impl Default for HeadlessOptions {
             rows: 24,
             verifier: None,
             authenticator: None,
-            // M2-07
             agent: None,
         }
     }
@@ -257,7 +254,6 @@ impl Headless {
         let label = login.host.clone();
         let port = login.port;
         let user = login.user.clone();
-        // M2-07
         let source = opts.agent.as_ref().map(|(_, s)| *s);
         let mut connector = SshConnector::new(Arc::new(LoginResolver(login, source)))
             .with_verifier(verifier)

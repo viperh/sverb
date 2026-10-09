@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# M7-05 (SPEC §17 "Secrets in logs", §19): canary scan.
 #
 # Test fixtures plant canary values (see CONTRIBUTING.md, "Canary secrets"):
 #   CANARY-PW-…, CANARY-KEY-…, CANARY-PASS-…, CANARY-TOKEN-…, any other CANARY-…  secrets

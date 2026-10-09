@@ -1,4 +1,3 @@
-//! M4-07 T-05 (unit, mock server): a server that answers every push with
 //! `conflict` → after 5 rounds the status is `error` and the item stays
 //! dirty.
 #![allow(clippy::unwrap_used, clippy::expect_used)]

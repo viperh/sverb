@@ -1,4 +1,4 @@
-//! M0-04 T-10: `Secret` can't be cloned or serialized by accident.
+//! `Secret` can't be cloned or serialized by accident.
 
 #[test]
 fn secret_misuse_does_not_compile() {

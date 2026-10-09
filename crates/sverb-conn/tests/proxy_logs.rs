@@ -1,4 +1,4 @@
-//! M2-06 T-08: a ProxyCommand's stderr reaches the debug log (the session log). A test
+//! A ProxyCommand's stderr reaches the debug log (the session log). A test
 //! binary of its own so the global capture subscriber sees every callsite.
 #![allow(clippy::unwrap_used, clippy::expect_used, unreachable_pub)]
 #![cfg(unix)]

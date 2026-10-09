@@ -67,7 +67,7 @@ pub enum BusEvent {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         origin_device: Option<Uuid>,
     },
-    /// A share viewer waits for approval (M6-01): the owner's sockets.
+    /// A share viewer waits for approval: the owner's sockets.
     ShareJoinRequest {
         /// Share owner.
         owner_user_id: Uuid,

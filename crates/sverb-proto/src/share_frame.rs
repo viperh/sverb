@@ -1,7 +1,7 @@
 //! Terminal-share payloads (§14.2): the encrypted [`ShareFrame`] and the relay
 //! payload that carries the handshake messages and sealed frames.
 //!
-//! The relay (`RelayEnvelope`, M6-01) routes an opaque `payload`. That payload
+//! The relay (`RelayEnvelope`) routes an opaque `payload`. That payload
 //! is a [`SharePayload`]:
 //!
 //! ```text
@@ -373,7 +373,7 @@ mod cbor_array32 {
 // Fuzzing
 // ---------------------------------------------------------------------------
 
-/// Fuzz entry point (T-08): feeds arbitrary bytes to every share decoder and
+/// Fuzz entry point: feeds arbitrary bytes to every share decoder and
 /// to a channel open. Must never panic.
 #[doc(hidden)]
 pub fn fuzz_share_frame_decode(data: &[u8]) {

@@ -1,4 +1,4 @@
-//! M1-17: pane geometry in the session area.
+//! Pane geometry in the session area.
 //!
 //! The layout tree (`sverb_core::layout`) tiles the main area; every pane draws its own
 //! 1-cell border (`TerminalPane`), so a pane's terminal size is its rect minus 2 in each
@@ -21,7 +21,7 @@ pub fn from_core(r: layout::Rect) -> Rect {
 }
 
 /// Each pane's rect inside `area` (the main area), in layout order. A zoomed pane
-/// (M3-01) takes the whole area.
+///  takes the whole area.
 pub fn pane_rects(layout: &Layout, zoomed: Option<PaneId>, area: Rect) -> Vec<(PaneId, Rect)> {
     if let Some(z) = zoomed.filter(|z| layout.contains(*z)) {
         return vec![(z, area)];

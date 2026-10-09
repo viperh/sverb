@@ -1,6 +1,6 @@
 //! The tab bar row above the main area (SPEC §8.1, §8.4).
 //!
-//! M1-17: draws the session tabs (`1 prod-web-1 ┬ 2 db-primary ● ┬ 3 local ┬ +`) with
+//! Draws the session tabs (`1 prod-web-1 ┬ 2 db-primary ● ┬ 3 local ┬ +`) with
 //! their markers; the geometry (overflow scrolling with `‹`/`›`, hit testing) is
 //! [`crate::views::sessions::tabs::bar_segments`]. With no tab open it shows a hint on how
 //! to open one.
@@ -14,10 +14,9 @@ use ratatui::{
 
 use super::truncate;
 use crate::theme::Theme;
-// M1-17
 use crate::views::sessions::tabs::{Segment, TabItem, bar_segments};
 
-/// One tab (M1-17: [`TabItem`] with markers).
+/// One tab ([`TabItem`] with markers).
 pub type Tab = TabItem;
 
 /// Draw the tab bar. `empty_hint` is shown when there are no tabs.
@@ -29,7 +28,7 @@ pub fn render(frame: &mut Frame<'_>, area: Rect, tabs: &[Tab], empty_hint: &str,
     let line = if tabs.is_empty() {
         Line::from(Span::styled(truncate(empty_hint, max), theme.dim))
     } else {
-        // M1-17: the same segments mouse clicks are tested against.
+        // The same segments mouse clicks are tested against.
         let spans: Vec<Span<'_>> = bar_segments(tabs, area.width)
             .into_iter()
             .map(|seg| {

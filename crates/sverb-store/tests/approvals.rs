@@ -1,4 +1,4 @@
-//! M2-10: the `local_approvals` repository (SPEC §17.1).
+//! The `local_approvals` repository (SPEC §17.1).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -74,7 +74,7 @@ async fn upsert_get_list_revoke() {
     assert!(store.list_local_approvals().await.unwrap().is_empty());
 }
 
-// T-09: approvals are never items, envelopes or outbox rows.
+// Approvals are never items, envelopes or outbox rows.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t09_approvals_never_in_outbox() {
     let dir = tempfile::tempdir().unwrap();
@@ -131,7 +131,7 @@ async fn t09_approvals_never_in_outbox() {
 }
 
 // The shared runtime view: loaded at open, approvals through it are persisted, a
-// reopen (a new session) keeps approvals but forgets denials (T-10, store level).
+// reopen (a new session) keeps approvals but forgets denials (store level).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn device_approvals_persist_and_denials_do_not() {
     use sverb_core::resolve::approval::{ActionKind, ApprovalStatus, Decision, LocalAction};

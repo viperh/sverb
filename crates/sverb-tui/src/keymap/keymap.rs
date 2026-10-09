@@ -1,4 +1,4 @@
-//! The effective keymap: built-in tables (`tasks/03-KEYBINDINGS.md` §4) merged with
+//! The effective keymap: built-in tables merged with
 //! `[keys.terminal]` / `[keys.normal]` from `config.toml`.
 //!
 //! - The **after-leader** table (config name `terminal`, kept from SPEC §15) applies in
@@ -20,7 +20,7 @@ use super::{
     chord::KeyChord,
 };
 
-/// The default leader (`tasks/03-KEYBINDINGS.md` §3.2).
+/// The default leader.
 pub const DEFAULT_LEADER: &str = "ctrl-\\";
 
 /// The value that unbinds a key in `[keys.*]`.

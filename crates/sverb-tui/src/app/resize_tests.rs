@@ -1,5 +1,4 @@
-//! M3-01 reducer tests: resize steps and resize mode (T-06), zoom (T-07, T-08), rename
-//! (T-09), reorder (T-10), border drags (T-11) and the snapshot (T-12).
+//! , reorder, border drags and the snapshot.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -82,7 +81,6 @@ fn main_area(h: &AppHarness) -> sverb_core::layout::Rect {
     to_core(h.app().shell_rects().main)
 }
 
-// T-06
 #[test]
 fn t06_single_steps_and_resize_mode() {
     let mut h = harness(160, 48);
@@ -165,7 +163,6 @@ fn resize_mode_needs_a_pane_and_single_pane_is_a_noop() {
     assert_eq!(layout(&h), start);
 }
 
-// T-07
 #[test]
 fn t07_zoom_toggle() {
     let mut h = harness(160, 48);
@@ -196,7 +193,6 @@ fn t07_zoom_toggle() {
     assert_eq!(h.app().visible_sessions(), [a, b]);
 }
 
-// T-08
 #[test]
 fn t08_focus_move_while_zoomed_unzooms() {
     let mut h = harness(160, 48);
@@ -218,7 +214,6 @@ fn t08_focus_move_while_zoomed_unzooms() {
     assert_eq!(h.app().active_tab().unwrap().zoomed, None);
 }
 
-// T-09
 #[test]
 fn t09_rename_tab() {
     let mut h = harness(160, 48);
@@ -252,7 +247,6 @@ fn t09_rename_tab() {
     );
 }
 
-// T-10
 #[test]
 fn t10_reorder_tabs() {
     let mut h = harness(160, 48);
@@ -299,7 +293,6 @@ fn mouse(kind: MouseEventKind, column: u16, row: u16) -> UiEvent {
     }))
 }
 
-// T-11
 #[test]
 fn t11_mouse_border_drag() {
     let mut h = harness(160, 48);
@@ -411,7 +404,6 @@ fn render_panes(h: &AppHarness, w: u16, hgt: u16) -> String {
     crate::testing::buffer_to_string(terminal.backend().buffer())
 }
 
-// T-12
 #[test]
 fn t12_zoom_marker_and_resize_status_snapshot() {
     let mut h = harness(80, 24);

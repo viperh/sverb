@@ -1,4 +1,3 @@
-//! M2-03 §2.6: OpenSSH certificates (SPEC §4.6, §9.4).
 //!
 //! A Certificate item stores only the certificate line; everything shown (principals,
 //! validity window, CA fingerprint, key id, serial, type) is **derived on read** by

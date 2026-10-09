@@ -1,4 +1,4 @@
-//! M1-11: paste → bytes (SPEC §7.3).
+//! Paste → bytes (SPEC §7.3).
 //!
 //! - Remote bracketed paste on (`?2004`): `ESC[200~` + text + `ESC[201~`. Every
 //!   `ESC[201~` (and `ESC[200~`) inside the text is removed first — repeatedly, so a
@@ -86,7 +86,7 @@ mod tests {
         }
     }
 
-    /// T-11: wrapped, and an embedded end marker is stripped.
+    /// Wrapped, and an embedded end marker is stripped.
     #[test]
     fn t11_bracketed() {
         assert_eq!(

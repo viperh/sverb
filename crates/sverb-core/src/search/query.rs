@@ -1,4 +1,3 @@
-//! M1-05: the search query language (SPEC §8.5, task M1-05 §2.3).
 //!
 //! | Token | Meaning |
 //! |---|---|

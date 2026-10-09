@@ -1,4 +1,4 @@
-//! M3-06: connection logs in the reducer (SPEC §9.12).
+//! Connection logs in the reducer (SPEC §9.12).
 //!
 //! - The ConnLog service (`services::connlog`) reports [`ConnLogEvent`]s: the entry of
 //!   each new attempt (`Started`, so the disconnected banner's `leader i` can jump to it,
@@ -268,7 +268,7 @@ impl App {
         }
     }
 
-    /// The disconnected banner's `leader i` (M1-16): show the Logs section with the
+    /// The disconnected banner's `leader i`: show the Logs section with the
     /// session's current ConnLog entry selected. Returns `false` when the session has no
     /// entry (yet).
     pub fn show_conn_log(&mut self, session: SessionId) -> bool {
@@ -363,11 +363,11 @@ impl App {
     /// Open a new session for the entry's host: a local shell for local entries, the
     /// recorded `user@host:port` for SSH ones.
     ///
-    /// M1-07/M1-13: entries with a `host_id` should connect through the host (current
+    /// Entries with a `host_id` should connect through the host (current
     /// settings, identities, jump hosts) once that path exists; until then the target
     /// recorded in the entry is used.
     pub(crate) fn reconnect_log(&mut self, entry: &LogEntry, effects: &mut Vec<Effect>) {
-        // M1-07: a host that still exists connects through its current settings.
+        // A host that still exists connects through its current settings.
         if let Some(host) = entry.log.host_id
             && self.views.hosts.host(host).is_some()
         {
@@ -415,7 +415,6 @@ impl App {
             rows,
         });
         self.focus_session(id);
-        // M3-05: the global flag (per-host settings arrive with M1-07/M1-13).
         self.auto_record(id, self.config.recording.enabled, effects);
     }
 
@@ -566,7 +565,6 @@ pub fn parse_target(target: &str) -> Option<SshSpec> {
             port
         },
         user,
-        // M1-13
         ..SshSpec::default()
     })
 }

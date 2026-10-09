@@ -1,5 +1,4 @@
 //! Vault and sync DTOs (SPEC §10.4 "Vaults and sync", §12.2, §12.3;
-//! task M4-04). Shared by the server and the client sync engine (M4-07).
 //!
 //! Binary fields (envelopes, wrapped keys, signatures, encrypted names) are
 //! base64url without padding ([`crate::b64`]). Revisions are per-vault,
@@ -147,7 +146,6 @@ pub struct RotationView {
     /// The key version the rotation will commit, when known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub new_key_version: Option<u32>,
-    // M5-04
     /// The user running the rotation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub by: Option<Uuid>,

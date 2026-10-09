@@ -1,5 +1,4 @@
-//! M3-03 reducer tests: save (T-02), open (T-03), bounded concurrency (T-04), missing
-//! hosts (T-05), broadcast sets (T-06), `--workspace` (T-07, reducer side) and the
+//! hosts, broadcast sets, `--workspace` (reducer side) and the
 //! workspaces dialog.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -136,7 +135,6 @@ fn index(h: &mut AppHarness) -> Vec<ItemId> {
     ids
 }
 
-// T-02
 #[test]
 fn t02_save_captures_tabs_and_omits_quick_connect_panes() {
     let mut h = harness();
@@ -236,7 +234,6 @@ fn save_asks_before_overwriting_and_reports_nothing_to_save() {
     assert_eq!(save, Some(Some(existing.id)));
 }
 
-// T-03
 #[test]
 fn t03_open_recreates_tabs_ratios_and_opens_each_leaf() {
     let mut h = harness();
@@ -314,7 +311,6 @@ fn open_appends_after_existing_tabs_or_replaces_a_dead_only_tab() {
     assert!(!h.app().tabs().list[0].has_session(dead));
 }
 
-// T-04
 #[test]
 fn t04_twenty_leaves_never_more_than_eight_connecting() {
     let mut h = harness();
@@ -398,7 +394,6 @@ fn a_queued_pane_closed_before_its_turn_never_opens() {
     assert!(opened(&h.take_effects()).is_empty());
 }
 
-// T-05
 #[test]
 fn t05_a_deleted_host_opens_a_placeholder_pane() {
     let mut h = harness();
@@ -438,7 +433,6 @@ fn t05_a_deleted_host_opens_a_placeholder_pane() {
     assert!(!screen.is_empty());
 }
 
-// T-06
 #[test]
 fn t06_broadcast_sets_are_restored_on_the_new_panes() {
     let mut h = harness();

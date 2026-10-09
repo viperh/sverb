@@ -1,4 +1,4 @@
-//! M2-11: the import / export wizard (SPEC §9.13). Opened from the Hosts view (`I`
+//! The import / export wizard (SPEC §9.13). Opened from the Hosts view (`I`
 //! import, `X` export) and the Known Hosts view (`I`, with the known_hosts source).
 //!
 //! **Import:** 1. pick the source (`ssh_config`, `known_hosts`, CSV, sverb backup), the
@@ -38,7 +38,6 @@ pub enum WizardSource {
     Csv,
     /// `.sverb-backup`
     Backup,
-    // M7-03
     /// PuTTY sessions (`~/.putty/sessions`, or the registry on Windows).
     Putty,
 }
@@ -59,7 +58,6 @@ impl WizardSource {
             Self::KnownHosts => "known_hosts (~/.ssh/known_hosts)",
             Self::Csv => "CSV (label,address,port,username,group,tags)",
             Self::Backup => "sverb backup (.sverb-backup)",
-            // M7-03
             Self::Putty if cfg!(windows) => "PuTTY sessions (registry; or a sessions folder)",
             Self::Putty => "PuTTY sessions (~/.putty/sessions)",
         }
@@ -72,7 +70,7 @@ impl WizardSource {
             Self::KnownHosts => "~/.ssh/known_hosts",
             Self::Csv => "~/hosts.csv",
             Self::Backup => "~/sverb.sverb-backup",
-            // M7-03: empty = the registry on Windows.
+            // Empty = the registry on Windows.
             Self::Putty if cfg!(windows) => "",
             Self::Putty => "~/.putty/sessions",
         }
@@ -390,7 +388,7 @@ impl ImportWizard {
     }
 
     fn preview(&mut self, id: DialogId, cx: &mut ViewCx<'_>) {
-        // M7-03: PuTTY with no path reads the user's sessions (the registry on Windows).
+        // PuTTY with no path reads the user's sessions (the registry on Windows).
         if self.path.trim().is_empty() && self.source != WizardSource::Putty {
             self.error = Some("Enter a file".to_owned());
             return;

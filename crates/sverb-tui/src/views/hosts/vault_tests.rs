@@ -1,6 +1,5 @@
-//! M5-02 view tests: the merged list's vault badges and the vault selector
-//! (T-05), read-only forms for `read` members (T-04), "(your override)" in the
-//! detail pane (T-07).
+//! , read-only forms for `read` members, "(your override)" in the
+//! detail pane.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -69,7 +68,7 @@ fn labels(rows: &[HostRow]) -> Vec<(String, Option<String>)> {
         .collect()
 }
 
-// T-05: "All vaults" shows every host with a badge on shared ones; selecting a
+// "All vaults" shows every host with a badge on shared ones; selecting a
 // vault filters; the top bar label follows.
 #[test]
 fn t05_badges_and_selector() {
@@ -122,7 +121,7 @@ fn selector_needs_a_shared_vault() {
     );
 }
 
-// T-04: a `read` member's host form is read-only with the "Read-only vault" badge.
+// A `read` member's host form is read-only with the "Read-only vault" badge.
 #[test]
 fn t04_read_only_form() {
     let (_, mut cat) = fixture();
@@ -155,7 +154,7 @@ fn t04_read_only_form() {
     );
 }
 
-// T-07: the detail pane shows the override's user with "(your override)".
+// The detail pane shows the override's user with "(your override)".
 #[test]
 fn t07_detail_shows_your_override() {
     let (index, mut cat) = fixture();

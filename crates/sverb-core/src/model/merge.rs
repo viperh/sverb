@@ -1,4 +1,4 @@
-//! Field-level merge of two replicas of one item (SPEC §12.4, M4-06).
+//! Field-level merge of two replicas of one item (SPEC §12.4).
 //!
 //! [`merge`] is a pure join of two [`ItemBody`]s:
 //!
@@ -23,7 +23,7 @@
 //! [`HlcClock::observe_stamp`](super::HlcClock::observe_stamp) for every received
 //! stamp; a stamp too far ahead triggers the skew warning and only clamps the *local*
 //! clock. The stored stamp is kept as-is and still wins merges here, which is what
-//! keeps every replica identical (M1-02 decision, `docs/data-model.md`).
+//! keeps every replica identical (`docs/data-model.md`).
 
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
@@ -125,7 +125,7 @@ pub fn merge(local: &ItemBody, remote: &ItemBody) -> MergeOutcome {
     }
 }
 
-/// Folds [`merge`] over several replicas (e.g. a backup merged with the vault, M2-11).
+/// Folds [`merge`] over several replicas (e.g. a backup merged with the vault).
 /// Returns `None` for an empty iterator.
 pub fn merge_all<'a>(bodies: impl IntoIterator<Item = &'a ItemBody>) -> Option<ItemBody> {
     let mut it = bodies.into_iter();
@@ -216,7 +216,6 @@ mod tests {
         b
     }
 
-    // T-01
     #[test]
     fn concurrent_edits_to_different_fields_both_survive() {
         let mut a = base();
@@ -232,7 +231,6 @@ mod tests {
         assert!(!out.resurrected);
     }
 
-    // T-02
     #[test]
     fn same_field_higher_hlc_then_higher_device_wins() {
         let mut a = base();
@@ -255,7 +253,6 @@ mod tests {
         assert_eq!(merge(&a, &b).body, merge(&b, &a).body);
     }
 
-    // T-03
     #[test]
     fn delete_vs_older_edit_stays_deleted() {
         let mut local = base();
@@ -274,7 +271,6 @@ mod tests {
         assert!(!back.resurrected);
     }
 
-    // T-03
     #[test]
     fn delete_vs_newer_edit_resurrects() {
         let mut local = base();
@@ -306,7 +302,6 @@ mod tests {
         assert_eq!(out.body.get("label"), Some(&Value::from("web")));
     }
 
-    // T-04
     #[test]
     fn unknown_fields_survive() {
         let local = base();
@@ -345,7 +340,6 @@ mod tests {
         );
     }
 
-    // T-07
     #[test]
     fn unset_wins_over_older_and_loses_to_newer() {
         let mut a = base();
@@ -363,7 +357,6 @@ mod tests {
         );
     }
 
-    // T-08
     #[test]
     fn schema_version_is_max_and_read_only_propagates() {
         let a = base();
@@ -383,7 +376,6 @@ mod tests {
         assert!(crate::model::migrate::is_read_only(&out.body));
     }
 
-    // T-09
     #[test]
     fn skewed_remote_stamp_warns_but_still_wins() {
         let mut clock = HlcClock::new(ManualClock::new(T0));

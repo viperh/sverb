@@ -1,4 +1,4 @@
-//! M7-01: the autocomplete / history overlay (`leader Space`, SPEC §9.10).
+//! The autocomplete / history overlay (`leader Space`, SPEC §9.10).
 //!
 //! A small list anchored at the focused pane's cursor (below it, or above when there is
 //! no room). Typing filters (fuzzy) over per-host and global history, snippets and the

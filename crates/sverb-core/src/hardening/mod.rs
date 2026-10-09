@@ -1,4 +1,4 @@
-//! M7-05: process hardening (SPEC §17 "Memory scraping").
+//! Process hardening (SPEC §17 "Memory scraping").
 //!
 //! - [`harden_process`] runs once at startup, before anything secret exists:
 //!   - Linux: `prctl(PR_SET_DUMPABLE, 0)`: no core dumps, and processes of the same user

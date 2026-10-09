@@ -1,4 +1,3 @@
-//! M1-09 emulator tests (T-02 … T-18). Fixture replays (T-01) live in `replay.rs`.
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]
 
 use bytes::Bytes;
@@ -21,7 +20,6 @@ fn joined(responses: &[Bytes]) -> Vec<u8> {
     responses.iter().flat_map(|b| b.iter().copied()).collect()
 }
 
-/// T-02
 #[test]
 fn da1_reply() {
     let mut e = emu(80, 24);
@@ -34,7 +32,7 @@ fn da1_reply() {
     assert!(e.take_responses().is_empty());
 }
 
-/// T-03: row 10, column 5 (1-based) → `ESC [ 10 ; 5 R`.
+/// Row 10, column 5 (1-based) → `ESC [ 10 ; 5 R`.
 #[test]
 fn dsr_cpr() {
     let mut e = emu(80, 24);
@@ -42,7 +40,6 @@ fn dsr_cpr() {
     assert_eq!(joined(&e.take_responses()), b"\x1b[10;5R");
 }
 
-/// T-04
 #[test]
 fn osc11_background_query() {
     let mut e = emu(80, 24);
@@ -70,7 +67,7 @@ fn osc11_reports_remote_override() {
     assert_eq!(r, "\x1b]11;rgb:0101/0202/0303\x07");
 }
 
-/// T-05: query-looking text inside an OSC string (title) is not a query, and the title carrying it
+/// Query-looking text inside an OSC string (title) is not a query, and the title carrying it
 /// is never echoed back.
 #[test]
 fn responses_are_not_echoes() {
@@ -87,7 +84,7 @@ fn responses_are_not_echoes() {
     assert_eq!(joined(&e.take_responses()), b"\x1b[1;1R");
 }
 
-/// T-06: OSC 52 read is denied: no response, no event.
+/// OSC 52 read is denied: no response, no event.
 #[test]
 fn osc52_read_denied() {
     let mut e = emu(80, 24);
@@ -98,7 +95,6 @@ fn osc52_read_denied() {
     assert!(e.take_events().is_empty());
 }
 
-/// T-07
 #[test]
 fn osc52_write_reported() {
     let mut e = emu(80, 24);
@@ -113,7 +109,6 @@ fn osc52_write_reported() {
     assert!(e.take_responses().is_empty());
 }
 
-/// T-08
 #[test]
 fn title_is_capped() {
     let mut e = emu(80, 24);
@@ -137,7 +132,6 @@ fn title_is_capped() {
     assert_eq!(e.take_events(), vec![TermEvent::Title(Some(String::new()))]);
 }
 
-/// T-09
 #[test]
 fn modes_are_tracked() {
     let mut e = emu(80, 24);
@@ -170,7 +164,6 @@ fn modes_are_tracked() {
     assert!(!m.alt_screen && !m.bracketed_paste && !m.app_cursor);
 }
 
-/// T-10
 #[test]
 fn split_utf8() {
     let mut e = emu(10, 2);
@@ -205,7 +198,6 @@ fn split_utf8_followed_by_text() {
     }
 }
 
-/// T-11
 #[test]
 fn charset_windows_1252() {
     let mut codec = CharsetCodec::for_label("windows-1252").unwrap();
@@ -218,7 +210,6 @@ fn charset_windows_1252() {
     assert_eq!(&*codec.encode("€"), &[0x80]);
 }
 
-/// T-12
 #[test]
 fn charset_shift_jis_split() {
     let mut codec = CharsetCodec::for_label("shift_jis").unwrap();
@@ -234,7 +225,6 @@ fn charset_shift_jis_split() {
     assert_eq!(e.cursor().point.column, 6);
 }
 
-/// T-13
 #[test]
 fn wide_chars() {
     let mut e = emu(10, 2);
@@ -257,7 +247,6 @@ fn wide_chars() {
     );
 }
 
-/// T-14
 #[test]
 fn resize_shrink_grow() {
     let mut e = emu(80, 24);
@@ -322,7 +311,6 @@ fn assert_round_trip(a: &AlacrittyEmulator) {
     assert_eq!(a2.screen_dump(true), b.screen_dump(true));
 }
 
-/// T-15
 #[test]
 fn snapshot_round_trip_primary() {
     let mut a = emu(80, 24);
@@ -358,7 +346,6 @@ fn snapshot_round_trip_edge_states() {
     assert_round_trip(&a);
 }
 
-/// T-16
 #[test]
 fn scrollback_size_is_honored() {
     let mut e = AlacrittyEmulator::new(EmulatorConfig {
@@ -373,7 +360,6 @@ fn scrollback_size_is_honored() {
     assert_eq!(e.scrollback_len(), 100);
 }
 
-/// T-17
 #[test]
 fn search_backwards_across_scrollback() {
     let mut e = emu(80, 24);

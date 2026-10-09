@@ -1,4 +1,4 @@
-//! M2-09: snippet runs: T-05 (paste encoding), T-09 (loopback variant), T-10.
+//! Snippet runs: T-05 (paste encoding), T-09 (loopback variant), T-10.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -73,7 +73,6 @@ impl HostExecutor for Fake {
     }
 }
 
-// T-10
 #[tokio::test(start_paused = true)]
 async fn t10_default_concurrency_is_10() {
     let fake = Arc::new(Fake {
@@ -123,7 +122,6 @@ async fn concurrency_limit_is_respected() {
     assert_eq!(out.len(), 5);
 }
 
-// T-05
 #[test]
 fn t05_paste_encoding() {
     let text = paste_text("echo a\necho b\n");
@@ -137,7 +135,7 @@ fn t05_paste_encoding() {
         b"\x1b[200~echo a\necho b\x1b[201~"
     );
     assert_eq!(&encode_paste(&text, &off)[..], b"echo a\recho b");
-    // Terminators inside the text are stripped (M1-11).
+    // Terminators inside the text are stripped.
     let evil = paste_text("a\x1b[201~rm -rf /\n");
     assert_eq!(
         &encode_paste(&evil, &on)[..],

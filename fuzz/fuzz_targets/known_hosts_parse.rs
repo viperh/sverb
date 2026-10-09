@@ -1,4 +1,3 @@
-//! M1-15 / T-18: feeds arbitrary text to `sverb_core::known_hosts::parse_known_hosts` and
 //! matches every parsed entry against a fixed host (hashed fields, globs). It must never
 //! panic. Run it with `cargo +nightly fuzz run known_hosts_parse` from `fuzz/` (the cargo-fuzz
 //! workspace); the same body runs on stable as the property test

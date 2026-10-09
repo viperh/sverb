@@ -1,4 +1,4 @@
-//! M7-03: PuTTY `.ppk` private keys (SPEC §9.4), versions 2 and 3, parsed in-house.
+//! PuTTY `.ppk` private keys (SPEC §9.4), versions 2 and 3, parsed in-house.
 //!
 //! ```text
 //! PuTTY-User-Key-File-3: ssh-ed25519
@@ -31,7 +31,7 @@
 //!
 //! [`PpkImporter`] is the `.ppk` [`KeyImporter`] (registered by default in
 //! [`import`](crate::keychain::import)); the result is re-serialized to OpenSSH like
-//! every other import (M2-03).
+//! every other import.
 
 use base64::Engine as _;
 use cbc::cipher::{BlockModeDecrypt, KeyIvInit, block_padding::NoPadding};

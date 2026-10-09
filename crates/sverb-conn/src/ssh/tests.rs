@@ -5,7 +5,7 @@
 //! process of its own for reliable log capture.
 //!
 //! The e2e variants against OpenSSH are in `crates/sverb-e2e/tests/openssh_transport.rs`
-//! (M1-18 harness, `#[ignore]`d).
+//! (`#[ignore]`d).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -179,7 +179,7 @@ async fn loopback_session_end_to_end() {
         "a rejected env var is no error: {before:?}"
     );
 
-    // T-08: TERM; T-09: FOO accepted, BAR rejected; T-15: stderr reaches the pane.
+    // TERM; T-09: FOO accepted, BAR rejected; T-15: stderr reaches the pane.
     wait_screen(&handle, "TERM=xterm-256color").await;
     wait_screen(&handle, "FOO=bar").await;
     wait_screen(&handle, "ls: /nonexistent: No such file").await;
@@ -202,7 +202,7 @@ async fn loopback_session_end_to_end() {
     send(&handle, "echo hi\r").await;
     wait_screen(&handle, "out:echo hi").await;
 
-    // T-10: resize.
+    // Resize.
     handle
         .cmd_tx
         .send(SessionCmd::Resize {
@@ -219,7 +219,7 @@ async fn loopback_session_end_to_end() {
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
 
-    // T-11: exit 7 → Exit event and Disconnected { Exited(7) } (no reconnect banner).
+    // Exit 7 → Exit event and Disconnected { Exited(7) } (no reconnect banner).
     send(&handle, "exit 7\r").await;
     let (ev, before) = wait_event(&mut rx, |e| {
         is_state(e, |s| matches!(s, SessionState::Disconnected { .. }))
@@ -284,7 +284,7 @@ async fn loopback_auth_failure() {
     });
     assert_eq!(
         err.as_deref(),
-        // M1-14: the stored password, then (russh's server drops `password` from the
+        // The stored password, then (russh's server drops `password` from the
         // list after a failure) keyboard-interactive; `none` is not a method tried.
         Some("Permission denied (methods tried: password, keyboard-interactive)")
     );
@@ -356,7 +356,7 @@ async fn loopback_keepalive_latency_and_timeout() {
         is_state(e, |s| matches!(s, SessionState::Connected { .. }))
     })
     .await;
-    // T-13: within 2 × keepalive.
+    // Within 2 × keepalive.
     let t0 = Instant::now();
     let (ev, _) = wait_event(&mut rx, |e| matches!(e, SessionEvent::Latency(_))).await;
     assert!(t0.elapsed() <= Duration::from_secs(2), "{:?}", t0.elapsed());
@@ -530,7 +530,7 @@ async fn refused_port_is_a_connect_error() {
 }
 
 /// A jump chain that can't be expanded fails loudly instead of connecting directly
-/// (M2-05: the test resolver answers every hop with the same host, so it jumps
+/// (the test resolver answers every hop with the same host, so it jumps
 /// through itself).
 #[tokio::test]
 async fn unsupported_routes_fail() {
@@ -549,15 +549,15 @@ async fn unsupported_routes_fail() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-// ---------------------------------------------------------------- e2e (M1-18 harness)
+// ---------------------------------------------------------------- e2e
 
-/// T-08…T-16 against OpenSSH in Docker live in the M1-18 harness crate
+/// T-08…T-16 against OpenSSH in Docker live in the Docker e2e harness crate
 /// (`crates/sverb-e2e/tests/openssh_transport.rs`): a unit test of this crate cannot
 /// use `sverb-e2e`, which depends on `sverb-conn`. Run them with
 /// `SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_transport -- --ignored`.
 #[tokio::test]
 #[ignore = "moved to crates/sverb-e2e/tests/openssh_transport.rs (M1-18 harness)"]
 async fn e2e_openssh_t08_to_t16() {
-    // M1-18: see crates/sverb-e2e/tests/openssh_transport.rs.
+    // See crates/sverb-e2e/tests/openssh_transport.rs.
     eprintln!("moved: SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_transport -- --ignored");
 }

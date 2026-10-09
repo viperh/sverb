@@ -1,4 +1,4 @@
-//! M3-06: daily maintenance (SPEC §9.12 retention). Run by the ConnLog service on
+//! Daily maintenance (SPEC §9.12 retention). Run by the ConnLog service on
 //! `LogsEffect::Maintain`, which the reducer sends on unlock and every 24 h while
 //! unlocked (`TimerKind::LogsMaintenance`).
 //!

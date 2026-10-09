@@ -1,4 +1,4 @@
-//! M2-11 T-15: `sverb import …` with injected terminal I/O.
+//! `sverb import …` with injected terminal I/O.
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -83,7 +83,6 @@ async fn run(
     (res, String::from_utf8(out).unwrap_or_default())
 }
 
-// T-15
 #[tokio::test]
 async fn t15_dry_run_prints_the_preview() {
     let (svc, _home) = svc("dry").await;
@@ -108,7 +107,6 @@ async fn t15_dry_run_prints_the_preview() {
     assert_eq!(plan.counts().duplicate + plan.counts().conflict, 0);
 }
 
-// T-15
 #[tokio::test]
 async fn t15_csv_yes_imports() {
     let (svc, _home) = svc("csv").await;
@@ -178,7 +176,7 @@ async fn backup_needs_a_password_without_a_terminal() {
     assert_eq!(res.map_err(|e| e.exit_code()), Err(2));
 }
 
-// M7-03 T-08: `sverb import putty <dir> --dry-run` prints the preview; nothing is written.
+// `sverb import putty <dir> --dry-run` prints the preview; nothing is written.
 #[tokio::test]
 async fn t08_putty_dry_run_prints_the_preview() {
     let (svc, _home) = svc("putty").await;

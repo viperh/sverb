@@ -1,5 +1,3 @@
-//! M2-03 keychain tests (task §4: T-01 … T-10; the CLI and UI ones live with them).
-
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::PathBuf;
@@ -90,7 +88,7 @@ fn check_generated(alg: KeyAlgorithm) {
     assert!(g.fingerprint.starts_with("SHA256:"));
 }
 
-/// T-01: each of the 7 types → a parseable OpenSSH private key, a matching public key,
+/// Each of the 7 types → a parseable OpenSSH private key, a matching public key,
 /// the right algorithm (RSA-4096 takes a few seconds in debug builds).
 #[test]
 fn t01_generate_each_type() {
@@ -100,7 +98,7 @@ fn t01_generate_each_type() {
     assert!(generate::generate(&gen_req(KeyAlgorithm::SkEd25519, None)).is_err());
 }
 
-/// T-02: a passphrase-encrypted key decrypts with the passphrase, not without.
+/// A passphrase-encrypted key decrypts with the passphrase, not without.
 #[test]
 fn t02_generated_encrypted_key() {
     let g = generate::generate(&gen_req(KeyAlgorithm::Ed25519, Some(PASS))).unwrap();
@@ -158,7 +156,7 @@ fn t02_ssh_keygen_reads_generated_key() {
     }
 }
 
-/// T-03: every fixture format imports, and the public key has the expected fingerprint.
+/// Every fixture format imports, and the public key has the expected fingerprint.
 #[test]
 fn t03_import_formats() {
     let cases: &[(&str, KeyFormat, Option<&str>, KeyAlgorithm)] = &[
@@ -330,7 +328,7 @@ fn t03_import_paste_and_file() {
     ));
 }
 
-/// T-04: three wrong passphrases abort the import; nothing comes out.
+/// Three wrong passphrases abort the import; nothing comes out.
 #[test]
 fn t04_wrong_passphrase_three_times() {
     for name in [
@@ -370,7 +368,7 @@ fn t04_wrong_passphrase_three_times() {
     }
 }
 
-/// T-05: a `.pub` alone → an agent reference key without private material.
+/// A `.pub` alone → an agent reference key without private material.
 #[test]
 fn t05_public_key_import() {
     let text = fixture("agent_ref.pub");
@@ -387,7 +385,7 @@ fn t05_public_key_import() {
     );
 }
 
-/// T-06: an existing key with the same public key is found (comments ignored).
+/// An existing key with the same public key is found (comments ignored).
 #[test]
 fn t06_duplicate_detection() {
     let k =
@@ -408,7 +406,7 @@ fn t06_duplicate_detection() {
     );
 }
 
-/// T-07: certificate fields are derived; a certificate for another key is rejected.
+/// Certificate fields are derived; a certificate for another key is rejected.
 #[test]
 fn t07_certificate_parsing() {
     let text = fixture("id_cert-cert.pub");
@@ -431,7 +429,7 @@ fn t07_certificate_parsing() {
     ));
 }
 
-/// T-08: expiry badges with an injected clock.
+/// Expiry badges with an injected clock.
 #[test]
 fn t08_expiry_badges() {
     let info = cert::parse_cert(&fixture("id_cert-cert.pub")).unwrap();
@@ -466,7 +464,7 @@ fn t08_expiry_badges() {
     );
 }
 
-/// T-09: export private → mode 0600, round-trips with re-import; re-encrypt works;
+/// Export private → mode 0600, round-trips with re-import; re-encrypt works;
 /// no overwrite without confirmation.
 #[test]
 fn t09_export_private() {
@@ -521,7 +519,7 @@ fn t09_export_private() {
     ));
 }
 
-/// T-10: change passphrase → the old one fails, the new one works, the stored
+/// Change passphrase → the old one fails, the new one works, the stored
 /// passphrase follows.
 #[test]
 fn t10_change_passphrase() {
@@ -554,14 +552,14 @@ fn t10_change_passphrase() {
     assert!(key.passphrase.is_none());
 }
 
-/// The `.ppk` importer hook: the PuTTY parser (M7-03) is registered by default (a
+/// The `.ppk` importer hook: the PuTTY parser is registered by default (a
 /// truncated file is a format error); a registered importer takes over its format.
 #[test]
 fn ppk_importer_hook() {
     let ppk = "PuTTY-User-Key-File-3: ssh-ed25519\nEncryption: none\n";
     assert_eq!(import::detect(ppk), KeyFormat::Plugin(import::PPK_IMPORTER));
     let err = import::import_text(ppk, None, ImportOptions::default()).unwrap_err();
-    // M7-03: the real parser replaced the placeholder.
+    // The real parser replaced the placeholder.
     assert_eq!(err, KeychainError::Format);
     assert!(err.to_string().contains("PuTTY"));
     let placeholder = import::PpkPlaceholder.decode(ppk, None).unwrap_err();

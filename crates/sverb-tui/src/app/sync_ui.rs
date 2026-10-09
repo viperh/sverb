@@ -1,4 +1,4 @@
-//! M4-09: what the UI shows of sync, behind one facade.
+//! What the UI shows of sync, behind one facade.
 //!
 //! [`SyncUi`] is the **single `cfg(feature = "sync")` boundary** of the UI: the top
 //! bar, the status bar, the palette and the Settings section ask it, and it answers
@@ -64,7 +64,6 @@ pub struct DevicesPanel {
     pub rows: Vec<DeviceRow>,
 }
 
-// M5-01
 /// An org in Settings → Team.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OrgEntry {
@@ -76,7 +75,6 @@ pub struct OrgEntry {
     pub role: sverb_proto::orgs::Role,
 }
 
-// M5-01
 /// A member of the shown org.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemberEntry {
@@ -90,7 +88,6 @@ pub struct MemberEntry {
     pub role: sverb_proto::orgs::Role,
 }
 
-// M5-01
 /// Settings → Team: orgs, the shown org's members, its audit log.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct TeamPanel {
@@ -115,7 +112,6 @@ impl TeamPanel {
     }
 }
 
-// M5-02
 /// A shared vault in Settings → Vaults.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VaultEntry {
@@ -133,7 +129,6 @@ pub struct VaultEntry {
     pub has_key: bool,
 }
 
-// M5-02
 /// An org member as seen from the shown vault.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VaultMemberEntry {
@@ -149,7 +144,6 @@ pub struct VaultMemberEntry {
     pub has_key: bool,
 }
 
-// M5-02
 /// Settings → Vaults: the shared vaults of the account's orgs and the shown
 /// vault's members.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -175,7 +169,6 @@ impl VaultsPanel {
     }
 }
 
-// M5-02
 /// A Settings → Vaults request for the sync service (ids as UUID text).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VaultOp {
@@ -209,7 +202,6 @@ pub enum VaultOp {
     },
     /// Grant `manage` to org admins without a key (§13.1 reconcile).
     Reconcile,
-    // M5-04
     /// Rotate the vault key (or resume / restart an interrupted rotation).
     Rotate {
         /// Vault.
@@ -240,15 +232,13 @@ pub struct SyncPanel {
     pub errors: Vec<String>,
     /// Settings → Devices.
     pub devices: DevicesPanel,
-    // M5-01
     /// Settings → Team.
     pub team: TeamPanel,
-    // M5-02
     /// Settings → Vaults.
     pub vaults: VaultsPanel,
 }
 
-/// The account flows behind "Connect to a server" (M4-08).
+/// The account flows behind "Connect to a server".
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WizardFlow {
     /// Log in to an existing account (§2.2, §2.5).
@@ -357,15 +347,12 @@ pub enum SyncEffect {
         /// Accept their new key (else mark verified).
         accept_new_key: bool,
     },
-    // M5-01
     /// Settings → Team: an org request.
     Team(TeamOp),
-    // M5-02
     /// Settings → Vaults: a shared-vault request.
     Vaults(VaultOp),
 }
 
-// M5-01
 /// An org request for the sync service (ids as UUID text).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TeamOp {

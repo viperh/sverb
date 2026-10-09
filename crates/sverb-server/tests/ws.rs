@@ -1,4 +1,4 @@
-//! M4-05: `/v1/ws` notifications and multi-replica fan-out.
+//! `/v1/ws` notifications and multi-replica fan-out.
 //!
 //! Most scenarios drive `ws::session::run` over in-memory channels, so the
 //! 5 s auth window, the 30 s heartbeat and the 15 min token expiry run on
@@ -333,7 +333,7 @@ impl Sock {
 
 // --------------------------------------------------------------------- T-01
 
-/// T-01: no auth message within 5 s → 4401 at exactly 5 s.
+/// No auth message within 5 s → 4401 at exactly 5 s.
 #[tokio::test(start_paused = true)]
 async fn t01_no_auth_within_5s_closes_4401() {
     let env = Env::new();
@@ -352,7 +352,7 @@ async fn t01_no_auth_within_5s_closes_4401() {
     assert_eq!(s.next_msg().await, Some(ServerMsg::Ping));
 }
 
-/// T-01b: a first message other than auth → 4401 immediately.
+/// A first message other than auth → 4401 immediately.
 #[tokio::test(start_paused = true)]
 async fn t01_first_message_must_be_auth() {
     let env = Env::new();
@@ -366,7 +366,7 @@ async fn t01_first_message_must_be_auth() {
 
 // --------------------------------------------------------------------- T-02
 
-/// T-02: invalid, malformed, expired or revoked tokens → 4401; a valid
+/// Invalid, malformed, expired or revoked tokens → 4401; a valid
 /// token → subscribed to the user and their vaults.
 #[tokio::test(start_paused = true)]
 async fn t02_token_validation() {
@@ -400,7 +400,7 @@ async fn t02_token_validation() {
 
 // --------------------------------------------------------------------- T-03
 
-/// T-03: a push reaches the members' sockets with the new head, and only
+/// A push reaches the members' sockets with the new head, and only
 /// theirs.
 #[tokio::test]
 async fn t03_push_notifies_members_only() {
@@ -440,7 +440,7 @@ async fn t03_push_notifies_members_only() {
 
 // --------------------------------------------------------------------- T-04
 
-/// T-04: two replicas sharing one database and one bus: a push on A
+/// Two replicas sharing one database and one bus: a push on A
 /// reaches a socket on B.
 #[tokio::test]
 async fn t04_two_replicas_fan_out_mem() {
@@ -508,7 +508,7 @@ async fn t04_two_replicas_fan_out_pg() {
 
 // --------------------------------------------------------------------- T-05
 
-/// T-05: the access token expires → 4401 at expiry, not before (the client
+/// The access token expires → 4401 at expiry, not before (the client
 /// answers every ping, so only expiry can close it).
 #[tokio::test(start_paused = true)]
 async fn t05_token_expiry_closes_4401() {
@@ -530,7 +530,7 @@ async fn t05_token_expiry_closes_4401() {
 
 // --------------------------------------------------------------------- T-06
 
-/// T-06: pings every 30 s; 2 missed pongs → closed (4408) 60 s after the
+/// Pings every 30 s; 2 missed pongs → closed (4408) 60 s after the
 /// first unanswered ping. Client pings are answered.
 #[tokio::test(start_paused = true)]
 async fn t06_missed_pongs_close() {
@@ -556,7 +556,7 @@ async fn t06_missed_pongs_close() {
 
 // --------------------------------------------------------------------- T-07
 
-/// T-07: a grant subscribes an open socket; a revocation unsubscribes it
+/// A grant subscribes an open socket; a revocation unsubscribes it
 /// and delivers `vault_access revoked`; a rotation reaches all members.
 #[tokio::test]
 async fn t07_grant_and_revoke_live() {
@@ -611,7 +611,7 @@ async fn t07_grant_and_revoke_live() {
 
 // --------------------------------------------------------------------- T-08
 
-/// T-08: revoking a device closes its sockets with 4401 immediately; the
+/// Revoking a device closes its sockets with 4401 immediately; the
 /// user's other devices stay connected.
 #[tokio::test]
 async fn t08_device_revoked_closes_4401() {
@@ -638,7 +638,7 @@ async fn t08_device_revoked_closes_4401() {
     other.quiet_for(Duration::from_millis(200)).await;
 }
 
-/// T-08b: a disabled account → all its sockets close with 4401.
+/// A disabled account → all its sockets close with 4401.
 #[tokio::test]
 async fn t08_user_disabled_closes_4401() {
     let env = Env::new();
@@ -686,7 +686,6 @@ async fn account_changed_skips_the_origin_device() {
     s2.quiet_for(Duration::from_millis(200)).await;
 }
 
-/// The M6-01 hook: `share_join_request` reaches the owner's sockets.
 #[tokio::test]
 async fn share_join_request_reaches_the_owner() {
     let env = Env::new();

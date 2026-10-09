@@ -1,6 +1,5 @@
-//! M1-05 integration tests: the vault service builds the search index on unlock,
 //! updates it incrementally, publishes snapshots to the reducer, and drops it on
-//! lock (T-13). Small Argon2 parameters and an in-memory keyring.
+//! lock. Small Argon2 parameters and an in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

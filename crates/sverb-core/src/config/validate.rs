@@ -425,7 +425,7 @@ fn validate_semantics(
                 .warning(),
         );
     }
-    // M7-07: keys the model accepts but this version doesn't act on yet (SPEC
+    // Keys the model accepts but this version doesn't act on yet (SPEC
     // decisions log, 2026-10-09). A warning, so a file written for a later version
     // still loads.
     if config.ssh.read_ssh_config {

@@ -1,4 +1,4 @@
-//! M5-04: vault key rotation on the server (SPEC §13.2 steps 1–5, §10.3
+//! Vault key rotation on the server (SPEC §13.2 steps 1–5, §10.3
 //! `vaults.rotation` / `items_rotation_staging`; DTOs in
 //! [`sverb_proto::rotation`]).
 //!

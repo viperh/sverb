@@ -51,14 +51,11 @@ impl AppHarness {
         &self.app
     }
 
-    /// Mark sessions as open (stand-in until M1-08 delivers session events).
     pub fn with_sessions(mut self, n: u64) -> Self {
         self.app.tabs.sessions.extend((0..n).map(SessionId));
         self
     }
 
-    // M0-10
-    /// Focus a live session pane (Terminal mode). Stand-in until M1-08/M1-17.
     pub fn with_live_session(mut self) -> Self {
         self.app.focus_session(SessionId(1));
         self
@@ -81,7 +78,6 @@ impl AppHarness {
         self
     }
 
-    // M0-11
     /// Show a toast the way the reducer does, recording its timers.
     pub fn toast(&mut self, level: ToastLevel, message: &str) -> &mut Self {
         let mut effects = Vec::new();
@@ -90,7 +86,6 @@ impl AppHarness {
         self
     }
 
-    // M1-06
     /// Open a generic modal the way the reducer does, recording its tick timer.
     pub fn modal(&mut self, dialog: crate::views::dialogs::ModalDialog) -> crate::views::DialogId {
         let mut effects = Vec::new();
@@ -99,7 +94,6 @@ impl AppHarness {
         id
     }
 
-    // M0-11
     /// Use this terminal environment for the theme (`NO_COLOR`, `COLORTERM`).
     #[must_use]
     pub fn with_theme_env(mut self, env: ThemeEnv) -> Self {
@@ -107,7 +101,6 @@ impl AppHarness {
         self
     }
 
-    // M0-11
     /// Turn on `--debug` with this log ring.
     #[must_use]
     pub fn with_debug_ring(mut self, ring: LogRing) -> Self {
@@ -115,13 +108,11 @@ impl AppHarness {
         self
     }
 
-    // M0-11
     /// Deliver a terminal resize (the shell's responsive rules use the last size).
     pub fn resize(&mut self, cols: u16, rows: u16) -> &mut Self {
         self.send(UiEvent::Input(InputEvent::Resize { cols, rows }))
     }
 
-    // M0-11
     /// Draw into a `TestBackend` and return the buffer (symbols and styles).
     pub fn render_buffer(&self, w: u16, h: u16) -> Buffer {
         let Ok(mut terminal) = Terminal::new(TestBackend::new(w, h));
@@ -215,7 +206,7 @@ pub fn buffer_to_string(buf: &Buffer) -> String {
     out
 }
 
-/// Canned terminal grids for rendering session panes without real sessions (from M1-10).
+/// Canned terminal grids for rendering session panes without real sessions.
 #[derive(Debug, Default, Clone)]
 pub struct FakeSessionRegistry {
     grids: HashMap<SessionId, Vec<String>>,
@@ -321,7 +312,7 @@ mod tests {
                 let ea = a.handle(alphabet(i, origin));
                 let eb = b.handle(alphabet(i, origin));
                 prop_assert_eq!(&ea, &eb);
-                // T-11: one input never fans out unboundedly.
+                // One input never fans out unboundedly.
                 prop_assert!(ea.len() < 64, "{} effects for one event", ea.len());
             }
             prop_assert_eq!(&a, &b);
@@ -508,7 +499,7 @@ mod tests {
             result: Err(ErrorReport::msg("boom")),
         });
         assert_eq!(h.app().toasts().len(), 1);
-        // M0-11: errors are sticky (SPEC §8.7); `Esc` dismisses them (the first one
+        // Errors are sticky (SPEC §8.7); `Esc` dismisses them (the first one
         // closes the still-open form).
         h.advance(60_000);
         assert_eq!(h.app().toasts().len(), 1);

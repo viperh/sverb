@@ -1,4 +1,4 @@
-//! M2-01: where each resolved setting came from (SPEC §4.3).
+//! Where each resolved setting came from (SPEC §4.3).
 //!
 //! The UI renders it as `port: 2222 (from group "prod")`.
 
@@ -47,10 +47,9 @@ pub enum SettingKey {
     Algorithms,
     /// `request_pty_for_exec`
     RequestPtyForExec,
-    /// `record_sessions` (M3-05)
+    /// `record_sessions`
     RecordSessions,
-    // M1-16
-    /// `auto_reconnect` (M1-16, spec addition)
+    /// `auto_reconnect` (spec addition)
     AutoReconnect,
 }
 
@@ -76,7 +75,6 @@ impl SettingKey {
         Self::Algorithms,
         Self::RequestPtyForExec,
         Self::RecordSessions,
-        // M1-16
         Self::AutoReconnect,
     ];
 
@@ -102,7 +100,6 @@ impl SettingKey {
             Self::Algorithms => "algorithms",
             Self::RequestPtyForExec => "request_pty_for_exec",
             Self::RecordSessions => "record_sessions",
-            // M1-16
             Self::AutoReconnect => "auto_reconnect",
         }
     }
@@ -132,7 +129,6 @@ pub enum Source {
     GlobalConfig,
     /// sverb's built-in default (nothing set anywhere).
     BuiltinDefault,
-    // M5-02
     /// The user's own credential override for a shared host (§13.4), stored in
     /// their personal vault.
     Override {
@@ -165,7 +161,6 @@ impl fmt::Display for Source {
             Self::VaultDefaults => f.write_str("vault defaults"),
             Self::GlobalConfig => f.write_str("config"),
             Self::BuiltinDefault => f.write_str("default"),
-            // M5-02
             Self::Override { .. } => f.write_str("your override"),
         }
     }

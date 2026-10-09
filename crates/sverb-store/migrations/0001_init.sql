@@ -3,8 +3,8 @@
 --
 -- Canonical location: crates/sverb-store/migrations/ (inside the crate so that
 -- `cargo package` works). migrations/client/ at the repository root holds
--- symlinks to these files. Later migrations: 0002 (M2-10, local_approvals),
--- 0003 (M5-03, pinned_keys).
+-- symlinks to these files. Later migrations: 0002 (local_approvals),
+-- 0003 (pinned_keys).
 --
 -- Item bodies are only ever stored as encrypted envelopes. Decrypted data never
 -- goes into a table defined here; the optional `item_index` is a TEMP table

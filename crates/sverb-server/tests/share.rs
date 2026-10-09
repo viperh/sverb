@@ -1,10 +1,9 @@
-//! M6-01: terminal-share relay (`/v1/shares`).
+//! Terminal-share relay (`/v1/shares`).
 //!
 //! Relay behaviour (routing, stamping, limits, kick, slow viewers, the
 //! join notification, the log canary) runs over real TCP WebSockets
 //! (tokio-tungstenite against `axum::serve` on loopback). Timing (auth
 //! window, expiry, host grace) drives `share::run_host` / `run_viewer` over
-//! in-memory channels on paused Tokio time, like the M4-05 tests. The
 //! PostgreSQL twin of the share store needs `DATABASE_URL` and otherwise
 //! prints "SKIPPED (needs PostgreSQL)".
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
@@ -439,7 +438,7 @@ async fn quiet(ws: &mut Ws, d: Duration) {
 
 // --------------------------------------------------------------------- T-01
 
-/// T-01: create → id and expiry (default 24 h, 10 viewers); over-limit
+/// Create → id and expiry (default 24 h, 10 viewers); over-limit
 /// values are clamped, zero is invalid, auth is required.
 #[tokio::test]
 async fn t01_create_share_defaults_and_limits() {
@@ -517,7 +516,7 @@ async fn t01_create_share_defaults_and_limits() {
     assert!(st.is_client_error());
 }
 
-/// T-01b: the configured limits apply.
+/// The configured limits apply.
 #[tokio::test]
 async fn t01_configured_limits() {
     let env = Env::with_config(&[
@@ -572,7 +571,7 @@ async fn delete_is_owner_only() {
 
 // --------------------------------------------------------------------- T-02
 
-/// T-02: the host stream needs the owner's token: silence → 4401 after 5 s,
+/// The host stream needs the owner's token: silence → 4401 after 5 s,
 /// a bad token → 4401, another user → 4403, an unknown share → 4403.
 #[tokio::test(start_paused = true)]
 async fn t02_host_auth_owner_only() {
@@ -633,7 +632,7 @@ async fn t02_host_auth_over_tcp() {
 
 // --------------------------------------------------------------------- T-03
 
-/// T-03: anonymous viewers join when the share allows it; when it requires
+/// Anonymous viewers join when the share allows it; when it requires
 /// an account, `join` → 4401, bad tokens → 4401, a signed-in viewer joins
 /// and the host sees its account; unknown shares → 4404.
 #[tokio::test]
@@ -701,7 +700,7 @@ async fn t03_anonymous_and_account_viewers() {
 
 // --------------------------------------------------------------------- T-04
 
-/// T-04: host → viewer 1 never reaches viewer 2; a viewer's message reaches
+/// Host → viewer 1 never reaches viewer 2; a viewer's message reaches
 /// the host stamped with its real id even when it forged another.
 #[tokio::test]
 async fn t04_routing_and_stamping() {
@@ -804,7 +803,7 @@ async fn message_size_limit() {
 
 // --------------------------------------------------------------------- T-05
 
-/// T-05: with `max_viewers` 10, the 11th viewer is closed with 4429; a
+/// With `max_viewers` 10, the 11th viewer is closed with 4429; a
 /// freed seat can be taken again.
 #[tokio::test]
 async fn t05_max_viewers() {
@@ -839,7 +838,7 @@ async fn t05_max_viewers() {
 
 // --------------------------------------------------------------------- T-06
 
-/// T-06: `kick` closes that viewer (4411) and reports it; others stay.
+/// `kick` closes that viewer (4411) and reports it; others stay.
 #[tokio::test]
 async fn t06_kick() {
     let env = Env::new();
@@ -882,7 +881,7 @@ async fn t06_kick() {
 
 // --------------------------------------------------------------------- T-07
 
-/// T-07: at expiry every socket closes with 4410 and `closed_at` is set; a
+/// At expiry every socket closes with 4410 and `closed_at` is set; a
 /// later join is refused with 4410.
 #[tokio::test(start_paused = true)]
 async fn t07_expiry_closes_everything() {
@@ -913,7 +912,7 @@ async fn t07_expiry_closes_everything() {
     assert_eq!(late_host.close_code().await, CLOSE_SHARE_ENDED);
 }
 
-/// T-07b: DELETE closes everything with 4410 and sets `closed_at`.
+/// DELETE closes everything with 4410 and sets `closed_at`.
 #[tokio::test]
 async fn t07_delete_closes_everything() {
     let env = Env::new();
@@ -1006,7 +1005,7 @@ async fn heartbeat_times_out_silent_viewers() {
 
 // --------------------------------------------------------------------- T-08
 
-/// T-08: a viewer that never reads is disconnected once its queue is full;
+/// A viewer that never reads is disconnected once its queue is full;
 /// the host keeps streaming and the other viewer keeps receiving.
 #[tokio::test]
 async fn t08_slow_viewer_is_dropped() {
@@ -1098,7 +1097,7 @@ async fn t08_slow_viewer_is_dropped() {
 
 // --------------------------------------------------------------------- T-09
 
-/// T-09: a join is announced on the owner's general WebSocket as
+/// A join is announced on the owner's general WebSocket as
 /// `share_join_request` (and only there).
 #[tokio::test]
 async fn t09_share_join_request_on_general_ws() {
@@ -1187,7 +1186,7 @@ fn global_logs() -> Captured {
     .clone()
 }
 
-/// T-10: relaying a canary at TRACE level never puts its bytes (raw, hex
+/// Relaying a canary at TRACE level never puts its bytes (raw, hex
 /// or as a byte list) or the tokens in the logs.
 #[tokio::test]
 async fn t10_payloads_never_logged() {

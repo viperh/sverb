@@ -1,4 +1,4 @@
-//! M7-05 T-06: the emulator-level protections against malicious remote output
+//! The emulator-level protections against malicious remote output
 //! (SPEC §17 "Malicious remote output", §7.3), together in one module. Each test feeds
 //! hostile bytes to a real emulator (or the paste encoder) and checks that nothing is
 //! executed, opened, copied or echoed back.

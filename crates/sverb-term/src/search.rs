@@ -1,4 +1,4 @@
-//! M3-04: regex search across the screen and scrollback, and URL detection (SPEC §7.1, §17).
+//! Regex search across the screen and scrollback, and URL detection (SPEC §7.1, §17).
 //!
 //! Search runs on **logical lines**: rows that soft-wrap are joined first, so a match can
 //! span a wrap. Each logical line's trailing blanks are dropped (so `foo$` finds `foo` at the
@@ -312,7 +312,7 @@ mod tests {
         )
     }
 
-    /// T-04: backwards across the scrollback, then `n` wraps with a flag.
+    /// Backwards across the scrollback, then `n` wraps with a flag.
     #[test]
     fn t04_backward_search_and_wrap() {
         let g = grid();
@@ -348,7 +348,7 @@ mod tests {
         assert!(find_next(&g, &SearchPattern::new("nope"), p(0, 0), Direction::Forward).is_none());
     }
 
-    /// T-05: an invalid regex reports an error and searches literally.
+    /// An invalid regex reports an error and searches literally.
     #[test]
     fn t05_invalid_regex_is_literal() {
         let pat = SearchPattern::new("(");

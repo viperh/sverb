@@ -1,7 +1,7 @@
-//! M2-07: the local agent on Windows: a named pipe (`\\.\pipe\sverb-agent…`).
+//! The local agent on Windows: a named pipe (`\\.\pipe\sverb-agent…`).
 //!
 //! The pipe is created as the first instance (so a second agent fails instead of
-//! sharing the name) and rejects remote clients. M7-05: every instance carries an
+//! sharing the name) and rejects remote clients. Every instance carries an
 //! owner-only, protected DACL (only the current user's SID), and each client's token
 //! user must equal ours or the connection is dropped (`dacl_windows`, SPEC §6.1.6).
 

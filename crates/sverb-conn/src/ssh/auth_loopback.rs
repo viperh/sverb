@@ -1,8 +1,7 @@
-//! M1-14 loopback tests: the authentication chain end to end (session actor, state
 //! machine, prompts and answers over the command channel) against the in-process russh
 //! server ([`auth_testing`](super::auth_testing)) and an in-process agent. These cover
 //! the behaviour of the Docker e2e tests T-11…T-17, which are at the end, `#[ignore]`d
-//! for the M1-18 harness.
+//! for the Docker e2e harness.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -192,7 +191,7 @@ fn requests(seen: &Arc<Mutex<AuthSeen>>) -> Vec<String> {
 // ---------------------------------------------------------------- tests
 
 /// T-11 (loopback): password prompt → wrong → re-prompt → right: connects, and the
-/// typed password is reported as accepted (the UI saves it only now, T-10).
+/// typed password is reported as accepted (the UI saves it only now).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn loopback_password_prompt() {
     let (addr, _, seen) = start_auth_server(AuthPolicy {
@@ -513,9 +512,9 @@ async fn loopback_close_while_prompting() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-// ---------------------------------------------------------------- e2e (M1-18)
+// ---------------------------------------------------------------- e2e
 
-/// T-11…T-17 against OpenSSH containers live in the M1-18 harness crate
+/// T-11…T-17 against OpenSSH containers live in the Docker e2e harness crate
 /// (`crates/sverb-e2e/tests/openssh_auth.rs`): password, ed25519/ecdsa/RSA 4096 keys
 /// (`rsa-sha2-512` in the sshd log), an encrypted key with and without a stored
 /// passphrase, a user certificate (`TrustedUserCAKeys`), keyboard-interactive through
@@ -526,6 +525,6 @@ async fn loopback_close_while_prompting() {
 #[tokio::test]
 #[ignore = "moved to crates/sverb-e2e/tests/openssh_auth.rs (M1-18 harness)"]
 async fn e2e_openssh_t11_to_t17() {
-    // M1-18: see crates/sverb-e2e/tests/openssh_auth.rs.
+    // See crates/sverb-e2e/tests/openssh_auth.rs.
     eprintln!("moved: SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_auth -- --ignored");
 }

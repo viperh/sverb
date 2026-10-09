@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = ["crates/*"]
-# M7-05: the cargo-fuzz crate is its own workspace (nightly, libfuzzer-sys).
+# The cargo-fuzz crate is its own workspace (nightly, libfuzzer-sys).
 exclude = ["fuzz"]
 
 # Values shared by every crate in the workspace. Each crate opts in with
@@ -18,7 +18,7 @@ rust-version = "1.95"
 
 # Lints shared by every crate (each crate opts in with `[lints] workspace = true`).
 [workspace.lints.rust]
-# M7-05: `deny`, not `forbid` (SPEC §17): `forbid` cannot be lifted by an inner
+# `deny`, not `forbid` (SPEC §17): `forbid` cannot be lifted by an inner
 # `allow`, and the two documented exceptions need one: the process-hardening module
 # (`crates/sverb-core/src/hardening/`, prctl/setrlimit/mlock) and the Windows agent
 # pipe DACL (`crates/sverb-conn/src/agent/dacl_windows.rs`). `scripts/check-unsafe.py`
@@ -41,7 +41,7 @@ large_futures = "warn"
 # `some-dep = { workspace = true }` so versions stay in lockstep.
 [workspace.dependencies]
 # --- internal ---
-# M7-07: `version` is required to publish (`cargo install sverb` needs every library
+# `version` is required to publish (`cargo install sverb` needs every library
 # crate on crates.io); release-plz bumps these together with `workspace.package.version`.
 sverb-conn = { path = "crates/sverb-conn", version = "1.0.1" }
 sverb-core = { path = "crates/sverb-core", version = "1.0.1" }
@@ -56,7 +56,7 @@ sverb-tui = { path = "crates/sverb-tui", version = "1.0.1" }
 # --- tui / terminal ---
 crossterm = { version = "0.29.0", features = ["serde", "event-stream"] }
 nucleo = "0.5.0"
-# M1-05: the matcher alone (sverb-core::search); deterministic, no worker threads.
+# The matcher alone (sverb-core::search); deterministic, no worker threads.
 nucleo-matcher = "0.3.1"
 ratatui = { version = "0.30.2", features = ["serde", "macros"] }
 # `Buffer`/`Rect`/`Style` without the widgets; used by sverb-term.
@@ -73,7 +73,7 @@ russh = "0.64.1"
 ssh-key = { version = "=0.7.0-rc.11", features = ["ed25519", "encryption"] }
 
 # --- async runtime ---
-# M1-08: the `Transport` trait (SPEC §6) is an `#[async_trait]` used as `Box<dyn Transport>`.
+# The `Transport` trait (SPEC §6) is an `#[async_trait]` used as `Box<dyn Transport>`.
 async-trait = "0.1.92"
 futures = "0.3.32"
 tokio = { version = "1.52.3", features = ["full"] }
@@ -87,13 +87,13 @@ clap = { version = "4.6.1", features = [
     "unicode",
     "string",
 ] }
-# M0-06: `config` and `json5` removed; config.toml is parsed with `toml`.
+# `config` and `json5` removed; config.toml is parsed with `toml`.
 directories = "6.0.0"
-# M0-06: config.toml hot reload (sverb-core::config::watch).
+# config.toml hot reload (sverb-core::config::watch).
 notify = "8.2.0"
 schemars = "1.2.2"
 serde = { version = "1.0.228", features = ["derive"] }
-# M0-06: "did you mean" suggestions for unknown config keys.
+# "did you mean" suggestions for unknown config keys.
 strsim = "0.11.1"
 toml = "1.1.6"
 
@@ -104,7 +104,7 @@ rusqlite_migration = "2.6.0"
 zstd = "0.14.0"
 
 # --- crypto ---
-# M4-03: BIP39 recovery phrase (§11.2). No `rand` feature (entropy comes from our CryptoRng).
+# BIP39 recovery phrase (§11.2). No `rand` feature (entropy comes from our CryptoRng).
 bip39 = { version = "3.0.0", default-features = false, features = ["zeroize"] }
 argon2 = "0.6.0"
 chacha20poly1305 = "0.11.0"
@@ -115,7 +115,7 @@ opaque-ke = { version = "4.0.1", features = ["argon2"] }
 secrecy = "0.10.3"
 sha2 = "0.11.0"
 x25519-dalek = { version = "3.0.0", features = ["static_secrets", "zeroize"] }
-# M1-01: sverb-crypto (rand_core 0.10 is what the RustCrypto 0.11 / dalek 3 generation uses).
+# Sverb-crypto (rand_core 0.10 is what the RustCrypto 0.11 / dalek 3 generation uses).
 getrandom = { version = "0.4.3", features = ["sys_rng"] }
 rand_core = "0.10.1"
 subtle = "2.6.1"
@@ -126,14 +126,14 @@ uhlc = "0.9.0"
 uuid = { version = "1.27.0", features = ["v7", "serde"] }
 
 # --- errors / diagnostics ---
-# M0-05: `better-panic` and `human-panic` removed (sverb has its own panic hook).
+# `better-panic` and `human-panic` removed (sverb has its own panic hook).
 color-eyre = "0.6.5"
 strip-ansi-escapes = "0.2.1"
 thiserror = "2.0.17"
 
 # --- logging ---
 tracing = "0.1.44"
-# M0-04: daily-rotating, non-blocking log file writer.
+# Daily-rotating, non-blocking log file writer.
 tracing-appender = "0.2.5"
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "serde"] }
@@ -142,21 +142,20 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter", "serde"] }
 bytes = "1.12.1"
 parking_lot = "0.12.5"
 regex = "1.13.1"
-# M0-05: `libc` removed (no more `EXIT_FAILURE`).
-# M7-05: back for process hardening only (sverb-core::hardening: prctl, setrlimit, mlock).
+# `libc` removed (no more `EXIT_FAILURE`).
+# Back for process hardening only (sverb-core::hardening: prctl, setrlimit, mlock).
 libc = "0.2.189"
-# M7-05: Windows hardening (SetErrorMode, VirtualLock) and the agent pipe DACL.
+# Windows hardening (SetErrorMode, VirtualLock) and the agent pipe DACL.
 # Already in Cargo.lock through tokio/mio; features are added per crate.
 windows-sys = "0.61.2"
 strum = { version = "0.28.0", features = ["derive"] }
 
-# --- formerly crate-local pins (moved here by M7-07; versions unchanged) ---
-# M1-02: IDNA host validation (sverb-core::model).
+# IDNA host validation (sverb-core::model).
 idna = "1.1.0"
-# M1-04: master-password strength (sverb-core; SPEC §11.2) and the OS keyring (sverb-tui).
+# Master-password strength (sverb-core; SPEC §11.2) and the OS keyring (sverb-tui).
 zxcvbn = { version = "3.1.0", default-features = false }
 keyring = "4.2.0"
-# M1-15 / M2-03 / M7-03: key and certificate formats (sverb-core keychain/, known_hosts/).
+# Key and certificate formats (sverb-core keychain/, known_hosts/).
 # The versions are the ones ssh-key 0.7 / russh already pull in.
 hmac = "0.13.0"
 sha1 = "0.11.0"
@@ -171,34 +170,34 @@ der = { version = "0.8.2", features = ["pem", "std"] }
 md-5 = "0.10.6"
 aes = "0.9.3"
 cbc = "0.2.1"
-# M2-11: CSV import/export and `Include` globs (sverb-core importers/).
+# CSV import/export and `Include` globs (sverb-core importers/).
 csv = "1.4.0"
 glob = "0.3.4"
-# M7-03: PuTTY sessions in the Windows registry (sverb-core, cfg(windows)).
+# PuTTY sessions in the Windows registry (sverb-core, cfg(windows)).
 winreg = "0.10.1"
-# M2-06: SOCKS5 proxies (sverb-conn).
+# SOCKS5 proxies (sverb-conn).
 tokio-socks = { version = "0.5.2", default-features = false, features = ["tokio"] }
-# M4-07: the sync HTTP client (sverb-sync): rustls with our own `ring` ClientConfig
+# The sync HTTP client (sverb-sync): rustls with our own `ring` ClientConfig
 # (no aws-lc, no native-tls).
 reqwest = { version = "0.12.28", default-features = false, features = [
     "json",
     "rustls-tls-webpki-roots-no-provider",
 ] }
-# M1-06: the multiline form field (sverb-tui); the ratatui-0.30 successor of tui-textarea.
+# The multiline form field (sverb-tui); the ratatui-0.30 successor of tui-textarea.
 ratatui-textarea = { version = "0.9.2", default-features = false }
-# M3-04: opening confirmed links (sverb-tui services::opener).
+# Opening confirmed links (sverb-tui services::opener).
 open = "5.4.3"
-# M7-06: the 50 ms startup kitty-keyboard probe (sverb-tui, cfg(unix)); same major as
+# The 50 ms startup kitty-keyboard probe (sverb-tui, cfg(unix)); same major as
 # crossterm's rustix.
 rustix = { version = "1.1.4", features = ["event"] }
-# M4-02: TOTP second factor (sverb-server).
+# TOTP second factor (sverb-server).
 totp-rs = { version = "5.7.0", default-features = false }
 
 # --- build scripts ---
 anyhow = "1.0.103"
 vergen-gix = { version = "10.0.1", features = ["build", "cargo"] }
 
-# --- server (M4-01) ---
+# --- server ---
 # rustls everywhere with `ring` as the provider (static musl build).
 axum = { version = "0.8.9", features = ["macros"] }
 axum-server = { version = "0.8.0", features = ["tls-rustls-no-provider"] }
@@ -235,7 +234,7 @@ sqlx-postgres = { version = "0.8.6", default-features = false, features = [
     "uuid",
 ] }
 tower = { version = "0.5.3", features = ["util"] }
-# M4-05: WebSocket client of sverb-sync (rustls with the `ring` provider,
+# WebSocket client of sverb-sync (rustls with the `ring` provider,
 # roots from webpki-roots; the same tungstenite generation as axum's `ws`).
 tokio-tungstenite = { version = "0.29.0", default-features = false, features = [
     "connect",
@@ -243,7 +242,7 @@ tokio-tungstenite = { version = "0.29.0", default-features = false, features = [
     "rustls-tls-webpki-roots",
 ] }
 webpki-roots = "1.0.9"
-# M4-05: reconnect backoff jitter.
+# Reconnect backoff jitter.
 fastrand = "2.3.0"
 tower-http = { version = "0.6.11", features = [
     "compression-gzip",
@@ -254,27 +253,27 @@ tower-http = { version = "0.6.11", features = [
 ] }
 
 # --- dev ---
-# M1-03 / M2-07 / M4-07: temp dirs in tests; M4-07: the sync tests' fake HTTP server.
+# Temp dirs in tests; The sync tests' fake HTTP server.
 tempfile = "3.27.0"
 hyper = { version = "1.12.0", features = ["server", "http1"] }
 hyper-util = { version = "0.1.21", features = ["tokio", "service"] }
 
-# M1-18: the docker-based OpenSSH e2e harness (sverb-e2e). No TLS provider: the
+# The docker-based OpenSSH e2e harness (sverb-e2e). No TLS provider: the
 # harness talks to the local Docker socket only.
 testcontainers = { version = "0.28.0", default-features = false }
-# M4-01: sverb-server router tests.
+# Sverb-server router tests.
 futures-core = "0.3.32"
 http-body-util = "0.1.5"
 cargo_metadata = "0.23.1"
 criterion = "0.8.2"
-# M1-01: sverb-crypto dev-deps. `chacha20`'s `rng` feature provides the
+# Sverb-crypto dev-deps. `chacha20`'s `rng` feature provides the
 # deterministic ChaCha20Rng on rand_core 0.10 (rand_chacha 0.9 is still on rand_core 0.9).
 chacha20 = { version = "0.10.2", default-features = false, features = ["rng"] }
 hex = "0.4.3"
 serde_json = "1.0.149"
 insta = "1.49.0"
 pretty_assertions = "1.4.1"
-# M0-04: compile-fail tests (sverb-core T-10).
+# Compile-fail tests (sverb-core T-10).
 trybuild = "1.0.121"
 proptest = "1.11.0"
 
@@ -284,6 +283,6 @@ codegen-units = 1
 lto = true
 # Speed over size: SPEC §19 performance targets (emulator throughput, render time).
 opt-level = 3
-# Explicit: the panic hook (M0-05) relies on unwinding so destructors restore the terminal.
+# Explicit: the panic hook relies on unwinding so destructors restore the terminal.
 panic = "unwind"
 strip = true

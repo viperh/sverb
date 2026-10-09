@@ -1,4 +1,4 @@
-//! M7-04: a read-only health check of the client database for `sverb doctor`.
+//! A read-only health check of the client database for `sverb doctor`.
 //!
 //! [`inspect`] opens the file with `SQLITE_OPEN_READ_ONLY` (no migrations, no
 //! PRAGMAs that write) and reports `PRAGMA user_version` against

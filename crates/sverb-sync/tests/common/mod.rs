@@ -1,4 +1,3 @@
-//! M4-07 test harness: an in-process `sverb-server` on its in-memory backend
 //! (no PostgreSQL), served over HTTP on a loopback port, and client devices
 //! with their own SQLite store, LMK and vault keys.
 //!
@@ -66,8 +65,7 @@ pub struct TestServer {
     pub mem: Arc<MemStore>,
     pub clock: Arc<ManualClock>,
     pub requests: Arc<Mutex<Vec<Recorded>>>,
-    // M5-03: test hook serving `GET /v1/users/{id}/public-keys` (the real
-    // endpoint lands with orgs, M5-01); tests set or swap a user's keys here.
+    // Test hook serving `GET /v1/users/{id}/public-keys` (the real
     pub user_keys: Arc<Mutex<HashMap<Uuid, sverb_proto::users::UserPublicKeys>>>,
     task: Mutex<Option<tokio::task::JoinHandle<()>>>,
 }
@@ -125,7 +123,7 @@ impl TestServer {
 
     fn serve(&self, listener: TcpListener) {
         let log = self.requests.clone();
-        // M5-03: the public-keys hook. M5-01: the server serves the endpoint now, so
+        // The public-keys hook. The server serves the endpoint now, so
         // the hook is a middleware that answers only for users a test overrides.
         let keys = self.user_keys.clone();
         let hook = axum::middleware::from_fn(move |req: Request, next: Next| {
@@ -490,7 +488,6 @@ fn ksf() -> SverbKsf {
 }
 
 /// Registers an account whose personal vault is `dev`'s local vault (what
-/// M4-08 does at registration) and stores the tokens on `dev`.
 pub async fn register(server: &TestServer, dev: &Device, email: &str) -> Account {
     let password = b"correct horse battery staple".to_vec();
     let mut rng = os_rng();
@@ -585,7 +582,6 @@ pub async fn first_device(server: &TestServer, email: &str) -> (Account, Device)
     (acct, dev)
 }
 
-/// A second device of `account` (same vault id and key, as M4-08 would set
 /// it up after login).
 pub async fn second_device(server: &TestServer, account: &Account) -> Device {
     let dev = Device::new(account.vault, &account.vk).await;

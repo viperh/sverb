@@ -1,4 +1,4 @@
-//! M1-06: helpers for driving and drawing a single view in tests.
+//! Helpers for driving and drawing a single view in tests.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

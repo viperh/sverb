@@ -1,4 +1,4 @@
-//! M3-05: encrypted session recording (SPEC §7.5) and replay (SPEC §9.12).
+//! Encrypted session recording (SPEC §7.5) and replay (SPEC §9.12).
 //!
 //! - [`asciicast`]: asciicast v2 header and event lines,
 //! - [`writer`]: the `.cast.sv` container (sealed ≤ 64 KiB chunks, last-chunk flag) and the

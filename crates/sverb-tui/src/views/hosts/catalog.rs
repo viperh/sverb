@@ -1,6 +1,6 @@
-//! M1-07: what the Hosts view knows about hosts beyond the search index.
+//! What the Hosts view knows about hosts beyond the search index.
 //!
-//! The index (M1-05) orders and filters hosts but only holds searchable text. The
+//! The index orders and filters hosts but only holds searchable text. The
 //! [`HostCatalog`] adds the remaining **non-secret** fields (port, credentials
 //! references, connection settings, notes), tag colors, group / identity / key names
 //! and the device-local `last_connected_at`. The vault service builds it
@@ -18,7 +18,6 @@ use sverb_core::model::{
     AgentSource, AlgoOverrides, Backspace, DEFAULT_SSH_PORT, ExplicitEmpty, Host, ItemId, Proxy,
     VaultId, WireEnum,
 };
-// M2-01
 use sverb_core::resolve::{
     GlobalDefaults, LookupTable, ProxySettings, ResolvedHost, Settings, Target, resolve_settings,
 };
@@ -73,7 +72,6 @@ impl ProxySummary {
         }
     }
 
-    // M2-01
     fn to_settings(&self) -> ProxySettings {
         match self {
             Self::Socks5 { addr, user } => ProxySettings::Socks5 {
@@ -159,18 +157,16 @@ pub struct HostSummary {
     pub pinned: bool,
     /// `request_pty_for_exec`.
     pub request_pty_for_exec: Option<bool>,
-    /// `record_sessions` (M3-05).
+    /// `record_sessions`.
     pub record_sessions: Option<bool>,
     /// The body's schema is newer than this build.
     pub read_only: bool,
     /// Device-local: last successful connect, UNIX ms.
     pub last_connected_at: Option<i64>,
-    // M2-01
     /// Lists stored as explicitly empty (they don't inherit).
     pub explicit_empty: ExplicitEmpty,
     /// `algorithms.*`.
     pub algorithms: Option<AlgoOverrides>,
-    // M1-16
     /// `auto_reconnect`.
     pub auto_reconnect: Option<bool>,
 }
@@ -229,15 +225,12 @@ impl HostSummary {
             record_sessions: host.record_sessions,
             read_only: host.read_only,
             last_connected_at,
-            // M2-01
             explicit_empty: host.explicit_empty,
             algorithms: host.algorithms.clone(),
-            // M1-16
             auto_reconnect: host.auto_reconnect,
         }
     }
 
-    // M2-01
     /// The host's own level for settings resolution (no secret values).
     pub fn settings(&self) -> Settings {
         let list = |empty: bool, explicit: bool| !empty || explicit;
@@ -269,12 +262,10 @@ impl HostSummary {
             algorithms: self.algorithms.clone(),
             request_pty_for_exec: self.request_pty_for_exec,
             record_sessions: self.record_sessions,
-            // M1-16
             auto_reconnect: self.auto_reconnect,
         }
     }
 
-    // M2-01
     /// What resolution needs besides the settings.
     pub fn resolve_target(&self) -> Target {
         Target {
@@ -299,7 +290,6 @@ impl HostSummary {
     }
 }
 
-// M2-01
 /// `user@address:port` (port only when not 22; IPv6 bracketed before a port).
 pub fn format_target(user: Option<&str>, address: &str, port: Option<u16>) -> String {
     let mut out = String::new();
@@ -364,7 +354,6 @@ pub struct HostCatalog {
     pub vault_names: BTreeMap<VaultId, String>,
     /// When it was built (UNIX ms): "last connected" is relative to it.
     pub loaded_at: i64,
-    // M2-01
     /// Groups (with their defaults), identities and vault defaults for settings
     /// resolution, and every live item id (missing references, §12.4).
     pub lookup: LookupTable,
@@ -374,12 +363,10 @@ pub struct HostCatalog {
     pub tag_vaults: BTreeMap<ItemId, VaultId>,
     /// The Personal vault (new groups, tags and vault defaults go there).
     pub personal_vault: Option<VaultId>,
-    // M2-03
     /// Keys for the Keychain (public data only: no private key, no passphrase).
     pub key_details: BTreeMap<ItemId, crate::views::keychain::keys::KeyInfo>,
     /// Certificates for the Keychain, with their derived fields.
     pub certs: BTreeMap<ItemId, crate::views::keychain::keys::CertSummary>,
-    // M5-02
     /// This user's credential overrides (personal vault), by shared host (§13.4).
     pub overrides: BTreeMap<ItemId, sverb_core::resolve::overrides::OverrideLayer>,
     /// The shared vaults (§13.1).
@@ -401,13 +388,12 @@ impl fmt::Debug for HostCatalog {
 }
 
 impl HostCatalog {
-    /// The effective user of `host` (M2-01: resolved through its groups and the
+    /// The effective user of `host` (resolved through its groups and the
     /// vault defaults: inline `username`, its identity's, then inherited).
     pub fn user_of(&self, host: &HostSummary) -> Option<String> {
         self.resolve(host, &GlobalDefaults::default()).username
     }
 
-    // M2-01
     /// Resolve `host` through its group chain, its vault's defaults and `globals`.
     pub fn resolve(&self, host: &HostSummary, globals: &GlobalDefaults) -> ResolvedHost {
         let mut r = resolve_settings(
@@ -417,14 +403,13 @@ impl HostCatalog {
             self.lookup.defaults_of(host.vault),
             globals,
         );
-        // M5-02: this user's own credentials for a shared host (§13.4).
+        // This user's own credentials for a shared host (§13.4).
         if let Some(layer) = self.overrides.get(&host.id) {
             sverb_core::resolve::overrides::apply_override(&mut r, layer, self);
         }
         r
     }
 
-    // M5-02
     /// The vault badge of an item of `vault` in the merged "All vaults" list
     /// (`None` for the personal vault: only shared items carry one).
     pub fn vault_badge(&self, vault: VaultId) -> Option<&str> {
@@ -434,13 +419,11 @@ impl HostCatalog {
         self.vault_names.get(&vault).map(String::as_str)
     }
 
-    // M5-02
     /// Whether items of `vault` are read-only for this account (§13.2).
     pub fn is_read_only_vault(&self, vault: VaultId) -> bool {
         self.read_only_vaults.contains(&vault)
     }
 
-    // M2-01
     /// What a host in `group` (of `vault`) would inherit: the group editor's and the
     /// host form's placeholders.
     pub fn inherited(
@@ -462,13 +445,11 @@ impl HostCatalog {
         )
     }
 
-    // M2-01
     /// The name of a group (`None` if it no longer exists).
     pub fn group_name(&self, id: ItemId) -> Option<&str> {
         self.lookup.groups.get(&id).map(|g| g.name.as_str())
     }
 
-    // M2-01
     /// Groups in tree order (parents before children, siblings by name) with their
     /// depth. Cycle-safe.
     pub fn group_tree(&self) -> Vec<(ItemId, usize)> {
@@ -505,7 +486,6 @@ impl HostCatalog {
         out
     }
 
-    // M2-01
     /// How many hosts take at least one setting from `group` ("N hosts inherit").
     pub fn inheriting_hosts(&self, group: ItemId) -> usize {
         let globals = GlobalDefaults::default();
@@ -515,7 +495,6 @@ impl HostCatalog {
             .count()
     }
 
-    // M2-01
     /// Hosts directly in `group`, and its direct subgroups.
     pub fn group_contents(&self, group: ItemId) -> (usize, usize) {
         let hosts = self
@@ -541,12 +520,12 @@ impl HostCatalog {
     }
 
     /// The `ssh` command-line target for `host` (copy as command), from its resolved
-    /// settings (M2-01: group defaults and vault defaults included).
+    /// settings (group defaults and vault defaults included).
     pub fn ssh_target(&self, host: &HostSummary) -> SshTarget {
         let globals = GlobalDefaults::default();
         let r = self.resolve(host, &globals);
         let port = |p: u16| (p != DEFAULT_SSH_PORT).then_some(p);
-        // M2-05: `-J` lists the effective chain (hops' own chains expanded). A chain
+        // `-J` lists the effective chain (hops' own chains expanded). A chain
         // that can't be expanded (cycle, too deep) is emitted as configured.
         let hops = self.effective_chain(host, &globals).unwrap_or_else(|_| {
             r.jump_chain
@@ -568,7 +547,6 @@ impl HostCatalog {
             address: r.address.clone(),
             port: port(r.port),
             jump,
-            // Keys have no recorded source path yet (M2-03 import may add one).
             key: r.key_id.map(|_| KeySource::Vault),
             proxy_command: match &r.proxy {
                 Some(ProxySettings::Command(c)) => Some(c.clone()),
@@ -579,7 +557,6 @@ impl HostCatalog {
         }
     }
 
-    // M2-05
     /// The effective jump chain of `host` (§6.1.4): its resolved chain with every hop's
     /// own chain expanded before it, in connection order (the host not included).
     ///
@@ -613,7 +590,7 @@ impl HostCatalog {
     }
 }
 
-// M2-01: the catalog resolves through its lookup table; identities come from the
+// The catalog resolves through its lookup table; identities come from the
 // table too (the `identities` map above stays for display).
 impl sverb_core::resolve::ItemLookup for HostCatalog {
     fn group(&self, id: ItemId) -> Option<&sverb_core::resolve::GroupNode> {

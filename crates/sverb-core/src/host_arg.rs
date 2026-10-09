@@ -1,4 +1,4 @@
-//! M0-07: resolving a `<host>` command-line argument (SPEC §16).
+//! Resolving a `<host>` command-line argument (SPEC §16).
 //!
 //! Every CLI command that takes a host (`hosts rm`, `approve`, `connect`, `snippet run
 //! --on`, …) resolves it the same way, in this order:
@@ -8,14 +8,14 @@
 //! 3. exactly one **fuzzy** match on label or address,
 //! 4. otherwise an error: ambiguous (listing at most [`MAX_CANDIDATES`]) or not found.
 //!
-//! The function is pure: callers pass the candidate hosts. M1-05: fuzzy matching uses
+//! The function is pure: callers pass the candidate hosts. Fuzzy matching uses
 //! `nucleo-matcher` (case-insensitive, Unicode-normalized fuzzy atom); callers that
 //! hold the decrypted index use [`crate::search::resolve_host_arg`], which feeds the
 //! index's hosts in view order.
 
 use std::fmt;
 
-// M1-05: nucleo fuzzy matching.
+// Nucleo fuzzy matching.
 use nucleo_matcher::pattern::{Atom, AtomKind, CaseMatching, Normalization};
 use nucleo_matcher::{Config, Matcher, Utf32Str};
 
@@ -99,7 +99,7 @@ pub fn resolve_host_arg<'a, Id>(
     if let Some(h) = unique(hosts.iter().filter(|h| h.address == query)) {
         return Ok((h, MatchKind::Address));
     }
-    // M1-05: nucleo fuzzy atom instead of a subsequence test.
+    // Nucleo fuzzy atom instead of a subsequence test.
     let mut fuzzy = FuzzyMatch::new(query);
     let matches: Vec<_> = hosts
         .iter()
@@ -128,7 +128,7 @@ fn unique<T>(mut iter: impl Iterator<Item = T>) -> Option<T> {
     iter.next().is_none().then_some(first)
 }
 
-/// M1-05: a case-insensitive `nucleo` fuzzy matcher for one needle.
+/// A case-insensitive `nucleo` fuzzy matcher for one needle.
 struct FuzzyMatch {
     atom: Option<Atom>,
     matcher: Matcher,
@@ -181,7 +181,6 @@ mod tests {
         .collect()
     }
 
-    // T-07
     #[test]
     fn resolution_table() {
         let hosts = hosts();

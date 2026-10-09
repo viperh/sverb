@@ -1,5 +1,4 @@
 //! The device side of an account: the local master password (LMK wrap,
-//! M1-04 format), the account keys kept under the LMK, and `meta.account`.
 
 use serde::{Deserialize, Serialize};
 use sverb_core::model::{DeviceId, Hlc, HlcClock, VaultId};
@@ -213,7 +212,7 @@ pub(crate) fn wrap_vault_key(
     )?)
 }
 
-/// The device id and HLC from `meta` (M1-04), for stamping local writes.
+/// The device id and HLC from `meta`, for stamping local writes.
 pub(crate) async fn device_clock(store: &Store) -> Result<(DeviceId, HlcClock), AccountError> {
     let (device, hlc) = store
         .read(|r| Ok((r.get_meta(keys::DEVICE_ID)?, r.get_meta(keys::HLC_LAST)?)))

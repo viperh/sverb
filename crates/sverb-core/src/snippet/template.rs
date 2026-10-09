@@ -1,4 +1,4 @@
-//! M2-09: snippet templates (SPEC §4.9, §9.7).
+//! Snippet templates (SPEC §4.9, §9.7).
 //!
 //! # Syntax
 //! | Text | Meaning |
@@ -23,7 +23,7 @@
 //!   is an error ([`RenderError::Missing`]).
 //! - [`RenderStyle::Preview`]: secrets are `••••`, missing values stay `{{name}}`.
 //! - [`RenderStyle::History`]: secrets (and missing values) stay `{{name}}`, so the text
-//!   can go to history (M7-01) without the secret.
+//!   can go to history without the secret.
 
 use std::fmt;
 use std::ops::Range;

@@ -1,4 +1,4 @@
-//! Toasts and the notification history (M0-11, SPEC §8.7).
+//! Toasts and the notification history (SPEC §8.7).
 //!
 //! - At most [`MAX_VISIBLE_TOASTS`] toasts are visible, newest last; when a fourth
 //!   arrives the oldest leaves the screen (it stays in the history).

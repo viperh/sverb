@@ -1,4 +1,3 @@
-//! M1-14 integration tests: the SSH resolver reads the configured key's material
 //! (private key, stored passphrase, attached certificates) from the vault, and the
 //! credential saves behind "save to vault" change only the saved field. Small Argon2
 //! parameters, in-memory keyring.

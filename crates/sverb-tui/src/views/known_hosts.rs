@@ -1,4 +1,4 @@
-//! M1-15: the Known Hosts section (SPEC §8.5, §9.5).
+//! The Known Hosts section (SPEC §8.5, §9.5).
 //!
 //! ```text
 //! ┌ Known hosts ──────────────────────────────────────────────────────────────┐
@@ -8,9 +8,8 @@
 //! └───────────────────────────────────────────────────────────────────────────┘
 //! ```
 //!
-//! The shared list (M1-06): `/` filters (pattern, comment, key type, fingerprint),
+//! The shared list: `/` filters (pattern, comment, key type, fingerprint),
 //! `Space` marks, `s` sorts. Actions: `d` delete (asks), `e` edit (pattern, comment,
-//! marker), `I` import from `~/.ssh/known_hosts` (asks for the path; M2-11 refines the
 //! importer), `x` export as an OpenSSH `known_hosts` file. The detail pane shows the
 //! whole pattern, the full fingerprint and the randomart. Hashed patterns show as
 //! `(hashed)` plus the comment.

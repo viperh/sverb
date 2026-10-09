@@ -1,10 +1,10 @@
-//! M1-17: the pane layout tree of a tab (SPEC §8.4), pure and UI-agnostic.
+//! The pane layout tree of a tab (SPEC §8.4), pure and UI-agnostic.
 //!
 //! ```text
 //! enum Layout { Leaf(PaneId), Split { dir: H | V, ratio: Vec<f32>, children: Vec<Layout> } }
 //! ```
 //!
-//! It lives in `sverb-core` (not the TUI) because workspaces serialize it (M3-03).
+//! It lives in `sverb-core` (not the TUI) because workspaces serialize it.
 //!
 //! # Terminology
 //! [`SplitDir::Horizontal`] is a **horizontal divider line**: its children are stacked
@@ -24,7 +24,6 @@
 //! gaps or overlaps. Every pane draws its own 1-cell border inside its rect; the
 //! content size is [`Rect::inner`] (2 cells less in each dimension).
 //!
-//! M3-01 adds resizing ([`Layout::resize`], [`Layout::move_border`] for mouse drags of
 //! split borders, [`Layout::equalize`]); zoom is a per-tab flag in the TUI.
 
 use serde::{Deserialize, Serialize};
@@ -347,7 +346,6 @@ impl Layout {
         }
     }
 
-    /// Every ratio in the tree set to equal shares (M3-01 `equalize_panes`).
     #[must_use]
     pub fn equalized(&self) -> Self {
         match self {
@@ -436,7 +434,7 @@ impl Layout {
     }
 }
 
-// M3-01: resizing (`leader H J K L`, resize mode, mouse drag of split borders).
+// Resizing (`leader H J K L`, resize mode, mouse drag of split borders).
 
 /// Smallest pane content width (columns inside the border) that resizing keeps.
 pub const MIN_CONTENT_COLS: u16 = 5;
@@ -765,7 +763,7 @@ fn distribute(extent: u16, ratio: &[f32]) -> Vec<u16> {
             extent.saturating_sub(used)
         } else {
             // Truncation is the point: integer cells, remainder to the last child.
-            // M3-01: a tiny epsilon so a ratio set from a cell count (`c / extent`)
+            // A tiny epsilon so a ratio set from a cell count (`c / extent`)
             // gives back exactly that cell count despite f32 rounding.
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let s = (f32::from(extent) * r + 1e-3).floor().max(0.0) as u16;
@@ -860,7 +858,6 @@ mod tests {
         }
     }
 
-    // T-02
     #[test]
     fn t02_three_way_vertical_split_widths() {
         let l = Layout::leaf(p(1))
@@ -902,7 +899,6 @@ mod tests {
             .unwrap()
     }
 
-    // T-04
     #[test]
     fn t04_neighbors_in_a_grid() {
         let l = grid();
@@ -942,7 +938,6 @@ mod tests {
         );
     }
 
-    // T-05
     #[test]
     fn t05_remove_collapses_to_the_sibling() {
         let l = Layout::leaf(p(1))
@@ -1050,14 +1045,12 @@ mod tests {
     }
 
     proptest! {
-        // T-01
         #[test]
         fn t01_invariants_hold(ops in proptest::collection::vec(op(), 0..40)) {
             let l = build(&ops);
             prop_assert!(l.check().is_ok(), "{:?}: {:?}", l.check(), l);
         }
 
-        // T-03
         #[test]
         fn t03_rects_tile_the_area(
             ops in proptest::collection::vec(op(), 0..12),
@@ -1074,8 +1067,6 @@ mod tests {
         }
     }
 
-    // ---- M3-01: resizing ----------------------------------------------------------
-
     fn ratios(l: &Layout) -> Vec<f32> {
         match l {
             Layout::Split { ratio, .. } => ratio.clone(),
@@ -1089,7 +1080,6 @@ mod tests {
             .unwrap()
     }
 
-    // M3-01 T-01
     #[test]
     fn m3_01_t01_resize_vertical_split() {
         let area = Rect::new(0, 0, 80, 24);
@@ -1115,7 +1105,6 @@ mod tests {
         assert_eq!(l5.rects(tiny)[0].1.width, 10, "{l5:?}");
     }
 
-    // M3-01 T-02
     #[test]
     fn m3_01_t02_clamp_keeps_five_columns() {
         let area = Rect::new(0, 0, 40, 10);
@@ -1143,7 +1132,6 @@ mod tests {
         assert_eq!(l.rects(area)[1].1.inner().height, MIN_CONTENT_ROWS);
     }
 
-    // M3-01 T-03
     #[test]
     fn m3_01_t03_nested_changes_the_nearest_matching_split() {
         // V[1, H[2, 3]]: focus 3 (bottom right), `K`.
@@ -1172,7 +1160,6 @@ mod tests {
         assert!(h(&r) > h(&l));
     }
 
-    // M3-01 T-04
     #[test]
     fn m3_01_t04_no_matching_axis_is_a_noop() {
         let area = Rect::new(0, 0, 80, 24);
@@ -1238,7 +1225,6 @@ mod tests {
     }
 
     proptest! {
-        // M3-01 T-05
         #[test]
         fn m3_01_t05_resize_invariants(
             ops in proptest::collection::vec(op(), 0..12),

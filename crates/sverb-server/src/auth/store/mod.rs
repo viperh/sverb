@@ -323,7 +323,7 @@ impl AuthStore {
         dispatch!(self, lookup_access(hash, now))
     }
 
-    /// M4-05: the expiry of a valid access token (same conditions as
+    /// The expiry of a valid access token (same conditions as
     /// [`Self::lookup_access`], without touching `last_seen_at`). The
     /// WebSocket closes with 4401 at this instant.
     ///

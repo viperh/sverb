@@ -26,7 +26,7 @@ pub enum SyncStatus {
         /// Human-readable summary.
         message: String,
     },
-    /// The refresh token was rejected: sign in again (M4-08). Sync is paused.
+    /// The refresh token was rejected: sign in again. Sync is paused.
     NeedsLogin,
 }
 
@@ -66,13 +66,13 @@ pub enum ToastLevel {
     Error,
 }
 
-/// An event for the UI (`UiEvent::Sync`, M4-09) or the headless CLI.
+/// An event for the UI (`UiEvent::Sync`) or the headless CLI.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SyncEvent {
     /// The status changed.
     Status(SyncStatus),
     /// Remote changes were committed locally: update the search index for
-    /// these items (M1-05) and refresh the views.
+    /// these items and refresh the views.
     Applied {
         /// The vault.
         vault: VaultId,
@@ -86,7 +86,6 @@ pub enum SyncEvent {
         /// Text.
         message: String,
     },
-    // M4-09
     /// A stamp from another device was ahead of this clock. Sent once per
     /// device per engine; the TUI shows "Clock skew detected on device X"
     /// once per device per session.
@@ -98,14 +97,13 @@ pub enum SyncEvent {
     },
     /// The account only has read access to `vault`: these local changes were
     /// kept locally and not uploaded. The UI offers "Revert to server
-    /// version" and "Copy to personal vault" (M4-09).
+    /// version" and "Copy to personal vault".
     ReadOnly {
         /// The vault.
         vault: VaultId,
         /// The blocked items.
         items: Vec<ItemId>,
     },
-    // M5-02
     /// A shared vault was granted to this account, verified and stored locally
     /// (its key is wrapped under the LMK); its items follow as `Applied`. The UI
     /// loads the new key and lists the vault.
@@ -115,7 +113,6 @@ pub enum SyncEvent {
         /// Its name, opened with the vault key.
         name: Option<String>,
     },
-    // M5-04
     /// A vault's key was rotated and this device switched to the new key (its
     /// local items were re-sealed; the rotated items follow as `Applied`). The UI
     /// reloads the vault key.

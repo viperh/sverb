@@ -1,20 +1,19 @@
-//! M1-13: SSH connections from the TUI.
+//! SSH connections from the TUI.
 //!
 //! [`VaultHostResolver`] is the SSH connector's
 //! [`HostResolver`]: on every connect and reconnect it
 //! reads the saved host from the vault, resolves it through its group chain and vault
-//! defaults (`sverb_core::resolve`, M2-01), reads the secrets that resolution only
+//! defaults (`sverb_core::resolve`), reads the secrets that resolution only
 //! points at (the password's [`SecretOrigin`]), and builds the connector's
 //! [`SshTarget`]. Unsaved targets (quick connect) resolve from the spec and the config.
 //!
-//! M1-14: the resolver also reads the configured key's material (private key, stored
+//! The resolver also reads the configured key's material (private key, stored
 //! passphrase, attached certificates) for the authentication chain, and
 //! [`ssh_connector`] authenticates with [`ChainAuthenticator`] and the system agent.
 //! [`save_key_changes`] stores a passphrase typed into an auth prompt (only after the
 //! login succeeded). [`import_key_file`] is the host form's key-file import, routed
-//! through the keychain since M2-03.
 //!
-//! [`ssh_connector`] builds the connector. M1-15: host keys are verified against the
+//! [`ssh_connector`] builds the connector. Host keys are verified against the
 //! known hosts in the vault (`services::known_hosts`) with `ssh.host_key_policy`.
 //! `SVERB_INSECURE_ACCEPT_ANY_HOST_KEY=1` replaces that with an accept-anything verifier
 //! for **tests and development only** (an error is logged for every connection).
@@ -22,6 +21,7 @@
 use std::{sync::Arc, time::Duration};
 
 use async_trait::async_trait;
+use sverb_conn::proxy::{COMMAND_FIELD, ProxyConfig, ValueOrigin};
 use sverb_conn::{
     SshSpec,
     ssh::{
@@ -29,9 +29,6 @@ use sverb_conn::{
         local_user, resolve_spec,
     },
 };
-// M2-06
-use sverb_conn::proxy::{COMMAND_FIELD, ProxyConfig, ValueOrigin};
-// M1-14
 use sverb_conn::{
     agent_client::SystemAgent,
     ssh::{ChainAuthenticator, KeyMaterial, allows_ssh_rsa},
@@ -100,7 +97,7 @@ fn password_at(
             .filter_map(|i| Group::try_from(&i.body).ok())
             .find(|g| g.is_vault_defaults)
             .and_then(|g| g.defaults.password.as_ref().map(copy)),
-        // M5-02: the inline password of the user's credential override.
+        // The inline password of the user's credential override.
         Source::Override { item } => sverb_core::model::CredentialOverride::try_from(body(*item)?)
             .ok()?
             .password
@@ -110,7 +107,6 @@ fn password_at(
     }
 }
 
-// M2-09
 /// The built-in snippet variables of a resolved target (`{{date}}`: today, local).
 pub fn startup_builtins(t: &SshTarget) -> sverb_core::snippet::Builtins {
     sverb_core::snippet::Builtins {
@@ -143,7 +139,7 @@ pub fn target_from(
             password,
             key_id: r.key_id,
             identity_id: r.identity_id,
-            // M1-14: the key's material is read by the resolver (`key_material`).
+            // The key's material is read by the resolver (`key_material`).
             key: None,
             max_attempts: config.ssh.max_auth_attempts,
             use_system_agent: config.ssh.use_system_agent,
@@ -151,7 +147,7 @@ pub fn target_from(
         },
         jump_chain: r.jump_chain.clone(),
         proxy_configured: r.proxy.is_some(),
-        // M2-06: filled in by the resolver (`proxy_config`), which reads the password.
+        // Filled in by the resolver (`proxy_config`), which reads the password.
         proxy: None,
         env: r.env.clone(),
         keepalive_secs: r.keepalive_secs,
@@ -161,7 +157,7 @@ pub fn target_from(
         algorithms: r.algorithms.clone().unwrap_or_default(),
         agent_forwarding: r.agent_forwarding,
         agent_source: r.agent_source,
-        // M2-07: filled in by the resolver (`agent_origin`), which reads the stamps.
+        // Filled in by the resolver (`agent_origin`), which reads the stamps.
         agent_origin: sverb_conn::proxy::ValueOrigin::default(),
         startup_snippet_id: r.startup_snippet_id,
         startup_input,
@@ -188,10 +184,8 @@ impl HostResolver for VaultHostResolver {
                 ItemKind::Group,
                 ItemKind::Identity,
                 ItemKind::Snippet,
-                // M1-14
                 ItemKind::Key,
                 ItemKind::Certificate,
-                // M5-02
                 ItemKind::CredentialOverride,
             ])
             .await
@@ -224,7 +218,7 @@ impl HostResolver for VaultHostResolver {
             lookup.defaults_of(host_item.vault),
             &self.config,
         );
-        // M5-02: this user's own credentials for a shared host (§13.4).
+        // This user's own credentials for a shared host (§13.4).
         if let Some(layer) = crate::services::vault::shared::override_for(
             host_id,
             &items,
@@ -237,7 +231,7 @@ impl HostResolver for VaultHostResolver {
             .as_ref()
             .and_then(|origin| password_at(origin, &host, host_item.vault, &items));
         let mut target = target_from(host_id, &resolved, password, None, &self.config);
-        // M2-09: the startup snippet, Paste & execute, with its defaults and this host's
+        // The startup snippet, Paste & execute, with its defaults and this host's
         // built-ins; typed once the shell prints (or after 500 ms). One with variables
         // without defaults is asked for by the UI when the pane connects.
         target.startup_input = resolved.startup_snippet_id.and_then(|id| {
@@ -246,17 +240,13 @@ impl HostResolver for VaultHostResolver {
             debug!(snippet = %id.short(), "startup snippet");
             sverb_core::snippet::startup(&snippet, &startup_builtins(&target)).ready()
         });
-        // M1-14
         target.auth.key = resolved.key_id.and_then(|id| key_material(id, &items));
-        // M2-06
         target.proxy = proxy_config(&resolved, host_item, &items, ops.vault().device_id());
-        // M2-07
         target.agent_origin = agent_origin(&resolved, host_item, &items, ops.vault().device_id());
         Ok(target)
     }
 }
 
-// M2-06
 /// The resolved proxy with its password, read from the item that defines it (the
 /// host, a group or the vault defaults: provenance). For a ProxyCommand the origin
 /// names that item and the device of the `proxy.command` stamp (§17.1 approval).
@@ -298,7 +288,6 @@ pub fn proxy_config(
     Some(ProxyConfig::from_model(&proxy, origin))
 }
 
-// M2-07
 /// Where the resolved agent settings come from (§17.1): the item defining
 /// `agent_source` (or, when that one was typed here, `agent_forwarding`) and the
 /// device of that field's stamp.
@@ -348,7 +337,6 @@ pub fn agent_origin(
     }
 }
 
-// M1-14
 /// The configured key's material: the private key, its stored passphrase and the
 /// certificates attached to it (`certificate_ids`, and Certificate items naming the
 /// key). `None` when the key item is missing or unreadable.
@@ -371,7 +359,7 @@ pub fn key_material(key_id: ItemId, items: &[Loaded]) -> Option<KeyMaterial> {
     Some(KeyMaterial {
         key_id: Some(key_id),
         label: key.label.clone(),
-        // M2-03: an agent / hardware reference key hands its public line instead; the
+        // An agent / hardware reference key hands its public line instead; the
         // chain then asks the system agent to sign with that key only
         // (`sverb_conn::ssh::auth::agent_reference`).
         private_key: if key.is_agent_ref() {
@@ -384,7 +372,6 @@ pub fn key_material(key_id: ItemId, items: &[Loaded]) -> Option<KeyMaterial> {
     })
 }
 
-// M1-14
 /// Store a passphrase typed into an auth prompt on its Key item: only `passphrase`
 /// changes (stamped by the item writer). Called for `ItemEffect::Save` of a Key, which
 /// the auth flow emits only after the login succeeded.
@@ -426,8 +413,7 @@ pub async fn save_key_changes(
     .await
 }
 
-// M1-14, M2-03
-/// The host form's key-file import (M1-14 §2.6), now through the keychain
+/// The host form's key-file import, now through the keychain
 /// (`sverb_core::keychain::import`): every keychain format, with the comment (else the
 /// file name) as the label. Encrypted keys other than OpenSSH need the Keychain view
 /// (it asks for the passphrase).
@@ -446,7 +432,6 @@ pub fn ssh_connector(vault: Option<VaultService>, config: Arc<Config>) -> SshCon
     ssh_connector_with_events(vault, config, None)
 }
 
-// M1-15
 /// [`ssh_connector`] whose known-hosts store reports saves (the "Added host key"
 /// toasts) on `events`.
 pub fn ssh_connector_with_events(
@@ -454,26 +439,24 @@ pub fn ssh_connector_with_events(
     config: Arc<Config>,
     events: Option<super::EventSender>,
 ) -> SshConnector {
-    // M1-15: the known-hosts verifier.
+    // The known-hosts verifier.
     let verifier = super::known_hosts::verifier(vault.clone(), &config, events);
-    // M3-07: connection sharing follows `ssh.multiplex` (default on).
+    // Connection sharing follows `ssh.multiplex` (default on).
     let multiplex = config.ssh.multiplex;
-    // M2-10: ProxyCommand / system-agent checks against this device's
-    // `local_approvals` (replaces the M2-06 `StampApprovals` default).
+    // ProxyCommand / system-agent checks against this device's
     let approvals = vault.as_ref().map(|v| v.store().device_approvals());
     let connector = SshConnector::new(Arc::new(VaultHostResolver::new(vault, config)))
         .with_multiplex(multiplex)
-        // M1-14: cert → key → system agent (IdentitiesOnly) → password → kbd-interactive.
+        // Cert → key → system agent (IdentitiesOnly) → password → kbd-interactive.
         .with_authenticator(Arc::new(
             ChainAuthenticator::new().with_agent(Arc::new(SystemAgent)),
         ));
-    // M2-10
     let connector = match approvals {
         Some(a) => connector.with_local_approvals(a),
         None => connector,
     };
     if std::env::var(INSECURE_HOST_KEYS_ENV).is_ok_and(|v| v == "1") {
-        // M1-15: tests and development only; the verifier also warns per connection.
+        // Tests and development only; the verifier also warns per connection.
         warn!(
             "{INSECURE_HOST_KEYS_ENV}=1: host keys are NOT verified; this disables \
              protection against man-in-the-middle attacks (tests and development only)"
@@ -484,12 +467,10 @@ pub fn ssh_connector_with_events(
     }
 }
 
-// M1-14
 /// The host form's key-file field (task §2.6): a path to a private key (any keychain format),
 /// imported into a new Key item when the host is saved.
 pub const KEY_FILE_FIELD: &str = "key_file";
 
-// M1-14
 /// When `changes` carry a [`KEY_FILE_FIELD`] path: import that key file as a new Key
 /// item and replace the change with `key_id` pointing at it. Returns the written Key
 /// (for the search index), `None` without a path.
@@ -531,7 +512,6 @@ pub async fn import_key_file_change(
     Ok(Some(written))
 }
 
-// M1-14
 /// Send the user's answer to an auth prompt to the session
 /// (`SessionCmd::AuthAnswer`).
 pub fn send_auth_answer(
@@ -543,7 +523,6 @@ pub fn send_auth_answer(
     debug!(session = id.0, ?outcome, "auth answer sent");
 }
 
-// M1-14
 /// Store a credential the user asked to save, after its login succeeded: the host's
 /// inline `password` or the Key item's `passphrase` (only that field changes). A failure
 /// is reported as an error toast of the session (`notify`).
@@ -623,7 +602,6 @@ mod tests {
         assert_eq!(t.auth.password.unwrap().expose(), "pw");
     }
 
-    // M1-14
     #[test]
     fn saving_without_a_vault_reports_an_error() {
         use crate::widgets::{auth_prompt::SaveCredential, form::SecretValue};
@@ -667,7 +645,6 @@ mod tests {
         }
     }
 
-    // M2-06
     /// The proxy comes with its password from the item that defines it; a
     /// ProxyCommand's origin names that item and the device of its stamp.
     #[test]

@@ -1,4 +1,4 @@
-//! M1-11: the reducer side of pastes and remote clipboard writes (SPEC §7.3, §17).
+//! The reducer side of pastes and remote clipboard writes (SPEC §7.3, §17).
 //!
 //! - `SessionEvent::PasteConfirm(text)`: the session found a multi-line paste and no
 //!   bracketed paste, and sent nothing. A dialog asks "Paste N lines into `<host>`?" with
@@ -8,7 +8,7 @@
 //!   `clipboard.allow_remote_write`: `never` → ignored (debug log), `always` → copied,
 //!   `ask` → a dialog with the first 200 chars: `a` allow once, `f` allow for this session
 //!   (later writes from that session are copied silently), `d`/`Esc` deny. Reads are
-//!   never allowed (the emulator denies them, M1-09).
+//!   never allowed (the emulator denies them).
 //! - [`App::copy_to_clipboard`]: `Effect::CopyToClipboard`, plus a toast when the text is
 //!   over the OSC 52 cap (the clipboard service truncates OSC 52 payloads at 100 KB).
 
@@ -28,7 +28,6 @@ use crate::{
 };
 
 impl App {
-    /// The label used for a session in prompts. M1-13/M1-17 replace it with the host
     /// name once sessions carry one.
     fn session_label(id: SessionId) -> String {
         format!("session {}", id.0)
@@ -212,7 +211,7 @@ mod tests {
         );
     }
 
-    /// T-12: multi-line paste confirmation. Cancel → nothing sent; confirm → the text
+    /// Multi-line paste confirmation. Cancel → nothing sent; confirm → the text
     /// goes out unchecked (the session encodes newlines as `\r`).
     #[test]
     fn t12_multiline_paste_confirm() {
@@ -277,7 +276,7 @@ mod tests {
         )
     }
 
-    /// T-14: `ask` shows a dialog; "allow for session" makes later writes from that
+    /// `ask` shows a dialog; "allow for session" makes later writes from that
     /// session silent; "deny" copies nothing.
     #[test]
     fn t14_remote_clipboard_ask() {

@@ -1,4 +1,4 @@
-//! M7-04: terminal capability detection shared by the TUI startup and `sverb doctor`.
+//! Terminal capability detection shared by the TUI startup and `sverb doctor`.
 //!
 //! - [`TermEnv`]: what the environment says (`TERM`, `COLORTERM`, `NO_COLOR`,
 //!   `TERM_PROGRAM`, tmux / screen, SSH). Pure: built from a lookup function, so tests
@@ -60,7 +60,6 @@ pub struct TermEnv {
     pub screen: bool,
     /// `SSH_CONNECTION` or `SSH_TTY` is set.
     pub ssh: bool,
-    // M7-07
     /// The locale: the first non-empty of `LC_ALL`, `LC_CTYPE`, `LANG`.
     pub locale: Option<String>,
 }
@@ -75,7 +74,6 @@ pub const TERM_ENV_VARS: &[&str] = &[
     "STY",
     "SSH_CONNECTION",
     "SSH_TTY",
-    // M7-07
     "LC_ALL",
     "LC_CTYPE",
     "LANG",
@@ -94,7 +92,6 @@ impl TermEnv {
             tmux: set("TMUX").is_some(),
             screen: set("STY").is_some(),
             ssh: set("SSH_CONNECTION").is_some() || set("SSH_TTY").is_some(),
-            // M7-07
             locale: set("LC_ALL")
                 .or_else(|| set("LC_CTYPE"))
                 .or_else(|| set("LANG")),
@@ -123,7 +120,6 @@ impl TermEnv {
                 .is_some_and(|t| t.contains("256color") || t.contains("direct"))
     }
 
-    // M7-07
     /// The locale names UTF-8 (always true on Windows, which has no `LANG`). An unset
     /// locale is POSIX `C`, so it doesn't (the same rule as `sverb doctor`).
     pub fn utf8_locale(&self) -> bool {
@@ -366,7 +362,7 @@ mod tests {
         assert!(!env(&[("NO_COLOR", "")]).no_color);
     }
 
-    // M7-07: `ui.ascii = "auto"`.
+    // `ui.ascii = "auto"`.
     #[test]
     fn ascii_fallback_from_locale_and_term() {
         let utf8 = [("LANG", "en_US.UTF-8"), ("TERM", "xterm-256color")];

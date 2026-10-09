@@ -11,7 +11,6 @@ use super::{
     keymap::{BindingRow, Keymap, Table},
 };
 
-/// The static part of `docs/keybindings.md` (rules from `tasks/03-KEYBINDINGS.md` §1,
 /// the leader rationale from §3.2 and nesting from §5.4).
 const DOCS_INTRO: &str = include_str!("docs_intro.md");
 
@@ -144,9 +143,8 @@ pub fn markdown() -> String {
             r.description
         );
     }
-    // M7-07: view-local keys (fixed; not in the registry, so not rebindable).
+    // View-local keys (fixed; not in the registry, so not rebindable).
     view_keys_markdown(&mut out);
-    // M3-04
     copy_mode_markdown(&mut out);
     out.push_str(
         "\n## Configuration\n\n\
@@ -178,9 +176,6 @@ pub fn markdown() -> String {
     out
 }
 
-// M7-07
-/// View-local keys of the Hosts view and Settings → Vaults (M2-01, M2-11, M5-02, M5-04,
-/// M7-01). They live in the views (`views/hosts`, `views/settings/vaults.rs`), only in
 /// Normal mode, and can't be rebound.
 /// One view: title, intro, `(keys, what it does)` rows.
 type ViewKeys = (
@@ -260,7 +255,6 @@ const VIEW_KEYS: &[ViewKeys] = &[
     ),
 ];
 
-// M7-07
 fn view_keys_markdown(out: &mut String) {
     out.push_str(
         "\n## View keys\n\n\
@@ -275,7 +269,6 @@ fn view_keys_markdown(out: &mut String) {
     }
 }
 
-// M3-04
 /// The copy-mode table (`[keys.copy]`): one row per action, its default keys.
 fn copy_mode_markdown(out: &mut String) {
     use crate::views::sessions::copy_mode::{COPY_DEFAULTS, CopyAction};

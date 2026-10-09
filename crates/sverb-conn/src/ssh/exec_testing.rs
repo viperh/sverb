@@ -1,4 +1,3 @@
-//! M2-04 test support (`test-util`, Unix): an in-process russh server that runs `exec`
 //! requests through the local `sh -c`, for loopback tests of exec channels and
 //! install-key without Docker.
 //!

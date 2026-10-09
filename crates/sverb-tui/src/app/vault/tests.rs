@@ -1,4 +1,3 @@
-//! M1-04 reducer tests: T-10 (auto-lock), T-11 (lock overlay), T-12 (disconnect on
 //! lock), plus startup, backoff and recovery flows.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -42,7 +41,6 @@ fn sends_to_session(effects: &[Effect]) -> bool {
         .any(|e| matches!(e, Effect::SendToSession { .. }))
 }
 
-// T-10
 #[test]
 fn t10_auto_lock_after_idle_minutes() {
     let mut h = unlocked_harness(config_with(|c| c.general.auto_lock_minutes = 1));
@@ -54,7 +52,6 @@ fn t10_auto_lock_after_idle_minutes() {
     assert_eq!(h.app().lock_state(), LockState::Locked);
 }
 
-// T-10
 #[test]
 fn t10_input_resets_the_idle_timer() {
     let mut h = unlocked_harness(config_with(|c| c.general.auto_lock_minutes = 1));
@@ -72,7 +69,6 @@ fn t10_input_resets_the_idle_timer() {
     assert!(has_lock(h.effects()));
 }
 
-// T-10
 #[test]
 fn t10_zero_never_locks() {
     let mut h = unlocked_harness(config_with(|c| c.general.auto_lock_minutes = 0));
@@ -89,7 +85,6 @@ fn t10_zero_never_locks() {
     assert_eq!(h.app().lock_state(), LockState::Unlocked);
 }
 
-// T-11
 #[test]
 fn t11_locked_session_gets_no_input_and_overlay_renders() {
     let mut h = unlocked_harness(Config::default());
@@ -134,7 +129,7 @@ fn t11_locked_session_gets_no_input_and_overlay_renders() {
     );
 }
 
-// T-11: `leader q` still quits while locked; other leader keys do nothing.
+// `leader q` still quits while locked; other leader keys do nothing.
 #[test]
 fn t11_leader_q_quits_while_locked() {
     let mut h = unlocked_harness(Config::default());
@@ -147,7 +142,6 @@ fn t11_leader_q_quits_while_locked() {
     assert!(h.effects().contains(&Effect::Quit { code: 0 }));
 }
 
-// T-12
 #[test]
 fn t12_lock_disconnects_sessions_when_configured() {
     let mut h = unlocked_harness(config_with(|c| c.general.lock_disconnects_sessions = true));
@@ -180,7 +174,6 @@ fn startup_first_run_then_launch_after_unlock() {
     let mut h = AppHarness::new(Config::default());
     let app = h.app().clone().with_vault();
     *h.app_mut() = app;
-    // M3-03: `--workspace` no longer toasts; `join` still does (until M6-03).
     h.send(UiEvent::Launch(crate::app::LaunchIntent::Join("l".into())));
     assert!(h.app().toasts().is_empty(), "launch waits for unlock");
     h.send(UiEvent::Vault(VaultEvent::Status(VaultStatusInfo {

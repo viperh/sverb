@@ -1,4 +1,3 @@
-//! M4-08 integration tests: the account flows against the in-process
 //! `sverb-server` (in-memory backend) on loopback, with real client stores.
 //!
 //! T-11 (CLI, non-TTY `sverb register`) lives in `crates/sverb/src/cli/tests.rs`;
@@ -50,7 +49,6 @@ fn cfg(name: &str) -> AccountConfig {
     }
 }
 
-/// A device initialized like M1-04 first run (master password, LMK,
 /// personal vault, device id).
 struct Local {
     _dir: tempfile::TempDir,
@@ -331,7 +329,7 @@ async fn t01_t12_register_500_items_then_second_device() {
     assert_eq!(b.sync().await, SyncStatus::Synced);
     assert_eq!(b.items().await, before, "decrypted identically");
 
-    // T-12: no plaintext anywhere on the server.
+    // No plaintext anywhere on the server.
     let dump = server.mem.with_data(|d| format!("{d:?}"));
     let blobs: Vec<Vec<u8>> = server.mem.with_data(|d| {
         d.items
@@ -366,7 +364,7 @@ async fn t01_t12_register_500_items_then_second_device() {
     assert!(!dump.contains(PW) && !requests.iter().any(|r| r.contains(PW)));
 }
 
-// T-02: registration uses the existing master password; local unlock is
+// Registration uses the existing master password; local unlock is
 // unchanged (same `meta.kdf`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t02_register_keeps_the_master_password() {
@@ -384,7 +382,7 @@ async fn t02_register_keeps_the_master_password() {
     assert_eq!(acct.key_version, 1);
 }
 
-// T-04: login with a different local password → warning, then the local
+// Login with a different local password → warning, then the local
 // unlock needs the account password.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_login_adopts_the_account_password() {
@@ -482,7 +480,7 @@ async fn import_fixture(email: &str) -> ImportFixture {
     }
 }
 
-// T-05: preview shows 2 likely duplicates; "keep account" → 8 hosts (plus
+// Preview shows 2 likely duplicates; "keep account" → 8 hosts (plus
 // their group and identity) imported with new ids, references remapped,
 // frecency kept, the old local vault deleted.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -553,7 +551,7 @@ async fn t05_login_imports_local_items_with_preview() {
     assert_eq!(server_count(&f.server, account_vault), 12);
 }
 
-// T-06: a crash during the import transaction leaves the local vault intact;
+// A crash during the import transaction leaves the local vault intact;
 // a retry succeeds.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t06_crash_during_import_then_retry() {
@@ -595,7 +593,7 @@ async fn t06_crash_during_import_then_retry() {
     assert_eq!(server_count(&f.server, account_vault), 14);
 }
 
-// T-07: online password change. The old password stops working; device B
+// Online password change. The old password stops working; device B
 // gets `account_changed` → NeedsLogin, still unlocks with the old password,
 // and after logging in with the new one syncs and unlocks with it.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -674,7 +672,7 @@ async fn t07_online_password_change() {
     assert_eq!(b.items().await, a.items().await);
 }
 
-// T-08: a password change with the server unreachable is refused, and
+// A password change with the server unreachable is refused, and
 // nothing changes locally.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t08_password_change_needs_the_server() {
@@ -701,7 +699,7 @@ async fn t08_password_change_needs_the_server() {
     );
 }
 
-// T-09: recovery with the 24 words → login with the new password works and
+// Recovery with the 24 words → login with the new password works and
 // the data is intact.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t09_recovery_resets_the_password() {
@@ -755,7 +753,7 @@ async fn t09_recovery_resets_the_password() {
     assert_eq!(n.items().await, data, "data intact on a new device");
 }
 
-// T-10: `logout --keep-local`: tokens revoked server-side, shared vaults
+// `logout --keep-local`: tokens revoked server-side, shared vaults
 // removed, personal items kept; a later login re-syncs without duplicates.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t10_logout_keep_local() {
@@ -859,7 +857,6 @@ async fn register_needs_an_invite_on_a_closed_server() {
     assert_eq!(a.store.pending_count().await.unwrap(), 0);
 }
 
-// M4-09 T-07 (logic): two logins give two devices; revoking the other one
 // works; revoking this device logs it out locally. Also the local status
 // (`sverb sync --status`, the Settings → Sync panel).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -929,7 +926,7 @@ async fn m4_09_devices_list_revoke_and_local_info() {
     assert!(!sverb_sync::local_info(&a.store).await.unwrap().connected());
 }
 
-// M5-01: the team calls against the in-process server: create an org, invite by
+// The team calls against the in-process server: create an org, invite by
 // link, accept on a second account, members, roles, the audit log.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn m5_01_teams_round_trip() {

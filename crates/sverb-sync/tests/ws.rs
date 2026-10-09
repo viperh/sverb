@@ -1,4 +1,3 @@
-//! M4-05 client tests (T-09): reconnect backoff, 4401 → refresh, heartbeat.
 //! A fake server built on tokio-tungstenite plays the server's part.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -92,7 +91,7 @@ async fn next_event(rx: &mut mpsc::Receiver<WsEvent>) -> WsEvent {
         .expect("client stopped")
 }
 
-/// T-09: a refused connection is retried with 1, 2, 4, … 60, 60 s delays,
+/// A refused connection is retried with 1, 2, 4, … 60, 60 s delays,
 /// each jittered within [base/2, base].
 #[tokio::test(start_paused = true)]
 async fn t09_backoff_on_refused_connection() {
@@ -128,7 +127,7 @@ async fn t09_backoff_on_refused_connection() {
     client.await.unwrap();
 }
 
-/// T-09: on 4401 the client refreshes exactly once and reconnects at once
+/// On 4401 the client refreshes exactly once and reconnects at once
 /// with the new token; the next connection authenticates, the backoff is
 /// reset, and notifications flow.
 #[tokio::test]

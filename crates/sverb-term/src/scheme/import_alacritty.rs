@@ -1,4 +1,4 @@
-//! Alacritty theme import (M1-10, SPEC §7.4): `.toml` (Alacritty ≥ 0.13) and the legacy
+//! Alacritty theme import (SPEC §7.4): `.toml` (Alacritty ≥ 0.13) and the legacy
 //! `.yml` `colors:` section.
 //!
 //! Read keys: `colors.primary.{foreground,background}`, `colors.cursor.cursor`,

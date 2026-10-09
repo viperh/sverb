@@ -210,23 +210,19 @@ pub struct Host {
     pub algorithms: Option<AlgoOverrides>,
     /// Request a PTY for exec runs.
     pub request_pty_for_exec: Option<bool>,
-    // M3-05 (spec addition): per-host session recording (§7.5 "per host").
     /// Record sessions to this host; `None` inherits (group chain, then
     /// `recording.enabled`). See [`resolve_record_sessions`].
     pub record_sessions: Option<bool>,
-    // M1-16 (spec addition): optional auto-reconnect (§6.1.2 names no key).
     /// Reconnect automatically after a drop; `None` inherits (group chain, then
     /// `ssh.auto_reconnect`).
     pub auto_reconnect: Option<bool>,
     /// The body's schema is newer than this build: show it, don't edit it (§4.1).
     pub read_only: bool,
-    // M2-01
     /// Which list fields are stored as an explicit empty list. An empty list that is
     /// not flagged here is absent and inherits (§4.3, `docs/data-model.md`).
     pub explicit_empty: ExplicitEmpty,
 }
 
-// M2-01
 /// List fields of a [`Host`] stored as an explicit empty list (`[]`): "none, don't
 /// inherit". A non-empty list is always set; an empty unflagged one inherits.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -239,7 +235,6 @@ pub struct ExplicitEmpty {
     pub port_forwards: bool,
 }
 
-// M2-01
 fn stored_empty(body: &ItemBody, key: &str) -> bool {
     body.get(key)
         .and_then(ciborium::Value::as_array)
@@ -274,7 +269,7 @@ impl Host {
         w.opt("username", self.username.clone());
         w.opt_secret("password", self.password.as_ref());
         w.opt("key_id", self.key_id);
-        // M2-01: an empty list is written only when explicitly empty (else it inherits).
+        // An empty list is written only when explicitly empty (else it inherits).
         let set = |v: bool, explicit: bool| !v || explicit;
         w.opt_ids(
             "jump_chain",
@@ -305,9 +300,7 @@ impl Host {
         w.flag("pinned", self.pinned);
         write_algorithms(&mut w, self.algorithms.as_ref());
         w.opt("request_pty_for_exec", self.request_pty_for_exec);
-        // M3-05
         w.opt("record_sessions", self.record_sessions);
-        // M1-16
         w.opt("auto_reconnect", self.auto_reconnect);
     }
 }
@@ -343,12 +336,9 @@ impl TryFrom<&ItemBody> for Host {
             pinned: r.bool("pinned")?,
             algorithms: read_algorithms(&r)?,
             request_pty_for_exec: r.opt_bool("request_pty_for_exec")?,
-            // M3-05
             record_sessions: r.opt_bool("record_sessions")?,
-            // M1-16
             auto_reconnect: r.opt_bool("auto_reconnect")?,
             read_only,
-            // M2-01
             explicit_empty: ExplicitEmpty {
                 jump_chain: stored_empty(body, "jump_chain"),
                 env: stored_empty(body, "env"),
@@ -400,10 +390,8 @@ pub struct HostDefaults {
     pub algorithms: Option<AlgoOverrides>,
     /// `request_pty_for_exec`
     pub request_pty_for_exec: Option<bool>,
-    // M3-05
     /// `record_sessions`
     pub record_sessions: Option<bool>,
-    // M1-16
     /// `auto_reconnect`
     pub auto_reconnect: Option<bool>,
 }
@@ -431,9 +419,7 @@ impl HostDefaults {
             port_forwards: r.opt_ids("port_forwards")?,
             algorithms: read_algorithms(&r)?,
             request_pty_for_exec: r.opt_bool("request_pty_for_exec")?,
-            // M3-05
             record_sessions: r.opt_bool("record_sessions")?,
-            // M1-16
             auto_reconnect: r.opt_bool("auto_reconnect")?,
         })
     }
@@ -463,14 +449,11 @@ impl HostDefaults {
         w.opt_ids("port_forwards", self.port_forwards.as_deref());
         write_algorithms(w, self.algorithms.as_ref());
         w.opt("request_pty_for_exec", self.request_pty_for_exec);
-        // M3-05
         w.opt("record_sessions", self.record_sessions);
-        // M1-16
         w.opt("auto_reconnect", self.auto_reconnect);
     }
 }
 
-// M3-05
 /// Whether to record sessions to `host` (SPEC §7.5): the host's own `record_sessions`,
 /// else the first group in `groups` (nearest first: the host's group, then its parents)
 /// whose `defaults.record_sessions` is set, else the global `recording.enabled`.
@@ -499,7 +482,6 @@ pub struct Group {
     pub icon: Option<String>,
     /// The body's schema is newer than this build (§4.1).
     pub read_only: bool,
-    // M2-01
     /// `is_vault_defaults`: this item holds its vault's defaults (§4.13), not a group
     /// of hosts. It is never shown in the tree and nothing references it.
     pub is_vault_defaults: bool,
@@ -515,7 +497,6 @@ impl Group {
         w.text("name", &self.name);
         w.opt("parent_id", self.parent_id);
         w.opt("icon", self.icon.clone());
-        // M2-01
         w.flag("is_vault_defaults", self.is_vault_defaults);
         w.with_prefix(GROUP_DEFAULTS_PREFIX, |w| self.defaults.write_with(w));
     }
@@ -533,7 +514,6 @@ impl TryFrom<&ItemBody> for Group {
             defaults: HostDefaults::read(body, GROUP_DEFAULTS_PREFIX)?,
             icon: r.opt_str("icon")?,
             read_only,
-            // M2-01
             is_vault_defaults: r.bool("is_vault_defaults")?,
         })
     }

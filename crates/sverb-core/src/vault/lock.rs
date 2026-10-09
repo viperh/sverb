@@ -1,4 +1,4 @@
-//! M1-04: the lock state machine and the auto-lock rule (SPEC §5.3).
+//! The lock state machine and the auto-lock rule (SPEC §5.3).
 //!
 //! The reducer only knows [`LockState`]; keys live in the vault service. Idle
 //! auto-lock is a reset-on-input timer: every input event while unlocked re-arms a

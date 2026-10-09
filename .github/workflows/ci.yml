@@ -1,7 +1,6 @@
 name: CI # Continuous Integration
 
 # SPEC §19 (CI), §17 (supply chain), §1.1 (local-only build), §20 (license policy).
-# Task M0-02 describes every job below.
 
 on:
   push:
@@ -94,7 +93,7 @@ jobs:
         env:
           SVERB_HOME: ${{ runner.temp }}/sverb-home # `runner` is only available at step level
         run: cargo test --workspace --all-features --locked
-      # T-08: the binary must carry a real `git describe`, not vergen's placeholder.
+      # The binary must carry a real `git describe`, not vergen's placeholder.
       - name: Check vergen version stamp
         shell: bash
         env:
@@ -109,7 +108,7 @@ jobs:
             exit 1
           fi
 
-  # M7-06 T-01: every benchmark compiles (they run on a schedule in bench.yml), and
+  # Every benchmark compiles (they run on a schedule in bench.yml), and
   # the gate script's own checks pass.
   bench-build:
     name: Benchmarks compile
@@ -145,7 +144,7 @@ jobs:
           cargo test --workspace --no-default-features --locked
           --exclude sverb-sync --exclude sverb-server --exclude sverb-e2e
 
-  # M1-18: the docker-based OpenSSH e2e suite (SPEC §19 "Transports (e2e)").
+  # The docker-based OpenSSH e2e suite (SPEC §19 "Transports (e2e)").
   # Required check (set in branch protection). The fixture image is built once per
   # run with layer caching (GitHub Actions cache) and handed to the harness through
   # SVERB_E2E_IMAGE; the `#[ignore]`d container tests run with `-- --ignored`.
@@ -190,7 +189,7 @@ jobs:
         if: failure()
         run: docker ps -a
 
-  # M4-01: sverb-server tests against a real Postgres. Each DB test creates and
+  # Sverb-server tests against a real Postgres. Each DB test creates and
   # drops its own database (the POSTGRES_USER role is a superuser here); without
   # DATABASE_URL those tests skip, so this job is the one that exercises them.
   server-db:
@@ -221,7 +220,7 @@ jobs:
       - name: Run server tests
         run: cargo test -p sverb-server --locked
 
-  # M4-01 T-13: build the server image, bring up the compose stack, wait for
+  # Build the server image, bring up the compose stack, wait for
   # /healthz and check that the container does not run as root.
   server-docker:
     name: Server (docker compose)
@@ -327,7 +326,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      # Dependency-direction test from M0-01 (T-04/T-05).
       - name: Workspace metadata and layering test
         run: cargo test -p sverb-e2e --test workspace_metadata --locked
       # Independent second implementation of the same rules, over the
@@ -335,7 +333,6 @@ jobs:
       - name: Check dependency direction (script)
         run: python3 scripts/check-layering.py
 
-  # M7-05 T-04 (SPEC §17): `unsafe` stays confined to the two documented modules
   # (process hardening, Windows agent pipe DACL); the workspace lint is `deny`.
   unsafe-check:
     name: unsafe confinement
@@ -346,7 +343,6 @@ jobs:
       - name: allow(unsafe_code) only in the allowed modules
         run: python3 scripts/check-unsafe.py
 
-  # M7-05 T-03 (SPEC §17 "Secrets in logs", §19): the whole suite at trace level, with
   # every temp dir kept under one root, then a scan of all logs, crash reports, SQLite
   # files, recordings, backups and the server database for the planted canaries
   # (CONTRIBUTING.md, "Canary secrets").
@@ -401,7 +397,6 @@ jobs:
           scripts/canary-scan.sh --require-files
           target/tmp "$RUNNER_TEMP/canary/tmp" "$RUNNER_TEMP/canary/home"
 
-  # M7-05 T-05 (SPEC §19 "Fuzzing"): every cargo-fuzz target builds and runs 30 s
   # without a crash. The nightly 10-minute runs are in fuzz.yml.
   fuzz:
     name: Fuzz (30 s per target)
@@ -443,7 +438,7 @@ jobs:
           path: fuzz/artifacts
           if-no-files-found: ignore
 
-  # M7-07 T-03: the Nix flake builds the client (SPEC §20).
+  # The Nix flake builds the client (SPEC §20).
   nix:
     name: Nix flake
     runs-on: ubuntu-latest
@@ -460,7 +455,7 @@ jobs:
           test -f result/share/man/man1/sverb.1.gz
           test -f result/share/bash-completion/completions/sverb.bash
 
-  # M7-07: release tooling that needs no secrets (the full release dry run is
+  # Release tooling that needs no secrets (the full release dry run is
   # `workflow_dispatch` of cd.yml).
   packaging:
     name: Packaging files

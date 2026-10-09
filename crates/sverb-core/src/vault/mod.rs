@@ -1,4 +1,4 @@
-//! M1-04: the vault's pure logic (SPEC §5.3, §11.2, §11.2.1).
+//! The vault's pure logic (SPEC §5.3, §11.2, §11.2.1).
 //!
 //! Everything here is UI-agnostic and I/O-free: KDF parameters and their `meta`
 //! encoding, the persisted unlock backoff, the lock state machine and the auto-lock

@@ -1,4 +1,4 @@
-//! M3-06: the ConnLog service (SPEC §4.12, §9.12).
+//! The ConnLog service (SPEC §4.12, §9.12).
 //!
 //! - It is the session manager's [`ConnLogSink`]: every connection attempt becomes a
 //!   `ConnLog` item, created when the attempt starts and finalized when it ends (result,

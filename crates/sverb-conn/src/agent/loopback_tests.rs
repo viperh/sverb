@@ -1,4 +1,3 @@
-//! M2-07 loopback tests: agent forwarding over a real SSH connection to an in-process
 //! russh server that opens `auth-agent@openssh.com` channels back to the client and
 //! lists the identities there (the stand-in for `ssh-add -l` on the remote; the Docker
 //! variants are `crates/sverb-e2e/tests/agent.rs`). The system agent is an in-process
@@ -344,7 +343,7 @@ async fn t13_forwarding_off() {
 }
 
 /// §17.1: forwarding the system agent for a host configured on another device fails
-/// (until approved, M2-10); the built-in agent needs no approval.
+/// (until approved); the built-in agent needs no approval.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn synced_system_forwarding_needs_approval() {
     let (addr, remote) = start().await;

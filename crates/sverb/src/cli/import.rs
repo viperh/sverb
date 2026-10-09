@@ -1,5 +1,3 @@
-//! `sverb import …` (SPEC §9.13, §16). M2-11 implements ssh-config, known-hosts, csv
-//! and backup; M7-03 adds `putty` (`~/.putty/sessions`, the registry on Windows, or a
 //! sessions directory).
 //!
 //! Every import is a dry run first: the preview table (new / duplicate / conflict,
@@ -41,7 +39,6 @@ pub(crate) struct ImportArgs {
     /// Show what would be imported without changing anything
     #[arg(long, global = true)]
     pub dry_run: bool,
-    // M2-11
     /// Vault to import into (default: Personal)
     #[arg(long, global = true, value_name = "VAULT")]
     pub vault: Option<String>,
@@ -61,7 +58,6 @@ pub(crate) struct ImportArgs {
     pub source: ImportSource,
 }
 
-// M2-11
 /// `--on-conflict`
 #[derive(ValueEnum, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub(crate) enum OnConflict {
@@ -235,7 +231,6 @@ fn spec(source: ImportSource, io: &mut ImportIo<'_>) -> Result<SourceSpec, CliEr
                 password: SecretString::from(password.as_str()),
             }
         }
-        // M7-03
         ImportSource::Putty { path } => SourceSpec::Putty(path),
     })
 }

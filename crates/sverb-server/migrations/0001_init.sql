@@ -1,14 +1,11 @@
--- sverb-server initial schema (M4-01).
+-- sverb-server initial schema.
 --
 -- The tables below are SPEC §10.3 verbatim. Additions, each marked
--- "M4-01 addition":
 --   * the CITEXT extension (users.email and invites.email are CITEXT);
 --   * the `settings` key/value table holding `registration_mode` and the
 --     bootstrap setup-token hash (SPEC §10.6).
 -- Later schema changes go into new numbered files (0002_… is reserved for
--- M4-02); never edit this file once released, because sqlx checksums it.
 
--- M4-01 addition: case-insensitive email columns.
 CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TABLE server_secrets (
@@ -90,7 +87,6 @@ CREATE TABLE audit_events (
   at TIMESTAMPTZ NOT NULL, meta JSONB    -- never contains plaintext item data
 );
 
--- M4-01 addition: instance settings (SPEC §10.6 bootstrap). Known keys:
 --   registration_mode  'open' | 'invite-only' | 'closed'
 --   setup_token_hash   hex SHA-256 of the one-time setup token; present only
 --                      until the first account registers with it.

@@ -1,4 +1,4 @@
-//! M2-07: the SSH agent wire protocol (draft-miller-ssh-agent), the subset sverb's
+//! The SSH agent wire protocol (draft-miller-ssh-agent), the subset sverb's
 //! built-in agent speaks.
 //!
 //! A frame is `uint32 length || payload`; the payload starts with the message type.

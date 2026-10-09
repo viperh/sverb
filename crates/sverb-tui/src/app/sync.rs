@@ -1,4 +1,4 @@
-//! M4-07: `UiEvent::Sync` in the reducer. M4-09: the sync model behind
+//! `UiEvent::Sync` in the reducer. The sync model behind
 //! [`SyncUi`](super::sync_ui::SyncUi): status for the bars, the Settings → Sync /
 //! Devices / Team pages, the account wizard, and the per-session clock-skew toasts.
 //!
@@ -6,7 +6,7 @@
 
 use std::collections::BTreeSet;
 
-// M5-02: Settings → Vaults in the reducer.
+// Settings → Vaults in the reducer.
 mod vaults;
 pub use vaults::VaultsResult;
 
@@ -59,18 +59,14 @@ pub struct SyncModel {
     pub devices: DevicesPanel,
     /// Devices a clock-skew toast was shown for (once per device per session).
     pub skew_warned: BTreeSet<String>,
-    // M5-01
     /// Settings → Team.
     pub team: TeamPanel,
-    // M5-02
     /// Settings → Vaults.
     pub vaults: super::sync_ui::VaultsPanel,
-    // M5-04
     /// The open key-rotation progress dialog.
     pub rotation_dialog: Option<crate::views::DialogId>,
 }
 
-// M5-01
 /// The result of a [`TeamOp`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TeamResult {
@@ -115,10 +111,8 @@ pub enum SyncUiEvent {
     Wizard(WizardScreen),
     /// Team pins (Settings → Team).
     TeamPins(Vec<PinnedKey>),
-    // M5-01
     /// Settings → Team: an org request finished.
     Team(TeamResult),
-    // M5-02
     /// Settings → Vaults: a request finished.
     Vaults(VaultsResult),
 }
@@ -171,7 +165,6 @@ impl SyncModel {
             errors: self.errors.clone(),
             devices: self.devices.clone(),
             team: self.team.clone(),
-            // M5-02
             vaults: self.vaults.clone(),
         }
     }
@@ -207,7 +200,7 @@ impl App {
                 };
                 self.push_toast(level, message, effects);
             }
-            // M4-09: once per device per session.
+            // Once per device per session.
             SyncEvent::ClockSkew { device, .. } => {
                 if self.sync.model.skew_warned.insert(device.clone()) {
                     self.push_toast(
@@ -237,14 +230,14 @@ impl App {
                 self.sync_changed();
             }
             SyncEvent::Applied { .. } | SyncEvent::ReadOnly { .. } => {}
-            // M5-02: the sync service loaded the new vault's key before forwarding
+            // The sync service loaded the new vault's key before forwarding
             // this; its items arrive as index updates (the toast came separately).
             SyncEvent::VaultAdded { .. } => {
                 if self.views.settings.page == SettingsPage::Vaults {
                     self.vaults_request(super::sync_ui::VaultOp::Load { vault: None }, effects);
                 }
             }
-            // M5-04: the service reloaded the vault key before forwarding this.
+            // The service reloaded the vault key before forwarding this.
             SyncEvent::KeyRotated { .. } => {
                 if self.views.settings.page == SettingsPage::Vaults {
                     self.vaults_request(super::sync_ui::VaultOp::Load { vault: None }, effects);
@@ -329,9 +322,7 @@ impl App {
                 self.views.settings.team.set_pins(&pins);
                 self.needs_redraw = true;
             }
-            // M5-01
             SyncUiEvent::Team(res) => self.on_team_result(res, effects),
-            // M5-02
             SyncUiEvent::Vaults(res) => self.on_vaults_result(res, effects),
         }
     }
@@ -467,7 +458,6 @@ impl App {
                 let org = self.sync.model.team.current().map(|o| o.id.clone());
                 self.team_op(TeamOp::Load { org }, effects);
             }
-            // M5-01
             SettingsRequest::Team(op) => self.team_op(op, effects),
             SettingsRequest::TeamRemove {
                 org,
@@ -517,7 +507,6 @@ impl App {
                 user,
                 accept_new_key,
             })),
-            // M5-02
             SettingsRequest::Vaults(op) => self.vaults_request(op, effects),
             SettingsRequest::VaultRevoke {
                 vault,
@@ -538,7 +527,7 @@ fn short<T: std::fmt::Display>(id: Option<T>) -> String {
     )
 }
 
-// M5-01: Settings → Team.
+// Settings → Team.
 impl App {
     fn team_op(&mut self, op: TeamOp, effects: &mut Vec<Effect>) {
         let t = &mut self.sync.model.team;
@@ -578,7 +567,7 @@ impl App {
                     .collect();
                 t.error = None;
             }
-            // T-08: a link invite is copied, ready to paste into a chat.
+            // A link invite is copied, ready to paste into a chat.
             TeamResult::Invited(inv) => match inv.link {
                 Some(link) => {
                     effects.push(Effect::CopyToClipboard(link));

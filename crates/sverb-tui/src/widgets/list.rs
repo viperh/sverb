@@ -1,4 +1,4 @@
-//! M1-06: the shared list component (SPEC §8.5), used by Hosts, Keychain, Forwards,
+//! The shared list component (SPEC §8.5), used by Hosts, Keychain, Forwards,
 //! Snippets, Known Hosts and Logs.
 //!
 //! [`ListView<R>`] is plain state over the view's rows (`R: ListRow`), with a [`View`]
@@ -7,7 +7,7 @@
 //! asks [`ListView::targets`] what a bulk action applies to (the marks, else the
 //! cursor row).
 //!
-//! - **Data:** `set_rows` with the rows of an `IndexSnapshot` query (M1-05), in view
+//! - **Data:** `set_rows` with the rows of an `IndexSnapshot` query, in view
 //!   order. A [`RowRenderer`] draws the columns, a [`DetailRenderer`] the detail pane.
 //! - **Virtualized:** only the visible rows are drawn; the selection stays in view
 //!   with a scrolloff of 2.
@@ -205,7 +205,7 @@ pub enum FilterSource {
     /// Fuzzy-match [`ListRow::filter_text`] here (same matcher as the index).
     #[default]
     Local,
-    /// Run the query language (`#tag`, `@vault`, …) on the search index (M1-05).
+    /// Run the query language (`#tag`, `@vault`, …) on the search index.
     Index {
         /// The current snapshot.
         snapshot: Arc<IndexSnapshot>,
@@ -332,7 +332,7 @@ impl<R: ListRow> ListView<R> {
     pub fn set_rows(&mut self, rows: Vec<R>) {
         let keys: BTreeSet<R::Key> = rows.iter().map(ListRow::key).collect();
         self.marks.retain(|k| keys.contains(k));
-        // M1-07: take the cursor's key before the old indices go stale.
+        // Take the cursor's key before the old indices go stale.
         let keep = self.selected_key();
         self.rows = rows;
         self.rebuild_keeping(keep);
@@ -428,7 +428,7 @@ impl<R: ListRow> ListView<R> {
         self.filter.text()
     }
 
-    /// The filter line has the keys (Insert mode, M0-10).
+    /// The filter line has the keys (Insert mode).
     pub fn insert_mode(&self) -> bool {
         self.filter_editing
     }
@@ -526,7 +526,7 @@ impl<R: ListRow> ListView<R> {
         self.rebuild_keeping(keep);
     }
 
-    /// [`Self::rebuild`] with the key to keep the cursor on (M1-07).
+    /// [`Self::rebuild`] with the key to keep the cursor on.
     fn rebuild_keeping(&mut self, keep: Option<R::Key>) {
         let order = self.sorted();
         self.visible = if !self.filter.is_empty() {

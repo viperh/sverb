@@ -1,4 +1,3 @@
-//! M2-03 §2.4–2.5: export and passphrase changes (SPEC §9.4).
 //!
 //! - **Public key**: the OpenSSH line ([`public_export`]) to the clipboard or a file
 //!   ([`write_public_file`]).

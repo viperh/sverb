@@ -1,4 +1,4 @@
-//! M3-03: the workspaces dialog (SPEC §9.9): the list of saved workspaces with a fuzzy
+//! The workspaces dialog (SPEC §9.9): the list of saved workspaces with a fuzzy
 //! filter and an ASCII preview of the selected one (`Open workspace`, `Workspaces`),
 //! and the prompts of the save / rename / delete flows.
 //!

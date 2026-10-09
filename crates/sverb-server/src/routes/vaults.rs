@@ -1,8 +1,6 @@
 //! `/v1/vaults`: vault list, pull and push (SPEC §10.4, §12.2, §12.3; task
-//! M4-04). The logic lives in [`crate::sync`]; these handlers do auth,
 //! extraction, metrics and the post-commit notification.
 //!
-//! `POST /v1/vaults` (create a shared vault, org admin+) is M5-02's
 //! `super::shared_vaults::create`.
 
 use axum::extract::{Path, Query, State};
@@ -22,7 +20,7 @@ use crate::sync::{pull, push, rev_from_wire};
 /// `/vaults` routes (nested under `/v1`).
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/vaults", get(list).post(super::shared_vaults::create)) // M5-02: POST
+        .route("/vaults", get(list).post(super::shared_vaults::create)) // POST
         .route("/vaults/{id}/changes", get(pull_changes).post(push_changes))
 }
 
@@ -31,7 +29,7 @@ async fn list(
     ctx: AuthCtx,
 ) -> Result<Json<Vec<VaultView>>, ApiError> {
     let mut views = state.sync().store().list_vaults(ctx.user_id).await?;
-    // M5-04: abandoned rotations (15 min, server clock) prompt a restart.
+    // Abandoned rotations (15 min, server clock) prompt a restart.
     crate::sync::rotation::mark_abandoned(&mut views, state.auth().now());
     Ok(Json(views))
 }
@@ -73,7 +71,6 @@ async fn push_changes(
         )
         .await?;
     if let Some(head) = outcome.new_head {
-        // After commit (M4-05 fans this out).
         sync.notify(vault_id, head);
         let (items, bytes) = req
             .changes
@@ -86,7 +83,7 @@ async fn push_changes(
         metrics::counter!(SYNC_PUSH_ITEMS_TOTAL).increment(items);
         metrics::counter!(SYNC_PUSH_BYTES_TOTAL).increment(bytes);
         tracing::debug!(%vault_id, head, accepted = items, "push committed");
-        // M5-02: item-level audit of shared vaults (ids only, §13.5).
+        // Item-level audit of shared vaults (ids only, §13.5).
         let ids: Vec<Uuid> = req
             .changes
             .iter()

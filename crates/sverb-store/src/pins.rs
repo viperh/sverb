@@ -1,4 +1,4 @@
-//! M5-03: the `pinned_keys` table (SPEC §13.3): TOFU pins of account public keys.
+//! The `pinned_keys` table (SPEC §13.3): TOFU pins of account public keys.
 //!
 //! Every org member's keys (and this account's own keys, `is_self`) are pinned the
 //! first time this device sees them. A later, different key never replaces the pin

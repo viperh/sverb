@@ -1,4 +1,4 @@
-//! M7-01: the heuristic capture tier (SPEC §9.10 tier 2).
+//! The heuristic capture tier (SPEC §9.10 tier 2).
 //!
 //! Without OSC 133 (never seen in the session), `Enter` with the alternate screen off
 //! captures the cursor line, strips the learned prompt and records the rest as an

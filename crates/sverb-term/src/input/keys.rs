@@ -1,4 +1,4 @@
-//! M1-11: key → bytes (SPEC §7.3).
+//! Key → bytes (SPEC §7.3).
 //!
 //! [`encode_key`] picks one of three encodings from the pane's modes:
 //!
@@ -11,7 +11,6 @@
 //!    `CSI 27 ; mods ; code ~`. Level 2 does it for every ctrl combo on a character (and
 //!    ctrl/shift on `Enter`, ctrl on `Tab`, ctrl/shift on `Esc`); level 1 only for combos
 //!    that have no unambiguous legacy byte (`ctrl-1`, `ctrl-;`, `ctrl-shift-a`, `ctrl-tab`).
-//! 3. **Legacy xterm**, the reference table in SPEC §7.3 / the M1-11 task:
 //!    arrows and `Home`/`End` honor DECCKM when unmodified, modified specials use
 //!    `CSI 1 ; m X` / `CSI n ; m ~` (`m` = 1 + shift·1 + alt·2 + ctrl·4 + super·8), `Alt`
 //!    on text prefixes `ESC`, ctrl on characters maps to C0 bytes, the keypad honors DECKPAM.
@@ -19,7 +18,7 @@
 //! `F13`–`F24` are sent as xterm does: shift + `F1`–`F12` (legacy), or the kitty
 //! private-use codes (kitty mode). Keys with no encoding return `None`.
 //!
-//! Charset conversion of text (M1-09 §2.3) happens in the session's write path, after this.
+//! Charset conversion of text happens in the session's write path, after this.
 
 use bytes::Bytes;
 
@@ -538,7 +537,7 @@ mod tests {
     /// One row of the reference table: key, normal-mode bytes, DECCKM bytes.
     type Row = (Key, KeyMods, &'static [u8], &'static [u8]);
 
-    /// T-01: the §2.2 table, in both DECCKM states.
+    /// The §2.2 table, in both DECCKM states.
     #[test]
     fn t01_reference_table() {
         let mut rows: Vec<Row> = vec![
@@ -611,7 +610,7 @@ mod tests {
         }
     }
 
-    /// T-01: the backspace variants (host `backspace = CtrlH`).
+    /// The backspace variants (host `backspace = CtrlH`).
     #[test]
     fn t01_backspace_variants() {
         let ctrl_h = EncodeOpts {
@@ -636,7 +635,7 @@ mod tests {
         );
     }
 
-    /// T-01: DECKPAM keypad.
+    /// DECKPAM keypad.
     #[test]
     fn t01_keypad() {
         let app = TermModes {
@@ -659,7 +658,7 @@ mod tests {
         assert_eq!(enc(Key::Keypad(KeypadKey::Decimal), N, &normal()), b".");
     }
 
-    /// T-02: modified arrows and function keys, all 7 modifier combos.
+    /// Modified arrows and function keys, all 7 modifier combos.
     #[test]
     fn t02_modified_specials() {
         let combos: [(KeyMods, u8); 7] = [
@@ -711,7 +710,7 @@ mod tests {
         assert!(enc(Key::F(0), N, &normal()).is_empty());
     }
 
-    /// T-03: Alt + Unicode.
+    /// Alt + Unicode.
     #[test]
     fn t03_alt_unicode() {
         let mut want = vec![0x1b];
@@ -722,7 +721,7 @@ mod tests {
         assert_eq!(enc(Key::Enter, A, &normal()), b"\x1b\r");
     }
 
-    /// T-04: modifyOtherKeys.
+    /// ModifyOtherKeys.
     #[test]
     fn t04_modify_other_keys() {
         let l2 = TermModes {
@@ -750,7 +749,7 @@ mod tests {
         assert_eq!(enc(Key::Char('A'), C, &normal()), b"\x01");
     }
 
-    /// T-05: remote kitty keyboard protocol.
+    /// Remote kitty keyboard protocol.
     #[test]
     fn t05_remote_kitty() {
         let k1 = TermModes {
@@ -792,7 +791,7 @@ mod tests {
         assert_eq!(enc(Key::Char('i'), C, &k2), b"\x09");
     }
 
-    /// T-06: the same key encodes per pane.
+    /// The same key encodes per pane.
     #[test]
     fn t06_per_pane() {
         let up = KeyInput::plain(Key::Up);

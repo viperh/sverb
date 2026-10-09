@@ -1,4 +1,4 @@
-//! Unit tests for the subscriber layout (M0-04 T-04, T-05, T-06, T-07, T-08).
+//! Unit tests for the subscriber layout.
 //!
 //! These install the subscriber with `tracing::subscriber::with_default` (scoped to
 //! the test thread), so they can run in parallel. The child-process tests that use
@@ -79,7 +79,6 @@ fn run(
     Ok((read_logs(&dir.0)?, crash_ring, debug_ring))
 }
 
-// T-04
 #[test]
 fn sverb_log_warn_drops_info() -> TestResult {
     let (log, ..) = run("warn", LogOptions::default(), Some("warn"), || {
@@ -91,7 +90,6 @@ fn sverb_log_warn_drops_info() -> TestResult {
     Ok(())
 }
 
-// T-04
 #[test]
 fn sverb_log_target_directive_enables_debug_for_that_target_only() -> TestResult {
     let (log, ..) = run(
@@ -110,7 +108,7 @@ fn sverb_log_target_directive_enables_debug_for_that_target_only() -> TestResult
     Ok(())
 }
 
-// T-04: defaults
+// Defaults
 #[test]
 fn default_is_info_or_debug_with_flag() -> TestResult {
     let (log, ..) = run("default", LogOptions::default(), None, || {
@@ -133,7 +131,6 @@ fn default_is_info_or_debug_with_flag() -> TestResult {
     Ok(())
 }
 
-// T-05
 #[test]
 fn invalid_sverb_log_falls_back_to_info_with_a_warning() -> TestResult {
     let (filter_, warning) = filter(LogOptions::default(), Some("=[[["));
@@ -170,7 +167,6 @@ fn file_format() -> TestResult {
     Ok(())
 }
 
-// T-06
 #[test]
 fn debug_ring_keeps_the_last_5000_in_order() -> TestResult {
     let opts = LogOptions {
@@ -192,7 +188,7 @@ fn debug_ring_keeps_the_last_5000_in_order() -> TestResult {
     Ok(())
 }
 
-// T-06: no debug ring without --debug, nor for headless commands.
+// No debug ring without --debug, nor for headless commands.
 #[test]
 fn debug_ring_only_with_debug_in_the_tui() -> TestResult {
     let dir = TempDir::new("noring")?;
@@ -209,7 +205,7 @@ fn debug_ring_only_with_debug_in_the_tui() -> TestResult {
     Ok(())
 }
 
-// T-06: concurrency
+// Concurrency
 #[test]
 fn ring_concurrent_writer_and_reader_do_not_deadlock() -> TestResult {
     let ring = LogRing::new(DEBUG_RING_CAPACITY);
@@ -248,7 +244,6 @@ fn ring_concurrent_writer_and_reader_do_not_deadlock() -> TestResult {
     Ok(())
 }
 
-// T-07
 #[test]
 fn crash_ring_holds_info_and_above_only() -> TestResult {
     let (_, crash, debug_ring) = run("crash", LogOptions::default(), Some("trace"), || {

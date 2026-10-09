@@ -1,4 +1,4 @@
-//! Errors of the sync engine (M4-07).
+//! Errors of the sync engine.
 
 use sverb_proto::ErrorCode;
 
@@ -10,7 +10,7 @@ pub enum SyncError {
     #[error("sync is not configured: {0}")]
     NotConfigured(&'static str),
     /// The refresh token was rejected (or reused): the user must sign in
-    /// again (M4-08). Sync pauses.
+    /// again. Sync pauses.
     #[error("sign-in required")]
     NeedsLogin,
     /// The server could not be reached (connect, TLS, timeout, broken body).

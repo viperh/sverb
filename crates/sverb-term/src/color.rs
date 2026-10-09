@@ -1,6 +1,6 @@
-//! Color depth detection and 24-bit → 256-color downsampling (M0-11, SPEC §8.8).
+//! Color depth detection and 24-bit → 256-color downsampling (SPEC §8.8).
 //!
-//! Shared by the UI theme (`sverb-tui::theme`, M0-11) and the terminal pane (M1-10),
+//! Shared by the UI theme (`sverb-tui::theme`) and the terminal pane,
 //! which downsample RGB colors the same way when the outer terminal has no truecolor.
 //! It lives here, not in `sverb-tui`, because `sverb-term` must not depend on the TUI
 //! crate; `sverb_tui::theme::color` re-exports it.
@@ -25,7 +25,7 @@ pub enum ColorDepth {
     TrueColor,
     /// The xterm 256-color palette.
     Indexed256,
-    // M1-10: terminal panes also render for 16-color and monochrome terminals.
+    // Terminal panes also render for 16-color and monochrome terminals.
     /// The 16 base colors only.
     Ansi16,
     /// No colors (`NO_COLOR`): attributes only.
@@ -53,7 +53,7 @@ impl ColorDepth {
 
 /// `color` as the terminal at `depth` can show it. At 256 colors only [`Color::Rgb`]
 /// changes; at 16 colors palette indices above 15 map to the nearest base color too
-/// (M1-10); [`ColorDepth::Mono`] turns everything into [`Color::Reset`].
+/// ; [`ColorDepth::Mono`] turns everything into [`Color::Reset`].
 pub fn downsample(color: Color, depth: ColorDepth) -> Color {
     match (color, depth) {
         (_, ColorDepth::Mono) => Color::Reset,
@@ -67,7 +67,6 @@ pub fn downsample(color: Color, depth: ColorDepth) -> Color {
     }
 }
 
-// M1-10
 /// The nearest of the 16 base colors (xterm's default values, 0–15) to an sRGB color,
 /// by CIELAB distance.
 pub fn rgb_to_ansi16(r: u8, g: u8, b: u8) -> u8 {
@@ -91,7 +90,7 @@ pub fn rgb_to_ansi16(r: u8, g: u8, b: u8) -> u8 {
 
 /// The nearest xterm palette index (16–255) to an sRGB color, by CIELAB distance.
 ///
-/// M1-10: memoized in a lock-free, direct-mapped cache (64 Ki entries), because the terminal
+/// Memoized in a lock-free, direct-mapped cache (64 Ki entries), because the terminal
 /// pane maps every RGB cell of a frame. The cache only remembers exact results.
 pub fn rgb_to_ansi256(r: u8, g: u8, b: u8) -> u8 {
     use std::sync::atomic::{AtomicU32, Ordering};
@@ -219,7 +218,6 @@ impl Lab {
 mod tests {
     use super::*;
 
-    // M0-11 T-17
     #[test]
     fn pure_red_maps_to_196() {
         assert_eq!(rgb_to_ansi256(0xff, 0, 0), 196);
@@ -286,7 +284,7 @@ mod tests {
         assert_eq!(downsample(c, ColorDepth::TrueColor), c);
     }
 
-    // M1-10: the cache never changes a result.
+    // The cache never changes a result.
     #[test]
     fn cached_matches_exhaustive() {
         for r in (0..=255u8).step_by(15) {
@@ -323,7 +321,6 @@ mod tests {
         }
     }
 
-    // M0-11 T-18
     #[test]
     fn depth_detection() {
         use TruecolorMode::{Auto, Off, On};

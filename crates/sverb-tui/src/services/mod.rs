@@ -8,7 +8,7 @@
 //!
 //! Services never touch [`App`](crate::app::App). `Quit`, `Suspend`,
 //! `SetMouseCapture`, `ScheduleTimer` and `CancelTimer` belong to the runtime loop
-//! (M0-09: the timer service is `runtime::timers::Timers`) and are not executed here.
+//! (the timer service is `runtime::timers::Timers`) and are not executed here.
 
 use sverb_core::error_report::ErrorReport;
 use tokio::sync::mpsc;
@@ -16,48 +16,48 @@ use tracing::{debug, error, info, warn};
 
 use crate::app::{Effect, LevelMsg, LogLevel, UiEvent};
 
-// M1-08: OpenSession / SendToSession / CloseSession through the session manager.
+// OpenSession / SendToSession / CloseSession through the session manager.
 pub mod sessions;
 use self::sessions::SessionService;
-// M1-04: first run, unlock, lock, password change; owns the keys.
+// First run, unlock, lock, password change; owns the keys.
 pub mod vault;
 use self::vault::VaultService;
-// M4-07: runs the sync engine while the vault is unlocked (feature `sync`).
+// Runs the sync engine while the vault is unlocked (feature `sync`).
 #[cfg(feature = "sync")]
 pub mod sync;
-// M1-11: CopyToClipboard (OSC 52 and/or the local clipboard).
+// CopyToClipboard (OSC 52 and/or the local clipboard).
 pub mod clipboard;
 use self::clipboard::ClipboardService;
-// M3-05: StartRecording / StopRecording (encrypted session recordings).
+// StartRecording / StopRecording (encrypted session recordings).
 pub mod recording;
 use self::recording::RecordingService;
-// M3-06: connection logs (the session manager's ConnLog sink) and retention.
+// Connection logs (the session manager's ConnLog sink) and retention.
 pub mod connlog;
 pub mod maintenance;
 use self::connlog::ConnLogService;
-// M1-13: the SSH connector's host resolver (vault, group chain, secrets).
+// The SSH connector's host resolver (vault, group chain, secrets).
 pub mod ssh;
-// M1-15: the known-hosts store of the host-key verifier; the Known Hosts view's effects.
+// The known-hosts store of the host-key verifier; the Known Hosts view's effects.
 pub mod known_hosts;
-// M3-04: `Effect::OpenUrl` (confirmed links, the `open` crate).
+// `Effect::OpenUrl` (confirmed links, the `open` crate).
 pub mod opener;
 use self::opener::UrlOpener;
-// M2-08: port forwards (the session manager's forward hook; the Forwards view's effects).
+// Port forwards (the session manager's forward hook; the Forwards view's effects).
 pub mod forwards;
-// M2-07: confirm_on_use prompts, the control socket, the vault key source.
+// confirm_on_use prompts, the control socket, the vault key source.
 pub mod agent;
 use self::forwards::ForwardsService;
-// M2-09: snippets (load / save, exec runs on hosts, exports, startup checks).
+// Snippets (load / save, exec runs on hosts, exports, startup checks).
 pub mod snippets;
-// M2-11: import / export (the import wizard's effects, `sverb import` / `sverb export`).
+// Import / export (the import wizard's effects, `sverb import` / `sverb export`).
 pub mod import;
-// M2-12: the command palette's recent picks (device-local `meta`).
+// The command palette's recent picks (device-local `meta`).
 pub mod palette;
-// M3-03: workspaces (load, save, rename, delete, duplicate as synced items).
+// Workspaces (load, save, rename, delete, duplicate as synced items).
 pub mod workspaces;
-// M7-01: command history (captured commands, snippet runs, the per-host cap, purge).
+// Command history (captured commands, snippet runs, the per-host cap, purge).
 pub mod history;
-// M6-03: terminal sharing (shared panes, viewer panes). Behind `share` until
+// Terminal sharing (shared panes, viewer panes). Behind `share` until
 // `sverb_sync::share` is merged; MERGE: fold the feature into `sync`.
 #[cfg(feature = "sync")]
 pub mod share;
@@ -68,39 +68,30 @@ pub type EventSender = mpsc::Sender<UiEvent>;
 /// Handles needed to execute effects.
 #[derive(Debug, Default)]
 pub struct Services {
-    // M0-09: timers moved to the loop (`runtime::timers`).
-    // M1-03: store; M1-11: clipboard.
-    // M1-08: sessions (`None` in loop tests that run without a session manager).
+    // Timers moved to the loop (`runtime::timers`).
+    // Store; Clipboard.
+    // Sessions (`None` in loop tests that run without a session manager).
     sessions: Option<SessionService>,
-    // M1-04: the vault (and through it the store); `None` without a database.
+    // The vault (and through it the store); `None` without a database.
     vault: Option<VaultService>,
-    // M1-11
     /// `None` in loop tests: copies are logged and dropped.
     clipboard: Option<ClipboardService>,
-    // M3-05
     /// `None` without a state dir (loop tests): recording requests fail visibly.
     recording: Option<RecordingService>,
-    // M3-06
     /// `None` in loop tests: logs effects are dropped.
     connlog: Option<ConnLogService>,
-    // M2-08
     /// Rules and running tunnels.
     forwards: ForwardsService,
-    // M3-04
     /// `None` (tests, loop tests): links are never opened, only logged at debug.
     opener: Option<Box<dyn UrlOpener>>,
-    // M2-07
     /// `confirm_on_use` answers, the control socket (`None` in tests).
     agent: Option<agent::AgentService>,
-    // M7-01
     /// `None` in loop tests: history effects are dropped.
     history: Option<history::HistoryService>,
-    // M4-09
     /// The sync engine, devices, the account wizard (`None`: local-only build, or no
     /// vault).
     #[cfg(feature = "sync")]
     sync: Option<sync::SyncService>,
-    // M6-03
     /// Running shares and viewer panes.
     #[cfg(feature = "sync")]
     share: share::ShareService,
@@ -112,17 +103,15 @@ impl Services {
         Self::default()
     }
 
-    // M1-08
     /// Execute session effects through `sessions`.
     #[must_use]
     pub fn with_sessions(mut self, sessions: SessionService) -> Self {
-        // M2-08: SSH connections report to the forward manager (auto-start, reconnect).
+        // SSH connections report to the forward manager (auto-start, reconnect).
         self.forwards.attach(&sessions);
         self.sessions = Some(sessions);
         self
     }
 
-    // M1-11
     /// Execute `CopyToClipboard` through `clipboard`.
     #[must_use]
     pub fn with_clipboard(mut self, clipboard: ClipboardService) -> Self {
@@ -130,7 +119,6 @@ impl Services {
         self
     }
 
-    // M3-05
     /// Record sessions into `dir` (`Paths::recordings_dir`).
     #[must_use]
     pub fn with_recordings_dir(mut self, dir: std::path::PathBuf) -> Self {
@@ -138,7 +126,6 @@ impl Services {
         self
     }
 
-    // M3-06
     /// Execute `Effect::Logs` and name recordings through `connlog`. The caller also
     /// registers it as the session manager's ConnLog sink.
     #[must_use]
@@ -147,7 +134,6 @@ impl Services {
         self
     }
 
-    // M2-07
     /// Answer agent prompts through `agent` (and keep its control socket alive).
     #[must_use]
     pub fn with_agent(mut self, agent: agent::AgentService) -> Self {
@@ -155,7 +141,6 @@ impl Services {
         self
     }
 
-    // M7-01
     /// Execute `Effect::History` (and record snippet runs) through `history`.
     #[must_use]
     pub fn with_history(mut self, history: history::HistoryService) -> Self {
@@ -163,7 +148,6 @@ impl Services {
         self
     }
 
-    // M4-09
     /// Execute `Effect::Sync` through `sync`.
     #[cfg(feature = "sync")]
     #[must_use]
@@ -172,25 +156,21 @@ impl Services {
         self
     }
 
-    // M7-01
     /// The history service, if any.
     pub fn history(&self) -> Option<&history::HistoryService> {
         self.history.as_ref()
     }
 
-    // M3-06
     /// The ConnLog service, if any.
     pub fn connlog(&self) -> Option<&ConnLogService> {
         self.connlog.as_ref()
     }
 
-    // M1-08
     /// The session service, if any.
     pub fn sessions(&self) -> Option<&SessionService> {
         self.sessions.as_ref()
     }
 
-    // M1-04
     /// Execute vault effects (and persist meta flags) through `vault`.
     #[must_use]
     pub fn with_vault(mut self, vault: VaultService) -> Self {
@@ -198,7 +178,6 @@ impl Services {
         self
     }
 
-    // M1-04
     /// [`Services::with_vault`] when `vault` is `Some`.
     #[must_use]
     pub fn with_vault_opt(mut self, vault: Option<VaultService>) -> Self {
@@ -206,13 +185,11 @@ impl Services {
         self
     }
 
-    // M1-04
     /// The vault service, if any.
     pub fn vault(&self) -> Option<&VaultService> {
         self.vault.as_ref()
     }
 
-    // M3-04
     /// Open confirmed links with `opener` (the runtime passes `opener::SystemOpener`).
     #[must_use]
     pub fn with_url_opener(mut self, opener: Box<dyn UrlOpener>) -> Self {
@@ -229,23 +206,20 @@ impl Services {
                 LogLevel::Info => info!("{msg}"),
                 LogLevel::Debug => debug!("{msg}"),
             },
-            // M0-10 / M1-08: session input (never awaits the session); M1-03 persists
             // meta flags.
             Effect::SendToSession { id, input } => match &mut self.sessions {
                 Some(sessions) => sessions.send(id, input),
                 None => debug!(session = id.0, "session input dropped: no session manager"),
             },
-            // M1-04: persisted through the vault service's store.
+            // Persisted through the vault service's store.
             Effect::SetMetaFlag(flag) => match &self.vault {
                 Some(vault) => vault.set_meta_flag(flag),
                 None => debug!(flag = flag.key(), "meta flag not persisted: no store"),
             },
-            // M1-04
             Effect::Vault(op) => match &self.vault {
                 Some(vault) => vault.execute(op, ev_tx),
                 None => warn!("vault effect ignored: no vault service"),
             },
-            // M1-08
             Effect::OpenSession {
                 id,
                 spec,
@@ -259,19 +233,17 @@ impl Services {
                 Some(sessions) => sessions.close(id),
                 None => debug!(session = id.0, "close ignored: no session manager"),
             },
-            // M1-17: debounced pane resizes.
+            // Debounced pane resizes.
             Effect::ResizeSession { id, cols, rows } => match &mut self.sessions {
                 Some(sessions) => sessions.resize(id, cols, rows),
                 None => debug!(session = id.0, "resize ignored: no session manager"),
             },
-            // M1-12
             Effect::ReconnectSession(id) => match &mut self.sessions {
                 Some(sessions) => {
                     let _ = sessions.command(id, sverb_conn::SessionCmd::Reconnect);
                 }
                 None => debug!(session = id.0, "reconnect ignored: no session manager"),
             },
-            // M1-11
             Effect::CopyToClipboard(text) => match &mut self.clipboard {
                 Some(clipboard) => {
                     let report = clipboard.copy(&text);
@@ -279,7 +251,6 @@ impl Services {
                 }
                 None => debug!("copy dropped: no clipboard service"),
             },
-            // M3-05
             Effect::StartRecording {
                 id,
                 token,
@@ -301,7 +272,7 @@ impl Services {
                     title,
                     include_input,
                 };
-                // M3-06: named after the session's ConnLog entry.
+                // Named after the session's ConnLog entry.
                 let connlog = self.connlog.clone();
                 let conn_id = connlog.as_ref().map(|c| c.recording_id(id));
                 let on_created = move |entry, path| {
@@ -329,12 +300,11 @@ impl Services {
                 }
                 _ => debug!(session = id.0, "stop recording ignored: no session manager"),
             },
-            // M3-06
             Effect::Logs(op) => match &self.connlog {
                 Some(connlog) => connlog.execute(op),
                 None => debug!(?op, "logs effect dropped: no connlog service"),
             },
-            // M1-14: auth prompt answers; credentials saved after a successful login.
+            // Auth prompt answers; credentials saved after a successful login.
             Effect::AuthAnswer { id, reply } => match &mut self.sessions {
                 Some(sessions) => ssh::send_auth_answer(sessions, id, reply),
                 None => debug!(session = id.0, "auth answer dropped: no session manager"),
@@ -347,8 +317,8 @@ impl Services {
                     };
                 ssh::save_credential(self.vault.as_ref(), req, notify);
             }
-            // M0-09: timers are loop-owned too.
-            // M1-15: a host-key prompt's answer; known-hosts requests.
+            // Timers are loop-owned too.
+            // A host-key prompt's answer; known-hosts requests.
             Effect::HostKeyDecision { id, decision } => match &mut self.sessions {
                 Some(sessions) => {
                     let sent =
@@ -363,40 +333,32 @@ impl Services {
                 ),
             },
             Effect::KnownHosts(op) => known_hosts::execute(self.vault.as_ref(), op, ev_tx),
-            // M3-04: never logs the URL above debug (it can contain host names).
+            // Never logs the URL above debug (it can contain host names).
             Effect::OpenUrl(url) => opener::open(self.opener.as_deref_mut(), &url),
-            // M2-08
             Effect::Forwards(op) => {
                 self.forwards
                     .execute(op, self.vault.as_ref(), self.sessions.as_mut(), ev_tx);
             }
-            // M2-09
-            // M7-01: snippet runs typed into panes are recorded in the history.
+            // Snippet runs typed into panes are recorded in the history.
             Effect::Snippets(crate::app::SnippetsEffect::History(record)) => {
                 if let Some(history) = &self.history {
                     sverb_core::snippet::HistorySink::record(history, record);
                 }
             }
             Effect::Snippets(op) => snippets::execute(self.vault.as_ref(), op, ev_tx),
-            // M7-01
             Effect::History(op) => match &self.history {
                 Some(history) => history.execute(op),
                 None => debug!("history effect dropped: no history service"),
             },
-            // M2-07
             Effect::AgentConfirm { id, allow } => match &self.agent {
                 Some(agent) => agent.answer(id, allow),
                 None => debug!(id, "agent confirm ignored: no agent service"),
             },
-            // M2-11
             Effect::Import(op) => import::execute(self.vault.as_ref(), op, ev_tx),
-            // M2-12
             Effect::Palette(op) => {
                 palette::execute(self.vault.as_ref().map(VaultService::store), op, ev_tx);
             }
-            // M3-03
             Effect::Workspaces(op) => workspaces::execute(self.vault.as_ref(), op, ev_tx),
-            // M4-09
             #[cfg(feature = "sync")]
             Effect::Sync(op) => match &self.sync {
                 Some(sync) => sync.execute(op, ev_tx),
@@ -404,7 +366,6 @@ impl Services {
             },
             #[cfg(not(feature = "sync"))]
             Effect::Sync(op) => debug!(?op, "sync effect dropped: built without sync"),
-            // M6-03
             #[cfg(feature = "sync")]
             Effect::Share(op) => {
                 self.share
@@ -423,7 +384,6 @@ impl Services {
     }
 }
 
-// M6-03
 /// Builds without terminal sharing answer every share request with "not available".
 #[cfg(not(feature = "sync"))]
 fn share_unavailable(op: crate::app::share::ShareEffect, ev_tx: &EventSender) {

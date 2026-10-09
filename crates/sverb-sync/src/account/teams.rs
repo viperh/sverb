@@ -1,4 +1,4 @@
-//! M5-01: orgs, members, invites and the audit log for the CLI (`sverb team`) and
+//! Orgs, members, invites and the audit log for the CLI (`sverb team`) and
 //! Settings → Team. Like [`super::devices`], every call needs the unlocked vault
 //! (the tokens are sealed under the LMK) and refreshes the access token once on 401.
 

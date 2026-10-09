@@ -66,7 +66,7 @@ impl ReadTx<'_> {
         Ok(u64::try_from(n).unwrap_or(0))
     }
 
-    // M4-09: the sync status panel and `sverb sync --status` list it per vault.
+    // The sync status panel and `sverb sync --status` list it per vault.
     /// Queued items per vault (vaults with nothing queued are left out), in
     /// vault id order.
     pub fn pending_by_vault(&self) -> Result<Vec<(VaultId, u64)>> {
@@ -176,7 +176,6 @@ impl Store {
         self.read(|r| r.pending_count()).await
     }
 
-    // M4-09
     /// See [`ReadTx::pending_by_vault`].
     pub async fn pending_by_vault(&self) -> Result<Vec<(VaultId, u64)>> {
         self.read(|r| r.pending_by_vault()).await

@@ -1,4 +1,4 @@
-//! M2-05: jump-chain expansion (SPEC §6.1.4).
+//! Jump-chain expansion (SPEC §6.1.4).
 //!
 //! A host's resolved `jump_chain` lists host items to hop through. Each hop is itself
 //! a host whose **own** resolved `jump_chain` is expanded first (a hop with its own
@@ -207,7 +207,7 @@ mod tests {
         hops.iter().map(ChainHop::name).collect()
     }
 
-    /// T-01: T → [B], B → [A] expands to [A, B] (then T).
+    /// T → [B], B → [A] expands to [A, B] (then T).
     #[test]
     fn t01_recursive_expansion() {
         let w = world(&[(1, "A", &[]), (2, "B", &[1])]);
@@ -225,7 +225,7 @@ mod tests {
         );
     }
 
-    /// T-02: 8 effective hops are fine, 9 are rejected (here through recursion: each
+    /// 8 effective hops are fine, 9 are rejected (here through recursion: each
     /// hop jumps through the previous one).
     #[test]
     fn t02_depth_limit() {
@@ -267,7 +267,7 @@ mod tests {
         );
     }
 
-    /// T-03: T → [B], B → [A], A → [B]: a cycle naming the path.
+    /// T → [B], B → [A], A → [B]: a cycle naming the path.
     #[test]
     fn t03_cycle_through_recursion() {
         let w = world(&[(1, "A", &[2]), (2, "B", &[1])]);

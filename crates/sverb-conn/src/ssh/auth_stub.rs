@@ -2,7 +2,6 @@
 //!
 //! [`Authenticator`] runs after the handshake with an [`AuthSession`] (the russh handle,
 //! wrapped so russh types stay in this module) and the [`ConnectCtx`] (state inputs,
-//! prompts). M1-14 replaces [`StubAuthenticator`] with the full method chain
 //! (certificate, key, agent, password with prompt, keyboard-interactive) and adds the
 //! matching methods to [`AuthSession`].
 //!

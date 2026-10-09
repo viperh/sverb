@@ -1,5 +1,4 @@
-//! M7-04 tests: report snapshots with injected facts (T-01), the `--json` schema
-//! (T-02), permission warnings (T-03), `--algos` (T-04), and the exit code with the
+//! , permission warnings, `--algos`, and the exit code with the
 //! sync server down (T-06, CLI half; the server half is
 //! `crates/sverb-sync/tests/doctor.rs`). T-05 (no TTY) is `crates/sverb/tests/doctor.rs`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -208,7 +207,7 @@ fn mixed() -> Facts {
     f
 }
 
-// T-01: the text report with injected probes (all ok; mixed), symbols and ASCII.
+// The text report with injected probes (all ok; mixed), symbols and ASCII.
 #[test]
 fn t01_text_report_snapshots() {
     let ok = build_report(&all_ok());
@@ -224,7 +223,7 @@ fn t01_text_report_snapshots() {
     insta::assert_snapshot!("doctor_mixed_symbols", render_text(&mixed, true));
 }
 
-// T-02: the `--json` schema.
+// The `--json` schema.
 #[test]
 fn t02_json_schema() {
     let json = to_json(&build_report(&mixed())).unwrap();
@@ -255,7 +254,7 @@ fn t02_json_schema() {
     insta::assert_snapshot!("doctor_json", pretty);
 }
 
-// T-03: a 0755 data directory is warned about with a chmod hint; 0700 is fine.
+// A 0755 data directory is warned about with a chmod hint; 0700 is fine.
 #[test]
 fn t03_permission_warning() {
     let fact = path(
@@ -307,7 +306,6 @@ fn t03_permission_warning_on_disk() {
     assert_eq!(inspect_path(&dir.0.join("nope"), true), PathState::Missing);
 }
 
-// T-04: `--algos` is the M1-13 preference table filtered by russh, legacy marked.
 #[test]
 fn t04_algos_match_the_preference_table() {
     let categories = algo_categories(&supported());

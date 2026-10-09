@@ -1,4 +1,4 @@
-//! Failure diagnostics (M1-18 §2.3).
+//! Failure diagnostics.
 //!
 //! Harness objects ([`Sshd`](crate::Sshd), [`Headless`](crate::Headless),
 //! [`PtyApp`](crate::PtyApp)) call [`dump`] from their `Drop` when the thread is
@@ -7,7 +7,7 @@
 //!
 //! Dumps go to stderr (captured by the test harness and shown for failed tests).
 //! [`capture`] additionally collects them on the current thread, so the harness can
-//! test its own diagnostics (T-07).
+//! test its own diagnostics.
 
 use std::cell::RefCell;
 

@@ -1,4 +1,4 @@
-//! M0-03 T-12: running sverb with `SVERB_HOME` set never writes into the
+//! Running sverb with `SVERB_HOME` set never writes into the
 //! current working directory (the template's `./.data` fallback is gone).
 
 use std::{path::PathBuf, process::Command};

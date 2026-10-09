@@ -1,5 +1,4 @@
-//! M2-04: the per-host results table of exec runs (install key on host, SPEC §9.4;
-//! shared with M2-09's multi-host snippet runs, §9.7).
+//! The per-host results table of exec runs (install key on host, SPEC §9.4;
 //!
 //! Plain state ([`ResultsTable`]): one [`ResultRow`] per target with its state, the
 //! duration, an expandable detail (stderr / stdout) and a "truncated" badge. Keys:

@@ -1,4 +1,4 @@
-//! M2-12: the command palette in the reducer (SPEC §8.3, §8.2, §14.1).
+//! The command palette in the reducer (SPEC §8.3, §8.2, §14.1).
 //!
 //! - **Opening:** the `palette` action (`leader p` everywhere, `ctrl-k` in Normal mode).
 //!   The first open of a run asks the palette service for the recent picks
@@ -6,8 +6,8 @@
 //! - **Sources:** every *available* registry action ([`App::action_enabled`]) with its
 //!   key hint from the effective keymap; hosts and snippets from the search index
 //!   (`Scope::Palette`); open tabs and panes; the section views and settings. A pasted
-//!   share link becomes "Join shared terminal" (M6-03 stub) and a `user@host[:port]`
-//!   target "Connect to …" (M1-07), both on top.
+//!   share link becomes "Join shared terminal" and a `user@host[:port]`
+//!   target "Connect to …", both on top.
 //! - **Prefixes:** `>` actions, `@` hosts, `!` snippets; `#tag` filters hosts and
 //!   snippets (and hides the other sources).
 //! - **Ranking:** no query → Recent, then Actions. With a query: the fuzzy score (the
@@ -153,7 +153,7 @@ impl App {
             | A::ZoomPane
             | A::EqualizePanes => panes > 1,
             A::ToggleLogPane => self.action_available(action),
-            // M4-09: sharing and team / sync actions need a connected server (§1.1).
+            // Sharing and team / sync actions need a connected server (§1.1).
             A::SharePane => session && self.sync.connected(),
             A::SyncStatus | A::SyncNow | A::Devices | A::TeamKeys => self.sync.connected(),
             A::LockVault => self.vault.active,
@@ -603,7 +603,7 @@ impl App {
             PaletteTarget::Pane(session) => self.palette_focus_pane(session),
             PaletteTarget::Section(section) => self.open_section(section),
             PaletteTarget::QuickConnect(text) => self.connect_target(&text, effects),
-            // M6-03: a viewer pane.
+            // A viewer pane.
             PaletteTarget::Join(link) => self.share_join(link, effects),
         }
     }

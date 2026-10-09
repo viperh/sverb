@@ -1,4 +1,4 @@
-//! M1-17: the session area model (SPEC §8.1, §8.4): tabs, each with a layout tree of
+//! The session area model (SPEC §8.1, §8.4): tabs, each with a layout tree of
 //! panes, each pane holding one session.
 //!
 //! - [`Tab`] owns a [`Layout`] (`sverb_core::layout`, pure and serializable for
@@ -14,11 +14,11 @@
 //!
 //! The reducer side (actions, events, resize debounce, drawing) is `app/tabs.rs`.
 
-// M7-01: the autocomplete / history overlay (`leader Space`).
+// The autocomplete / history overlay (`leader Space`).
 pub mod autocomplete;
-// M3-02: broadcast sets.
+// Broadcast sets.
 pub mod broadcast;
-// M3-04: copy mode (key table, state machine).
+// Copy mode (key table, state machine).
 pub mod copy_mode;
 pub mod panes;
 pub mod tabs;
@@ -118,7 +118,7 @@ pub struct TabMarkers {
 pub struct Tab {
     /// Stable id.
     pub id: TabId,
-    /// A user-set title (`leader ,`, M3-01).
+    /// A user-set title (`leader, `).
     pub title_override: Option<String>,
     /// The pane tree.
     pub layout: Layout,
@@ -130,9 +130,9 @@ pub struct Tab {
     pub recency: Vec<PaneId>,
     /// Activity / bell markers.
     pub markers: TabMarkers,
-    /// M3-02: the tab's broadcast set (`leader b` / `leader B`).
+    /// The tab's broadcast set (`leader b` / `leader B`).
     pub broadcast: broadcast::BroadcastSet,
-    /// The zoomed pane (M3-01).
+    /// The zoomed pane.
     pub zoomed: Option<PaneId>,
 }
 

@@ -1,4 +1,3 @@
-//! M7-03 / T-07 (SPEC §19): feeds arbitrary bytes to the PuTTY `.ppk` parser
 //! (`sverb_core::keychain::formats::ppk`) with and without a passphrase. It must never
 //! panic, and hostile Argon2 parameters must be refused before any derivation. Run it with
 //! `cargo +nightly fuzz run ppk_parse` from `fuzz/` (the cargo-fuzz workspace); the same

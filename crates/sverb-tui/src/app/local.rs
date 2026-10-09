@@ -1,12 +1,11 @@
-//! M1-12: local terminal panes in the reducer.
+//! Local terminal panes in the reducer.
 //!
 //! - `leader t` (`new_local_tab`) opens a local shell
 //!   (`Effect::OpenSession(SessionSpec::Local)`) and focuses its pane. Tabs arrive with
-//!   M1-17; until then the new session is one more entry in [`Tabs::sessions`].
 //! - When the shell exits (`State(Disconnected { Exited(code) })`) the pane shows
 //!   "Process exited (code N) — `[Enter]` restart · leader x close" and is no longer
 //!   live: plain keys are swallowed, never forwarded and never acted on, so typing
-//!   `x…` into a just-exited shell can't close it (`03-KEYBINDINGS.md` §3.1 A5, §4.4).
+//!   `x…` into a just-exited shell can't close it (§4.4).
 //!   `Enter` restarts the shell in the same pane (`Effect::ReconnectSession`), and
 //!   `leader x` closes it.
 //!
@@ -41,12 +40,11 @@ impl App {
             rows,
         });
         self.focus_session(id);
-        // M3-05: local sessions follow the global `recording.enabled`.
+        // Local sessions follow the global `recording.enabled`.
         self.auto_record(id, self.config.recording.enabled, effects);
         id
     }
 
-    /// Initial size of a new pane: the main area inside its border. M1-17 computes the
     /// real pane rect; the session is resized when it is first drawn.
     fn session_pane_size(&self) -> (u16, u16) {
         let main = self.shell_rects().main;
@@ -92,14 +90,14 @@ impl App {
         let Focus::Session(id) = self.focus else {
             return;
         };
-        // M1-16: the disconnect banner, countdown, SSH exit footer.
+        // The disconnect banner, countdown, SSH exit footer.
         if self.on_reconnect_key(id, chord, effects) {
             self.mode = self.derive_mode();
             return;
         }
         if self.is_exited(id) && chord.code == KeyCode::Enter && chord.mods == Mods::NONE {
             self.tabs.exited.remove(&id);
-            // M1-16: the footer goes; the restarted shell takes input at once.
+            // The footer goes; the restarted shell takes input at once.
             self.set_pane_overlay(id, crate::widgets::terminal_pane::PaneOverlay::None);
             effects.push(Effect::ReconnectSession(id));
             self.mode = self.derive_mode();
@@ -108,12 +106,11 @@ impl App {
     }
 
     /// `close_pane` on an exited pane closes it. `false` when the focused pane is not
-    /// an exited one (closing live panes, with confirmation, is M1-17's).
     pub(crate) fn close_exited_pane(&mut self, effects: &mut Vec<Effect>) -> bool {
         let Focus::Session(id) = self.focus else {
             return false;
         };
-        // M1-16: disconnected panes (banner, countdown) close the same way.
+        // Disconnected panes (banner, countdown) close the same way.
         if !self.is_dead_pane(id) {
             return false;
         }
@@ -183,7 +180,7 @@ mod tests {
             .collect()
     }
 
-    // T-10: `leader t` opens a local session and focuses its pane.
+    // `leader t` opens a local session and focuses its pane.
     #[test]
     fn t10_leader_t_opens_a_local_session() {
         let mut app = App::new(Arc::new(Config::default()));

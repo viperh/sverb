@@ -1,4 +1,4 @@
-//! M1-15: host-key verification over known hosts (SPEC §9.5, §6.1.1 step 3).
+//! Host-key verification over known hosts (SPEC §9.5, §6.1.1 step 3).
 //!
 //! [`KnownHostsVerifier`] is the real [`HostKeyVerifier`]: it checks the presented key
 //! (plain or host certificate) against a [`KnownHostsStore`] with

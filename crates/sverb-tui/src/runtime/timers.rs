@@ -1,4 +1,4 @@
-//! The timer service (M0-09): `Effect::ScheduleTimer` / `CancelTimer` → `UiEvent::Timer`.
+//! The timer service: `Effect::ScheduleTimer` / `CancelTimer` → `UiEvent::Timer`.
 //!
 //! [`Timers`] owns a `tokio_util::time::DelayQueue<TimerKind>`. Scheduling a kind that
 //! is already pending replaces its deadline; cancelling a kind that is not pending is a
@@ -83,7 +83,6 @@ mod tests {
 
     const TOAST: TimerKind = TimerKind::ToastExpiry(ToastId(0));
 
-    // T-08
     #[tokio::test(start_paused = true)]
     async fn timer_fires_exactly_once_at_its_deadline() {
         let start = Instant::now();
@@ -99,7 +98,6 @@ mod tests {
         assert!(again.is_err());
     }
 
-    // T-08
     #[tokio::test(start_paused = true)]
     async fn cancel_before_deadline_suppresses_the_timer() {
         let mut timers = Timers::new();

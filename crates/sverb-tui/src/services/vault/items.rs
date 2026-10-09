@@ -1,4 +1,4 @@
-//! M1-07: the item service: save, delete, duplicate, pin and read items (SPEC §4,
+//! The item service: save, delete, duplicate, pin and read items (SPEC §4,
 //! §5.2), shared by the TUI (`Effect::Vault(VaultEffect::Items)`) and the CLI
 //! (`sverb hosts add | rm | list`).
 //!
@@ -18,18 +18,16 @@
 use std::sync::{Arc, Mutex, PoisonError};
 
 use sverb_core::error_report::ErrorReport;
+use sverb_core::model::identity::{check_identity_vault, inline_conversion, validate_identity};
 use sverb_core::model::{
     Group, HlcClock, Host, Identity, ItemBody, ItemId, ItemKind, Key, Snippet, Tag,
     ValidationError, VaultId, current_schema, migrate::is_read_only, validate::validate_host,
 };
-// M2-01
 use sverb_core::model::{
     group::{DeleteGroupMode, DeletePlan, plan_delete},
     tag::{tag_key, validate_tag},
     validate::validate_group_parent,
 };
-// M2-02
-use sverb_core::model::identity::{check_identity_vault, inline_conversion, validate_identity};
 use sverb_core::resolve::GlobalDefaults;
 use sverb_core::secret::SecretString;
 use sverb_core::vault::VaultError;
@@ -43,9 +41,8 @@ use crate::app::{EffectOutput, UiEvent, VaultEvent};
 use crate::services::EventSender;
 use crate::views::hosts::catalog::{HostCatalog, HostRecord, HostSummary, IdentityInfo, TagInfo};
 use crate::views::hosts::form::{apply_changes, apply_group_changes};
-use crate::widgets::form::{FieldChanges, SecretValue};
-// M2-02
 use crate::views::keychain::identity_form::{IdentityRecord, apply_identity_changes};
+use crate::widgets::form::{FieldChanges, SecretValue};
 
 /// Why an item operation failed.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -62,7 +59,6 @@ pub enum ItemError {
     Invalid(Vec<ValidationError>),
     /// Storage or crypto failure.
     Storage(String),
-    // M5-02
     /// The vault grants this account only `read` (§13.2).
     ReadOnlyVault,
     /// A move / copy would leave references outside the shared target (§13.4).
@@ -83,7 +79,6 @@ impl std::fmt::Display for ItemError {
                 f.write_str(&all.join("; "))
             }
             Self::Storage(msg) => f.write_str(msg),
-            // M5-02
             Self::ReadOnlyVault => f.write_str("this shared vault is read-only for you"),
             Self::Blocked(refs) => write!(
                 f,
@@ -164,7 +159,6 @@ pub struct ItemOps {
     engine: VaultEngine,
     vault: Arc<UnlockedVault>,
     clock: SharedClock,
-    // M5-02
     /// Where new hosts go (the vault selector; `None`: Personal).
     new_vault: Option<VaultId>,
 }
@@ -292,7 +286,6 @@ impl ItemOps {
         ) -> Result<(), Vec<ValidationError>>,
     ) -> Result<Written, ItemError> {
         let device = self.vault.device_id();
-        // M2-10
         let existed = id.is_some();
         let (id, vault, mut body) = match id {
             Some(id) => {
@@ -316,20 +309,19 @@ impl ItemOps {
         if is_read_only(&body) {
             return Err(ItemError::ReadOnly);
         }
-        // M2-10: what the locally-acting values were before this save.
+        // What the locally-acting values were before this save.
         let before = existed.then(|| body.clone());
         self.clock
             .with(|clock| edit(&mut body, clock, device))
             .map_err(ItemError::Invalid)?;
         validate(&body)?;
-        // M5-02: read-only vaults and the §13.4 reference rule of shared vaults.
+        // Read-only vaults and the §13.4 reference rule of shared vaults.
         self.check_shared_vault(vault, &body).await?;
         let written = self.store(id, vault, body).await?;
         self.approve_typed(id, before.as_ref(), &written.body).await;
         Ok(written)
     }
 
-    // M5-02
     /// New hosts go to `vault` (the vault selector; `None`: Personal).
     #[must_use]
     pub fn with_new_vault(mut self, vault: Option<VaultId>) -> Self {
@@ -337,7 +329,6 @@ impl ItemOps {
         self
     }
 
-    // M5-02
     /// "Move to vault…" / "Copy to vault…" (§13.1): new ids in `target`, sealed
     /// under its key; a move tombstones the sources. References that would leave a
     /// shared target follow `refs` ([`ItemError::Blocked`] lists them for
@@ -434,7 +425,6 @@ impl ItemOps {
         Ok(out)
     }
 
-    // M5-02
     /// "Use my own credentials…" (§13.4): the personal-vault override of
     /// `host` uses `identity`; `None` removes the override.
     ///
@@ -490,7 +480,6 @@ impl ItemOps {
         Ok(out)
     }
 
-    // M5-02
     /// A shared vault: refused when this account may only read it (§13.2), and
     /// every reference must stay inside the vault (§13.4).
     ///
@@ -523,7 +512,6 @@ impl ItemOps {
         .map_err(ItemError::Invalid)
     }
 
-    // M2-10
     /// Values typed in this save on this device are pre-approved (§17.1): the
     /// locally-acting values that changed get their `local_approvals` row. Unchanged
     /// values (possibly synced) are not. A non-loopback listen address is left to
@@ -542,8 +530,6 @@ impl ItemOps {
             warn!(item = %id.short(), error = %e, "typed values not pre-approved");
         }
     }
-
-    // ------------------------------------------------------------------ M2-10
 
     /// The host's label and every value of it that acts on this machine (§17.1):
     /// resolved through its groups and the vault defaults (keyed by the item that
@@ -618,8 +604,6 @@ impl ItemOps {
         );
         Ok((host.display_label().to_owned(), actions))
     }
-
-    // ------------------------------------------------------------------ M2-02
 
     /// The vault of every live identity (cross-vault checks, §13.4).
     ///
@@ -738,9 +722,9 @@ impl ItemOps {
         id: Option<ItemId>,
         changes: FieldChanges,
     ) -> Result<Written, ItemError> {
-        // M2-02: identities are referenced only within their vault (§13.4).
+        // Identities are referenced only within their vault (§13.4).
         let identity_vaults = self.identity_vaults().await?;
-        // M5-02: a new host goes to the selected vault (§4.13).
+        // A new host goes to the selected vault (§4.13).
         let new_vault = if id.is_none() { self.new_vault } else { None };
         let host_vault = match new_vault {
             Some(v) => v,
@@ -760,8 +744,6 @@ impl ItemOps {
         .await
     }
 
-    // ------------------------------------------------------------------ M2-01
-
     /// Save a group (or the vault defaults) from form changes. A new parent must
     /// not create a cycle (§4.3).
     ///
@@ -778,7 +760,7 @@ impl ItemOps {
             .iter()
             .filter_map(|l| Group::try_from(&l.body).ok().map(|g| (l.id, g.parent_id)))
             .collect();
-        // M2-02: identities are referenced only within their vault (§13.4).
+        // Identities are referenced only within their vault (§13.4).
         let identity_vaults = self.identity_vaults().await?;
         let group_vault = self.vault_of(id).await?;
         self.save(ItemKind::Group, id, None, move |body, clock, device| {
@@ -1132,7 +1114,7 @@ impl ItemOps {
     /// # Errors
     /// Storage failures.
     pub async fn catalog(&self) -> Result<HostCatalog, ItemError> {
-        // M2-01: every live item (ids for missing-reference checks, §12.4).
+        // Every live item (ids for missing-reference checks, §12.4).
         let items = self.list(&[]).await?;
         let locals: Vec<DeviceLocal> = self.engine.store().list_device_local().await?;
         let last = |id: ItemId| {
@@ -1151,7 +1133,7 @@ impl ItemOps {
             cat.vault_names
                 .insert(v.id, vault_display_name(v.id, v.kind));
         }
-        // M5-02: shared vault names, read-only vaults, this user's overrides.
+        // Shared vault names, read-only vaults, this user's overrides.
         let info = super::shared::vault_info(self.engine.store(), &self.vault).await;
         cat.vault_names.extend(info.names);
         cat.shared_vaults = info.shared;
@@ -1192,7 +1174,7 @@ impl ItemOps {
                 }
                 ItemKind::Group => {
                     if let Ok(g) = Group::try_from(b) {
-                        // M2-01: groups with their defaults; the vault-defaults item.
+                        // Groups with their defaults; the vault-defaults item.
                         cat.lookup.insert_group(item.id, item.vault, &g);
                         if !g.is_vault_defaults {
                             cat.group_vaults.insert(item.id, item.vault);
@@ -1202,7 +1184,6 @@ impl ItemOps {
                 }
                 ItemKind::Identity => {
                     if let Ok(i) = Identity::try_from(b) {
-                        // M5-02
                         cat.identity_vaults.insert(item.id, item.vault);
                         cat.lookup.insert_identity(item.id, &i);
                         cat.identities.insert(
@@ -1217,7 +1198,7 @@ impl ItemOps {
                 }
                 ItemKind::Key => {
                     if let Ok(k) = Key::try_from(b) {
-                        // M2-03: public data for the Keychain.
+                        // Public data for the Keychain.
                         cat.key_details.insert(
                             item.id,
                             crate::views::keychain::keys::KeyInfo::from_key(item.vault, &k),
@@ -1225,7 +1206,7 @@ impl ItemOps {
                         cat.keys.insert(item.id, k.label);
                     }
                 }
-                // M2-03: certificates with their derived fields (§4.6).
+                // Certificates with their derived fields (§4.6).
                 ItemKind::Certificate => {
                     if let Ok(c) = sverb_core::model::Certificate::try_from(b) {
                         cat.certs.insert(
@@ -1262,9 +1243,9 @@ impl ItemOps {
     }
 }
 
-// M2-03: keychain writes and the keychain effect executor.
+// Keychain writes and the keychain effect executor.
 pub mod keychain;
-// M2-04: install key on host (exec runs over dedicated connections).
+// Install key on host (exec runs over dedicated connections).
 pub mod install;
 
 // ---------------------------------------------------------------------- TUI service
@@ -1286,13 +1267,13 @@ async fn report_error(tx: &EventSender, what: &str, err: &ItemError) {
 /// Run an item effect for the TUI. Results come back as `EffectDone` (for effects
 /// with an id) or `VaultEvent::ItemFailed`; every write updates the index.
 pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
-    // M2-04: install runs report progress over time; they resolve hosts themselves.
+    // Install runs report progress over time; they resolve hosts themselves.
     let op = match op {
         ItemEffect::Keychain(crate::app::keychain::keys::KeychainEffect::Install(op)) => {
             install::execute(service, op, tx);
             return;
         }
-        // M5-02: the vault selector.
+        // The vault selector.
         ItemEffect::SetNewItemVault(v) => {
             service.set_new_item_vault(v);
             return;
@@ -1304,7 +1285,6 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
             ItemEffect::Save { id, .. }
             | ItemEffect::LoadHosts { id }
             | ItemEffect::LoadHost { id, .. }
-            // M2-02
             | ItemEffect::SaveIdentity { id, .. }
             | ItemEffect::LoadIdentity { id, .. } => {
                 done(tx, id, Err(ItemError::Locked.report()));
@@ -1324,15 +1304,15 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
                 kind,
                 changes,
             } => {
-                // M2-01: groups (and the vault defaults) save through the same effect.
+                // Groups (and the vault defaults) save through the same effect.
                 let result = match kind {
                     ItemKind::Group => ops.save_group(item, changes).await,
-                    // M1-14: a passphrase typed into an auth prompt ("save to vault").
+                    // A passphrase typed into an auth prompt ("save to vault").
                     ItemKind::Key => {
                         crate::services::ssh::save_key_changes(&ops, item, changes).await
                     }
                     _ => {
-                        // M1-14: the host form's key-file import (task §2.6) creates the
+                        // The host form's key-file import (task §2.6) creates the
                         // Key item first and points `key_id` at it.
                         let mut changes = changes;
                         match crate::services::ssh::import_key_file_change(&ops, &mut changes).await
@@ -1393,7 +1373,6 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
                 }
                 Err(e) => debug!(error = %e, "cannot record the connection time"),
             },
-            // M2-01
             ItemEffect::MoveToGroup { items, group } => {
                 match ops.move_to_group(&items, group).await {
                     Ok(ws) => ws.iter().for_each(index),
@@ -1419,7 +1398,6 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
                     Err(e) => report_error(&tx, "Tag not saved", &e).await,
                 }
             }
-            // M2-02
             ItemEffect::SaveIdentity {
                 id,
                 item,
@@ -1455,12 +1433,10 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
                     Err(e) => report_error(&tx, "Delete failed", &e).await,
                 }
             }
-            // M2-03
             ItemEffect::Keychain(op) => {
                 let ev = keychain::run(&ops, op, index).await;
                 let _ = tx.send(UiEvent::Vault(VaultEvent::Keychain(ev))).await;
             }
-            // M5-02
             ItemEffect::SetNewItemVault(_) => {}
             ItemEffect::Transfer {
                 items,

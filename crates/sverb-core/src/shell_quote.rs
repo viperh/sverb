@@ -1,11 +1,11 @@
-//! M2-04: POSIX single-quote escaping (SPEC §9.4, §9.7).
+//! POSIX single-quote escaping (SPEC §9.4, §9.7).
 //!
 //! [`posix_single_quote`] wraps a string in `'…'` and writes every `'` as `'\''` (close
 //! the quote, an escaped quote, reopen). Inside single quotes a POSIX shell treats every
 //! byte literally, newlines included, so the result is one word whose value is exactly
 //! the input. NUL bytes cannot be passed through a shell word at all and are rejected.
 //!
-//! Used by "install key on host" (§9.4), the snippet `|q` filter (M2-09) and
+//! Used by "install key on host" (§9.4), the snippet `|q` filter and
 //! copy-as-command. (`ssh_command::shell_quote` leaves "safe" words unquoted for
 //! readability; this one always quotes.)
 
@@ -49,7 +49,7 @@ mod tests {
 
     use super::*;
 
-    /// T-01: the table.
+    /// The table.
     #[test]
     fn t01_table() {
         let cases: &[(&str, &str)] = &[

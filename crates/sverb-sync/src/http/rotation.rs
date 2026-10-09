@@ -1,4 +1,4 @@
-//! M5-04: `POST /v1/vaults/{id}/rotate` (SPEC §13.2; DTOs in
+//! `POST /v1/vaults/{id}/rotate` (SPEC §13.2; DTOs in
 //! [`sverb_proto::rotation`]).
 
 use sverb_proto::rotation::{RotateRequest, RotateResponse};

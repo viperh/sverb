@@ -35,7 +35,6 @@ pub enum ItemKind {
     HistoryEntry,
     /// §4.12
     ConnLog,
-    // M5-02
     /// §13.4: a user's own credentials for a shared host (personal vault).
     CredentialOverride,
 }
@@ -55,7 +54,6 @@ impl ItemKind {
         ItemKind::Tag,
         ItemKind::HistoryEntry,
         ItemKind::ConnLog,
-        // M5-02
         ItemKind::CredentialOverride,
     ];
 
@@ -74,7 +72,6 @@ impl ItemKind {
             ItemKind::Tag => "tag",
             ItemKind::HistoryEntry => "history-entry",
             ItemKind::ConnLog => "conn-log",
-            // M5-02
             ItemKind::CredentialOverride => "credential-override",
         }
     }

@@ -1,6 +1,5 @@
-//! M2-10 tests: classification (T-01), hashing (T-02), group provenance (T-08),
-//! remote change (T-05, unit level), session denial (T-10, unit level) and the
-//! values typed in a save (T-03, unit level).
+//! remote change (unit level), session denial (unit level) and the
+//! values typed in a save (unit level).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -85,7 +84,6 @@ fn agent(source: AgentSource) -> Host {
     }
 }
 
-// T-01
 #[test]
 fn t01_classification() {
     let none = HostItems::default();
@@ -166,7 +164,6 @@ fn t01_classification() {
     assert!(local_actions(&cmd, &none).is_empty());
 }
 
-// T-02
 #[test]
 fn t02_changed_value_hash() {
     let a = LocalAction::new(id(1), ActionKind::ProxyCommand, "nc %h %p");
@@ -187,7 +184,6 @@ fn t02_changed_value_hash() {
     assert_ne!(value_sha256("x"), value_sha256("x "));
 }
 
-// T-08
 #[test]
 fn t08_group_proxy_keyed_by_group() {
     let host = Host {

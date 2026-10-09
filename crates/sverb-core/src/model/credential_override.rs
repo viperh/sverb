@@ -1,4 +1,4 @@
-//! M5-02: per-user credential overrides for shared hosts (SPEC §13.4).
+//! Per-user credential overrides for shared hosts (SPEC §13.4).
 //!
 //! A host in a shared vault must not reference personal items (other members
 //! could not resolve them). Teams still want each member to log in with their

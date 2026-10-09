@@ -1,26 +1,22 @@
-//! M1-07: the Hosts section (SPEC §8.5, §9.1) on the shared list (M1-06).
+//! The Hosts section (SPEC §8.5, §9.1) on the shared list.
 //!
 //! - **Rows** come from the search index in view order (pinned → frecency →
-//!   alphabetical, M1-05) plus the [`HostCatalog`] (port, tag colors, last connected).
 //!   A collapsible **Recent** pseudo-group on top lists the last 10 connected hosts
-//!   (hidden when empty). M2-01: groups are tree nodes (collapsible with `h`/`l`),
+//!   (hidden when empty). Groups are tree nodes (collapsible with `h`/`l`),
 //!   hosts sit under their group; hosts without (or with a missing) group are at the
 //!   top level.
 //! - **Filter** (`/`) runs the index's query language (`#tag`, `@vault`, …).
-//! - **Actions** (Normal mode, `tasks/03-KEYBINDINGS.md` §4.2): `Enter` connect (all
-//!   marked hosts: one tab each), `ctrl-enter`/`v` connect in a split (M1-17), `a`
+//! - **Actions** (Normal mode): `Enter` connect (all
+//!   marked hosts: one tab each), `ctrl-enter`/`v` connect in a split, `a`
 //!   add, `e` edit, `y` duplicate, `d` delete (confirm), `p` pin/unpin, `m` move to
-//!   group and `t` tag (M2-01), `c` copy the `ssh` command. The view only records the
+//!   group and `t` tag, `c` copy the `ssh` command. The view only records the
 //!   request ([`HostsView::take_request`]); the reducer (`app/hosts.rs`) carries it out.
 //! - **Detail:** the shell's detail pane draws [`HostsView::render_detail`]; below
 //!   100 columns `i` opens it full screen.
-//! - **M2-01 organizing** (`organize.rs`): on a group row `e` edits it, `d` deletes
 //!   it (move contents to the parent, or delete them), `a` adds a host in it; `A`
 //!   creates a group (inside the group under the cursor), `T` manages tags, `D`
 //!   edits the vault defaults. `m`/`t` on hosts move / tag them in bulk.
-//! - **M2-11:** `I` opens the import wizard, `X` the export form
 //!   (`views/import_wizard.rs`).
-//! - **M5-02 shared vaults** (§4.13, §13): `V` cycles the vault selector (All
 //!   vaults → Personal → each shared vault; the top bar shows it, new items go to
 //!   it); in "All vaults" rows of shared vaults carry their vault's name as a badge.
 //!   `M` / `C` move / copy hosts to another vault (§13.1), `O` sets "Use my own
@@ -29,13 +25,12 @@
 pub mod catalog;
 pub mod detail;
 pub mod form;
-// M2-01
 pub mod organize;
 pub mod quick;
 
 #[cfg(test)]
 mod tests;
-// M5-02: vault selector, badges, read-only forms, override provenance.
+// Vault selector, badges, read-only forms, override provenance.
 #[cfg(test)]
 mod vault_tests;
 
@@ -52,7 +47,6 @@ use ratatui::{
 };
 use sverb_core::{
     model::ItemId,
-    // M2-01
     resolve::GlobalDefaults,
     search::{IndexSnapshot, Scope},
 };
@@ -91,7 +85,6 @@ pub enum HostRowKey {
     Recent(ItemId),
     /// A host.
     Host(ItemId),
-    // M2-01
     /// A group node.
     Group(ItemId),
 }
@@ -105,7 +98,6 @@ impl HostRowKey {
         }
     }
 
-    // M2-01
     /// The group this row stands for.
     pub fn group(self) -> Option<ItemId> {
         match self {
@@ -128,14 +120,12 @@ pub struct HostRow {
     pub tags: Vec<TagInfo>,
     /// Pinned.
     pub pinned: bool,
-    // M2-01
     /// The parent row (Recent, or the host's / group's group).
     pub parent: Option<HostRowKey>,
     /// A group's icon.
     pub icon: Option<String>,
-    /// A warning chip (`missing group`; M2-02: `missing identity`).
+    /// A warning chip (`missing group`; `missing identity`).
     pub chip: Option<&'static str>,
-    // M5-02
     /// The shared vault's name, in the merged "All vaults" list.
     pub vault: Option<String>,
 }
@@ -196,13 +186,12 @@ pub enum HostsRequest {
     Delete(Vec<ItemId>),
     /// `p`: pin (`true`) or unpin.
     Pin(Vec<ItemId>, bool),
-    /// `m` (M2-01).
+    /// `m`.
     MoveToGroup(Vec<ItemId>),
-    /// `t` (M2-01).
+    /// `t`.
     Tag(Vec<ItemId>),
     /// `c`.
     CopyCommand(ItemId),
-    // M2-01
     /// `A`: a new group (inside this one).
     NewGroup(Option<ItemId>),
     /// `e` on a group.
@@ -215,15 +204,12 @@ pub enum HostsRequest {
     ManageTags,
     /// `D`: the vault defaults editor.
     VaultDefaults,
-    // M2-11
     /// `I`: the import wizard.
     Import,
     /// `X`: the export form.
     Export,
-    // M7-01
     /// `H`: clear the host's command history (asks first).
     ClearHistory(ItemId),
-    // M5-02
     /// `V`: the vault selector changed (`None`: All vaults).
     VaultSelected(Option<sverb_core::model::VaultId>),
     /// `M`: move hosts to another vault (§13.1).
@@ -242,7 +228,6 @@ pub struct HostsView {
     index: Option<Arc<IndexSnapshot>>,
     catalog: Option<Arc<HostCatalog>>,
     request: Option<HostsRequest>,
-    // M5-02
     /// The vault selector (`None`: All vaults, merged).
     vault: Option<sverb_core::model::VaultId>,
 }
@@ -323,13 +308,11 @@ impl HostsView {
         self.catalog.as_ref()?.hosts.get(&id)
     }
 
-    // M5-02
     /// The vault selector (`None`: All vaults).
     pub fn vault(&self) -> Option<sverb_core::model::VaultId> {
         self.vault
     }
 
-    // M5-02
     /// Selects `vault` (`None`: All vaults), e.g. `general.default_vault` at unlock.
     pub fn set_vault(&mut self, vault: Option<sverb_core::model::VaultId>) {
         if self.vault != vault {
@@ -338,7 +321,6 @@ impl HostsView {
         }
     }
 
-    // M5-02
     /// The top bar's vault label: `All vaults` or the selected vault's name.
     pub fn vault_label(&self) -> String {
         match (self.vault, self.catalog.as_deref()) {
@@ -353,7 +335,6 @@ impl HostsView {
         }
     }
 
-    // M5-02
     /// The next vault of the selector: All → Personal → shared vaults (by name) →
     /// All. Only offered once a shared vault exists.
     fn next_vault(&self) -> Option<Option<sverb_core::model::VaultId>> {
@@ -382,7 +363,6 @@ impl HostsView {
         Self::rows_in(index, catalog, None)
     }
 
-    // M5-02
     /// [`Self::rows`] limited to `vault` (`None`: every vault, with badges).
     pub fn rows_in(
         index: Option<&IndexSnapshot>,
@@ -394,7 +374,7 @@ impl HostsView {
         };
         let row = |key: HostRowKey, id: ItemId| -> Option<HostRow> {
             let entry = index.get(id)?;
-            // M5-02: the vault selector.
+            // The vault selector.
             if vault.is_some_and(|v| v != entry.vault_id) {
                 return None;
             }
@@ -403,7 +383,7 @@ impl HostsView {
                 _ => None,
             };
             let summary = catalog.and_then(|c| c.hosts.get(&id));
-            // M2-01: the host's group node (a missing group shows a chip instead).
+            // The host's group node (a missing group shows a chip instead).
             let group = summary.and_then(|h| h.group_id);
             let known = group.filter(|g| catalog.is_some_and(|c| c.lookup.groups.contains_key(g)));
             let parent = match key {
@@ -414,9 +394,9 @@ impl HostsView {
                 .then_some("missing group");
             let (target, tags) = match (summary, catalog) {
                 (Some(h), Some(c)) => {
-                    // M2-01: the resolved user and port (group / vault defaults).
+                    // The resolved user and port (group / vault defaults).
                     let r = c.resolve(h, &GlobalDefaults::default());
-                    // M2-02: a deleted identity (§12.4).
+                    // A deleted identity (§12.4).
                     if chip.is_none()
                         && r.warnings.iter().any(|w| {
                             matches!(w, sverb_core::resolve::ResolveWarning::MissingIdentity(_))
@@ -481,9 +461,9 @@ impl HostsView {
                 });
                 rows.extend(recent);
             }
-            // M2-01: group nodes, in tree order (the list nests them by parent).
+            // Group nodes, in tree order (the list nests them by parent).
             for (gid, _) in c.group_tree() {
-                // M5-02: groups of the selected vault only.
+                // Groups of the selected vault only.
                 if vault.is_some_and(|v| c.group_vaults.get(&gid) != Some(&v)) {
                     continue;
                 }
@@ -514,7 +494,7 @@ impl HostsView {
     }
 
     fn rebuild(&mut self) {
-        // M5-02: a vault that went away (left, revoked) falls back to All.
+        // A vault that went away (left, revoked) falls back to All.
         if let (Some(v), Some(c)) = (self.vault, self.catalog.as_deref())
             && !c.vault_names.contains_key(&v)
         {
@@ -539,7 +519,6 @@ impl HostsView {
         self.list.selected_key().and_then(HostRowKey::item)
     }
 
-    // M2-01
     /// The group under the cursor.
     pub fn selected_group(&self) -> Option<ItemId> {
         self.list.selected_key().and_then(HostRowKey::group)
@@ -549,7 +528,7 @@ impl HostsView {
         let targets = self.targets();
         let any = !targets.is_empty();
         let ctrl = mods.contains(KeyModifiers::CONTROL);
-        // M2-01: keys on a group row (no marks).
+        // Keys on a group row (no marks).
         if let Some(group) = self.selected_group()
             && self.list.marks().is_empty()
             && !ctrl
@@ -585,16 +564,12 @@ impl HostsView {
             KeyCode::Char('m') if any => HostsRequest::MoveToGroup(targets),
             KeyCode::Char('t') if any => HostsRequest::Tag(targets),
             KeyCode::Char('c') => HostsRequest::CopyCommand(self.selected_item()?),
-            // M2-01
             KeyCode::Char('A') => HostsRequest::NewGroup(None),
             KeyCode::Char('T') => HostsRequest::ManageTags,
             KeyCode::Char('D') => HostsRequest::VaultDefaults,
-            // M2-11
             KeyCode::Char('I') => HostsRequest::Import,
             KeyCode::Char('X') => HostsRequest::Export,
-            // M7-01
             KeyCode::Char('H') => HostsRequest::ClearHistory(self.selected_item()?),
-            // M5-02
             KeyCode::Char('V') => {
                 let next = self.next_vault()?;
                 self.vault = next;
@@ -665,7 +640,7 @@ fn chip_style(tag: &TagInfo, base: Style, theme: &Theme) -> Style {
 impl RowRenderer<HostRow> for HostRowRenderer {
     fn spans(&self, row: &HostRow, cx: &RowCx<'_>) -> Vec<Span<'static>> {
         if row.is_group() {
-            // M2-01: a group's icon before its name.
+            // A group's icon before its name.
             let text = match &row.icon {
                 Some(i) => format!("{i} {}", row.label),
                 None => row.label.clone(),
@@ -691,7 +666,7 @@ impl RowRenderer<HostRow> for HostRowRenderer {
             used += 2 + width(&t);
             spans.push(Span::styled(format!("  {t}"), dim));
         }
-        // M2-01: the missing-group warning chip first.
+        // The missing-group warning chip first.
         if let Some(w) = row.chip {
             let chip = format!("[! {w}]");
             if used + 1 + width(&chip) <= cx.width {
@@ -700,7 +675,7 @@ impl RowRenderer<HostRow> for HostRowRenderer {
                 spans.push(Span::styled(chip, cx.base.patch(cx.theme.warn)));
             }
         }
-        // M5-02: the shared vault's badge (merged list).
+        // The shared vault's badge (merged list).
         if let Some(v) = &row.vault {
             let chip = format!("({v})");
             if used + 1 + width(&chip) <= cx.width {
@@ -731,7 +706,6 @@ pub struct HostDetail<'a> {
 
 impl DetailRenderer<HostRow> for HostDetail<'_> {
     fn lines(&self, row: &HostRow, theme: &Theme, _width: usize) -> Vec<Line<'static>> {
-        // M2-01
         if let (Some(g), Some(c)) = (row.key.group(), self.catalog) {
             return detail::group_lines(g, c, theme);
         }

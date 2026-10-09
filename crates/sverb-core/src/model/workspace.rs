@@ -1,4 +1,4 @@
-//! M3-03: the typed form of a saved workspace (SPEC §9.9, §4.10, §8.4).
+//! The typed form of a saved workspace (SPEC §9.9, §4.10, §8.4).
 //!
 //! A workspace is a list of tabs; each tab is a layout tree (`crate::layout::Layout`)
 //! whose pane ids are **leaf indices** (`PaneId(i)` is `leaves[i]`) plus the leaves
@@ -8,7 +8,7 @@
 //! out by [`WorkspaceTab::capture`].
 //!
 //! # Item encoding
-//! The generic [`Workspace`] item view (M1-02) keeps two whole-value LWW fields; this
+//! The generic [`Workspace`] item view keeps two whole-value LWW fields; this
 //! module gives them their shape:
 //!
 //! ```text
@@ -50,7 +50,7 @@ pub enum LeafRef {
     },
 }
 
-/// A tab's broadcast set (M3-02) over pane ids `P`: leaf indices in a saved
+/// A tab's broadcast set over pane ids `P`: leaf indices in a saved
 /// workspace ([`BroadcastSpec`]), live pane ids in the TUI.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum Broadcast<P: Ord> {

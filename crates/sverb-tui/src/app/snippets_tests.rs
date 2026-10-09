@@ -1,6 +1,5 @@
-//! M2-09 reducer tests: T-07 (`leader e` → picker → variable form → bytes to the
 //! session), the Snippets view's requests, exec runs and their prompts, the startup
-//! snippet form (T-08, reducer half; the timing is `sverb-conn`'s T-08).
+//! snippet form (reducer half; the timing is `sverb-conn`'s T-08).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -103,7 +102,6 @@ fn sent(effects: &[Effect]) -> Vec<(SessionId, SessionInput)> {
         .collect()
 }
 
-// T-07
 #[test]
 fn t07_leader_e_picker_vars_and_send() {
     let mut h = harness();

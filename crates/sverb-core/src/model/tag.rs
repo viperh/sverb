@@ -1,4 +1,4 @@
-//! M2-01: tag palette and rules (SPEC §4.11).
+//! Tag palette and rules (SPEC §4.11).
 //!
 //! - Names are unique per vault, compared case-insensitively, and contain no
 //!   whitespace (they are typed as `#name` in the search filter, §8.5).
@@ -91,7 +91,6 @@ mod tests {
         ItemId::from_bytes([b; 16])
     }
 
-    // M2-01 T-09
     #[test]
     fn tag_names_are_unique_case_insensitively() {
         let others = [(id(1), "prod"), (id(2), "Web")];

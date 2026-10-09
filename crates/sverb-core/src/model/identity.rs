@@ -1,4 +1,4 @@
-//! M2-02: identities (SPEC §4.4, §9.3, §13.4).
+//! Identities (SPEC §4.4, §9.3, §13.4).
 //!
 //! An [`Identity`] is reusable credentials: many hosts (directly, or through a
 //! group's or the vault's defaults) reference one identity, and editing it changes
@@ -253,7 +253,6 @@ mod tests {
         t
     }
 
-    // M2-02 T-03 (the count): 2 direct, 1 via group.
     #[test]
     fn usage_counts_direct_and_group_inherited_hosts() {
         let ident = id(1);
@@ -302,7 +301,6 @@ mod tests {
         assert_eq!(auth_summary(false, None), "none");
     }
 
-    // M2-02 T-07
     #[test]
     fn cross_vault_identity_reference_is_rejected() {
         let ident = id(1);
@@ -324,7 +322,6 @@ mod tests {
         assert_eq!(validate_identity(&i).unwrap_err()[0].field, "label");
     }
 
-    // M2-02 T-04 (the conversion rule)
     #[test]
     fn conversion_copies_what_the_identity_supplied() {
         let ident = id(1);
@@ -382,7 +379,7 @@ mod tests {
         assert!(!conv.clear_identity);
     }
 
-    // M2-02 T-08: the identity's password never reaches the search index.
+    // The identity's password never reaches the search index.
     #[test]
     fn identity_password_is_not_indexed() {
         const CANARY: &str = "CANARY-7f3a9c-pass";

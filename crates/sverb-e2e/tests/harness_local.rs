@@ -1,4 +1,4 @@
-//! M1-18 harness self-tests that need no Docker: `Headless` against the in-process
+//! Docker e2e harness self-tests that need no Docker: `Headless` against the in-process
 //! russh server (`sverb_conn::ssh::testing`), `PtyApp` against the local `sverb`
 //! binary, `TestHome`, and the failure diagnostics. The Docker variants are in
 //! `harness_docker.rs` (`#[ignore]`d).
@@ -173,7 +173,7 @@ fn launch(home: &TestHome) -> PtyApp {
     PtyApp::launch(home, PtyOptions::default()).unwrap()
 }
 
-/// T-06: `PtyApp` launches the real binary, unlocks, sees the Hosts view, and
+/// `PtyApp` launches the real binary, unlocks, sees the Hosts view, and
 /// `ctrl-\ q` quits with exit code 0.
 #[cfg(unix)]
 #[test]

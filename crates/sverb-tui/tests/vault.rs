@@ -1,4 +1,3 @@
-//! M1-04 integration tests for the vault engine and service (T-01, T-03, T-04, T-06,
 //! T-07, T-08, T-09, T-13, T-14, T-15, T-17, T-18). Small Argon2 parameters
 //! (`Argon2Cost::TEST`) and an in-memory keyring: the OS keyring is never touched.
 
@@ -91,7 +90,6 @@ fn contains(haystack: &[u8], needle: &[u8]) -> bool {
     haystack.windows(needle.len()).any(|w| w == needle)
 }
 
-// T-01
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t01_first_run_creates_meta_vault_and_device() {
     let fx = Fixture::new("t01");
@@ -136,7 +134,6 @@ async fn t01_first_run_creates_meta_vault_and_device() {
     assert_eq!(e2.kdf_runs(), 0);
 }
 
-// T-03
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t03_unlock_success_and_item_roundtrip() {
     let fx = Fixture::new("t03");
@@ -165,7 +162,6 @@ async fn t03_unlock_success_and_item_roundtrip() {
     assert!(!engine.store().is_read_only(item));
 }
 
-// T-04
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_wrong_password_is_an_opaque_auth_failure_and_counted() {
     let fx = Fixture::new("t04");
@@ -197,7 +193,6 @@ async fn fail(engine: &VaultEngine, clock: &ManualClock) -> VaultError {
     engine.unlock_with_password("nope").await.unwrap_err()
 }
 
-// T-06
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t06_backoff_persists_across_restart() {
     let fx = Fixture::new("t06");
@@ -236,7 +231,6 @@ async fn t06_backoff_persists_across_restart() {
     assert_eq!(engine.kdf_runs(), 0);
 }
 
-// T-07
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_success_resets_the_counter() {
     let fx = Fixture::new("t07");
@@ -262,7 +256,6 @@ async fn t07_success_resets_the_counter() {
     ));
 }
 
-// T-08
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t08_keyring_unlock_and_fallback() {
     let fx = Fixture::new("t08");
@@ -318,7 +311,7 @@ async fn t08_service_reports_keyring_failure() {
         }))
     ));
     assert!(matches!(rx.recv().await, Some(UiEvent::Meta(_))));
-    // M1-05: the search index built during unlock follows.
+    // The search index built during unlock follows.
     assert!(matches!(rx.recv().await, Some(UiEvent::IndexUpdated(_))));
     service.lock();
     for account in fx.keyring.accounts() {
@@ -334,7 +327,6 @@ async fn t08_service_reports_keyring_failure() {
     assert!(!service.is_unlocked());
 }
 
-// T-09
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t09_two_homes_use_distinct_keyring_accounts() {
     let shared = MemKeyring::new();
@@ -355,7 +347,6 @@ async fn t09_two_homes_use_distinct_keyring_accounts() {
     b.engine().unlock_with_keyring().await.unwrap();
 }
 
-// T-13
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t13_lock_drops_every_key() {
     let fx = Fixture::new("t13");
@@ -375,7 +366,7 @@ async fn t13_lock_drops_every_key() {
         }))
     ));
     assert!(matches!(rx.recv().await, Some(UiEvent::Meta(_))));
-    // M1-05: the search index built during unlock follows.
+    // The search index built during unlock follows.
     assert!(matches!(rx.recv().await, Some(UiEvent::IndexUpdated(_))));
     assert!(service.is_unlocked());
     assert_eq!(service.live_keys(), 2, "LMK + one vault key");
@@ -397,7 +388,6 @@ async fn t13_lock_drops_every_key() {
     assert_eq!(service.live_keys(), 0);
 }
 
-// T-14
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t14_change_password() {
     let fx = Fixture::new("t14");
@@ -441,7 +431,6 @@ async fn t14_change_password() {
     engine.unlock_with_keyring().await.unwrap();
 }
 
-// T-15
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t15_keyring_recovery_sets_a_new_password() {
     let fx = Fixture::new("t15");
@@ -456,7 +445,7 @@ async fn t15_keyring_recovery_sets_a_new_password() {
         Some(UiEvent::Vault(VaultEvent::Unlocked { .. }))
     ));
     let _meta = rx.recv().await;
-    // M1-05: the search index snapshot.
+    // The search index snapshot.
     let _index = rx.recv().await;
     service.execute(
         VaultEffect::ChangePassword {
@@ -475,7 +464,7 @@ async fn t15_keyring_recovery_sets_a_new_password() {
     engine.unlock_with_password(PW2).await.unwrap();
 }
 
-// T-18: unlock never contacts a server. A sync server URL points at a local listener;
+// Unlock never contacts a server. A sync server URL points at a local listener;
 // it must see no connection attempt during first run, password and keyring unlock.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t18_unlock_is_offline() {

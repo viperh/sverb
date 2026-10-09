@@ -1,4 +1,4 @@
-//! M2-11: exports (SPEC §9.13): the encrypted sverb backup, a lossy `ssh_config` and
+//! Exports (SPEC §9.13): the encrypted sverb backup, a lossy `ssh_config` and
 //! CSV. Files are written with mode 0600 and never replace an existing file unless the
 //! caller confirmed it (`--force` in the CLI) — see [`write_file`].
 

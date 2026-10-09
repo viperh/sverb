@@ -7,7 +7,7 @@
 //!   from the log. A new token replaces the previous one on every start until
 //!   someone registers, so the latest log line is always valid.
 //! * [`authorize`] is the single policy check the registration endpoint
-//!   (M4-02) runs inside its transaction, before creating the user.
+//!    runs inside its transaction, before creating the user.
 
 use std::str::FromStr;
 
@@ -161,7 +161,6 @@ pub enum RegistrationCredential<'a> {
     /// The bootstrap setup token.
     SetupToken(&'a str),
     /// An invite token (instance invite from `admin invite`, or an org
-    /// invite, M5-01).
     InviteToken(&'a str),
 }
 
@@ -172,7 +171,6 @@ pub struct RegistrationGrant {
     pub is_instance_admin: bool,
     /// The instance invite that was consumed.
     pub instance_invite: Option<Uuid>,
-    /// A valid, still-pending org invite; M5-01 accepts it after the account
     /// exists (adds the membership and sets `accepted_at`).
     pub org_invite: Option<Uuid>,
 }

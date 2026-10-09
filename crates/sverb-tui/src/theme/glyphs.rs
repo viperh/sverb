@@ -1,4 +1,4 @@
-//! M7-07: the ASCII glyph fallback (`ui.ascii`, a spec addition) and the spinner
+//! The ASCII glyph fallback (`ui.ascii`, a spec addition) and the spinner
 //! (`ui.reduce_motion`, a spec addition).
 //!
 //! Views draw Unicode (box drawing, `✓`, `●`, `▸`, `⚠`, `🔒`, braille spinners). When

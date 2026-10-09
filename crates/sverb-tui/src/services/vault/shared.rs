@@ -1,4 +1,4 @@
-//! M5-02: shared vaults in the vault service (SPEC §13.1, §13.4, §4.13).
+//! Shared vaults in the vault service (SPEC §13.1, §13.4, §4.13).
 //!
 //! UI-free helpers the item service, the SSH resolver and the sync service use:
 //! * [`VaultService::adopt_new_vaults`]: the sync engine verified a new grant
@@ -155,7 +155,6 @@ impl VaultService {
         added
     }
 
-    // M5-04
     /// Switches loaded vaults to the key now stored for them (after a key
     /// rotation). Returns the vaults whose key changed.
     pub async fn refresh_vault_keys(&self) -> Vec<VaultId> {

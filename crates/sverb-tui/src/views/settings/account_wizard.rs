@@ -1,5 +1,4 @@
-//! M4-09: the account wizard (Settings → Sync → "Log in to a server" / "Create an
-//! account"), rendering the M4-08 flows.
+//! The account wizard (Settings → Sync → "Log in to a server" / "Create an
 //!
 //! The flows themselves (OPAQUE, key generation, the random recovery-word check,
 //! the import preview) run in the sync service, which owns their secrets and state;

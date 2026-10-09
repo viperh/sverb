@@ -1,4 +1,4 @@
-# catppuccin-latte: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# catppuccin-latte: built-in sverb terminal color scheme (SPEC §7.4).
 # Source: Catppuccin Latte, https://github.com/catppuccin/alacritty (MIT).
 
 name = "catppuccin-latte"

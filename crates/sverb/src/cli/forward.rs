@@ -1,8 +1,7 @@
-//! M0-07 / M2-08: `sverb forward <rule> [--detach]` (SPEC §16, §9.6).
+//! `sverb forward <rule> [--detach]` (SPEC §16, §9.6).
 //!
 //! Resolves the rule by label (exact, else a unique case-insensitive match; an id
 //! works too), unlocks the vault (keyring, else the master password on the TTY),
-//! checks the values that act locally against this device's `local_approvals` (M2-10,
 //! §17.1: the host's unapproved ProxyCommand or system-agent forwarding, or a synced
 //! non-loopback bind or remote destination → exit 5 pointing to `sverb approve
 //! <host>`; §9.6: a non-loopback bind typed on this device is confirmed on the TTY and
@@ -30,11 +29,13 @@ use std::{
 };
 
 use clap::Args;
+use sverb_conn::forward::ApprovalStore;
 use sverb_conn::{
     AuthAnswer, Decision, OpenError, SessionCmd, SessionEvent, SessionHandle, SessionId,
     SessionManager, SessionState, SshSpec, TransportKind,
     forward::{self as fwd, ForwardManager, ForwardRule, ForwardState, RiskyValue},
 };
+use sverb_core::resolve::approval::{ActionKind, DeviceApprovals, LocalAction};
 use sverb_core::{
     error_report::ErrorReport,
     model::{Host, ItemId, ItemKind, PortForward},
@@ -42,9 +43,6 @@ use sverb_core::{
     secret::SecretString,
 };
 use sverb_tui::services::vault::VaultService;
-// M2-10
-use sverb_conn::forward::ApprovalStore;
-use sverb_core::resolve::approval::{ActionKind, DeviceApprovals, LocalAction};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt},
     sync::mpsc,
@@ -65,7 +63,6 @@ pub(crate) struct ForwardArgs {
     /// Keep running in the background
     #[arg(long)]
     pub detach: bool,
-    // M2-08
     /// Internal: the background half of `--detach` (reads a handed-over password on
     /// stdin, reports `listening on …` on stdout).
     #[arg(long, hide = true)]
@@ -185,13 +182,11 @@ fn ask_yes(question: &str) -> bool {
         && matches!(line.trim().to_lowercase().as_str(), "y" | "yes")
 }
 
-// M2-10
 /// The §17.1 headless error for `v` of the forward's host.
 fn needs_approval(found: &Found, action: &LocalAction) -> CliError {
     CliError::NeedsApproval(action.headless_message(&found.host_label))
 }
 
-// M2-10
 /// The host's own values that act locally (ProxyCommand, system agent) must be
 /// approved before the tunnel connects (headless: exit 5, §17.1).
 async fn check_host_values(
@@ -215,7 +210,7 @@ async fn check_host_values(
 }
 
 /// Check the values that act locally. Returns the values confirmed now (not yet
-/// approved on this device). M2-10: a value is approved when it has its
+/// approved on this device). A value is approved when it has its
 /// `local_approvals` row; otherwise a value not written on this device must be
 /// approved with `sverb approve` (exit 5), and a non-loopback bind typed here is
 /// confirmed on the terminal (§9.6), else exit 5.
@@ -272,7 +267,7 @@ impl Tunnel {
     ) -> Result<(Self, String), CliError> {
         let (tx, events) = mpsc::unbounded_channel();
         let sessions = SessionManager::new(tx);
-        // M2-10: the device's `local_approvals` for the connector and the manager.
+        // The device's `local_approvals` for the connector and the manager.
         let approvals = vault.store().device_approvals();
         sessions.register_connector(
             TransportKind::Ssh,
@@ -293,7 +288,6 @@ impl Tunnel {
             None,
         )
         .map_err(|e| match e {
-            // M2-10
             fwd::StandaloneError::Start(fwd::StartError::NeedsApproval(values)) => {
                 match values.first() {
                     Some(v) => {
@@ -616,7 +610,7 @@ pub(crate) async fn run(args: ForwardArgs, ctx: &Ctx, out: &mut dyn Write) -> Re
     };
     let vault = VaultService::from_unlocked(unlocked.engine, unlocked.vault);
     let found = load_rule(&vault, &args.rule).await?;
-    // M2-10: §17.1 checks against this device's `local_approvals`.
+    // §17.1 checks against this device's `local_approvals`.
     let approvals = vault.store().device_approvals();
     check_host_values(&vault, &found, &approvals).await?;
     let approved = confirm_values(&found, ctx, false, &approvals)?;

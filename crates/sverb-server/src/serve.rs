@@ -38,7 +38,7 @@ pub enum StartupError {
     /// Wrong `SVERB_SERVER_SECRET` (or another `server_secrets` failure).
     #[error(transparent)]
     Secrets(#[from] SecretsError),
-    /// M4-02: the OPAQUE server setup can't be loaded or created.
+    /// The OPAQUE server setup can't be loaded or created.
     #[error("cannot load the OPAQUE server setup: {0}")]
     OpaqueSetup(String),
     /// TLS setup failed.
@@ -86,7 +86,7 @@ pub async fn prepare_with_pool(
     }
     let state = AppState::new(config, pool);
     state.secrets().verify_or_init(state.db()).await?;
-    // M4-02: load (or generate on first start) the OPAQUE ServerSetup now,
+    // Load (or generate on first start) the OPAQUE ServerSetup now,
     // so a broken secret or database fails the start, not the first login.
     if let Err(e) = state.auth().server_setup(state.secrets()).await {
         let detail = match &e {
@@ -138,9 +138,9 @@ pub async fn run(config: Config, apply_migrations: bool) -> Result<(), StartupEr
 
     let _cleanup = state.rate_limits().clone().spawn_cleanup();
     let _upkeep = crate::metrics::spawn_upkeep(state.metrics().clone());
-    // M4-04: periodic GC (tokens, invites, shares, tombstones).
+    // Periodic GC (tokens, invites, shares, tombstones).
     let _gc = crate::sync::gc::spawn_background(state.clone());
-    // M4-05: LISTEN for fan-out from the start (readiness reflects it).
+    // LISTEN for fan-out from the start (readiness reflects it).
     state.ws().ensure_started(&state);
 
     if let Some(addr) = config.metrics_bind {

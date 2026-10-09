@@ -1,11 +1,11 @@
-//! The `TerminalPane` widget (M1-10, SPEC §7.2): a session's emulator inside a border,
+//! The `TerminalPane` widget (SPEC §7.2): a session's emulator inside a border,
 //! with a title and the pane-state overlays.
 //!
 //! ```text
 //! ┌ web-1 ─────────────────────────────┐   border: focused / unfocused / broadcast
 //! │ $ ls                               │   content: `Emulator::render` (sverb-term)
 //! │ …                                  │
-//! │┌──────────────────────────────────┐│   overlay (here: disconnected banner, M1-16)
+//! │┌──────────────────────────────────┐│   overlay (here: disconnected banner)
 //! ││ Disconnected: connection reset   ││
 //! ││ [Enter] reconnect · ^\ x close · ││
 //! │└──────────────────────────────────┘│
@@ -13,15 +13,14 @@
 //! ```
 //!
 //! - **Title**: the OSC title when `terminal.use_osc_title` is on and the remote set one,
-//!   else the pane label (host label, M1-13).
+//!   else the pane label (host label).
 //! - **Content**: the emulator mutex is held only for the synchronous render and the cursor
-//!   query, never across an `.await` (M1-08).
+//!   query, never across an `.await`.
 //! - **Cursor**: for the focused pane with no overlay, [`TerminalPane::render`] returns where
 //!   the real terminal cursor goes and its shape (the runtime passes the shape through with
 //!   DECSCUSR). Unfocused panes get the hollow cursor from the emulator renderer.
 //! - **Overlays** ([`PaneOverlay`]) are drawn over the content. The keys they mention are
-//!   handled by their owners (M1-16 disconnected/exited, M1-04 vault lock, M1-12 local
-//!   exit; `tasks/03-KEYBINDINGS.md` §4.4). **Locked** blanks the content first, so nothing
+//!   exit). **Locked** blanks the content first, so nothing
 //!   of the session is visible while the vault is locked.
 //! - **Colors**: the content uses the pane's terminal color scheme ([`PaneInfo::scheme`] or
 //!   `terminal.color_scheme`); the border, title and overlays use the UI theme.
@@ -69,7 +68,7 @@ impl<F: Fn(SessionId) -> Option<SharedEmulator>> PaneSource for F {
     }
 }
 
-/// A pane state overlay (`tasks/03-KEYBINDINGS.md` §4.4). Set by the tasks owning the state.
+/// A pane state overlay. Set by the tasks owning the state.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum PaneOverlay {
@@ -83,7 +82,7 @@ pub enum PaneOverlay {
         /// What is happening.
         detail: String,
     },
-    /// Disconnected (M1-16): the reconnect banner
+    /// Disconnected: the reconnect banner
     /// `Disconnected (<reason>) — [Enter] reconnect · leader x close · leader i details`.
     Disconnected {
         /// Why (short, SPEC §6.1.9).
@@ -91,7 +90,7 @@ pub enum PaneOverlay {
         /// Auto-reconnect gave up after this many attempts.
         gave_up: Option<u32>,
     },
-    /// Auto-reconnect countdown (M1-16):
+    /// Auto-reconnect countdown:
     /// `Reconnecting in 4 s (attempt 3/10) — [Enter] now · [Esc] cancel · leader x close`.
     Reconnecting {
         /// Seconds until the next attempt.
@@ -101,7 +100,7 @@ pub enum PaneOverlay {
         /// Attempts at most.
         of: u32,
     },
-    /// The remote shell or local process exited (M1-12, M1-16): a footer, not a banner
+    /// The remote shell or local process exited: a footer, not a banner
     /// (SPEC §6.1.9).
     Exited {
         /// Exit code, if known.
@@ -110,11 +109,10 @@ pub enum PaneOverlay {
         /// than a local process (`Process exited (code N) — [Enter] restart`).
         remote: bool,
     },
-    /// The vault is locked (M1-04): content hidden.
+    /// The vault is locked: content hidden.
     Locked,
     /// The session task crashed.
     Crashed,
-    // M3-03
     /// A workspace pane whose host was deleted: no session runs behind it.
     Missing {
         /// What is missing (`Host missing (deleted)`).
@@ -133,18 +131,15 @@ pub struct PaneInfo {
     pub scheme: Option<String>,
     /// Overlay drawn over the content.
     pub overlay: PaneOverlay,
-    /// Lines scrolled back (M3-04 drives it).
     pub scroll_offset: usize,
-    /// The pane receives broadcast input (M3-02).
+    /// The pane receives broadcast input.
     pub broadcast: bool,
-    /// The host item id (M1-13), so host edits find the host's panes.
+    /// The host item id, so host edits find the host's panes.
     pub host: Option<String>,
-    // M1-16
     /// Disconnect / reconnect bookkeeping (`app/sessions/reconnect.rs`).
     pub reconnect: ReconnectInfo,
 }
 
-// M1-16
 /// What the reducer remembers about a pane's link between a drop and the next
 /// connection (SPEC §6.1.2).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -164,7 +159,6 @@ pub struct ReconnectInfo {
     pub reason: Option<String>,
 }
 
-// M1-16
 /// An auto-reconnect countdown, ticked by `TimerKind::DialogTick(tick)`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Countdown {
@@ -178,7 +172,6 @@ pub struct Countdown {
     pub step_ms: u64,
 }
 
-// M3-04
 /// Extra drawing for a pane in copy mode (or with a mouse selection), computed while the
 /// emulator is locked for the draw ([`TerminalPane::render_with`]).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -239,7 +232,7 @@ impl TerminalPane<'_> {
             scheme: self.scheme.clone(),
             depth: self.depth,
             overlay: OverlayStyle {
-                // M3-04: the current match must stand out from the others; themes whose
+                // The current match must stand out from the others; themes whose
                 // selection color is the accent color mark the other matches in `warn`.
                 match_bg: if fg(self.theme.selection) == fg(self.theme.accent) {
                     fg(self.theme.warn)
@@ -264,7 +257,6 @@ impl TerminalPane<'_> {
         self.render_with(area, buf, emulator, &|_, _| PaneDecor::default())
     }
 
-    // M3-04
     /// [`TerminalPane::render`] with `decorate` adjusting the view (scroll offset, selection,
     /// search matches, hovered link) while the emulator is locked, and returning the copy
     /// cursor, the border badge and the footer line.
@@ -281,7 +273,7 @@ impl TerminalPane<'_> {
         } else {
             theme.border_for(self.focused)
         };
-        // M3-02: `≋` marks broadcast members (also readable without color).
+        // `≋` marks broadcast members (also readable without color).
         let marker = if self.info.broadcast {
             crate::views::sessions::broadcast::MARKER.to_owned() + " "
         } else {
@@ -303,7 +295,7 @@ impl TerminalPane<'_> {
             Some(emu) if self.info.overlay != PaneOverlay::Locked => {
                 // Locked only for this synchronous draw (never across an `.await`).
                 let term = emu.lock();
-                // M3-04: copy mode / mouse selection overlays.
+                // Copy mode / mouse selection overlays.
                 let decor = decorate(&**term, &mut view);
                 term.render(inner, buf, &view);
                 let info = term.cursor();
@@ -331,7 +323,6 @@ impl TerminalPane<'_> {
         cursor
     }
 
-    // M3-04
     /// The copy cursor as the real cursor (focused pane, visible row) or a reversed cell.
     fn copy_cursor(
         &self,
@@ -354,7 +345,6 @@ impl TerminalPane<'_> {
         }
     }
 
-    // M3-04
     fn render_decor(&self, area: Rect, inner: Rect, buf: &mut Buffer, decor: &PaneDecor) {
         if let Some(badge) = &decor.badge {
             let text = format!(" {badge} ");
@@ -381,7 +371,7 @@ impl TerminalPane<'_> {
                 centered(inner, buf, vec![Line::styled("Session ended.", theme.dim)]);
             }
             PaneOverlay::Connecting { frame, detail } => {
-                // M7-07: frames from `theme::glyphs` (static with `ui.reduce_motion`).
+                // Frames from `theme::glyphs` (static with `ui.reduce_motion`).
                 let spin = theme.spinner(*frame);
                 let mut lines = vec![Line::styled(format!("{spin} connecting…"), theme.accent)];
                 if !detail.is_empty() {
@@ -389,7 +379,6 @@ impl TerminalPane<'_> {
                 }
                 centered(inner, buf, lines);
             }
-            // M1-16
             PaneOverlay::Disconnected { reason, gave_up } => banner(
                 inner,
                 buf,
@@ -449,7 +438,6 @@ impl TerminalPane<'_> {
                 "Session crashed (see the log)".to_owned(),
                 format!("{leader} x close"),
             ),
-            // M3-03
             PaneOverlay::Missing { what } => {
                 Clear.render(inner, buf);
                 banner(
@@ -672,7 +660,6 @@ pub(crate) mod tests {
                 "code 1",
             ),
             (PaneOverlay::Crashed, "crashed"),
-            // M3-03
             (
                 PaneOverlay::Missing {
                     what: "Host missing (deleted)".to_owned(),
@@ -729,7 +716,6 @@ pub(crate) mod tests {
         assert!(text(&buf).contains("Session ended."));
     }
 
-    // M3-04
     #[test]
     fn decor_badge_footer_and_copy_cursor() {
         let theme = Theme::default();

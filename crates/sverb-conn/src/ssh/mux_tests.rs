@@ -1,4 +1,3 @@
-//! M3-07 unit tests of the pool (mock connections): T-01 key equality, T-02 concurrent
 //! opens dial once, T-03 linger, T-04 failure propagation and reconnect, the
 //! `MaxSessions` fallback, and T-09's private pool.
 
@@ -80,7 +79,7 @@ async fn settle() {
     }
 }
 
-/// T-01: same host, port and user → equal; another jump chain, key, proxy or port →
+/// Same host, port and user → equal; another jump chain, key, proxy or port →
 /// different.
 #[test]
 fn t01_mux_key_equality() {
@@ -114,7 +113,7 @@ fn t01_mux_key_equality() {
     );
 }
 
-/// T-02: 5 concurrent opens of the same key → exactly one connect.
+/// 5 concurrent opens of the same key → exactly one connect.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_concurrent_opens_dial_once() {
     let pool = Pool::<MockConn>::default();
@@ -169,7 +168,7 @@ async fn failed_dial_releases_the_gate() {
     assert_eq!(state.dials.load(Ordering::SeqCst), 1);
 }
 
-/// T-03: release the last user and reopen within 10 s → no new connect; after 10 s
+/// Release the last user and reopen within 10 s → no new connect; after 10 s
 /// the connection is closed.
 #[tokio::test(start_paused = true)]
 async fn t03_linger() {
@@ -206,7 +205,7 @@ async fn t03_linger() {
     assert_eq!(state.dials.load(Ordering::SeqCst), 2);
 }
 
-/// T-04: the shared connection fails → every user sees the same failure; a reconnect
+/// The shared connection fails → every user sees the same failure; a reconnect
 /// dials a new connection and the others reconnect onto it.
 #[tokio::test]
 async fn t04_failure_reaches_every_user() {

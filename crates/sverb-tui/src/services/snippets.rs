@@ -1,4 +1,4 @@
-//! M2-09: the snippet service (SPEC §9.7).
+//! The snippet service (SPEC §9.7).
 //!
 //! - `Load` / `Save` / `Export` / `StartupCheck` go through the vault's item service.
 //! - `Run` works on at most `job.concurrency` hosts at a time
@@ -6,7 +6,6 @@
 //!   each host gets a dedicated connection whose host-key and auth prompts go to the UI
 //!   under the row's session id (`SnippetsEvent::Session`); answers come back as
 //!   `SnippetsEffect::Answer`. `Cancel` aborts the run.
-//! - `History` goes to the history sink: none until M7-01 (the record never holds a
 //!   secret value: secrets are `{{name}}` placeholders).
 //!
 //! Nothing here logs commands or values.

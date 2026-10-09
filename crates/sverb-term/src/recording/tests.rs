@@ -1,4 +1,3 @@
-//! M3-05 unit tests (T-01, T-03, T-04, T-05, T-08, T-09).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::Duration;
@@ -52,7 +51,6 @@ fn read(file: &[u8]) -> Result<Recording, RecordingError> {
     read_recording(file, key())
 }
 
-// T-01
 #[test]
 fn t01_asciicast_lines_are_valid_json() {
     let mut header = Header::new(120, 40);
@@ -148,7 +146,6 @@ fn round_trip_small() {
     assert_eq!(rec.events[1].time, secs(1.0));
 }
 
-// T-03
 #[test]
 fn t03_truncation_is_reported_and_prefix_survives() {
     let outs: Vec<(f64, String)> = (0..9)
@@ -182,7 +179,6 @@ fn t03_truncation_is_reported_and_prefix_survives() {
     assert!(!read(&file).unwrap().incomplete);
 }
 
-// T-04
 #[test]
 fn t04_reordered_or_foreign_chunks_fail_auth() {
     let outs = [(0.0, "a"), (1.0, "b"), (2.0, "c"), (3.0, "d")];
@@ -241,7 +237,6 @@ fn t04_reordered_or_foreign_chunks_fail_auth() {
     ));
 }
 
-// T-05
 #[test]
 fn t05_input_only_with_opt_in() {
     for include_input in [false, true] {
@@ -279,7 +274,6 @@ fn recording(events: Vec<Event>) -> Recording {
     }
 }
 
-// T-08
 #[test]
 fn t08_idle_gaps_are_capped_at_two_seconds() {
     let events = vec![
@@ -341,7 +335,6 @@ fn long_recording() -> Recording {
     recording(events)
 }
 
-// T-09
 #[test]
 fn t09_seek_back_via_checkpoint_matches_linear_replay() {
     for target in [secs(75.5), secs(31.0), secs(55.2), secs(3.0)] {

@@ -1,6 +1,5 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-//! M7-01 T-09 (local part): the install / uninstall scripts run with `sh` against a
 //! temporary `$HOME`: installing twice leaves one block, uninstalling removes it. The
 //! container part (bash / zsh / fish users over SSH) is an e2e test.
 

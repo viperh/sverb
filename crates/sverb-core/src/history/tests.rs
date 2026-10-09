@@ -1,6 +1,5 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-//! M7-01 tests: T-03 (prompt learning), T-04 (no capture on the alt screen or after a
 //! password prompt), T-05 (ranking), T-07 (per-host cap).
 
 use super::*;

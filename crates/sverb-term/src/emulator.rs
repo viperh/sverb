@@ -87,7 +87,6 @@ pub enum ClipboardTarget {
     Selection,
 }
 
-/// OSC 133 semantic prompt marks (used by M7-01).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PromptMarkKind {
     /// `A`: prompt start.
@@ -124,7 +123,6 @@ pub enum TermEvent {
         cursor: GridPoint,
         history_len: usize,
     },
-    // M7-01
     /// A command the shell ran, captured from the grid between the OSC 133 `B` and `C`
     /// marks, with the `D` exit code (`crate::osc133`). Reported after its `PromptMark`.
     Command(crate::osc133::ShellCommand),
@@ -137,11 +135,10 @@ pub struct HyperlinkInfo {
     pub uri: String,
 }
 
-// M1-10: `Rgb`, `ColorScheme` and `xterm_256` moved to `crate::scheme` (re-exported here so
+// `Rgb`, `ColorScheme` and `xterm_256` moved to `crate::scheme` (re-exported here so
 // existing paths keep working).
 pub use crate::scheme::{ColorScheme, Rgb, xterm_256};
 
-/// A selection to highlight (M3-04 fills it in). Both ends inclusive, in [`GridPoint`]s.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Selection {
     pub start: GridPoint,
@@ -178,22 +175,21 @@ pub struct ViewState {
     /// Lines scrolled up into scrollback; 0 = live.
     pub scroll_offset: usize,
     pub focused: bool,
-    // M1-10
     /// The pane's palette; `None` is the `terminal` scheme (no remapping).
     pub scheme: Option<Arc<ColorScheme>>,
     /// What the outer terminal can show.
     pub depth: ColorDepth,
-    /// Selection (M3-04).
+    /// Selection.
     pub selection: Option<Selection>,
-    /// Search matches (M3-04).
+    /// Search matches.
     pub search_matches: Vec<Match>,
-    /// The current search match (M3-04).
+    /// The current search match.
     pub current_match: Option<Match>,
     /// The cells of the hyperlink under the mouse.
     pub hovered_link: Option<Match>,
     /// Overlay colors from the UI theme.
     pub overlay: OverlayStyle,
-    /// The pane receives broadcast input (M3-02). The pane widget draws the border; the
+    /// The pane receives broadcast input. The pane widget draws the border; the
     /// emulator ignores it.
     pub broadcast_highlight: bool,
 }
@@ -210,7 +206,7 @@ pub trait Emulator: Send {
     fn modes(&self) -> TermModes;
 
     /// Draw the visible grid into `buf` with colors, attributes, the hollow cursor of an
-    /// unfocused pane, overlays and the scroll indicator (M1-10, `crate::render`). The
+    /// unfocused pane, overlays and the scroll indicator (`crate::render`). The
     /// focused pane's real cursor is placed by the caller from [`Emulator::cursor`].
     fn render(&self, area: Rect, buf: &mut Buffer, view: &ViewState);
 
@@ -252,7 +248,6 @@ pub trait Emulator: Send {
     /// Current (cols, rows).
     fn size(&self) -> (u16, u16);
 
-    // M3-04
     /// The text of one row (`line` as in [`GridPoint`]), `None` outside the screen and
     /// scrollback. Copy mode, selection and search read the grid through this
     /// ([`crate::selection::EmulatorGrid`]). Emulators without it return `None`.
@@ -260,7 +255,6 @@ pub trait Emulator: Send {
         None
     }
 
-    // M7-01
     /// Shell integration state: whether OSC 133 marks were seen, and the command line
     /// typed so far while the shell reads one. Emulators without it report nothing.
     fn prompt_state(&self) -> crate::osc133::PromptState {

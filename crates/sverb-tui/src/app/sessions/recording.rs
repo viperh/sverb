@@ -1,10 +1,10 @@
-//! M3-05: session recording in the reducer (SPEC §7.5).
+//! Session recording in the reducer (SPEC §7.5).
 //!
 //! - `leader R` (`toggle_recording`) starts or stops recording the focused session. The
 //!   flag is set at once (the status bar shows `REC ●`); the recording service answers
 //!   with `SessionEvent::Recording` and a `Failed` clears the flag with an error toast.
 //! - New local sessions are recorded when `recording.enabled` is on. SSH sessions
-//!   (M1-07/M1-13) call [`App::auto_record`] with
+//!    call [`App::auto_record`] with
 //!   `sverb_core::model::resolve_record_sessions` (host → groups → global).
 //! - With `recording.include_input`, the first recording shows a one-time warning that
 //!   typed passwords end up in the recording.
@@ -146,7 +146,6 @@ mod tests {
             .collect()
     }
 
-    // T-10
     #[test]
     fn t10_leader_r_toggles_recording_and_shows_rec() {
         let (mut h, id) = harness(Config::default());

@@ -1,4 +1,3 @@
-//! M1-13 T-08…T-16 against OpenSSH in Docker (the M1-18 harness). The loopback
 //! versions of the same checks run without Docker in `sverb-conn`'s `ssh::tests`.
 //!
 //! `#[ignore]`d: `SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_transport -- --ignored`.
@@ -29,13 +28,13 @@ async fn t08_to_t11_t15_session() {
     s.wait_connected().await.unwrap();
     s.wait_for_text("$", timeout()).await.unwrap();
 
-    // T-08: the PTY's TERM.
+    // The PTY's TERM.
     s.send("echo T=$TERM\r").await;
     s.wait_for_text("T=xterm-256color", timeout())
         .await
         .unwrap();
 
-    // T-09: FOO accepted, BAR rejected, and no error event for it.
+    // FOO accepted, BAR rejected, and no error event for it.
     s.send("echo F=$FOO B=${BAR:-unset}\r").await;
     s.wait_for_text("F=bar B=unset", timeout()).await.unwrap();
     assert!(
@@ -46,20 +45,20 @@ async fn t08_to_t11_t15_session() {
         s.events()
     );
 
-    // T-10: resize reaches the remote PTY.
+    // Resize reaches the remote PTY.
     s.send("stty size\r").await;
     s.wait_for_text("24 80", timeout()).await.unwrap();
     s.resize(100, 30).await;
     s.send("stty size\r").await;
     s.wait_for_text("30 100", timeout()).await.unwrap();
 
-    // T-15: stderr reaches the pane.
+    // Stderr reaches the pane.
     s.send("ls /nonexistent\r").await;
     s.wait_for_text("No such file or directory", timeout())
         .await
         .unwrap();
 
-    // T-11: `exit 7` → Disconnected { Exited(7) }.
+    // `exit 7` → Disconnected { Exited(7) }.
     s.send("exit 7\r").await;
     let state = s
         .wait_state("Disconnected", |st| {
@@ -92,7 +91,7 @@ async fn t12_t13_keepalive() {
     });
     s.wait_connected().await.unwrap();
 
-    // T-13: within 2 × keepalive.
+    // Within 2 × keepalive.
     let t0 = Instant::now();
     s.wait_event("Latency", |e| matches!(e, SessionEvent::Latency(_)))
         .await
@@ -123,7 +122,7 @@ async fn t12_t13_keepalive() {
     s.close().await;
 }
 
-/// T-14: a legacy-only server → `Negotiation` naming the algorithm; with the host
+/// A legacy-only server → `Negotiation` naming the algorithm; with the host
 /// opt-in → connects with the legacy algorithms.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -187,7 +186,7 @@ async fn t14_legacy_only_server() {
     s.close().await;
 }
 
-/// T-16: the startup snippet is typed after the first output.
+/// The startup snippet is typed after the first output.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t16_startup_input() {

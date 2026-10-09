@@ -1,5 +1,4 @@
 //! Injectable time source, so token expiry can be tested by time travel
-//! (task M4-02 T-05). Every auth decision takes "now" from the
 //! [`Clock`] in [`super::AuthRuntime`], also for SQL (bound as a parameter
 //! instead of `now()`).
 

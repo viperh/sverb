@@ -1,4 +1,4 @@
-//! M7-01: shell integration (OSC 133) command tracking (SPEC §9.10 tier 1).
+//! Shell integration (OSC 133) command tracking (SPEC §9.10 tier 1).
 //!
 //! The side scanner (`alacritty::sidechannel`) recognizes `OSC 133 ; A|B|C|D[;exit]`,
 //! split across reads at any byte, and the emulator reports each mark with the cursor

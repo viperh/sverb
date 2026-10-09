@@ -1,4 +1,4 @@
-//! M5-03: user public keys (SPEC §10.4 "Teams", §13.3).
+//! User public keys (SPEC §10.4 "Teams", §13.3).
 //!
 //! | Endpoint | Request | Response |
 //! |---|---|---|

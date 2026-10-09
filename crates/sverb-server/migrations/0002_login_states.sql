@@ -1,4 +1,3 @@
--- sverb-server M4-02: authentication state.
 --
 -- Additions to the SPEC §10.3 schema (never edit once released; sqlx
 -- checksums it):

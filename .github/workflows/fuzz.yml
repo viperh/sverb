@@ -1,6 +1,5 @@
 name: Fuzz (nightly)
 
-# M7-05 (SPEC §19 "Fuzzing"): every cargo-fuzz target runs for 10 minutes each night,
 # starting from the seed corpus (fixtures) plus the corpus kept from earlier runs.
 # Crashes are uploaded as artifacts and fail the job. PRs run each target for 30 s in
 # ci.yml (job `fuzz`).

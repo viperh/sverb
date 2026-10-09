@@ -1,4 +1,4 @@
-//! M2-09: snippet variables (SPEC §4.9, §9.7).
+//! Snippet variables (SPEC §4.9, §9.7).
 //!
 //! - [`effective_vars`]: the snippet's declared [`VarDef`]s plus the variables its
 //!   script uses but does not declare (auto-added, with the inline `{{name:default}}`

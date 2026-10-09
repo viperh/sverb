@@ -1,4 +1,4 @@
-//! M5-03: Settings → Team trust (SPEC §13.3).
+//! Settings → Team trust (SPEC §13.3).
 //!
 //! ```text
 //! ┌ Team keys ───────────────────────────────────────────────┐
@@ -18,7 +18,6 @@
 //! The view is pure: answers are left in [`TeamVerifyView::request`] for the
 //! reducer, which runs them with [`execute`] and feeds the reloaded pins back with
 //! [`TeamVerifyView::set_pins`] (wiring into the Settings → Team page lands with
-//! M5-01 / M4-09).
 
 use std::collections::HashSet;
 
@@ -299,7 +298,6 @@ impl View for TeamVerifyView {
     }
 }
 
-// M5-01
 impl TeamVerifyView {
     /// Draws only the open dialog (Settings → Team draws its own member list).
     pub fn render_dialog_only(&self, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {

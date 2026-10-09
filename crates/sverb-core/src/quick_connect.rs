@@ -1,4 +1,4 @@
-//! M1-07: the quick-connect target parser (SPEC §9.1, `leader o`, `sverb connect`).
+//! The quick-connect target parser (SPEC §9.1, `leader o`, `sverb connect`).
 //!
 //! Accepted forms:
 //! - `host`, `user@host`, `host:port`, `user@host:port`,
@@ -252,7 +252,6 @@ mod tests {
         }
     }
 
-    // T-01
     #[test]
     fn t01_quick_connect_table() {
         let ok: &[(&str, QuickTarget)] = &[

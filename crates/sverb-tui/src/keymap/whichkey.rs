@@ -1,9 +1,8 @@
-//! The which-key popup: every after-leader binding, grouped (`tasks/03-KEYBINDINGS.md`
 //! §4.5), shown `ui.which_key_delay_ms` after the leader.
 //!
 //! One entry per action with all of its keys (`h ←  Focus left`); `go_to_tab_1…9`
 //! collapse into one `1…9` entry when bound to the digits. The popup itself is drawn
-//! by `crate::widgets::which_key` (M0-11).
+//! by `crate::widgets::which_key`.
 
 use strum::IntoEnumIterator;
 
@@ -88,4 +87,4 @@ pub fn entries(keymap: &Keymap) -> Vec<(Group, Vec<Entry>)> {
         .collect()
 }
 
-// M0-11: drawing moved to `crate::widgets::which_key` (themed, bottom right).
+// Drawing moved to `crate::widgets::which_key` (themed, bottom right).

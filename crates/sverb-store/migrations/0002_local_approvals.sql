@@ -1,4 +1,4 @@
--- sverb client schema v2 (M2-10, SPEC §17.1): the device-local allowlist of values
+-- sverb client schema v2 (SPEC §17.1): the device-local allowlist of values
 -- that act on this machine (ProxyCommand, non-loopback forwards, system-agent
 -- forwarding). One row per (item, field): the SHA-256 of the exact value the user
 -- approved. A changed value hashes differently, so it no longer matches and is asked

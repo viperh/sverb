@@ -1,4 +1,3 @@
-# cargo-deny policy (task M0-02; SPEC §17 supply chain, §20 license policy).
 # Run locally with: cargo deny --all-features check advisories bans licenses sources
 # Docs: https://embarkstudios.github.io/cargo-deny/
 
@@ -46,7 +45,6 @@ unused-allowed-license = "allow"
 exceptions = []
 
 [licenses.private]
-# Our own crates are MIT (checked by the M0-01 metadata test); unpublished
 # ones like sverb-e2e have no registry, which would otherwise be flagged.
 ignore = true
 
@@ -67,7 +65,7 @@ deny = [
     { crate = "openssl-sys", reason = "rustls only (SPEC §17)" },
     { crate = "native-tls", reason = "rustls only (SPEC §17)" },
 
-    # Layering (M0-01 §2.3), second line of defense next to
+    # Layering, second line of defense next to
     # scripts/check-layering.py: these crates may only be pulled in directly
     # by the listed wrappers.
     { crate = "ratatui", wrappers = [

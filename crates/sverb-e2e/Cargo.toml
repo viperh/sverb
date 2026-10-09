@@ -12,7 +12,7 @@ publish = false
 [lints]
 workspace = true
 
-# M1-18: the e2e harness (SPEC §19): OpenSSH containers (`Sshd`, `JumpNet`), a
+# The e2e harness (SPEC §19): OpenSSH containers (`Sshd`, `JumpNet`), a
 # temporary `SVERB_HOME` (`TestHome`), a headless session driver (`Headless`) and the
 # real binary in a PTY (`PtyApp`). Every container test is `#[ignore]`d; run them with
 # `SVERB_E2E=1 cargo test -p sverb-e2e -- --ignored`.
@@ -34,6 +34,6 @@ tokio = { workspace = true }
 [dev-dependencies]
 cargo_metadata = { workspace = true }
 toml = { workspace = true }
-# M1-18: the in-process russh server (`ssh::testing`) for the harness self-tests
+# The in-process russh server (`ssh::testing`) for the harness self-tests
 # that run without Docker.
 sverb-conn = { workspace = true, features = ["test-util"] }

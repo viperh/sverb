@@ -1,4 +1,4 @@
-//! M2-03: the Keychain view's Certificates sub-tab (SPEC §4.6, §9.4).
+//! The Keychain view's Certificates sub-tab (SPEC §4.6, §9.4).
 //!
 //! - **Rows**: every certificate with the key it certifies, its principals and expiry,
 //!   badged yellow when it expires within 7 days and red when expired.

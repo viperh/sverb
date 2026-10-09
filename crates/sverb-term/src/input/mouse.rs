@@ -1,4 +1,4 @@
-//! M1-11: mouse events → the remote or sverb (SPEC §7.3).
+//! Mouse events → the remote or sverb (SPEC §7.3).
 //!
 //! [`route_mouse`] decides who gets an event that landed inside a pane:
 //!
@@ -15,7 +15,7 @@
 //! - Otherwise sverb handles it (click to focus, wheel to scroll back 3 lines per notch,
 //!   drag to select).
 //!
-//! **X10 coordinate cap (T-08):** X10 can only carry coordinates up to 223. An event beyond
+//! **X10 coordinate cap:** X10 can only carry coordinates up to 223. An event beyond
 //! that is **not sent** (the route is [`MouseRoute::Drop`]); xterm does the same rather than
 //! clamping, which would report a click on the wrong cell. UTF-8 mode reaches 2015.
 //!
@@ -227,7 +227,7 @@ mod tests {
         }
     }
 
-    /// T-07: SGR.
+    /// SGR.
     #[test]
     fn t07_sgr() {
         let m = modes(MouseMode::Click, MouseEncoding::Sgr);
@@ -255,7 +255,7 @@ mod tests {
         );
     }
 
-    /// T-07: X10 and urxvt.
+    /// X10 and urxvt.
     #[test]
     fn t07_x10_and_urxvt() {
         let x10 = modes(MouseMode::Click, MouseEncoding::Default);
@@ -274,7 +274,7 @@ mod tests {
         assert_eq!(remote(route_mouse(&far, &utf8)), want);
     }
 
-    /// T-08: X10 can't carry column 300: the event is not sent.
+    /// X10 can't carry column 300: the event is not sent.
     #[test]
     fn t08_x10_cap() {
         let x10 = modes(MouseMode::Click, MouseEncoding::Default);
@@ -289,7 +289,7 @@ mod tests {
         assert_eq!(route_mouse(&past, &x10), MouseRoute::Drop);
     }
 
-    /// T-09: drag needs 1002, plain motion needs 1003.
+    /// Drag needs 1002, plain motion needs 1003.
     #[test]
     fn t09_drag_and_motion() {
         let drag = ev(MouseAction::Drag(MouseButton::Left), 4, 5);
@@ -305,7 +305,7 @@ mod tests {
         assert_eq!(remote(route_mouse(&drag, &m1003)), b"\x1b[<32;5;6M");
     }
 
-    /// T-10: alternate scroll.
+    /// Alternate scroll.
     #[test]
     fn t10_alternate_scroll() {
         let alt = TermModes {

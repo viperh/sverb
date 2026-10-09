@@ -1,5 +1,4 @@
-//! M2-02 view tests: the Identities sub-tab (rows, usage, detail) and its snapshot
-//! (T-09). [`sample`] is shared with the reducer tests (`app/keychain_tests.rs`).
+//! . [`sample`] is shared with the reducer tests (`app/keychain_tests.rs`).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -118,7 +117,7 @@ pub(crate) fn view() -> KeychainView {
     let mut v = KeychainView::default();
     v.set_index(index);
     v.set_catalog(Arc::new(cat));
-    // M2-03: Keys is the default sub-tab; these tests are about Identities.
+    // Keys is the default sub-tab; these tests are about Identities.
     v.tab = super::KeychainTab::Identities;
     v
 }
@@ -201,7 +200,6 @@ fn identities_view_never_panics_on_tiny_areas() {
     }
 }
 
-// M2-02 T-09
 #[test]
 fn t09_identities_sub_tab_160x48() {
     let mut v = view();
@@ -222,8 +220,6 @@ fn t09_identities_sub_tab_160x48() {
     assert!(!screen.contains("s3cret"));
     insta::assert_snapshot!("t09_identities_160x48", screen);
 }
-
-// ---------------------------------------------------------------- M2-03
 
 pub(crate) const CERT: u8 = 20;
 pub(crate) const YUBI: u8 = 21;
@@ -367,7 +363,6 @@ fn m2_03_views_never_panic_on_tiny_areas() {
     }
 }
 
-// M2-03 T-14
 #[test]
 fn t14_keys_tab_with_expiring_cert_badge_160x48() {
     let mut v = keys_view();

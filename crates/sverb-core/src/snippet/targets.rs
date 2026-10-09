@@ -1,4 +1,4 @@
-//! M2-09: `--on <host|#tag|group>` target resolution (SPEC §16, §9.7).
+//! `--on <host|#tag|group>` target resolution (SPEC §16, §9.7).
 //!
 //! Each argument, in order:
 //! 1. `#tag` → every host with that tag (case-insensitive name), by label;

@@ -1,5 +1,5 @@
-//! M1-16: the disconnect banner, reconnect and the optional auto-reconnect
-//! (SPEC §6.1.2, §6.1.9; `tasks/03-KEYBINDINGS.md` §3.1 A4, §4.4).
+//! The disconnect banner, reconnect and the optional auto-reconnect
+//! (SPEC §6.1.2, §6.1.9.1 A4, §4.4).
 //!
 //! - **Banner.** A session that drops (`State(Disconnected { reason })`, any reason but
 //!   `Exited`) shows `Disconnected (<reason>) — [Enter] reconnect · leader x close ·
@@ -10,7 +10,6 @@
 //!   the error chain (and selects the session's ConnLog entry in the Logs view).
 //! - **Exited.** A remote exit is not a banner but a calmer footer, `Session ended (exit
 //!   N) — [Enter] reconnect · leader x close` (a local shell: `Process exited (code N) —
-//!   [Enter] restart`, M1-12).
 //! - **Reconnect.** `Enter` sends `Effect::ReconnectSession` → `SessionCmd::Reconnect`;
 //!   the actor reuses the emulator (scrollback kept), resets the modes and writes the
 //!   `── reconnected at HH:MM:SS ──` separator. Until the session is connected again the
@@ -25,7 +24,6 @@
 //!
 //! The countdown ticks once per second with `TimerKind::DialogTick` and a [`DialogId`]
 //! allocated for it (the reducer's timer ids live in `app/event.rs` and `app/mod.rs`,
-//! which M1-17 held while this was written; see the M1-16 merge notes). The jitter is
 //! seeded from the drop's `Disconnected::at` instant, so the reducer stays pure.
 
 use std::hash::{Hash, Hasher};
@@ -103,7 +101,7 @@ impl App {
             SessionState::Disconnected { reason, at } => {
                 self.on_drop(id, *reason, *at, effects);
             }
-            // M2-05: per-hop progress of a jump chain ("connecting via bastion (1/2)").
+            // Per-hop progress of a jump chain ("connecting via bastion (1/2)").
             SessionState::Connecting { hop, of } if *of > 1 => {
                 let detail = self.hop_progress(id, *hop, *of);
                 self.update_reconnect(id, |p| {
@@ -119,7 +117,6 @@ impl App {
         self.mode = self.derive_mode();
     }
 
-    // M2-05
     /// `connecting via bastion (1/2)` (an intermediate hop) or `connecting to inner
     /// (2/2)` (the target), with the hop names from the pane's host's effective chain.
     fn hop_progress(&self, id: SessionId, hop: usize, of: usize) -> String {
@@ -283,14 +280,14 @@ impl App {
                     p.overlay,
                     PaneOverlay::Disconnected { .. }
                         | PaneOverlay::Reconnecting { .. }
-                        // M3-03: a workspace's "Host missing" placeholder.
+                        // A workspace's "Host missing" placeholder.
                         | PaneOverlay::Missing { .. }
                 )
         })
     }
 
     /// A key on a dead pane (the leader never gets here). `true` when handled here;
-    /// `false` leaves it to the exited-pane handling (M1-12).
+    /// `false` leaves it to the exited-pane handling.
     pub(crate) fn on_reconnect_key(
         &mut self,
         id: SessionId,
@@ -336,7 +333,7 @@ impl App {
                 }
                 true
             }
-            // M3-03: a placeholder takes no keys (`leader x` closes it).
+            // A placeholder takes no keys (`leader x` closes it).
             PaneOverlay::Missing { .. } => true,
             // Reconnecting: nothing reaches the session until it is connected again.
             _ if pane.reconnect.in_progress => true,
@@ -349,13 +346,12 @@ impl App {
         }
     }
 
-    /// `leader x` on a dead pane: stop the countdown, then close (M1-12's
     /// `close_exited_pane` does the closing).
     pub(crate) fn before_close_dead_pane(&mut self, id: SessionId, effects: &mut Vec<Effect>) {
         self.cancel_countdown(id, effects);
     }
 
-    /// `leader i` on a disconnected pane: select the session's ConnLog entry (M3-06) and
+    /// `leader i` on a disconnected pane: select the session's ConnLog entry and
     /// show the error chain. `false` when the focused pane is not disconnected.
     pub(crate) fn show_disconnect_details(&mut self, effects: &mut Vec<Effect>) -> bool {
         use crate::views::dialogs::ModalDialog;

@@ -3,7 +3,7 @@
 //! Login attempts are limited to 5 per minute per email and 50 per minute per
 //! client IP (GCRA: the full burst is available at once and refills evenly
 //! over the minute). The email is only known after the JSON body has been
-//! parsed, so this is not a tower layer: the login handler (M4-02) calls
+//! parsed, so this is not a tower layer: the login handler calls
 //! [`RateLimiters::check_login`] with the email and the [`ClientIp`]
 //! extension.
 //!

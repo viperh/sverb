@@ -1,4 +1,4 @@
-//! M7-05: process hardening (T-01, T-02). Its own test binary: both tests change
+//! Process hardening. Its own test binary: both tests change
 //! process-wide state (the dumpable flag, `RLIMIT_CORE`, `RLIMIT_MEMLOCK`) of this test
 //! process only, never of another process.
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]
@@ -10,7 +10,7 @@ use std::{
 
 use sverb_core::hardening::{self, Locked};
 
-/// T-01: after `harden_process`, the process is not dumpable (Linux) and its core
+/// After `harden_process`, the process is not dumpable (Linux) and its core
 /// limit is 0 (unix). The binary-level twin is `crates/sverb/tests/hardening.rs`.
 #[test]
 fn t01_harden_process_disables_core_dumps() {
@@ -45,7 +45,7 @@ impl Write for Capture {
     }
 }
 
-/// T-02: with `RLIMIT_MEMLOCK = 0`, locking fails gracefully: the key is still usable,
+/// With `RLIMIT_MEMLOCK = 0`, locking fails gracefully: the key is still usable,
 /// zeroized on drop, and one `debug` line explains why (once per process).
 #[cfg(unix)]
 #[test]

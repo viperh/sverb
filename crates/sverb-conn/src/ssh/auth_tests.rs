@@ -1,4 +1,3 @@
-//! M1-14 unit tests of the authentication chain against a scripted fake server
 //! ([`Fake`], an [`AuthBackend`]) and a scripted user ([`User`], an [`AuthIo`]).
 //! Loopback tests against the in-process russh server are in `ssh/auth_loopback.rs`.
 
@@ -326,7 +325,7 @@ const ALL: &[&str] = &[PUBLICKEY, PASSWORD, KEYBOARD_INTERACTIVE];
 
 // ---------------------------------------------------------------- tests
 
-/// T-01: key + cert + password + agent → cert, key, password; the agent is skipped
+/// Key + cert + password + agent → cert, key, password; the agent is skipped
 /// because a key is configured.
 #[tokio::test]
 async fn t01_order_cert_key_password() {
@@ -372,7 +371,7 @@ async fn t01_order_cert_key_password() {
     );
 }
 
-/// T-02: no configured key → agent identities after the key steps; a configured key →
+/// No configured key → agent identities after the key steps; a configured key →
 /// no agent attempts at all.
 #[tokio::test]
 async fn t02_identities_only() {
@@ -416,7 +415,7 @@ async fn t02_identities_only() {
     assert_eq!(fake.calls, ["none"]);
 }
 
-/// T-03: the server lists only publickey and keyboard-interactive → password is never
+/// The server lists only publickey and keyboard-interactive → password is never
 /// tried (not even the stored one).
 #[tokio::test]
 async fn t03_skips_unlisted_methods() {
@@ -433,7 +432,7 @@ async fn t03_skips_unlisted_methods() {
     );
 }
 
-/// T-04: RSA signature hash from `server-sig-algs`; SHA-1 only with the legacy opt-in.
+/// RSA signature hash from `server-sig-algs`; SHA-1 only with the legacy opt-in.
 #[tokio::test]
 async fn t04_rsa_signature_algorithm() {
     let cases = [
@@ -467,7 +466,7 @@ async fn t04_rsa_signature_algorithm() {
     assert!(super::allows_ssh_rsa(&o));
 }
 
-/// T-05: `max_auth_attempts = 2` with 4 agent identities → exactly 2 attempts, then an
+/// `max_auth_attempts = 2` with 4 agent identities → exactly 2 attempts, then an
 /// `Auth` failure listing the methods tried (the stored password is never sent).
 #[tokio::test]
 async fn t05_attempt_cap() {
@@ -493,7 +492,7 @@ async fn t05_attempt_cap() {
     assert!(user.prompts.is_empty());
 }
 
-/// T-06: one non-echo "Password:" prompt + a stored password → answered once without a
+/// One non-echo "Password:" prompt + a stored password → answered once without a
 /// dialog; the same request again in this connection → a dialog.
 #[tokio::test]
 async fn t06_kbd_auto_answer_once() {
@@ -512,7 +511,7 @@ async fn t06_kbd_auto_answer_once() {
     assert!(user.accepted.is_empty());
 }
 
-/// T-07: an OTP prompt is always shown, even with a stored password.
+/// An OTP prompt is always shown, even with a stored password.
 #[tokio::test]
 async fn t07_kbd_otp_shows_a_dialog() {
     let auth = material(None, Some("pw"));
@@ -544,7 +543,7 @@ async fn t07_kbd_otp_shows_a_dialog() {
     }]));
 }
 
-/// T-08: server text is stripped of escape sequences and control characters and capped
+/// Server text is stripped of escape sequences and control characters and capped
 /// at 512 characters, in the dialog too.
 #[tokio::test]
 async fn t08_server_text_is_sanitized() {
@@ -578,7 +577,7 @@ async fn t08_server_text_is_sanitized() {
     assert_eq!(p.title, "Authenticate to db");
 }
 
-/// T-18: answer buffers are dropped once the request using them returns.
+/// Answer buffers are dropped once the request using them returns.
 #[tokio::test(flavor = "current_thread")]
 async fn t18_answer_buffers_are_dropped() {
     let before = ANSWERS_DROPPED.with(std::cell::Cell::get);
@@ -795,7 +794,6 @@ async fn partial_success_continues() {
     assert_eq!(user.accepted.len(), 1);
 }
 
-// M2-03
 /// An agent / hardware reference key (its public line in `private_key`): only that
 /// identity of the system agent is used; nothing else from the agent is offered, and a
 /// missing identity skips the key.

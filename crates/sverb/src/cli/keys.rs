@@ -1,13 +1,11 @@
-//! M0-07: `sverb keys list | generate | import | export` (M2-03) and
-//! `sverb keys --dump` (the effective keymap, M0-10).
+//! `sverb keys list | generate | import | export` and
+//! `sverb keys --dump` (the effective keymap).
 //!
 //! SPEC §16 uses `sverb keys` for both SSH keys and the keymap dump; the hidden
-//! `sverb keymap --dump` is an unambiguous alias (spec question raised in M0-07).
 //!
-//! M2-03 (SPEC §9.4, §16). The vault is unlocked like `sverb hosts`
 //! ([`require_unlocked`]); writes go through the TUI's item service.
 //! - `list [--json]`: label, algorithm, fingerprint and certificate status. Never any
-//!   private material (T-11).
+//!   private material.
 //! - `generate [--type ed25519] [--label L] [--comment C] [--no-passphrase]`: prints
 //!   the public key, then the new id. The passphrase prompt is TTY-only; without a
 //!   terminal (or with `--no-passphrase`) the key is stored without one (the vault
@@ -18,7 +16,7 @@
 //!   not duplicated (its id is printed).
 //! - `export <key> [--public] [--output F]`: `--public` prints the public key. The
 //!   private key goes to `--output` (mode 0600, never overwritten silently) or to
-//!   stdout **only when stdout is not a terminal** (T-12).
+//!   stdout **only when stdout is not a terminal**.
 
 use std::{
     io::{BufRead, Write},
@@ -40,9 +38,8 @@ use sverb_core::{
     model::{ItemId, KeyAlgorithm},
     secret::SecretString,
 };
-use sverb_tui::services::vault::items::{ItemError, ItemOps};
-// M0-10
 use sverb_tui::keymap::Keymap;
+use sverb_tui::services::vault::items::{ItemError, ItemOps};
 use zeroize::Zeroizing;
 
 use super::{CliError, Ctx, vault::require_unlocked};
@@ -77,7 +74,6 @@ pub(crate) struct KeymapArgs {
 pub(crate) enum KeysCmd {
     /// List keys in the vault (no private material)
     List {
-        // M2-03
         /// Print JSON (`{"version":1,"data":…}`)
         #[arg(long)]
         json: bool,
@@ -90,7 +86,6 @@ pub(crate) enum KeysCmd {
         /// Label for the key
         #[arg(long)]
         label: Option<String>,
-        // M2-03
         /// Key comment (default `user@hostname-sverb`)
         #[arg(long)]
         comment: Option<String>,
@@ -102,7 +97,6 @@ pub(crate) enum KeysCmd {
     Import {
         /// The key file
         file: PathBuf,
-        // M2-03
         /// Label for the key (default: its comment, else the file name)
         #[arg(long)]
         label: Option<String>,
@@ -114,7 +108,6 @@ pub(crate) enum KeysCmd {
         /// Export only the public key
         #[arg(long)]
         public: bool,
-        // M2-03
         /// Write to this file (private keys: mode 0600)
         #[arg(long, short = 'o')]
         output: Option<PathBuf>,
@@ -140,7 +133,6 @@ pub(crate) enum KeyType {
     Rsa4096,
 }
 
-// M2-03
 impl KeyType {
     fn algorithm(self) -> KeyAlgorithm {
         match self {
@@ -165,7 +157,6 @@ pub(crate) async fn run(args: KeysArgs, ctx: &Ctx, out: &mut dyn Write) -> Resul
             "`sverb keys` needs a subcommand or --dump".to_owned(),
         ));
     };
-    // M2-03
     let unlocked = require_unlocked(ctx).await?;
     let ops = ItemOps::new(unlocked.engine, Arc::new(unlocked.vault));
     let mut io = KeysIo {
@@ -178,7 +169,7 @@ pub(crate) async fn run(args: KeysArgs, ctx: &Ctx, out: &mut dyn Write) -> Resul
 }
 
 /// `sverb keys --dump [--json]`: the effective keymap (built-ins + config overrides) as
-/// `MODE KEYS ACTION DESCRIPTION SOURCE`, or JSON `{"version":1,"data":[…]}` (M0-10).
+/// `MODE KEYS ACTION DESCRIPTION SOURCE`, or JSON `{"version":1,"data":[…]}`.
 pub(crate) fn run_dump(json: bool, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
     let rows = Keymap::effective(&ctx.config);
     if json {
@@ -188,8 +179,6 @@ pub(crate) fn run_dump(json: bool, ctx: &Ctx, out: &mut dyn Write) -> Result<u8,
     }
     Ok(0)
 }
-
-// ---------------------------------------------------------------- M2-03
 
 /// The terminal and the prompts of a `keys` command (injected by tests).
 pub(crate) struct KeysIo<'a> {
@@ -533,7 +522,7 @@ pub(crate) async fn run_with(
 
 #[cfg(test)]
 mod tests {
-    //! M2-03: T-11 (no private material in `keys list --json`), T-12 (private export
+    //! T-11 (no private material in `keys list --json`), T-12 (private export
     //! refused on a terminal, printed when piped), generate / import / duplicates.
 
     #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -603,7 +592,6 @@ mod tests {
         }
     }
 
-    // T-11
     #[tokio::test(flavor = "multi_thread")]
     async fn t11_list_json_has_no_private_material() {
         let (_h, ops) = ops("t11").await;
@@ -652,7 +640,6 @@ mod tests {
         assert!(out.contains("work") && !out.contains("PRIVATE KEY"));
     }
 
-    // T-12
     #[tokio::test(flavor = "multi_thread")]
     async fn t12_private_export_refused_on_a_terminal() {
         let (_h, ops) = ops("t12").await;

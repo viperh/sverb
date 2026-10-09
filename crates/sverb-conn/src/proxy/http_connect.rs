@@ -295,7 +295,6 @@ impl<S: AsyncWrite + Unpin> AsyncWrite for PrefixedStream<S> {
     }
 }
 
-// M7-05
 /// A scripted proxy for the fuzz target: reads return `data` in `chunk`-sized pieces,
 /// then end of stream; writes are swallowed.
 struct FuzzProxy {
@@ -338,7 +337,7 @@ impl AsyncWrite for FuzzProxy {
     }
 }
 
-/// M7-05: the `http_connect_response` fuzz target
+/// The `http_connect_response` fuzz target
 /// (`fuzz/fuzz_targets/http_connect_response.rs`). The first byte picks the read size
 /// (1..=32 bytes, so the `\r\n\r\n` search is split at every boundary) and the header
 /// limit; the rest is what the proxy answers to CONNECT. [`connect`] must never panic,

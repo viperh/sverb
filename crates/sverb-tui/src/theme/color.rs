@@ -1,6 +1,6 @@
-//! Color depth and 256-color downsampling (M0-11).
+//! Color depth and 256-color downsampling.
 //!
-//! The implementation lives in [`sverb_term::color`], so the terminal pane (M1-10) uses
+//! The implementation lives in [`sverb_term::color`], so the terminal pane uses
 //! exactly the same mapping without depending on this crate. Re-exported here for the
 //! UI theme.
 

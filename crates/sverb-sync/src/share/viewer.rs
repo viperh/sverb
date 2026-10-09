@@ -1,4 +1,4 @@
-//! M6-03: the viewer side of a terminal share (SPEC §14.1 step 5, §14.2, §14.3).
+//! The viewer side of a terminal share (SPEC §14.1 step 5, §14.2, §14.3).
 //!
 //! [`join`] spawns the viewer task for a parsed [`ShareLink`]: it opens
 //! `/v1/shares/{id}/join` (signed in when a token is given, else anonymously with a

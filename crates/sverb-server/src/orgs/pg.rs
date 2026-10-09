@@ -236,7 +236,6 @@ pub(super) async fn remove_member(
         .bind(target)
         .execute(&mut *tx)
         .await?;
-    // Their grants on the org's vaults go too (rotation prompts: M5-04).
     let revoked = query(
         "DELETE FROM vault_members WHERE user_id = $2 \
          AND vault_id IN (SELECT id FROM vaults WHERE org_id = $1)",

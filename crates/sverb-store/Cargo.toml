@@ -16,7 +16,7 @@ workspace = true
 sverb-core = { workspace = true }
 sverb-crypto = { workspace = true }
 
-# M1-03: SQLite (bundled), versioned migrations, async wrappers.
+# SQLite (bundled), versioned migrations, async wrappers.
 parking_lot = { workspace = true }
 rusqlite = { workspace = true }
 rusqlite_migration = { workspace = true }

@@ -211,7 +211,7 @@ async fn register_finish(
         .register(&acct, cred, &tokens, Uuid::now_v7(), now)
         .await?;
     if let Some(invite) = grant.org_invite {
-        // M5-01: the org membership for the invite presented at registration.
+        // The org membership for the invite presented at registration.
         match state
             .orgs()
             .accept_invite_id(invite, acct.user_id, now)
@@ -392,7 +392,7 @@ async fn login_finish(
                     ApiError::internal(std::io::Error::other("account keys missing"))
                 })?;
             tracing::info!(user_id = %user.id, %device_id, "login");
-            // M5-01: a new device shows in the audit log of the user's orgs.
+            // A new device shows in the audit log of the user's orgs.
             if !matches!(&choice, DeviceChoice::Existing(id, _) if *id == device_id) {
                 state
                     .orgs()

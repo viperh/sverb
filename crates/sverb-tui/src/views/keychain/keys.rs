@@ -1,4 +1,4 @@
-//! M2-03: the Keychain view's Keys sub-tab (SPEC §4.5, §8.5, §9.4).
+//! The Keychain view's Keys sub-tab (SPEC §4.5, §8.5, §9.4).
 //!
 //! - **Rows**: every key (alphabetical) with its type, `SHA256` fingerprint, flags
 //!   (`agent` reference, `enc`rypted, `fwd` agent-forwardable, `confirm`) and the worst
@@ -11,7 +11,7 @@
 //!   generate, `I` import a file, `p` import pasted text, `c` copy the public key, `x`
 //!   export the public key to a file, `X` export the private key, `P` change the
 //!   passphrase, `t` attach a certificate, `f` toggle `agent_forwardable`, `o` toggle
-//!   `confirm_on_use`, `H` install on hosts (M2-04), `d` delete
+//!   `confirm_on_use`, `H` install on hosts, `d` delete
 //!   (warns "used by N"). The view records the request; the
 //!   reducer (`app/keychain/keys.rs`) carries it out.
 //!
@@ -239,7 +239,7 @@ pub enum KeyRequest {
     ToggleForwardable(ItemId),
     /// `o`: toggle `confirm_on_use`.
     ToggleConfirm(ItemId),
-    /// `H`: install on hosts (M2-04).
+    /// `H`: install on hosts.
     Install(ItemId),
     /// `d`: delete (asks).
     Delete(ItemId),

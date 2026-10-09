@@ -1,4 +1,4 @@
-//! M1-06: the `KeyValueList` field (`env`): rows of `key = value`.
+//! The `KeyValueList` field (`env`): rows of `key = value`.
 //!
 //! Browsing: `↑/↓` move, `a` adds a row (editing its key), `e`/`Enter` edits the
 //! selected row, `d`/`Del` deletes it.

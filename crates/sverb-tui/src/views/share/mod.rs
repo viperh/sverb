@@ -1,4 +1,4 @@
-//! M6-03: the terminal-sharing dialogs (SPEC §14.1, §14.3).
+//! The terminal-sharing dialogs (SPEC §14.1, §14.3).
 //!
 //! - [`start_dialog`]: `leader S` on an unshared pane: mode, expiry, account
 //!   requirement, skip approval;

@@ -1,4 +1,3 @@
-//! M1-14 T-11…T-17 against OpenSSH in Docker (the M1-18 harness). The loopback
 //! versions run without Docker in `sverb-conn`'s `ssh::auth_loopback`.
 //!
 //! `#[ignore]`d: `SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_auth -- --ignored`.
@@ -31,7 +30,7 @@ async fn assert_connects(mut s: Headless) {
     s.close().await;
 }
 
-/// T-11: password auth.
+/// Password auth.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t11_password() {
@@ -40,7 +39,7 @@ async fn t11_password() {
     assert_connects(Headless::connect(Login::sshd_password(&sshd))).await;
 }
 
-/// T-12: ed25519 and ecdsa keys; RSA 4096 signs with `rsa-sha2-512` (server log).
+/// Ed25519 and ecdsa keys; RSA 4096 signs with `rsa-sha2-512` (server log).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t12_key_auth() {
@@ -57,7 +56,7 @@ async fn t12_key_auth() {
     assert!(logs.contains("rsa-sha2-512"), "{logs}");
 }
 
-/// T-13: an encrypted key prompts for its passphrase; with the stored passphrase
+/// An encrypted key prompts for its passphrase; with the stored passphrase
 /// there is no prompt.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -97,7 +96,7 @@ async fn t13_encrypted_key() {
     s.close().await;
 }
 
-/// T-14: certificate auth (`TrustedUserCAKeys`); the key alone is refused.
+/// Certificate auth (`TrustedUserCAKeys`); the key alone is refused.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t14_certificate() {
@@ -136,7 +135,7 @@ async fn t14_certificate() {
     s.close().await;
 }
 
-/// T-15: keyboard-interactive through PAM: the prompt round completes with the OTP.
+/// Keyboard-interactive through PAM: the prompt round completes with the OTP.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t15_keyboard_interactive() {
@@ -254,7 +253,7 @@ fn with_agent(agent: &TestAgent) -> HeadlessOptions {
     }
 }
 
-/// T-16: `MaxAuthTries 2` with five agent identities and no configured key → fails
+/// `MaxAuthTries 2` with five agent identities and no configured key → fails
 /// gracefully; with a configured key → succeeds without asking the agent
 /// (IdentitiesOnly).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -309,7 +308,7 @@ async fn t16_max_auth_tries() {
     assert_connects(s).await;
 }
 
-/// T-17: a real `ssh-agent` holding the authorized key, no key configured → success
+/// A real `ssh-agent` holding the authorized key, no key configured → success
 /// through the agent.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]

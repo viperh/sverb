@@ -1,5 +1,4 @@
 //! [`UiSender`]: how the UI sends commands to a session without ever waiting
-//! (SPEC §2.1, M0-09 backpressure contract).
 //!
 //! The UI only uses `try_send`. When the bounded queue (capacity 256) is full:
 //! - **input bytes are never dropped**: they go to a per-session overflow queue, in
@@ -40,7 +39,7 @@ pub enum SendOutcome {
 
 #[derive(Default)]
 struct Overflow {
-    // M1-11: input commands (`Input`, `Key`, `Paste`), in order.
+    // Input commands (`Input`, `Key`, `Paste`), in order.
     queue: VecDeque<SessionCmd>,
     bytes: usize,
     draining: bool,
@@ -87,7 +86,6 @@ impl UiSender {
         self.send_ordered(SessionCmd::Input(bytes))
     }
 
-    // M1-11
     /// Send an input command (`Input`, `Key`, `Paste`): never dropped while the session
     /// lives, and kept in order with other input. Must be called inside a tokio runtime.
     pub fn send_ordered(&self, cmd: SessionCmd) -> SendOutcome {
@@ -117,7 +115,7 @@ impl UiSender {
 
     /// Send any other command with `try_send`; dropped (with a warning) when full.
     pub fn send_cmd(&self, cmd: SessionCmd) -> SendOutcome {
-        // M1-11: keys and pastes are input too.
+        // Keys and pastes are input too.
         if matches!(
             cmd,
             SessionCmd::Input(_)
@@ -159,7 +157,6 @@ async fn drain(tx: mpsc::Sender<SessionCmd>, overflow: Arc<Mutex<Overflow>>) {
     }
 }
 
-// M1-11
 /// Bytes an input command accounts for in the overflow (a key counts as one).
 fn input_size(cmd: &SessionCmd) -> usize {
     match cmd {
@@ -182,7 +179,7 @@ mod tests {
         session::{CMD_CAPACITY, MockSpec, SessionEvent, SessionSpec, SessionState},
     };
 
-    /// T-07: with the actor not running (current-thread runtime, no yield), 256
+    /// With the actor not running (current-thread runtime, no yield), 256
     /// commands fill the queue, `try_send` reports Full, the rest of the input waits in
     /// the overflow, and everything arrives in order once the actor runs.
     #[tokio::test]

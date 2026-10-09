@@ -1,4 +1,3 @@
-//! M2-11 / T-16: feeds arbitrary text to the `ssh_config` importer
 //! (`sverb_core::importers::ssh_config::parse_str_no_include`: lexer, blocks, the
 //! wildcard-group and first-match mapping; `Include` is not followed, so no file is read)
 //! and renders the preview. It must never panic. Run it with `cargo +nightly fuzz run ssh_config_parse

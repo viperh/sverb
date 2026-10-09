@@ -100,7 +100,7 @@ fn new_credentials(upload: &[u8], bundle: &[u8], version: u32) -> Result<NewCred
     })
 }
 
-/// M4-05: tells the user's other devices over WebSocket
+/// Tells the user's other devices over WebSocket
 /// (`{"type":"account_changed","key_version"}`); `origin` is not notified.
 fn notify_account_changed(state: &AppState, user_id: Uuid, version: u32, origin: Option<Uuid>) {
     tracing::info!(%user_id, key_version = version, "account_changed");

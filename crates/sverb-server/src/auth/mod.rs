@@ -1,4 +1,3 @@
-//! Authentication (SPEC §10.2 (1, 2, 7), §10.4, §11.2; task M4-02).
 //!
 //! * [`opaque`]: the server half of OPAQUE (suite from
 //!   `sverb_crypto::opaque`) and the `ServerSetup` stored in
@@ -6,7 +5,6 @@
 //! * [`tokens`]: access/refresh/reauth tokens (hash-only storage, TTLs);
 //! * [`totp`]: the optional second factor;
 //! * [`extractor`]: `Authorization: Bearer` → [`AuthCtx`] for handlers
-//!   (M4-04 and later use it on every authenticated route);
 //! * [`store`]: persistence (PostgreSQL, plus an in-memory model for tests);
 //! * [`clock`]: injectable time.
 //!

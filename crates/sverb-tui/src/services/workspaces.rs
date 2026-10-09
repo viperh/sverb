@@ -1,4 +1,4 @@
-//! M3-03: the workspace service (SPEC §9.9). Workspaces are synced items
+//! The workspace service (SPEC §9.9). Workspaces are synced items
 //! (`ItemKind::Workspace`) written through the vault's item service: every write is
 //! HLC-stamped, sealed and marked dirty for sync (outbox rule).
 //!

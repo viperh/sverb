@@ -1,4 +1,3 @@
-//! The `--debug` log pane (SPEC §18, `leader D`): the M0-04 debug ring, newest at the
 //! bottom, auto-scrolling unless scrolled up (`PageUp`/`PageDown`/`End` when focused),
 //! one level color per line.
 

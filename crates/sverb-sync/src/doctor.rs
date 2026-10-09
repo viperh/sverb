@@ -1,4 +1,4 @@
-//! M7-04: the sync checks of `sverb doctor` (SPEC §16).
+//! The sync checks of `sverb doctor` (SPEC §16).
 //!
 //! [`probe`] runs read-only checks against the configured server and returns one
 //! [`ProbeCheck`] per line of the doctor report:
@@ -491,7 +491,7 @@ mod tests {
         assert_eq!(parse_http_date("garbage"), None);
     }
 
-    // T-07: a server `Date` 5 minutes off is warned about; a few seconds are not.
+    // A server `Date` 5 minutes off is warned about; a few seconds are not.
     #[test]
     fn t07_clock_offset_warning() {
         let server = "Thu, 08 Oct 2026 12:00:00 GMT";

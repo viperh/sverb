@@ -1,4 +1,4 @@
-//! M2-09: the snippet picker (`leader e`, SPEC §9.7, §8.3).
+//! The snippet picker (`leader e`, SPEC §9.7, §8.3).
 //!
 //! A fuzzy list (name, description, tags and script; `nucleo`) with a preview of the
 //! selected script (variables highlighted). Typing filters; `↑`/`↓` (`ctrl-p`/`ctrl-n`)

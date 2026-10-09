@@ -1,5 +1,5 @@
 #!/bin/bash
-# M1-18: validate the base sshd_config with every profile using the local `sshd -t`
+# Validate the base sshd_config with every profile using the local `sshd -t`
 # (no Docker, no root). Paths are rewritten into a temporary directory with freshly
 # generated host keys. Used by `cargo test -p sverb-e2e --test fixtures` when an
 # `sshd` binary is available; the image itself runs `sshd -t` at every start.

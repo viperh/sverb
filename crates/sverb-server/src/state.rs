@@ -6,20 +6,17 @@ use std::sync::{Arc, Mutex};
 use metrics_exporter_prometheus::PrometheusHandle;
 use sqlx_postgres::PgPool;
 
-// M4-02: auth runtime (store, clock, OPAQUE setup).
+// Auth runtime (store, clock, OPAQUE setup).
 use crate::auth::AuthRuntime;
 use crate::config::Config;
 use crate::middleware::rate_limit::RateLimiters;
 use crate::secrets::ServerSecrets;
-// M6-01
 use crate::share::ShareRuntime;
-// M4-04
 use crate::sync::SyncRuntime;
-// M4-05
 use crate::ws::{Bus, WsRuntime, WsTiming};
 
 /// Components that can mark the server "not ready" without being fatal
-/// (e.g. the LISTEN/NOTIFY listener reconnecting, M4-05).
+/// (e.g. the LISTEN/NOTIFY listener reconnecting).
 #[derive(Debug, Default)]
 pub struct Readiness {
     degraded: Mutex<BTreeSet<&'static str>>,
@@ -55,15 +52,10 @@ struct Inner {
     rate_limits: Arc<RateLimiters>,
     metrics: PrometheusHandle,
     readiness: Readiness,
-    // M4-02
     auth: AuthRuntime,
-    // M4-04
     sync: SyncRuntime,
-    // M4-05
     ws: WsRuntime,
-    // M6-01
     shares: ShareRuntime,
-    // M5-01
     orgs: crate::orgs::OrgStore,
     mailer: std::sync::RwLock<crate::mail::Mailer>,
 }
@@ -86,7 +78,7 @@ impl AppState {
         Self::with_auth(config, db, rate_limits, auth)
     }
 
-    /// M4-02: like [`Self::with_rate_limits`] with a custom auth runtime
+    /// Like [`Self::with_rate_limits`] with a custom auth runtime
     /// (tests: the in-memory store and a manual clock).
     #[must_use]
     pub fn with_auth(
@@ -95,12 +87,12 @@ impl AppState {
         rate_limits: RateLimiters,
         auth: AuthRuntime,
     ) -> Self {
-        // M4-05: LISTEN/NOTIFY on PostgreSQL, in-process for the memory model.
+        // LISTEN/NOTIFY on PostgreSQL, in-process for the memory model.
         let bus = WsRuntime::bus_for_auth(auth.store());
         Self::with_bus(config, db, rate_limits, auth, bus)
     }
 
-    /// M4-05: like [`Self::with_auth`] on an explicit fan-out bus (tests:
+    /// Like [`Self::with_auth`] on an explicit fan-out bus (tests:
     /// several states sharing one [`crate::ws::LocalBus`] are several
     /// replicas sharing one database).
     #[must_use]
@@ -112,14 +104,14 @@ impl AppState {
         bus: Arc<dyn Bus>,
     ) -> Self {
         let secrets = ServerSecrets::new(&config.server_secret);
-        // M4-04: sync runs on the same backend as auth.
+        // Sync runs on the same backend as auth.
         let sync = SyncRuntime::for_auth(&auth, &config);
-        // M4-05: push commits publish `vault_changed` on the bus.
+        // Push commits publish `vault_changed` on the bus.
         let ws = WsRuntime::new(bus, WsTiming::default());
         sync.set_notifier(ws.notifier());
-        // M6-01: share sessions on the same backend as auth.
+        // Share sessions on the same backend as auth.
         let shares = ShareRuntime::for_auth(&auth, &config);
-        // M5-01: orgs on the same backend as auth; invite mail when SMTP is set.
+        // Orgs on the same backend as auth; invite mail when SMTP is set.
         let orgs = crate::orgs::OrgStore::for_auth(auth.store());
         let mailer = std::sync::RwLock::new(crate::mail::Mailer::from_config(config.smtp.as_ref()));
         Self(Arc::new(Inner {
@@ -168,43 +160,43 @@ impl AppState {
         &self.0.metrics
     }
 
-    /// M4-02: authentication state (store, clock, OPAQUE setup).
+    /// Authentication state (store, clock, OPAQUE setup).
     #[must_use]
     pub fn auth(&self) -> &AuthRuntime {
         &self.0.auth
     }
 
-    /// M4-04: sync state (store, limits, change notifier).
+    /// Sync state (store, limits, change notifier).
     #[must_use]
     pub fn sync(&self) -> &SyncRuntime {
         &self.0.sync
     }
 
-    /// M4-05: WebSocket hub and fan-out bus.
+    /// WebSocket hub and fan-out bus.
     #[must_use]
     pub fn ws(&self) -> &WsRuntime {
         &self.0.ws
     }
 
-    /// M6-01: share sessions and this replica's relays.
+    /// Share sessions and this replica's relays.
     #[must_use]
     pub fn shares(&self) -> &ShareRuntime {
         &self.0.shares
     }
 
-    /// M5-01: orgs, members, invites, the audit log.
+    /// Orgs, members, invites, the audit log.
     #[must_use]
     pub fn orgs(&self) -> &crate::orgs::OrgStore {
         &self.0.orgs
     }
 
-    /// M5-01: the invite mailer.
+    /// The invite mailer.
     #[must_use]
     pub fn mailer(&self) -> crate::mail::Mailer {
         self.0.mailer.read().map(|m| m.clone()).unwrap_or_default()
     }
 
-    /// M5-01: replaces the mailer (tests: [`crate::mail::Mailer::Recording`]).
+    /// Replaces the mailer (tests: [`crate::mail::Mailer::Recording`]).
     pub fn set_mailer(&self, mailer: crate::mail::Mailer) {
         if let Ok(mut m) = self.0.mailer.write() {
             *m = mailer;

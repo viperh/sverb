@@ -1,4 +1,4 @@
-//! The shell (M0-11, SPEC §8.1): top bar, sidebar, tab bar, main area, optional
+//! The shell (SPEC §8.1): top bar, sidebar, tab bar, main area, optional
 //! detail and log panes, status bar.
 //!
 //! ```text
@@ -44,18 +44,18 @@ pub const LOG_PANE_PERCENT: u16 = 30;
 /// Sidebar sections (SPEC §8.5), in sidebar order.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Section {
-    /// Hosts (M1-07).
+    /// Hosts.
     #[default]
     Hosts,
-    /// Keys, certificates, identities (M2-03).
+    /// Keys, certificates, identities.
     Keychain,
-    /// Port forwards (M2-08).
+    /// Port forwards.
     Forwards,
-    /// Snippets (M2-09).
+    /// Snippets.
     Snippets,
-    /// Known hosts (M1-15).
+    /// Known hosts.
     Known,
-    /// Connection logs and recordings (M3-06).
+    /// Connection logs and recordings.
     Logs,
     /// Settings.
     Settings,
@@ -105,7 +105,6 @@ impl Section {
     }
 }
 
-/// Which region of the section views has focus (task M0-11 §2.2 calls it `Focus`;
 /// `app::Focus` already names the view/session focus). Cycled with `tab`.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Region {
@@ -126,7 +125,7 @@ pub enum MainView {
     /// The active section's view.
     #[default]
     Sections,
-    /// The session area: tab bar and panes (M1-17).
+    /// The session area: tab bar and panes.
     Sessions,
 }
 
@@ -328,7 +327,6 @@ mod tests {
         layout(Rect::new(0, 0, w, h), &ShellState::default(), &cfg(mode))
     }
 
-    // T-01
     #[test]
     fn t01_auto_layout_table() {
         // (w, h, sidebar visible, overlay, status merged)
@@ -371,7 +369,6 @@ mod tests {
         }
     }
 
-    // T-02
     #[test]
     fn t02_always_and_never() {
         let r = at(60, 24, SidebarMode::Always);
@@ -400,7 +397,6 @@ mod tests {
         );
     }
 
-    // T-03
     #[test]
     fn t03_too_small() {
         for (w, h) in [(39, 10), (40, 9), (0, 0), (1, 1), (39, 100)] {

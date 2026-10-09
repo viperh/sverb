@@ -1,4 +1,4 @@
-//! M2-01: settings resolution with provenance (SPEC §4.3, §4.13, §12.4).
+//! Settings resolution with provenance (SPEC §4.3, §4.13, §12.4).
 //!
 //! Every inheritable setting resolves **Host → Group → parent Group → … → vault
 //! defaults → global config** (then sverb's built-in default), and the
@@ -21,18 +21,18 @@
 //!   [`MAX_GROUP_DEPTH`] groups, even though writes reject cycles.
 //! - **No secrets.** Resolution never reads secret values: a [`Settings`] layer only
 //!   says *that* a password is stored, and [`ResolvedHost::password`] says *where*
-//!   ([`SecretOrigin`]); the connector reads it from the vault (M1-14). That keeps
+//!   ([`SecretOrigin`]); the connector reads it from the vault. That keeps
 //!   [`ResolvedHost`] `Clone`/`Eq` and safe to hand around.
 //!
 //! Pure and deterministic: the only inputs are the host, an [`ItemLookup`], the vault
 //! defaults and [`GlobalDefaults`].
 
 pub mod provenance;
-// M2-05: jump-chain expansion (recursive, cycle-checked, depth-limited).
+// Jump-chain expansion (recursive, cycle-checked, depth-limited).
 pub mod chain;
-// M2-10: approval of values that act locally (§17.1).
+// Approval of values that act locally (§17.1).
 pub mod approval;
-// M5-02: the per-user credential override layer of shared hosts (§13.4).
+// The per-user credential override layer of shared hosts (§13.4).
 pub mod overrides;
 
 #[cfg(test)]
@@ -49,11 +49,10 @@ use crate::model::{
     ItemId, Proxy, VaultId, WireEnum,
 };
 
-pub use provenance::{Provenance, SettingKey, Source};
-// M2-05
 pub use chain::{
     ChainError, ChainHop, HopInfo, MAX_JUMP_HOPS, effective_route, expand_by, expand_chain,
 };
+pub use provenance::{Provenance, SettingKey, Source};
 
 /// The charset used when nothing sets one.
 pub const DEFAULT_CHARSET: &str = "UTF-8";
@@ -162,10 +161,9 @@ pub struct Settings {
     pub algorithms: Option<AlgoOverrides>,
     /// `request_pty_for_exec`
     pub request_pty_for_exec: Option<bool>,
-    /// `record_sessions` (M3-05)
+    /// `record_sessions`
     pub record_sessions: Option<bool>,
-    // M1-16
-    /// `auto_reconnect` (M1-16)
+    /// `auto_reconnect`
     pub auto_reconnect: Option<bool>,
 }
 
@@ -201,7 +199,6 @@ impl Settings {
             algorithms: host.algorithms.clone(),
             request_pty_for_exec: host.request_pty_for_exec,
             record_sessions: host.record_sessions,
-            // M1-16
             auto_reconnect: host.auto_reconnect,
         }
     }
@@ -228,7 +225,6 @@ impl Settings {
             algorithms: d.algorithms.clone(),
             request_pty_for_exec: d.request_pty_for_exec,
             record_sessions: d.record_sessions,
-            // M1-16
             auto_reconnect: d.auto_reconnect,
         }
     }
@@ -255,7 +251,6 @@ impl Settings {
             SettingKey::Algorithms => self.algorithms.is_some(),
             SettingKey::RequestPtyForExec => self.request_pty_for_exec.is_some(),
             SettingKey::RecordSessions => self.record_sessions.is_some(),
-            // M1-16
             SettingKey::AutoReconnect => self.auto_reconnect.is_some(),
         }
     }
@@ -406,7 +401,6 @@ pub struct GlobalDefaults {
     pub color_scheme: String,
     /// `recording.enabled`
     pub record_sessions: bool,
-    // M1-16
     /// `ssh.auto_reconnect`
     pub auto_reconnect: bool,
 }
@@ -418,7 +412,6 @@ impl GlobalDefaults {
             keepalive_secs: config.ssh.keepalive_secs,
             color_scheme: config.terminal.color_scheme.clone(),
             record_sessions: config.recording.enabled,
-            // M1-16
             auto_reconnect: config.ssh.auto_reconnect,
         }
     }
@@ -513,10 +506,9 @@ pub struct ResolvedHost {
     pub algorithms: Option<AlgoOverrides>,
     /// Request a PTY for exec runs.
     pub request_pty_for_exec: bool,
-    /// Record sessions (M3-05).
+    /// Record sessions.
     pub record_sessions: bool,
-    // M1-16
-    /// Reconnect automatically after a drop (M1-16).
+    /// Reconnect automatically after a drop.
     pub auto_reconnect: bool,
     /// Where each setting came from.
     pub provenance: Provenance,
@@ -576,7 +568,6 @@ impl ResolvedHost {
             }
             SettingKey::RequestPtyForExec => yn(self.request_pty_for_exec),
             SettingKey::RecordSessions => yn(self.record_sessions),
-            // M1-16
             SettingKey::AutoReconnect => yn(self.auto_reconnect),
         })
     }
@@ -866,7 +857,6 @@ pub fn resolve_settings<L: ItemLookup + ?Sized>(
         record.as_ref().map(|p| p.1.clone()),
         Source::GlobalConfig,
     );
-    // M1-16
     let auto_reconnect = first(&layers, |s| s.auto_reconnect);
     take(
         SettingKey::AutoReconnect,
@@ -905,14 +895,13 @@ pub fn resolve_settings<L: ItemLookup + ?Sized>(
         algorithms: algorithms.map(|p| p.0),
         request_pty_for_exec: pty.is_some_and(|p| p.0),
         record_sessions: record.map_or(globals.record_sessions, |p| p.0),
-        // M1-16
         auto_reconnect: auto_reconnect.map_or(globals.auto_reconnect, |p| p.0),
         provenance: prov,
         warnings,
     }
 }
 
-/// The password a [`SecretOrigin`] points at (the connector's read, M1-14): the
+/// The password a [`SecretOrigin`] points at (the connector's read): the
 /// identity's when the origin names one, else the inline password of that level.
 /// `group` and `identity` look up live items; `vault_defaults` is the vault-defaults
 /// item's `defaults`.
@@ -930,7 +919,7 @@ pub fn password_for<'a>(
         Source::Host => host.password.as_ref(),
         Source::Group { id, .. } => group(*id)?.defaults.password.as_ref(),
         Source::VaultDefaults => vault_defaults?.password.as_ref(),
-        // M5-02: an override's inline password is read from the override item by
+        // An override's inline password is read from the override item by
         // the caller (it is not one of these levels).
         Source::GlobalConfig | Source::BuiltinDefault | Source::Override { .. } => None,
     }

@@ -1,8 +1,8 @@
-//! M7-01: the history service (SPEC §9.10, §4.12 `HistoryEntry`, §15 `[history]`).
+//! The history service (SPEC §9.10, §4.12 `HistoryEntry`, §15 `[history]`).
 //!
 //! - Executes `Effect::History`: records captured commands, loads the entries, purges a
 //!   host, follows the `[history]` policy. It is also the snippet runs'
-//!   [`HistorySink`] (their commands keep secret values as `{{name}}`, M2-09).
+//!   [`HistorySink`] (their commands keep secret values as `{{name}}`).
 //! - Writes go through one writer task, in order, sealed with the personal vault's key.
 //!   The service stamps `executed_at` (the reducer never reads the clock). While the vault
 //!   is locked, entries wait in memory and are written by the next load (after unlock);

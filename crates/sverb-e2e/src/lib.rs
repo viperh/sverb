@@ -1,4 +1,3 @@
-//! End-to-end test harness for sverb (M1-18, SPEC §19 "Transports (e2e)").
 //!
 //! Not published. The workspace layering checks also live here, in
 //! `tests/workspace_metadata.rs`.

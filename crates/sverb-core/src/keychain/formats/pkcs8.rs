@@ -1,4 +1,4 @@
-//! M2-03: PKCS#8 private keys: `BEGIN PRIVATE KEY` and `BEGIN ENCRYPTED PRIVATE KEY`
+//! PKCS#8 private keys: `BEGIN PRIVATE KEY` and `BEGIN ENCRYPTED PRIVATE KEY`
 //! (PBES2: PBKDF2 / scrypt with AES-CBC / AES-GCM, through the `pkcs8` crate). RSA,
 //! ECDSA P-256/384/521 and Ed25519.
 

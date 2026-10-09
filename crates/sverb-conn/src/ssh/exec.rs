@@ -1,7 +1,7 @@
-//! M2-04: non-interactive exec channels (SPEC §6.1.7).
+//! Non-interactive exec channels (SPEC §6.1.7).
 //!
 //! - [`SshConnection::open`] gets a connection for exec runs without a shell channel.
-//!   M3-07: through the connector's pool (`ssh.multiplex`): a run shares a tab's (or
+//!   Through the connector's pool (`ssh.multiplex`): a run shares a tab's (or
 //!   another run's) connection to the same key, and jump chains work as for sessions;
 //!   with sharing off it is a dedicated connection (resolve → first hop or jump chain →
 //!   handshake with the host-key seam → the authentication chain), closed afterwards.
@@ -20,7 +20,7 @@
 //! - [`for_each_concurrent`]: run work for many targets, at most `limit` at a time
 //!   ([`DEFAULT_CONCURRENCY`]).
 //!
-//! M3-07: the connection comes from the same flow as sessions (`mux_ssh::connect`).
+//! The connection comes from the same flow as sessions (`mux_ssh::connect`).
 //! A run refused by the server's `MaxSessions` on a shared connection fails like any
 //! refused channel (sessions fall back to a new connection; runs don't).
 
@@ -38,7 +38,6 @@ use tracing::{debug, info};
 use super::{
     SshConnector,
     channel::pty_modes,
-    // M3-07
     connect::jump::mux_ssh::{self, SshLease},
     errors::{SshError, from_russh},
     handler::ClientHandler,
@@ -51,7 +50,7 @@ use crate::{
     transport::{ConnectCtx, ConnectError},
 };
 
-// M2-09: multi-host snippet runs on top of exec channels (SPEC §9.7, §16).
+// Multi-host snippet runs on top of exec channels (SPEC §9.7, §16).
 pub mod snippets;
 
 /// Output kept per stream (1 MiB, §6.1.7).
@@ -165,12 +164,12 @@ impl ExecPrompts {
     }
 }
 
-/// An authenticated connection for exec runs (no shell channel). M3-07: shared
+/// An authenticated connection for exec runs (no shell channel). Shared
 /// through the connector's pool when `ssh.multiplex` is on.
 pub struct SshConnection {
     handle: Arc<client::Handle<ClientHandler>>,
     target: SshTarget,
-    // M3-07: this run's lease on the (possibly shared) connection.
+    // This run's lease on the (possibly shared) connection.
     lease: SshLease,
     pooled: bool,
 }
@@ -225,7 +224,7 @@ impl SshConnection {
         &self.target
     }
 
-    /// Disconnect. M3-07: a shared connection is only released (it stays up for its
+    /// Disconnect. A shared connection is only released (it stays up for its
     /// other users, or lingers 10 s).
     pub async fn close(self) {
         if !self.pooled {

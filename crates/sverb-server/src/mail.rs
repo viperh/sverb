@@ -1,5 +1,4 @@
 //! Outgoing mail over SMTP (SPEC §10.7). Optional: without `SMTP_*`
-//! settings, invites are copy-paste links. M5-01 adds org-invite mail on top
 //! of [`send`].
 
 use lettre::message::{Mailbox, header::ContentType};
@@ -71,7 +70,6 @@ pub async fn send_invite(cfg: &SmtpConfig, to: &str, link: &str) -> Result<(), M
     send(cfg, to, "Your sverb invite", body).await
 }
 
-// M5-01
 /// Mails an org invite link.
 ///
 /// # Errors
@@ -91,7 +89,6 @@ pub async fn send_org_invite(
     send(cfg, to, "You're invited to a sverb team", body).await
 }
 
-// M5-01
 /// One mail a [`Mailer::Recording`] kept.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SentMail {
@@ -103,7 +100,6 @@ pub struct SentMail {
     pub body: String,
 }
 
-// M5-01
 /// Where invite mail goes: SMTP, nowhere (no SMTP configured: invites are links),
 /// or a recording fake (tests).
 #[derive(Debug, Clone, Default)]

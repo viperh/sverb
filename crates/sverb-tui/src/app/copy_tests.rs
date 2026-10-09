@@ -1,4 +1,4 @@
-//! M3-04: copy mode, mouse selection and links through the reducer (T-06 … T-10).
+//! Copy mode, mouse selection and links through the reducer.
 
 #![allow(clippy::unwrap_used)]
 
@@ -66,7 +66,7 @@ fn draw(h: &AppHarness, emu: &SharedEmulator, w: u16, h_: u16) -> Buffer {
     terminal.backend().buffer().clone()
 }
 
-/// T-06: `leader [` → copy mode; `v` + motions + `y` → `CopyToClipboard`, back to Terminal.
+/// `leader [` → copy mode; `v` + motions + `y` → `CopyToClipboard`, back to Terminal.
 #[test]
 fn t06_select_and_yank() {
     let emu = new_emulator(40, 5, b"$ ssh web-1:22\r\nhello world\r\n$ ");
@@ -109,7 +109,7 @@ fn t06_select_and_yank() {
     assert_eq!(h.app().mode(), Mode::Terminal);
 }
 
-/// T-07: new output while in copy mode doesn't move the view; the badge counts lines.
+/// New output while in copy mode doesn't move the view; the badge counts lines.
 #[test]
 fn t07_frozen_view_counts_new_lines() {
     let emu = new_emulator(30, 4, b"line 1\r\nline 2\r\nline 3\r\nline 4");
@@ -135,7 +135,7 @@ fn t07_frozen_view_counts_new_lines() {
     assert!(live.contains("new c") && !live.contains("COPY"), "{live}");
 }
 
-/// T-08: drag + release copies; Shift-drag works even when the remote captures the mouse.
+/// Drag + release copies; Shift-drag works even when the remote captures the mouse.
 #[test]
 fn t08_mouse_selection() {
     let emu = new_emulator(40, 4, b"alpha beta gamma\r\nsecond row");
@@ -277,7 +277,7 @@ fn open_urls(h: &AppHarness) -> Vec<String> {
         .collect()
 }
 
-/// T-09: `o` on a hyperlink → a confirm dialog with the URL; only "Open" opens it.
+/// `o` on a hyperlink → a confirm dialog with the URL; only "Open" opens it.
 #[test]
 fn t09_open_link_needs_confirmation() {
     let emu = new_emulator(40, 3, LINK);
@@ -381,7 +381,7 @@ fn overlay_map(
     out
 }
 
-/// T-10: copy mode with a selection and search highlights at 80×24.
+/// Copy mode with a selection and search highlights at 80×24.
 #[test]
 fn t10_snapshot_selection_and_search() {
     let mut text = Vec::new();

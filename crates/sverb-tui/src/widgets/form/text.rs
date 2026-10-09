@@ -1,7 +1,6 @@
-//! M1-06: a single-line text editor (`Text` fields, the list filter line, prompts).
+//! A single-line text editor (`Text` fields, the list filter line, prompts).
 //!
 //! Plain state: the text and a cursor (a **char** index). Keys (Insert mode,
-//! `tasks/03-KEYBINDINGS.md` §4.3): printable characters insert, `←/→` move,
 //! `ctrl-←/→` and `alt-b/alt-f` move by word, `Home`/`ctrl-a` and `End`/`ctrl-e` jump,
 //! `Backspace`/`Delete` erase, `ctrl-w` deletes the word before the cursor, `ctrl-u`
 //! deletes to the start and `ctrl-k` to the end.

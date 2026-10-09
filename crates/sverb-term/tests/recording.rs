@@ -1,4 +1,3 @@
-//! M3-05 integration tests: the recorder task end to end (T-02, T-06, T-07, T-12).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
@@ -54,7 +53,6 @@ fn chunk_lens(file: &[u8]) -> Vec<usize> {
     out
 }
 
-// T-02
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t02_300kb_round_trip_in_multiple_chunks() {
     let buf = SharedBuf::default();
@@ -113,7 +111,6 @@ async fn t02_300kb_round_trip_in_multiple_chunks() {
     assert!(rec.events.windows(2).all(|w| w[0].time <= w[1].time));
 }
 
-// T-06
 #[tokio::test(start_paused = true)]
 async fn t06_crash_leaves_a_readable_prefix() {
     let buf = SharedBuf::default();
@@ -174,7 +171,6 @@ impl Write for GatedBuf {
 
 impl SyncWrite for GatedBuf {}
 
-// T-07
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_backpressure_drops_and_marks_without_blocking() {
     let gated = GatedBuf {
@@ -244,7 +240,6 @@ async fn t07_backpressure_drops_and_marks_without_blocking() {
     assert!(rec.events.iter().any(|e| e.data == "after unblock"));
 }
 
-// T-12
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t12_file_mode_and_no_plaintext() {
     let dir = std::path::PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!(

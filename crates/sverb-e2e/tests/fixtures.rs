@@ -1,4 +1,4 @@
-//! M1-18: static checks of the OpenSSH fixture image (no Docker needed).
+//! Static checks of the OpenSSH fixture image (no Docker needed).
 //!
 //! - every `Profile` has a `profiles/<name>.conf` and every file a `Profile`;
 //! - the base config plus each profile passes `sshd -t` (when a local `sshd` exists;

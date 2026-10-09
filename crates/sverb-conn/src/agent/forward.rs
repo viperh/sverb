@@ -1,4 +1,4 @@
-//! M2-07: serving an agent connection by `agent_source` (SPEC §6.1.6), for forwarded
+//! Serving an agent connection by `agent_source` (SPEC §6.1.6), for forwarded
 //! `auth-agent@openssh.com` channels and the local socket.
 //!
 //! - `system`: the stream is spliced byte-for-byte to the system agent

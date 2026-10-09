@@ -1,6 +1,6 @@
 name: Benchmarks
 
-# M7-06: performance targets (SPEC §1, §5.2, §19). Not run on every PR (shared
+# Performance targets (SPEC §1, §5.2, §19). Not run on every PR (shared
 # runners are noisy): nightly on master and on demand.
 #
 # * Hard gates for the spec targets, CI-adjusted (2x): scripts/bench-gates.toml.

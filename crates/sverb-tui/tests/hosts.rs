@@ -1,5 +1,4 @@
-//! M1-07 integration tests: the item service saves, edits, duplicates and deletes
-//! hosts through the vault (T-04 … T-07). Small Argon2 parameters, in-memory keyring.
+//! hosts through the vault. Small Argon2 parameters, in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -106,7 +105,6 @@ async fn raw_body(service: &VaultService, id: ItemId) -> (sverb_store::ItemRow, 
     (row, body)
 }
 
-// T-04
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_save_new_host_encrypted_indexed_and_listed() {
     let fx = Fixture::new("t04");
@@ -164,7 +162,6 @@ async fn t04_save_new_host_encrypted_indexed_and_listed() {
     assert!(!format!("{cat:?}").contains("CANARY"));
 }
 
-// T-05
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t05_edit_port_stamps_only_port() {
     let fx = Fixture::new("t05");
@@ -203,7 +200,6 @@ async fn t05_edit_port_stamps_only_port() {
     assert_eq!(after.fields.len(), before.fields.len() + 1);
 }
 
-// T-06
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t06_duplicate_copies_fields_with_a_new_id() {
     let fx = Fixture::new("t06");
@@ -242,7 +238,6 @@ async fn t06_duplicate_copies_fields_with_a_new_id() {
     assert_eq!(body.fields.len(), w.body.fields.len());
 }
 
-// T-07
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_delete_tombstones() {
     let fx = Fixture::new("t07");

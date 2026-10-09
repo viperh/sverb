@@ -1,4 +1,4 @@
-//! M7-07: `sverb generate man | completions <shell>` (hidden; SPEC §20 packaging).
+//! `sverb generate man | completions <shell>` (hidden; SPEC §20 packaging).
 //!
 //! The release archives and packages ship a man page (`sverb.1`) and shell completions
 //! for bash, zsh, fish and PowerShell. `clap_mangen` / `clap_complete` aren't in the
@@ -7,7 +7,7 @@
 //! page and the completions without further work.
 //!
 //! The output is deterministic (no dates, no git describe), so release builds are
-//! reproducible and the man page is a snapshot test (T-05).
+//! reproducible and the man page is a snapshot test.
 
 use std::fmt::Write as _;
 use std::path::PathBuf;
@@ -651,7 +651,7 @@ mod tests {
 
     use super::*;
 
-    /// T-05: the man page generates and is stable (snapshot).
+    /// The man page generates and is stable (snapshot).
     #[test]
     fn t05_man_page_snapshot() {
         let page = man_page();
@@ -684,7 +684,7 @@ mod tests {
         );
     }
 
-    /// T-05: every shell's script generates and names every visible command.
+    /// Every shell's script generates and names every visible command.
     #[test]
     fn t05_completions_generate() {
         let root = tree();

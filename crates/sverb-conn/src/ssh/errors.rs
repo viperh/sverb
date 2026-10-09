@@ -77,7 +77,7 @@ pub enum SshError {
     },
     /// Any other protocol or I/O failure.
     Protocol(String),
-    // M2-06: proxies (§6.1.5) and the §17.1 approval gate.
+    // Proxies (§6.1.5) and the §17.1 approval gate.
     /// The proxy failed (SOCKS5, HTTP CONNECT, ProxyCommand).
     Proxy {
         /// The readable message (`proxy: authentication failed`).
@@ -92,7 +92,6 @@ pub enum SshError {
         /// The exact command.
         command: String,
     },
-    // M2-07
     /// Forwarding the system agent (`agent_source = system | both`) for a host whose
     /// agent settings did not originate on this device, and are not approved (§17.1).
     AgentNeedsApproval {
@@ -115,9 +114,7 @@ impl SshError {
             | Self::Channel(_)
             | Self::RemoteDisconnect { .. }
             | Self::Protocol(_) => DisconnectReason::Connect,
-            // M2-06
             Self::Proxy { .. } | Self::NeedsApproval { .. } => DisconnectReason::Connect,
-            // M2-07
             Self::AgentNeedsApproval { .. } => DisconnectReason::Connect,
             Self::Negotiation { .. } => DisconnectReason::Negotiation,
             Self::HostKey { .. } => DisconnectReason::HostKey,
@@ -171,13 +168,11 @@ impl SshError {
                 format!("Connection closed by the remote host: {message}")
             }
             Self::Protocol(msg) => format!("SSH connection failed: {msg}"),
-            // M2-06
             Self::Proxy { message, .. } => message.clone(),
             Self::NeedsApproval { host, .. } => format!(
                 "host \"{host}\" uses a local command that has not been approved on this \
                  device. Run: sverb approve {host}"
             ),
-            // M2-07
             Self::AgentNeedsApproval { host, .. } => format!(
                 "host \"{host}\" forwards your system SSH agent, which has not been approved on \
                  this device. Run: sverb approve {host}"
@@ -198,10 +193,8 @@ impl SshError {
                 format!("sverb {}s: {}", kind.noun(), ours.join(", ")),
             ],
             Self::HostKey { detail } => vec![detail.clone()],
-            // M2-06
             Self::Proxy { detail, .. } => detail.clone(),
             Self::NeedsApproval { command, .. } => vec![format!("ProxyCommand: {command}")],
-            // M2-07
             Self::AgentNeedsApproval { source, .. } => {
                 vec![format!("agent_forwarding = true, agent_source = {source}")]
             }
@@ -209,7 +202,6 @@ impl SshError {
         }
     }
 
-    // M2-06
     /// A proxy failure.
     pub fn proxy(message: String, detail: Vec<String>) -> Self {
         Self::Proxy { message, detail }
@@ -306,7 +298,7 @@ mod tests {
         io::Error::from(io::ErrorKind::ConnectionRefused)
     }
 
-    /// T-07: each error class → reason and message.
+    /// Each error class → reason and message.
     #[test]
     fn t07_error_mapping_table() {
         let addr: SocketAddr = "192.0.2.7:22".parse().unwrap();

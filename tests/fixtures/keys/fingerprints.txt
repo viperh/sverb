@@ -1,4 +1,3 @@
-# M2-03 TEST-ONLY key fixtures (generated with ssh-keygen / openssl; protect nothing).
 # Passphrase of every encrypted fixture: sverb-test. Format: <file> <SHA256 fingerprint>
 openssh_ed25519 SHA256:xVr5LgWUuENOY/O88eUzmQXq6ZoQ4DWun2GA9KPZHtY
 openssh_ecdsa256 SHA256:OZSUCL/mgBZfJ97mJCWrJ5QxTwLaPSfwCDgExmg3IiI

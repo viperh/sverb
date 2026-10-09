@@ -70,7 +70,6 @@ pub struct AlacrittyEmulator {
     /// Trailing bytes of an incomplete UTF-8 sequence held back from the previous `feed`
     /// (see [`incomplete_utf8_tail`]).
     utf8_carry: Vec<u8>,
-    // M7-01
     /// OSC 133 command capture (`crate::osc133`).
     osc133: crate::osc133::CommandTracker,
 }
@@ -120,12 +119,11 @@ impl AlacrittyEmulator {
             modify_other_keys: 0,
             urxvt_mouse: false,
             utf8_carry: Vec::new(),
-            // M7-01
             osc133: crate::osc133::CommandTracker::new(),
         }
     }
 
-    /// Read access to the underlying terminal, for the renderer (M1-10).
+    /// Read access to the underlying terminal, for the renderer.
     #[allow(dead_code)]
     pub(crate) fn term(&self) -> &Term<Listener> {
         &self.term
@@ -252,7 +250,7 @@ impl AlacrittyEmulator {
                     cursor,
                     history_len,
                 });
-                // M7-01: the command text is read now, before its output reaches the grid.
+                // The command text is read now, before its output reaches the grid.
                 let mut tracker = std::mem::take(&mut self.osc133);
                 let done = tracker.on_mark(kind, cursor, history_len, self);
                 self.osc133 = tracker;
@@ -441,7 +439,7 @@ impl Emulator for AlacrittyEmulator {
     }
 
     fn render(&self, area: Rect, buf: &mut Buffer, view: &ViewState) {
-        // M1-10: the styled renderer.
+        // The styled renderer.
         crate::render::render_term(&self.term, self.cursor(), area, buf, view);
     }
 
@@ -534,7 +532,6 @@ impl Emulator for AlacrittyEmulator {
         })
     }
 
-    // M7-01
     fn prompt_state(&self) -> crate::osc133::PromptState {
         let p = self.term.grid().cursor.point;
         self.osc133.prompt_state(
@@ -544,7 +541,6 @@ impl Emulator for AlacrittyEmulator {
         )
     }
 
-    // M3-04
     fn row(&self, line: i32) -> Option<crate::selection::GridRow> {
         use crate::selection::{GridRow, RowCell};
         let grid = self.term.grid();

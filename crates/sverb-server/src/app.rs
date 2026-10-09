@@ -28,7 +28,7 @@ use crate::routes;
 use crate::state::AppState;
 
 /// Request body limit: the push batch's 8 MiB of envelopes plus JSON and
-/// base64 overhead (M4-04: base64 alone makes 8 MiB into 10.7 MiB, so the
+/// base64 overhead (base64 alone makes 8 MiB into 10.7 MiB, so the
 /// former 9 MiB rejected valid batches with 413 before the handler could
 /// apply the §10.5 limit).
 pub const BODY_LIMIT: usize = 12 * 1024 * 1024;

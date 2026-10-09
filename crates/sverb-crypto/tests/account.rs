@@ -1,4 +1,4 @@
-//! M4-03: account keys, recovery key, vault-key grants, fingerprints.
+//! Account keys, recovery key, vault-key grants, fingerprints.
 //! T-02 … T-09 (T-01 KATs live in `tests/account_kat.rs`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -38,7 +38,7 @@ fn keys(seed: u8) -> AccountKeys {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(64))]
 
-    /// T-02: bundle round-trip; wrong AKEK / user_id / version → Auth.
+    /// Bundle round-trip; wrong AKEK / user_id / version → Auth.
     #[test]
     fn t02_bundle_roundtrip(
         seed in any::<[u8; 32]>(),
@@ -259,7 +259,7 @@ fn t04_recovery_bundle() {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(32))]
 
-    /// T-05: seal → open gives the VK; another key, vault_id or key_version → Auth.
+    /// Seal → open gives the VK; another key, vault_id or key_version → Auth.
     #[test]
     fn t05_grant_open(
         seed in any::<[u8; 32]>(),
@@ -498,7 +498,6 @@ fn t09_structured_edge_cases() {
 /// The local KEK (Argon2id with `local_salt`) and AKEK (HKDF of the OPAQUE
 /// export_key) are independent derivations of the same password.
 ///
-/// OPAQUE itself lands in M4-02 (`sverb_crypto::opaque`); until then the
 /// export_key is stood in for by a 64-byte value derived from the password
 /// with an unrelated construction. Sanity check only.
 #[test]

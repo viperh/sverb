@@ -1,4 +1,4 @@
-//! M1-07: the quick-connect dialog (`leader o`, SPEC §9.1) and the "Save as host?"
+//! The quick-connect dialog (`leader o`, SPEC §9.1) and the "Save as host?"
 //! offer after an ephemeral connection succeeds.
 //!
 //! The dialog is an input with a fuzzy list of saved hosts under it. The first row

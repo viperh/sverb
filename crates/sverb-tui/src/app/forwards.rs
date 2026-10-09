@@ -1,4 +1,4 @@
-//! M2-08: port forwards in the reducer (SPEC §9.6, §8.5, §8.1).
+//! Port forwards in the reducer (SPEC §9.6, §8.5, §8.1).
 //!
 //! - **Data:** `ForwardsEffect::Load` after unlock and on every index update (one load
 //!   in flight) gives the rules and host labels; the service owns the
@@ -13,7 +13,6 @@
 //! - **Approval:** when the manager answers `NeedsApproval` (a non-loopback bind the
 //!   first time, §9.6; a synced risky value, §17.1), a confirmation shows the exact
 //!   values; "Yes" sends `Approve` and the start again. The manager remembers it, so
-//!   the next start does not ask (M2-10 makes the store persistent).
 //! - Locking drops the decrypted rules and stops the refresh timer (running tunnels
 //!   keep running: they belong to their connections).
 
@@ -72,7 +71,6 @@ pub enum ForwardsEffect {
     Stop(ItemId),
     /// The user confirmed these values (§9.6 / §17.1).
     Approve(Vec<fwd::RiskyValue>),
-    // M2-10
     /// The user denied these values: blocked for the rest of the session (§17.1).
     Deny(Vec<fwd::RiskyValue>),
 }
@@ -207,7 +205,7 @@ impl App {
         } else {
             Effect::Forwards(ForwardsEffect::Start(rule))
         };
-        // M2-10: "No" denies for this session (not asked again until restart).
+        // "No" denies for this session (not asked again until restart).
         let on_no = vec![Effect::Forwards(ForwardsEffect::Deny(values.clone()))];
         let on_yes = vec![Effect::Forwards(ForwardsEffect::Approve(values)), start];
         let route = format!("button:{}", confirm::YES);

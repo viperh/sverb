@@ -1,4 +1,3 @@
-//! Terminal-share relay (SPEC §10.4 "Sharing", §10.5, §14; task M6-01).
 //!
 //! * [`sessions`]: the `share_sessions` row (PostgreSQL and in-memory);
 //! * [`relay`]: the per-replica relay (host and viewer sockets, routing by

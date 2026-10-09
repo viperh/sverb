@@ -1,4 +1,4 @@
-//! M5-04: the client side of a vault key rotation (SPEC §13.2 steps 1–5).
+//! The client side of a vault key rotation (SPEC §13.2 steps 1–5).
 //!
 //! [`VaultAdmin::rotate`] runs the protocol for one shared vault:
 //!
@@ -13,7 +13,6 @@
 //! 4. the envelopes go up in chunks of at most 500 items / 8 MiB; after each
 //!    chunk the uploaded ids are persisted;
 //! 5. `commit` with VK′ wrapped and signed for every remaining member (their
-//!    public keys fetched and checked against the pins, M5-03). A member whose
 //!    key **changed** (or can't be fetched) blocks the commit
 //!    ([`RotationError::UntrustedMembers`]): the rotation stays open (pushes
 //!    stay paused) until the key is accepted in Settings → Team and the rotation

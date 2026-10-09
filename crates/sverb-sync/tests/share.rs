@@ -1,9 +1,9 @@
-//! M6-03: the terminal-sharing client against the real relay (in-process
+//! The terminal-sharing client against the real relay (in-process
 //! `sverb-server` on its memory backend, served over loopback TCP).
 //!
 //! The host shares real sessions (`sverb-conn`): a local `/bin/sh` in a pty where a
-//! shell is needed (T-01, T-04, T-05), a mock transport where the test must control
-//! the output byte for byte (T-06 … T-10). Viewers feed their own emulator, exactly
+//! shell is needed, a mock transport where the test must control
+//! the output byte for byte. Viewers feed their own emulator, exactly
 //! like the TUI's viewer pane, and are compared with the host's emulator.
 #![allow(
     clippy::unwrap_used,
@@ -479,7 +479,7 @@ fn opts(mode: ShareMode) -> ShareOptions {
 
 // ------------------------------------------------------------------ tests
 
-/// T-01: a local pty pane shared in view mode; the viewer's grid equals the host's
+/// A local pty pane shared in view mode; the viewer's grid equals the host's
 /// after the snapshot, and later output reaches the viewer within 1 s.
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -543,7 +543,7 @@ async fn t01_view_share_snapshot_and_live_output() {
     assert!(row.closed_at.is_some());
 }
 
-/// T-02: deny → the viewer sees "denied" and is disconnected.
+/// Deny → the viewer sees "denied" and is disconnected.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_deny() {
     let server = Server::start().await;
@@ -562,7 +562,7 @@ async fn t02_deny() {
         .await;
 }
 
-/// T-03: a wrong key in the link → the host rejects the MAC and kicks the viewer;
+/// A wrong key in the link → the host rejects the MAC and kicks the viewer;
 /// no approval is ever asked for.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t03_wrong_key_is_kicked_without_approval() {
@@ -600,7 +600,7 @@ async fn t03_wrong_key_is_kicked_without_approval() {
     );
 }
 
-/// T-04: control mode: input before `ControlGranted` is ignored by the host; after
+/// Control mode: input before `ControlGranted` is ignored by the host; after
 /// granting, the viewer's typing runs on the host; after revoking it is ignored again.
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -670,7 +670,7 @@ async fn t04_control_grant_and_revoke() {
     );
 }
 
-/// T-05: view mode: crafted input frames are dropped, and control can't be granted.
+/// View mode: crafted input frames are dropped, and control can't be granted.
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t05_view_mode_drops_input() {
@@ -699,7 +699,7 @@ async fn t05_view_mode_drops_input() {
     assert!(viewer.ended.is_none());
 }
 
-/// T-06: the alternate screen (vim) with its modes is in the snapshot.
+/// The alternate screen (vim) with its modes is in the snapshot.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t06_alt_screen_snapshot() {
     let server = Server::start().await;
@@ -744,7 +744,7 @@ async fn t06_alt_screen_snapshot() {
     assert!(!viewer.emu.modes().alt_screen);
 }
 
-/// T-07: host resizes reach the viewer (its emulator follows the host's size); a
+/// Host resizes reach the viewer (its emulator follows the host's size); a
 /// smaller viewer pane only changes the TUI's clipping (`views::share` tests).
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t07_host_resize() {
@@ -783,7 +783,7 @@ async fn t07_host_resize() {
     }
 }
 
-/// T-08: a share that falls behind never slows the session: dropped output is
+/// A share that falls behind never slows the session: dropped output is
 /// replaced by a fresh snapshot, and the viewer converges on the host's screen.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t08_backlog_resends_a_snapshot() {
@@ -837,7 +837,7 @@ async fn t08_backlog_resends_a_snapshot() {
     assert_mirrors(&mut viewer, &session).await;
 }
 
-/// T-09: the host's session ends → `Bye` → the viewer pane shows the end.
+/// The host's session ends → `Bye` → the viewer pane shows the end.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t09_session_end_ends_the_share() {
     let server = Server::start().await;
@@ -858,7 +858,7 @@ async fn t09_session_end_ends_the_share() {
     ));
 }
 
-/// T-10: expiry closes the share on both sides.
+/// Expiry closes the share on both sides.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t10_expiry() {
     let server = Server::start().await;

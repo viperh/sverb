@@ -1,4 +1,3 @@
-//! M7-06 `startup_to_hosts_keyring` (SPEC §1: < 100 ms to an interactive host list
 //! with keyring unlock; T-04: median < 200 ms on CI).
 //!
 //! A vault with 1,000 hosts and keyring unlock enabled (the test-only file keyring,

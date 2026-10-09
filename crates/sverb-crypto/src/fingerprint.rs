@@ -1,4 +1,3 @@
-//! Account key fingerprints and safety numbers (§13.3, used by M5-03).
 //!
 //! **Fingerprint:**
 //! `fpr = SHA-256("sverb/fpr/v1" || x25519_pub(32) || ed25519_pub(32))`, 32 bytes.

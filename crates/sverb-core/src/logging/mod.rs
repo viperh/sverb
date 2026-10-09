@@ -1,4 +1,4 @@
-//! Process-wide `tracing` setup (M0-04, SPEC §17, §18).
+//! Process-wide `tracing` setup (SPEC §17, §18).
 //!
 //! [`init`] installs, once per process:
 //! 1. a **file layer**: `<state dir>/sverb.<YYYY-MM-DD>.log`, rotated daily (UTC), at most
@@ -113,12 +113,11 @@ impl Drop for LoggingGuard {
     }
 }
 
-/// The file writer's worker guard. A static so the panic hook (M0-05) can flush it
+/// The file writer's worker guard. A static so the panic hook can flush it
 /// with [`shutdown`] without access to `main`'s locals.
 static WORKER: Mutex<Option<WorkerGuard>> = Mutex::new(None);
-/// The crash ring, for the panic hook (M0-05).
+/// The crash ring, for the panic hook.
 static CRASH_RING: OnceLock<LogRing> = OnceLock::new();
-// M0-11
 /// The `--debug` ring (TUI only), for the log pane.
 static DEBUG_RING: OnceLock<LogRing> = OnceLock::new();
 
@@ -137,7 +136,6 @@ pub fn crash_ring() -> Option<LogRing> {
     CRASH_RING.get().cloned()
 }
 
-// M0-11
 /// The `--debug` ring installed by [`init`] (same as [`LoggingGuard::debug_ring`]), if
 /// logging is initialized with `--debug` for the TUI. The TUI runtime reads it here so
 /// the log pane needs no plumbing through the CLI layer.
@@ -179,7 +177,6 @@ pub fn init_with_filter(
     }
     *WORKER.lock() = Some(worker);
     let _ = CRASH_RING.set(crash_ring.clone());
-    // M0-11
     if let Some(ring) = &debug_ring {
         let _ = DEBUG_RING.set(ring.clone());
     }

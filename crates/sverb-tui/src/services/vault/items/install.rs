@@ -1,4 +1,4 @@
-//! M2-04: install-key runs (SPEC §9.4) for the TUI.
+//! Install-key runs (SPEC §9.4) for the TUI.
 //!
 //! A run works on at most `job.concurrency` hosts at a time. Each host gets a
 //! dedicated connection (`sverb_conn::ssh::SshConnection`, the TUI's SSH connector:

@@ -1,4 +1,4 @@
-//! M4-09 T-08: a local-only run makes **zero** network connections (§1.1: no
+//! A local-only run makes **zero** network connections (§1.1: no
 //! telemetry, no update checks, no default server).
 //!
 //! The TUI runs on a PTY under `strace -f -e trace=connect,sendto,sendmsg` for 10 s:

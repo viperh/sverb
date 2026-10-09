@@ -35,18 +35,15 @@ const SEP: &str = " │ ";
 pub struct StatusInfo {
     /// Input mode label (`NORMAL`, `TERMINAL`, …).
     pub mode: String,
-    /// Focused session (`user@host · ssh · 23ms`), from M1-08/M1-13.
     pub session: Option<String>,
-    /// Active forwards summary (M2-08).
+    /// Active forwards summary.
     pub forwards: Option<String>,
-    /// Recording the focused session (M3-05).
+    /// Recording the focused session.
     pub recording: bool,
-    /// Broadcast input to N panes (M3-02).
+    /// Broadcast input to N panes.
     pub broadcast: Option<u32>,
-    // M3-02
     /// After `BROADCAST ×N`, in parentheses: `M skipped` or `pending`.
     pub broadcast_note: Option<String>,
-    /// Sync status; `None` in local-only mode (§1.1) and until M4-09.
     pub sync: Option<String>,
     /// Key hint, rendered from the leader.
     pub hint: String,
@@ -110,7 +107,7 @@ fn all_segments(info: &StatusInfo) -> Vec<(Segment, String)> {
         out.push((Segment::Recording, "REC ●".to_owned()));
     }
     if let Some(n) = info.broadcast {
-        // M3-02: `BROADCAST ×2 (1 skipped)`.
+        // `BROADCAST ×2 (1 skipped)`.
         let text = match info.broadcast_note.as_deref().filter(|s| !s.is_empty()) {
             Some(note) => format!("BROADCAST ×{n} ({note})"),
             None => format!("BROADCAST ×{n}"),
@@ -234,7 +231,6 @@ mod tests {
         segs.iter().map(|(s, _)| *s).collect()
     }
 
-    // T-10
     #[test]
     fn t10_low_priority_segments_drop_first() {
         let all = kinds(&fit(&full(), 300));

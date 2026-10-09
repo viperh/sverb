@@ -1,4 +1,4 @@
-//! The leader / key-sequence state machine (SPEC §8.2, `tasks/03-KEYBINDINGS.md` §1.1).
+//! The leader / key-sequence state machine (SPEC §8.2).
 //!
 //! ```text
 //! Idle ──leader──▶ Pending { Leader } ──key──▶ resolve ──▶ Idle

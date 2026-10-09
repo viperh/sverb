@@ -16,19 +16,19 @@
 //!   wrapped. Decrypted data may only go to the optional TEMP `item_index`
 //!   ([`index`]), which lives in memory.
 
-// M2-10: the device-local allowlist of locally-acting values (§17.1).
+// The device-local allowlist of locally-acting values (§17.1).
 pub mod approvals;
 pub mod clock;
 pub mod db;
 pub mod device_local;
 pub mod error;
-// M7-04: read-only health check for `sverb doctor`.
+// Read-only health check for `sverb doctor`.
 pub mod health;
 pub mod index;
 pub mod items;
 pub mod meta;
 pub mod outbox;
-// M5-03: TOFU pins of account public keys (§13.3), device-local.
+// TOFU pins of account public keys (§13.3), device-local.
 pub mod pins;
 pub mod schema;
 pub mod sync_state;

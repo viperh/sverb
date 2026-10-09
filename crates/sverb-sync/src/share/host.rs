@@ -1,8 +1,7 @@
-//! M6-03: the host side of a terminal share (SPEC §14.1, §14.3).
+//! The host side of a terminal share (SPEC §14.1, §14.3).
 //!
 //! [`start`] creates the share and spawns the host task, which:
 //!
-//! - answers each viewer's `Hello` (M6-02 handshake). A `Hello` whose MAC does not
 //!   verify (wrong link key) gets the viewer kicked at once: the host is never
 //!   asked about it ([`HostEvent::ViewerRejected`]);
 //! - asks the host about every authenticated viewer ([`HostEvent::ApprovalNeeded`],

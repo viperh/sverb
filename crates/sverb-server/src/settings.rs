@@ -1,5 +1,3 @@
-//! The `settings` key/value table (M4-01 addition for SPEC §10.6).
-
 use sqlx_core::executor::Executor;
 use sqlx_postgres::Postgres;
 

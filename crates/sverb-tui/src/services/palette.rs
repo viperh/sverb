@@ -1,4 +1,4 @@
-//! M2-12: the command palette's recent picks, persisted in the store's `meta` table.
+//! The command palette's recent picks, persisted in the store's `meta` table.
 //!
 //! `meta` is device-local (never synced, never an item), so the recency boost of one
 //! device never leaks to another. The value is a JSON array of strings
@@ -89,7 +89,7 @@ mod tests {
         (store, dir)
     }
 
-    // T-10: recents live in `meta` (device-local) and never in an item.
+    // Recents live in `meta` (device-local) and never in an item.
     #[tokio::test]
     async fn t10_recents_are_stored_in_meta_not_items() {
         let (store, dir) = temp_store("t10");

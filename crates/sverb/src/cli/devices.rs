@@ -1,4 +1,4 @@
-//! M0-07: `sverb devices list | revoke <id>` (sync builds only). M4-09: the
+//! `sverb devices list | revoke <id>` (sync builds only). The
 //! bodies, over `sverb_sync::account::{list_devices, revoke_device}`.
 //!
 //! - `list [--json]`: id, name, platform, created, last seen; `*` marks this
@@ -23,7 +23,6 @@ use super::{CliError, Ctx, exit, write_out};
 pub(crate) enum DevicesCmd {
     /// List this account's devices
     List {
-        // M4-09
         /// Machine-readable output
         #[arg(long)]
         json: bool,

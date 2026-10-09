@@ -1,9 +1,9 @@
-//! M3-05: the recording service (`Effect::StartRecording` / `StopRecording`, SPEC §7.5).
+//! The recording service (`Effect::StartRecording` / `StopRecording`, SPEC §7.5).
 //!
 //! Starting a recording:
 //! 1. derive the recording key from the unlocked vault's LMK ([`recording_key`],
 //!    `HKDF(LMK, "sverb/recording/v1")`); a locked vault fails the start,
-//! 2. create `state_dir/recordings/<conn_id>.cast.sv` (0600, directory 0700); M3-06: the
+//! 2. create `state_dir/recordings/<conn_id>.cast.sv` (0600, directory 0700); The
 //!    `conn_id` is the session's ConnLog id (`ConnLogService::recording_id`), and the
 //!    file is recorded in `device_local.recording_dir` under that id,
 //! 3. start the writer task (`sverb_term::recording::spawn_recorder`) and send its tap to
@@ -69,7 +69,7 @@ impl RecordingService {
     }
 
     /// `Effect::StartRecording`. `key` is `None` while the vault is locked.
-    /// M3-06: `conn_id` names the file (the session's ConnLog id; a fresh UUIDv7 without
+    /// `conn_id` names the file (the session's ConnLog id; a fresh UUIDv7 without
     /// a ConnLog service), and `on_created` learns the file's path.
     pub fn start(
         &self,
@@ -99,7 +99,6 @@ impl RecordingService {
             fail(sessions, "cannot record: the vault is locked".to_owned());
             return;
         };
-        // M3-06
         let conn_item = conn_id.unwrap_or_else(ItemId::new);
         let conn_id = *conn_item.as_bytes();
         let (path, file) = match create_recording_file(&self.dir, &conn_id) {
@@ -138,7 +137,7 @@ impl RecordingService {
             }
         }
         debug!(session = id.0, file = %path.display(), "recording started");
-        // M3-06: `device_local.recording_dir` for the Logs view.
+        // `device_local.recording_dir` for the Logs view.
         on_created(conn_item, path.clone());
         sessions.notify(
             id,

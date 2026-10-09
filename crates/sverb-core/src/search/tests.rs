@@ -1,5 +1,3 @@
-//! M1-05 unit tests (T-01 … T-11).
-
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::collections::HashMap;
@@ -114,7 +112,6 @@ fn query_parsing() {
     assert_eq!(parse_kind("Snippet"), Some(ItemKind::Snippet));
 }
 
-// T-01
 #[test]
 fn t01_fuzzy_basic() {
     let mut fx = Fx::new();
@@ -132,7 +129,6 @@ fn t01_fuzzy_basic() {
     );
 }
 
-// T-02
 #[test]
 fn t02_tag_filter() {
     let mut fx = Fx::new();
@@ -151,7 +147,6 @@ fn t02_tag_filter() {
     );
 }
 
-// T-03
 #[test]
 fn t03_multiple_tags_and() {
     let mut fx = Fx::new();
@@ -164,7 +159,6 @@ fn t03_multiple_tags_and() {
     assert_eq!(labels(&snap, "#prod #eu", Scope::Hosts), vec!["h1"]);
 }
 
-// T-04
 #[test]
 fn t04_vault_filter() {
     let mut fx = Fx::new();
@@ -186,7 +180,6 @@ fn t04_vault_filter() {
     assert_eq!(snap.vault_name(team), Some("Team Infra"));
 }
 
-// T-05
 #[test]
 fn t05_quoted_phrase_is_substring() {
     let mut fx = Fx::new();
@@ -204,7 +197,6 @@ fn t05_quoted_phrase_is_substring() {
     );
 }
 
-// T-06
 #[test]
 fn t06_ordering_pinned_frecency_alpha() {
     let mut fx = Fx::new();
@@ -244,7 +236,6 @@ fn t06_ordering_pinned_frecency_alpha() {
     assert_eq!(ordered, vec![pinned, a, b, c]);
 }
 
-// T-07
 #[test]
 fn t07_no_secrets_indexed() {
     let mut fx = Fx::new();
@@ -332,7 +323,6 @@ fn t07_no_secrets_indexed() {
     assert_eq!(labels(&snap, "token", Scope::Snippets), vec!["deploy"]);
 }
 
-// T-08
 #[test]
 fn t08_incremental_tag_and_group_rename() {
     let mut fx = Fx::new();
@@ -412,7 +402,6 @@ fn t08_incremental_tag_and_group_rename() {
     assert!(index.snapshot().get(h3).is_some());
 }
 
-// T-09
 #[test]
 fn t09_deleted_items_are_removed() {
     let mut fx = Fx::new();
@@ -439,7 +428,6 @@ fn t09_deleted_items_are_removed() {
     assert!(index.snapshot().is_empty());
 }
 
-// T-10 (same table as M0-07 T-07)
 #[test]
 fn t10_resolve_host_arg_table() {
     let mut fx = Fx::new();
@@ -468,7 +456,6 @@ fn t10_resolve_host_arg_table() {
     assert_eq!(resolve_host_arg(&snap, "db"), Ok(h3));
 }
 
-// T-11
 #[test]
 fn t11_highlights_are_char_indices() {
     let mut fx = Fx::new();

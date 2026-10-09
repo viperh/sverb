@@ -1,4 +1,4 @@
-//! M0-05: terminal restore, crash reports and log flushing after a panic.
+//! Terminal restore, crash reports and log flushing after a panic.
 //!
 //! The binary runs inside a PTY (`portable-pty`) with the `test-hooks` feature; the
 //! `SVERB_TEST_HOOK` environment variable selects where it panics right after the
@@ -17,7 +17,7 @@ use std::{
 
 use portable_pty::{CommandBuilder, ExitStatus, PtySize, native_pty_system};
 
-// M0-09: `assert_restored` is shared with the event-loop tests (T-09).
+// `assert_restored` is shared with the event-loop tests.
 mod common;
 use common::assert_restored;
 
@@ -187,7 +187,6 @@ fn log_text(home: &Path) -> String {
     text
 }
 
-// T-01, T-04, T-05
 #[test]
 fn panic_in_ui_task_restores_terminal_and_writes_a_crash_report() -> TestResult {
     let run = run_in_pty("ui", "panic-ui")?;
@@ -204,7 +203,7 @@ fn panic_in_ui_task_restores_terminal_and_writes_a_crash_report() -> TestResult 
         run.output
     );
 
-    // T-04: exactly one private crash report, without debug lines.
+    // Exactly one private crash report, without debug lines.
     let reports = crash_reports(&run.home);
     assert_eq!(reports.len(), 1, "{reports:?}");
     let report = std::fs::read_to_string(&reports[0])?;
@@ -222,7 +221,7 @@ fn panic_in_ui_task_restores_terminal_and_writes_a_crash_report() -> TestResult 
         assert_eq!(mode, 0o600);
     }
 
-    // T-05: the line logged right before the panic reached the file; the debug line
+    // The line logged right before the panic reached the file; the debug line
     // was emitted too (so its absence from the report is meaningful).
     let log = log_text(&run.home);
     assert!(log.contains("last words"), "{log}");
@@ -232,7 +231,6 @@ fn panic_in_ui_task_restores_terminal_and_writes_a_crash_report() -> TestResult 
     Ok(())
 }
 
-// T-02
 #[test]
 fn panic_on_a_plain_thread_restores_terminal() -> TestResult {
     let run = run_in_pty("thread", "panic-thread")?;
@@ -249,7 +247,6 @@ fn panic_on_a_plain_thread_restores_terminal() -> TestResult {
     Ok(())
 }
 
-// T-03
 #[test]
 fn panic_in_spawn_blocking_restores_terminal() -> TestResult {
     let run = run_in_pty("blocking", "panic-blocking")?;
@@ -266,7 +263,7 @@ fn panic_in_spawn_blocking_restores_terminal() -> TestResult {
     Ok(())
 }
 
-// T-10: the terminal goes away (stdout writes fail) before a normal exit; the
+// The terminal goes away (stdout writes fail) before a normal exit; the
 // guard's `Drop` must not panic. SIGHUP is ignored so the hangup doesn't kill sverb.
 #[test]
 fn drop_with_closed_terminal_never_panics() -> TestResult {

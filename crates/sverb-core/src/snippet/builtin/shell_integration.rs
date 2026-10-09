@@ -1,4 +1,4 @@
-//! M7-01: the "Install sverb shell integration" snippet (SPEC §9.10).
+//! The "Install sverb shell integration" snippet (SPEC §9.10).
 //!
 //! The hooks (`assets/shell-integration/{bash,zsh,fish}`) make the shell emit OSC 133
 //! prompt marks: `A` prompt start, `B` command start (prompt end), `C` output start and

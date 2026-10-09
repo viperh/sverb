@@ -1,4 +1,4 @@
-//! M2-04: "Install key on host" dialogs (SPEC §9.4).
+//! "Install key on host" dialogs (SPEC §9.4).
 //!
 //! Flow: Keychain → key → `H` → [`InstallPicker`] (multi-select over hosts, groups and
 //! tags, filtered through the search index) → a confirmation showing the command →

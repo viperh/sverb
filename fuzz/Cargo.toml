@@ -1,4 +1,4 @@
-# M7-05: cargo-fuzz targets (SPEC §19 "Fuzzing"). Its own workspace (excluded from the
+# Cargo-fuzz targets (SPEC §19 "Fuzzing"). Its own workspace (excluded from the
 # root one): it needs nightly and libFuzzer, and must not touch the root Cargo.lock.
 #
 #   cargo +nightly fuzz list

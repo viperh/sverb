@@ -1,4 +1,4 @@
-//! M2-10: `sverb approve <host> [--all] [--yes]` (SPEC §16, §17.1).
+//! `sverb approve <host> [--all] [--yes]` (SPEC §16, §17.1).
 //!
 //! Lists every value of the host that acts on this machine (resolved through its
 //! groups and the vault defaults, plus its forwarding rules) with its status

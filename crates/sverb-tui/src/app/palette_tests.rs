@@ -1,7 +1,6 @@
-//! M2-12 reducer tests: opening (T-01), actions with key hints run like their binding
-//! (T-02), availability (T-03), prefixes and hosts (T-04), snippets (T-05), quick
-//! connect (T-06), share links (T-07), the recency boost (T-08), snapshots (T-09) and
-//! device-local recents (T-10, reducer half; the store half is in `services/palette.rs`).
+//! , availability, prefixes and hosts, snippets, quick
+//! connect, share links, the recency boost, snapshots and
+//! device-local recents (reducer half; the store half is in `services/palette.rs`).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -171,7 +170,6 @@ fn with_local_tab() -> AppHarness {
     h
 }
 
-// T-01
 #[test]
 fn t01_ctrl_k_in_normal_and_leader_p_in_terminal_open_the_palette() {
     let mut h = AppHarness::new(Config::default());
@@ -209,7 +207,7 @@ fn t01_ctrl_k_in_normal_and_leader_p_in_terminal_open_the_palette() {
     );
 }
 
-// T-01: `ctrl-k` in Terminal mode still belongs to the session.
+// `ctrl-k` in Terminal mode still belongs to the session.
 #[test]
 fn t01_ctrl_k_in_terminal_mode_is_passed_through() {
     let mut h = AppHarness::new(Config::default()).with_live_session();
@@ -222,7 +220,6 @@ fn t01_ctrl_k_in_terminal_mode_is_passed_through() {
     );
 }
 
-// T-02
 #[test]
 fn t02_split_lists_both_splits_with_hints_and_runs_like_the_binding() {
     let mut by_key = with_local_tab();
@@ -262,7 +259,6 @@ fn t02_split_lists_both_splits_with_hints_and_runs_like_the_binding() {
     assert_eq!(h.app().last_action(), Some(ActionName::SplitHorizontal));
 }
 
-// T-03
 #[test]
 fn t03_unavailable_actions_are_hidden() {
     let h = AppHarness::new(Config::default());
@@ -291,7 +287,6 @@ fn t03_unavailable_actions_are_hidden() {
     assert!(listed(h.app(), "zoom", ActionName::ZoomPane));
 }
 
-// T-04
 #[test]
 fn t04_at_prefix_lists_hosts_enter_opens_a_tab_ctrl_enter_a_split() {
     let mut h = with_items(AppHarness::new(Config::default()));
@@ -327,7 +322,7 @@ fn t04_at_prefix_lists_hosts_enter_opens_a_tab_ctrl_enter_a_split() {
     assert_eq!(h.app().active_tab().unwrap().panes.len(), 2);
 }
 
-// T-04: `tab` opens the host's menu; "Run snippet on it" lists snippets for that host.
+// `tab` opens the host's menu; "Run snippet on it" lists snippets for that host.
 #[test]
 fn host_menu_edit_and_run_snippet_on_host() {
     let mut h = with_items(AppHarness::new(Config::default()));
@@ -371,7 +366,6 @@ fn host_menu_edit_and_run_snippet_on_host() {
     }
 }
 
-// T-05
 #[test]
 fn t05_bang_prefix_lists_snippets_enter_opens_the_variable_form() {
     let mut h = with_items(AppHarness::new(Config::default()).with_live_session());
@@ -392,7 +386,7 @@ fn t05_bang_prefix_lists_snippets_enter_opens_the_variable_form() {
     );
 }
 
-// T-04/T-05: `#tag` keeps only hosts and snippets.
+// `#tag` keeps only hosts and snippets.
 #[test]
 fn tag_filter_hides_actions_tabs_and_settings() {
     let h = with_items(AppHarness::new(Config::default()));
@@ -403,7 +397,6 @@ fn tag_filter_hides_actions_tabs_and_settings() {
     assert!(!list.is_empty());
 }
 
-// T-06
 #[test]
 fn t06_user_at_host_port_offers_quick_connect_first() {
     let mut h = with_items(AppHarness::new(Config::default()));
@@ -438,7 +431,6 @@ fn t06_user_at_host_port_offers_quick_connect_first() {
     );
 }
 
-// T-07
 #[test]
 fn t07_pasted_share_link_offers_join_first() {
     let mut h = with_items(AppHarness::new(Config::default()));
@@ -453,7 +445,7 @@ fn t07_pasted_share_link_offers_join_first() {
     );
     key(&mut h, KeyCode::Enter, KeyModifiers::NONE);
     assert!(palette(&h).is_none());
-    // M6-03: the pick joins; this link has no valid share id, so it is refused.
+    // The pick joins; this link has no valid share id, so it is refused.
     assert!(
         h.app()
             .toasts()
@@ -465,7 +457,6 @@ fn t07_pasted_share_link_offers_join_first() {
     assert_eq!(https[0].title, "Join shared terminal");
 }
 
-// T-08
 #[test]
 fn t08_recent_picks_rank_above_equal_scores() {
     let mut h = with_items(AppHarness::new(Config::default()));
@@ -500,7 +491,7 @@ fn t08_recent_picks_rank_above_equal_scores() {
     assert!(recency_boost(&h.app().palette.recents, &key) > 0);
 }
 
-// T-08: the stored recents arrive after picks of this run: both are kept.
+// The stored recents arrive after picks of this run: both are kept.
 #[test]
 fn stored_recents_merge_after_this_runs_picks() {
     let mut h = AppHarness::new(Config::default());
@@ -524,7 +515,6 @@ fn stored_recents_merge_after_this_runs_picks() {
     );
 }
 
-// T-09
 #[test]
 fn t09_palette_snapshots() {
     let mut h = with_items(AppHarness::new(Config::default()).with_live_session());

@@ -1,4 +1,4 @@
-//! M2-11: the import / export service (SPEC §9.13), shared by the import wizard
+//! The import / export service (SPEC §9.13), shared by the import wizard
 //! (`Effect::Import`) and the CLI (`sverb import …`, `sverb export …`).
 //!
 //! Imports are a dry run first ([`ImportService::preview`]: parse, then classify against
@@ -6,8 +6,7 @@
 //! imports the confirmed IdentityFiles as Key items (deduplicated by public key), builds
 //! the stamped bodies and stores **everything in one transaction** (any failure rolls
 //! back the whole import). Locally-acting values the user saw in the preview
-//! (ProxyCommand, non-loopback forwards) count as approved at confirmation (M2-10
-//! §2.2): [`ApplyReport::approvals`] become `local_approvals` rows (M2-10) after the
+//! §2.2): [`ApplyReport::approvals`] become `local_approvals` rows after the
 //! items are written, and are handed to the forward approval store when one is given.
 
 use std::collections::BTreeMap;
@@ -15,7 +14,6 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use sverb_conn::forward::{ApprovalStore, RiskyValue};
-// M2-10
 use sverb_core::error_report::ErrorReport;
 use sverb_core::exporters::{self, csv::CsvRow, ssh_config::SshConfigExport, write_file};
 use sverb_core::importers::{
@@ -77,7 +75,6 @@ pub enum SourceSpec {
         /// The export password.
         password: SecretString,
     },
-    // M7-03
     /// PuTTY sessions: a sessions directory, or `None` for the user's own
     /// (`~/.putty/sessions`; the registry on Windows).
     Putty(Option<PathBuf>),
@@ -112,7 +109,6 @@ impl SourceSpec {
                 expand_home,
             ),
             Self::Csv(p) | Self::Backup { path: p, .. } => expand_home(p),
-            // M7-03
             Self::Putty(p) => p.as_deref().map_or_else(
                 || importers::putty_sessions::default_dir().unwrap_or_default(),
                 expand_home,
@@ -446,7 +442,7 @@ impl ImportService {
             .await
             .map_err(|e| ImportFailure(format!("import rolled back: {e}")))?;
 
-        // M2-10: the values the user saw in the preview are approved on this device
+        // The values the user saw in the preview are approved on this device
         // (`local_approvals`, never synced). `forward_approvals` (the forward
         // manager's store) is the same device view in sverb; it is kept for callers
         // that pass another store.
@@ -683,7 +679,6 @@ async fn parse_source(source: &SourceSpec) -> Result<ImportPlan, ImportFailure> 
         }
         SourceSpec::KnownHosts(_) => Ok(importers::known_hosts::parse(&read(&path)?)),
         SourceSpec::Csv(_) => importers::csv::parse(&read(&path)?).map_err(fail),
-        // M7-03
         SourceSpec::Putty(Some(_)) => importers::putty_sessions::parse_dir(&path).map_err(fail),
         SourceSpec::Putty(None) => importers::putty_sessions::parse_user().map_err(fail),
         SourceSpec::Backup { password, .. } => {
@@ -757,7 +752,6 @@ fn spec_of(r: &ImportRequest) -> SourceSpec {
         WizardSource::SshConfig => SourceSpec::SshConfig(Some(path)),
         WizardSource::KnownHosts => SourceSpec::KnownHosts(Some(path)),
         WizardSource::Csv => SourceSpec::Csv(path),
-        // M7-03
         WizardSource::Putty if r.path.trim().is_empty() => SourceSpec::Putty(None),
         WizardSource::Putty => SourceSpec::Putty(Some(path)),
         WizardSource::Backup => SourceSpec::Backup {

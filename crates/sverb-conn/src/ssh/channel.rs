@@ -5,7 +5,7 @@
 //!   remote charset is UTF-8 (otherwise the remote line discipline would treat
 //!   multi-byte input as UTF-8 and break erase for single-byte charsets).
 //! - `open_shell`: `set_env` for each pair (rejections are logged at `debug` and
-//!   ignored), the agent-forwarding hook (M2-07), `request_pty`, `request_shell`. All
+//!   ignored), the agent-forwarding hook, `request_pty`, `request_shell`. All
 //!   requests want a reply; replies arrive in order, so each one is matched to its
 //!   request.
 //! - [`SshTransport`]: a pump task owns the channel's read half: `Data` and stderr
@@ -89,7 +89,6 @@ pub(crate) async fn open_shell(
         Env(&'a str),
         Pty,
         Shell,
-        // M2-07
         Agent,
     }
     let mut sent = Vec::new();
@@ -100,7 +99,7 @@ pub(crate) async fn open_shell(
             .map_err(channel_err)?;
         sent.push(Req::Env(name));
     }
-    // M2-07: `auth-agent-req@openssh.com` before the pty and shell (§6.1.6).
+    // `auth-agent-req@openssh.com` before the pty and shell (§6.1.6).
     if host.agent_forwarding {
         write.agent_forward(true).await.map_err(channel_err)?;
         sent.push(Req::Agent);
@@ -144,7 +143,6 @@ pub(crate) async fn open_shell(
             (_, true) => {}
             (Req::Env(name), false) => debug!(var = name, "env request rejected (AcceptEnv)"),
             (Req::Pty, false) => debug!("pty request rejected; continuing without a pty"),
-            // M2-07
             (Req::Agent, false) => debug!("agent forwarding refused by the server"),
             (Req::Shell, false) => {
                 return Err(SshError::Channel(
@@ -211,7 +209,7 @@ pub struct SshTransport {
     exit: Arc<Mutex<ExitInfo>>,
     tasks: Vec<AbortHandle>,
     closed: bool,
-    // M3-07: the connection is shared; `close` closes only this channel.
+    // The connection is shared; `close` closes only this channel.
     shared_connection: bool,
 }
 
@@ -231,7 +229,6 @@ pub(crate) struct PumpParts {
     pub(crate) startup: Option<Bytes>,
     pub(crate) shared: Arc<Shared>,
     pub(crate) keepalive_secs: u32,
-    // M2-05
     /// The jump hops under this connection: a hop that went down names the failure.
     pub(crate) chain: Option<Arc<super::connect::jump::Chain>>,
 }
@@ -265,7 +262,6 @@ impl SshTransport {
         }
     }
 
-    // M3-07
     /// The connection is shared with other sessions (`ssh.multiplex`): `close` closes
     /// this channel only; the connection is released when the transport drops.
     pub(crate) fn set_shared_connection(&mut self, shared: bool) {
@@ -319,7 +315,7 @@ impl Transport for SshTransport {
         }
         self.closed = true;
         let _ = self.write.close().await;
-        // M3-07: other sessions still use the connection.
+        // Other sessions still use the connection.
         if self.shared_connection {
             return Ok(());
         }
@@ -350,7 +346,6 @@ fn end_of_stream(shared: &Shared, exit: &ExitInfo, keepalive_secs: u32) -> Optio
     connection_end(shared, keepalive_secs)
 }
 
-// M3-07
 /// Why the connection ended, as the reader's error (`None`: a clean end). Every user
 /// of a shared connection (shells and tunnels) maps it the same way, so they all
 /// disconnect with the same reason.
@@ -428,7 +423,7 @@ async fn pump(
     }
     // The connection may be going down at the same time: let the handler record why.
     tokio::task::yield_now().await;
-    // M2-05: the channel ended without an exit status: if a jump hop went down, the
+    // The channel ended without an exit status: if a jump hop went down, the
     // failure names that hop (the target only saw its stream end).
     if let Some(chain) = &chain
         && exit.lock().status.is_none()
@@ -459,7 +454,7 @@ mod tests {
 
     use super::*;
 
-    /// T-04: VERASE from `backspace`, IUTF8 only for UTF-8.
+    /// VERASE from `backspace`, IUTF8 only for UTF-8.
     #[test]
     fn t04_pty_modes() {
         assert_eq!(

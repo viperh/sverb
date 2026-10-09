@@ -1,4 +1,4 @@
-//! M0-07: exit codes and the CLI error type (SPEC §16).
+//! Exit codes and the CLI error type (SPEC §16).
 //!
 //! The codes are stable and documented in `sverb --help` ([`HELP`]). Every
 //! [`CliError`] maps to exactly one of them ([`CliError::exit_code`]).
@@ -53,7 +53,6 @@ pub(crate) enum CliError {
     NotImplemented {
         /// The command, e.g. `hosts list`.
         command: &'static str,
-        /// The task that implements it, e.g. `M1-07`.
         milestone: &'static str,
     },
     /// A command-line problem clap cannot detect.
@@ -67,31 +66,30 @@ pub(crate) enum CliError {
     /// The TUI was started without a terminal on stdout.
     NoTty,
     /// The vault is locked and there is no terminal to prompt on.
-    #[allow(dead_code)] // M1-04: returned by `vault::require_unlocked` once commands use it.
+    #[allow(dead_code)] // Returned by `vault::require_unlocked` once commands use it.
     VaultLocked,
     /// Unlocking failed (wrong password, keyring error).
-    #[allow(dead_code)] // M1-04
+    #[allow(dead_code)]
     UnlockFailed(ErrorReport),
     /// Something named on the command line does not exist.
     NotFound(String),
     /// A `<host>` argument did not resolve to exactly one host.
-    #[allow(dead_code)] // M1-07: hosts rm / approve / connect resolve hosts.
+    #[allow(dead_code)] // Hosts rm / approve / connect resolve hosts.
     HostArg(HostArgError),
     /// A synced value that acts locally needs approval first.
-    #[allow(dead_code)] // M2-10
+    #[allow(dead_code)]
     ApprovalRequired {
         /// The host as the user named it.
         host: String,
     },
-    // M2-10
     /// A value that acts locally is not approved on this device; the message names
     /// the host and `sverb approve <host>` (§17.1).
     NeedsApproval(String),
     /// Network or server error.
-    #[allow(dead_code)] // M4-08
+    #[allow(dead_code)]
     Network(ErrorReport),
     /// Some targets failed.
-    #[allow(dead_code)] // M2-09
+    #[allow(dead_code)]
     Partial {
         /// How many failed.
         failed: usize,
@@ -111,7 +109,6 @@ impl CliError {
             Self::VaultLocked | Self::UnlockFailed(_) => VAULT_LOCKED,
             Self::NotFound(_) | Self::HostArg(_) => NOT_FOUND,
             Self::ApprovalRequired { .. } => APPROVAL_REQUIRED,
-            // M2-10
             Self::NeedsApproval(_) => APPROVAL_REQUIRED,
             Self::Network(_) => NETWORK,
             Self::Partial { .. } => PARTIAL,
@@ -140,7 +137,6 @@ impl fmt::Display for CliError {
                 "`sverb {command}` is not implemented yet (planned in {milestone})"
             ),
             Self::Usage(msg) | Self::NotFound(msg) => f.write_str(msg),
-            // M2-10
             Self::NeedsApproval(msg) => f.write_str(msg),
             Self::NoSync { command } => write!(f, "`sverb {command}`: {NO_SYNC}"),
             Self::NoTty => f.write_str(NO_TTY),

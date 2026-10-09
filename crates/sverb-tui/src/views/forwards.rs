@@ -1,4 +1,4 @@
-//! M2-08: the Forwards section (SPEC §8.5, §9.6).
+//! The Forwards section (SPEC §8.5, §9.6).
 //!
 //! ```text
 //! ┌ Forwards ─────────────────────────────────────────────────────────────────────────┐
@@ -9,7 +9,7 @@
 //! ```
 //!
 //! Saved rules with their live status (state, active connections, bytes in and out),
-//! refreshed at most twice a second by the reducer. The shared list (M1-06): `/`
+//! refreshed at most twice a second by the reducer. The shared list: `/`
 //! filters, `Space` marks, `s` sorts. Actions: `Enter` start / stop, `t` start without
 //! terminal (a standalone tunnel), `x` stop, `a` add, `e` edit, `d` delete (asks).
 //!

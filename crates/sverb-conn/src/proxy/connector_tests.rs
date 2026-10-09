@@ -1,4 +1,4 @@
-//! M2-06: the SSH connector through proxies, end to end over loopback (session
+//! The SSH connector through proxies, end to end over loopback (session
 //! manager → `SshConnector` → `first_hop::open` → proxy → in-process russh server).
 //! Needs the `connect.rs` hook (`first_hop::open`), so this module is declared only
 //! once that hook is merged.

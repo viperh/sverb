@@ -1,7 +1,7 @@
 //! The `sync_state` singleton (row `id = 1`, enforced by a CHECK constraint).
 //!
 //! `tokens_enc` is stored exactly as given; the caller AEADs the tokens under
-//! the LMK first (M4-07).
+//! the LMK first.
 
 use rusqlite::{OptionalExtension, params};
 use sverb_core::model::DeviceId;

@@ -1,4 +1,3 @@
-//! `share_sessions` persistence (SPEC §10.3; task M6-01).
 //!
 //! Like [`crate::sync::SyncStore`], two backends with the same behaviour:
 //! PostgreSQL, and an in-memory model for tests without a database. Only

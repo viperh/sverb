@@ -3,7 +3,6 @@
 //! The server can't create an account itself (OPAQUE registration happens
 //! on the client), so both commands create a single-use, email-bound
 //! registration invite (`invites` row with `org_id = NULL`) and return its
-//! link `<SVERB_PUBLIC_URL>/invite/<token>` (the same shape as M5-01 org
 //! invites). Only the token's SHA-256 is stored.
 
 use chrono::{DateTime, Duration, Utc};
@@ -31,7 +30,7 @@ pub struct CreatedInvite {
     pub expires_at: DateTime<Utc>,
 }
 
-// M7-05: the token (and the link that embeds it) never reach `Debug` output.
+// The token (and the link that embeds it) never reach `Debug` output.
 impl std::fmt::Debug for CreatedInvite {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("CreatedInvite")

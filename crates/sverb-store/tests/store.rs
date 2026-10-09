@@ -1,5 +1,3 @@
-//! M1-03 integration tests (T-01 … T-14; T-10 is a unit test in `device_local.rs`).
-
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::{Path, PathBuf};
@@ -79,7 +77,7 @@ async fn user_version(store: &Store) -> i64 {
         .unwrap()
 }
 
-// T-01: fresh DB in a temp SVERB_HOME: 8 tables (M2-10: local_approvals; M5-03: pinned_keys), user_version 3, mode 0600.
+// Fresh DB in a temp SVERB_HOME: 8 tables (local_approvals; Pinned_keys), user_version 3, mode 0600.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t01_fresh_db() {
     let home = tempfile::tempdir().unwrap();
@@ -111,7 +109,7 @@ async fn t01_fresh_db() {
     }
 }
 
-// T-02: PRAGMAs on the writer and on every reader.
+// PRAGMAs on the writer and on every reader.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_pragmas() {
     let dir = tempfile::tempdir().unwrap();
@@ -158,7 +156,7 @@ async fn t02_pragmas() {
     }
 }
 
-// T-03: a newer schema refuses to open and the file is byte-for-byte unchanged.
+// A newer schema refuses to open and the file is byte-for-byte unchanged.
 #[test]
 fn t03_newer_schema_untouched() {
     let dir = tempfile::tempdir().unwrap();
@@ -185,7 +183,6 @@ fn t03_newer_schema_untouched() {
     assert!(!sibling(&path, "-wal").exists());
 }
 
-// T-04: a failing second migration leaves the DB at the latest version (3 since M5-03), no partial tables.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_migration_atomicity() {
     let dir = tempfile::tempdir().unwrap();
@@ -205,7 +202,7 @@ async fn t04_migration_atomicity() {
     assert!(!table_names(&store).await.contains(&"half_done".to_owned()));
 }
 
-// T-05: ten dirty writes, then a later enqueue with base 9 → one row, base 7.
+// Ten dirty writes, then a later enqueue with base 9 → one row, base 7.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t05_outbox_coalescing() {
     let dir = tempfile::tempdir().unwrap();
@@ -262,21 +259,20 @@ async fn t05_outbox_coalescing() {
     assert_eq!(rows[0].base_revision, 7);
     assert_eq!(rows[0].queued_at, clock.now_millis());
     assert_eq!(store.pending_count().await.unwrap(), 1);
-    // M4-09
     assert_eq!(store.pending_by_vault().await.unwrap(), [(vault, 1)]);
     let dirty = store.list_dirty(vault).await.unwrap();
     assert_eq!(dirty.len(), 1);
     assert!(dirty[0].dirty);
 }
 
-// T-06: rebase updates the base; later enqueues keep it.
+// Rebase updates the base; later enqueues keep it.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t06_rebase() {
     let dir = tempfile::tempdir().unwrap();
     let (store, _) = open(dir.path());
     let vault = with_vault(&store).await;
     let item = ItemId::new();
-    // M4-09: queuing a local change wakes outbox listeners (the sync engine).
+    // Queuing a local change wakes outbox listeners (the sync engine).
     let mut changes = store.outbox_changes();
     assert!(!changes.has_changed().unwrap());
     store
@@ -308,7 +304,7 @@ async fn t06_rebase() {
     assert!(store.pending_by_vault().await.unwrap().is_empty());
 }
 
-// T-07: an error in the 3rd item of 5 rolls back the whole page and the cursor.
+// An error in the 3rd item of 5 rolls back the whole page and the cursor.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_apply_remote_atomic() {
     let dir = tempfile::tempdir().unwrap();
@@ -401,7 +397,7 @@ async fn apply_remote_rebases_and_mark_pushed() {
     assert_eq!(store.pending_count().await.unwrap(), 0);
 }
 
-// T-08: delete_vault removes its items and outbox rows in one transaction.
+// delete_vault removes its items and outbox rows in one transaction.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t08_delete_vault_cascade() {
     let dir = tempfile::tempdir().unwrap();
@@ -444,7 +440,7 @@ async fn t08_delete_vault_cascade() {
     assert_eq!(store.list_outbox(b).await.unwrap().len(), 3);
 }
 
-// T-09: 8 concurrent readers + 1 writer for 2 s; no BUSY, consistent counts.
+// 8 concurrent readers + 1 writer for 2 s; no BUSY, consistent counts.
 #[tokio::test(flavor = "multi_thread", worker_threads = 8)]
 async fn t09_concurrency() {
     let dir = tempfile::tempdir().unwrap();
@@ -497,7 +493,7 @@ async fn t09_concurrency() {
     assert_eq!(store.pending_count().await.unwrap(), written);
 }
 
-// T-11: read-only items reject put_item.
+// Read-only items reject put_item.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t11_read_only_item() {
     let dir = tempfile::tempdir().unwrap();
@@ -545,7 +541,7 @@ fn assert_no_canary(path: &Path, canary: &[u8]) {
     }
 }
 
-// T-12: no plaintext on disk (DB, WAL, SHM), also after the TEMP index.
+// No plaintext on disk (DB, WAL, SHM), also after the TEMP index.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t12_no_plaintext_on_disk() {
     const CANARY: &str = "PLAINTEXT-CANARY-42";
@@ -623,7 +619,7 @@ async fn t12_no_plaintext_on_disk() {
     assert_no_canary(&path, CANARY.as_bytes());
 }
 
-// T-13: random bytes → Corrupt with a helpful message, no panic.
+// Random bytes → Corrupt with a helpful message, no panic.
 #[test]
 fn t13_corrupt_db() {
     let dir = tempfile::tempdir().unwrap();
@@ -646,7 +642,7 @@ fn t13_corrupt_db() {
     assert_eq!(std::fs::read(&path).unwrap(), bytes);
 }
 
-// T-14: sync_state is a singleton; the API only touches row 1.
+// sync_state is a singleton; the API only touches row 1.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t14_sync_state_singleton() {
     let dir = tempfile::tempdir().unwrap();

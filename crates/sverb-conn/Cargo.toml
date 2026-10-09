@@ -11,17 +11,17 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-# M1-08: `MockTransport` (in-memory duplex) for other crates' tests.
+# `MockTransport` (in-memory duplex) for other crates' tests.
 [features]
 test-util = []
 
 # No ratatui, no crossterm.
 [dependencies]
 sverb-core = { workspace = true }
-# M1-08: the session actor owns a `Box<dyn Emulator>` (SPEC §2.1, §7.1).
+# The session actor owns a `Box<dyn Emulator>` (SPEC §2.1, §7.1).
 sverb-term = { workspace = true }
 
-# M1-08: session actor, manager and `Transport` trait.
+# Session actor, manager and `Transport` trait.
 async-trait = { workspace = true }
 bytes = { workspace = true }
 futures = { workspace = true }
@@ -31,20 +31,20 @@ tokio = { workspace = true }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
 
-# M1-12: the local terminal transport (SPEC §6.2).
+# The local terminal transport (SPEC §6.2).
 portable-pty = { workspace = true }
 
-# M1-13: the SSH transport (SPEC §6.1). All russh API usage stays in `src/ssh/`.
+# The SSH transport (SPEC §6.1). All russh API usage stays in `src/ssh/`.
 russh = { workspace = true }
 
-# M1-16: local wall-clock time for the `── reconnected at HH:MM:SS ──` separator.
+# Local wall-clock time for the `── reconnected at HH:MM:SS ──` separator.
 chrono = { workspace = true }
 
-# M2-06: proxies (SPEC §6.1.5).
+# Proxies (SPEC §6.1.5).
 base64 = { workspace = true }
 tokio-socks = { workspace = true }
 
-# M7-05: the agent pipe's owner-only DACL (agent/dacl_windows.rs).
+# The agent pipe's owner-only DACL (agent/dacl_windows.rs).
 [target.'cfg(windows)'.dependencies]
 windows-sys = { workspace = true, features = [
     "Win32_Foundation",
@@ -54,21 +54,21 @@ windows-sys = { workspace = true, features = [
     "Win32_System_Threading",
 ] }
 
-# M1-08: stub emulators (the `Emulator` trait names ratatui-core and regex types),
+# Stub emulators (the `Emulator` trait names ratatui-core and regex types),
 # paused virtual time, and a log-capturing subscriber.
 [dev-dependencies]
 pretty_assertions = { workspace = true }
-# M7-05: property-test twins of the fuzz targets (proxy/http_connect.rs).
+# Property-test twins of the fuzz targets (proxy/http_connect.rs).
 proptest = { workspace = true }
 ratatui-core = { workspace = true }
 regex = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
 tracing-subscriber = { workspace = true }
-# M3-05: recording keys for the recorder tap tests.
+# Recording keys for the recorder tap tests.
 sverb-crypto = { workspace = true }
-# M1-13: `ssh::testing` (the in-process russh server) for the integration tests.
-# M7-07: path-only, so `cargo publish` drops it (a versioned self dev-dependency
+# `ssh::testing` (the in-process russh server) for the integration tests.
+# Path-only, so `cargo publish` drops it (a versioned self dev-dependency
 # would have to exist on crates.io already).
 sverb-conn = { path = ".", features = ["test-util"] }
-# M2-07: socket tests in private temp dirs.
+# Socket tests in private temp dirs.
 tempfile = { workspace = true }

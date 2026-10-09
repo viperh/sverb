@@ -1,4 +1,4 @@
-//! M1-04: the vault engine: first run, password and keyring unlock, persisted
+//! The vault engine: first run, password and keyring unlock, persisted
 //! backoff, password change and keyring enrolment (SPEC §5.3, §11.2, §11.2.1).
 //!
 //! UI-free (the TUI service and the CLI's `require_unlocked` both use it). Argon2
@@ -7,7 +7,7 @@
 //!
 //! Keys live only in [`UnlockedVault`] (`Key32`, zeroized on drop). Every key it
 //! holds is counted in a per-engine live-key counter, so tests can prove that
-//! locking dropped all of them (T-13).
+//! locking dropped all of them.
 
 use std::collections::BTreeMap;
 use std::fmt;
@@ -17,7 +17,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use sverb_core::model::{
     DeviceId, Hlc, HlcClock, ItemBody, ItemId, VaultId, migrate::is_read_only,
 };
-// M1-05: the in-memory search index built during the unlock decrypt pass.
+// The in-memory search index built during the unlock decrypt pass.
 use sverb_core::hardening::Locked;
 use sverb_core::search::ItemIndex;
 use sverb_core::vault::{
@@ -58,7 +58,7 @@ pub struct VaultStatus {
 
 /// A key counted in the engine's live-key counter.
 ///
-/// M7-05: the key lives in `mlock`ed pages where the OS allows it (best effort,
+/// The key lives in `mlock`ed pages where the OS allows it (best effort,
 /// SPEC §17 "Memory scraping"); it is zeroized before they are unlocked.
 struct TrackedKey {
     key: Locked<Key32>,
@@ -92,7 +92,7 @@ struct VaultKeyEntry {
 /// service (never by `App`); dropping it zeroizes the keys.
 pub struct UnlockedVault {
     lmk: TrackedKey,
-    // M5-02: behind a lock so a shared vault granted while unlocked can be added
+    // Behind a lock so a shared vault granted while unlocked can be added
     // ([`UnlockedVault::add_vault`]).
     vaults: std::sync::RwLock<BTreeMap<VaultId, VaultKeyEntry>>,
     device_id: DeviceId,
@@ -100,7 +100,6 @@ pub struct UnlockedVault {
     method: UnlockMethod,
     items: usize,
     undecryptable: usize,
-    // M1-05
     /// The search index built at unlock; the vault service takes it
     /// ([`UnlockedVault::take_index`]) and owns it from then on.
     index: Option<ItemIndex>,
@@ -118,14 +117,12 @@ impl fmt::Debug for UnlockedVault {
 }
 
 impl UnlockedVault {
-    // M5-02
     fn map(&self) -> std::sync::RwLockReadGuard<'_, BTreeMap<VaultId, VaultKeyEntry>> {
         self.vaults
             .read()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
-    // M5-02
     /// Loads the key of a vault added to the store while unlocked (a shared vault
     /// the sync engine adopted after verifying its grant; its key is wrapped under
     /// the LMK). `Ok(false)` when it was loaded already.
@@ -154,7 +151,6 @@ impl UnlockedVault {
         Ok(true)
     }
 
-    // M5-04
     /// Replaces the key of a loaded vault whose stored key version moved on (a
     /// key rotation the sync engine applied; the local items were re-sealed
     /// under it). `Ok(false)` when nothing changed or the vault is not loaded.
@@ -187,7 +183,6 @@ impl UnlockedVault {
         Ok(true)
     }
 
-    // M5-02
     /// Opens a vault name sealed under the vault's key (`name_enc`: sealed like an
     /// item envelope with the vault id as item id, §4.13). `None` when the vault is
     /// not loaded or the name does not open.
@@ -204,7 +199,6 @@ impl UnlockedVault {
         String::from_utf8(plain.to_vec()).ok()
     }
 
-    // M5-02
     /// The kind of a loaded vault.
     pub fn vault_kind(&self, vault: VaultId) -> Option<VaultKind> {
         self.map().get(&vault).map(|e| e.kind)
@@ -248,7 +242,6 @@ impl UnlockedVault {
         self.undecryptable
     }
 
-    // M1-05
     /// The search index built from the unlock decrypt pass (once; `None` after).
     pub fn take_index(&mut self) -> Option<ItemIndex> {
         self.index.take()
@@ -307,7 +300,6 @@ impl UnlockedVault {
     }
 }
 
-// M1-05
 /// The display name of a vault for `@vault` filters. Vault names are not stored
 /// locally yet (§4.13; they arrive with sync): `Personal`, or `Shared <short id>`.
 pub fn vault_display_name(id: VaultId, kind: VaultKind) -> String {
@@ -317,7 +309,6 @@ pub fn vault_display_name(id: VaultId, kind: VaultKind) -> String {
     }
 }
 
-// M1-05
 /// Build the search index from decrypted bodies, with vault names and frecency
 /// (decayed to `now`). The bodies are consumed and dropped here.
 fn new_index(
@@ -411,12 +402,12 @@ impl VaultEngine {
         &self.store
     }
 
-    /// How many times Argon2 ran (test hook, T-06).
+    /// How many times Argon2 ran (test hook).
     pub fn kdf_runs(&self) -> usize {
         self.kdf_runs.load(Ordering::SeqCst)
     }
 
-    /// Keys currently held by [`UnlockedVault`]s from this engine (test hook, T-13).
+    /// Keys currently held by [`UnlockedVault`]s from this engine (test hook).
     pub fn live_keys(&self) -> usize {
         self.live_keys.load(Ordering::SeqCst)
     }
@@ -571,7 +562,7 @@ impl VaultEngine {
                 method: UnlockMethod::Created,
                 items: 0,
                 undecryptable: 0,
-                // M1-05: a new database has no items.
+                // A new database has no items.
                 index: Some(new_index(
                     [(vault_id, VaultKind::Personal)],
                     Vec::new(),
@@ -593,7 +584,7 @@ impl VaultEngine {
         let params = KdfParams::from_cbor(&kdf)?;
         let backoff = BackoffState::decode(m.failures.as_deref(), m.next_allowed.as_deref());
         if let Err(retry_after) = backoff.check(self.store.now()) {
-            // Refused without running Argon2 (T-06).
+            // Refused without running Argon2.
             return Err(VaultError::Backoff { retry_after });
         }
         let kek = self.derive(password, params).await?;
@@ -705,7 +696,7 @@ impl VaultEngine {
                     r.list_all_items()?,
                     r.get_meta(keys::DEVICE_ID)?,
                     r.get_meta(keys::HLC_LAST)?,
-                    // M1-05: frecency for the index ordering.
+                    // Frecency for the index ordering.
                     r.list_device_local()?,
                 ))
             })
@@ -748,8 +739,8 @@ impl VaultEngine {
             undecryptable: 0,
             index: None,
         };
-        // Decrypt every item: refresh the read-only marks (M1-03) on every unlock.
-        // M1-05: the in-memory search index is built from the same pass.
+        // Decrypt every item: refresh the read-only marks on every unlock.
+        // The in-memory search index is built from the same pass.
         let mut bodies = Vec::with_capacity(items.len());
         for row in &items {
             match unlocked.open(row) {
@@ -766,7 +757,6 @@ impl VaultEngine {
                 }
             }
         }
-        // M1-05
         let kinds: Vec<(VaultId, VaultKind)> =
             unlocked.map().iter().map(|(id, v)| (*id, v.kind)).collect();
         unlocked.index = Some(new_index(kinds, bodies, &locals, self.store.now()));

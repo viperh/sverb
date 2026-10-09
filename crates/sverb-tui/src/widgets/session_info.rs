@@ -1,4 +1,4 @@
-//! M1-13: what the UI knows about an SSH session (SPEC §6.1.8): negotiated algorithms,
+//! What the UI knows about an SSH session (SPEC §6.1.8): negotiated algorithms,
 //! server version, connected-since time and keepalive latency. Shown in the status bar
 //! (`db · ssh · 23ms`) and in the session info panel (`session_info`, `leader i`).
 
@@ -47,7 +47,6 @@ pub fn panel_body(
             crate::views::logs::list::format_time(at, date_format, offset)
         ));
     }
-    // M3-07
     if let Some(n) = i.shared_channels {
         let plural = if n == 1 { "" } else { "s" };
         lines.push(format!(
@@ -87,7 +86,6 @@ mod tests {
                 compression: "none".into(),
                 keepalive_secs: keepalive,
                 connected_at: Some(sverb_core::model::UnixMillis(0)),
-                // M3-07
                 shared_channels: None,
             },
             latency: latency.map(Duration::from_millis),
@@ -122,7 +120,6 @@ mod tests {
         assert!(!off.contains("shared connection"));
     }
 
-    // M3-07
     #[test]
     fn panel_shows_a_shared_connection() {
         let mut shared = info(30, None);

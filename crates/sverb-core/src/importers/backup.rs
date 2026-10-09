@@ -225,7 +225,7 @@ fn decode_payload(compressed: &[u8]) -> Result<BackupPayload, BackupError> {
     ciborium::from_reader(cbor.as_slice()).map_err(|e| BackupError::Corrupt(e.to_string()))
 }
 
-/// M7-05: the `backup_decrypt` fuzz target (`fuzz/fuzz_targets/backup_decrypt.rs`). The
+/// The `backup_decrypt` fuzz target (`fuzz/fuzz_targets/backup_decrypt.rs`). The
 /// input is tried as a backup file (header, KDF parameter checks, base64 fields) and,
 /// separately, as the authenticated plaintext (capped zstd + CBOR), then planned. Argon2
 /// itself is skipped (a fixed key stands in), so the fuzzer spends its time in parsers.

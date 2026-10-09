@@ -25,7 +25,7 @@ pub mod actor;
 pub mod cmd;
 pub mod event;
 pub mod sender;
-// M6-03: output observers for terminal sharing.
+// Output observers for terminal sharing.
 pub mod share_tap;
 pub mod state;
 
@@ -33,25 +33,14 @@ pub mod state;
 mod tests;
 
 pub use cmd::{AuthAnswer, CMD_CAPACITY, Decision, SessionCmd};
-pub use event::{MAX_TITLE_CHARS, SessionEvent, sanitize_title};
-// M1-13
 pub use event::SshSessionInfo;
-// M1-14
+pub use event::{MAX_TITLE_CHARS, SessionEvent, sanitize_title};
 pub use sender::{OVERFLOW_WARN_BYTES, SendOutcome, UiSender};
-// M6-03
 pub use share_tap::{OutputObserver, ShareTap};
 pub use state::PromptKind;
 pub use state::{
-    AuthMethod,
-    AuthPrompt,
-    DisconnectReason,
-    // M1-15
-    HostKeyDetails,
-    IllegalTransition,
-    PromptLine,
-    SessionState,
-    StateInput,
-    Verification,
+    AuthMethod, AuthPrompt, DisconnectReason, HostKeyDetails, IllegalTransition, PromptLine,
+    SessionState, StateInput, Verification,
 };
 
 /// Identifies a session for its whole life (reconnects keep the id).
@@ -83,15 +72,14 @@ impl EventSink for mpsc::UnboundedSender<(SessionId, SessionEvent)> {
     }
 }
 
-/// What to open (SPEC §2.1, M1-08 §2.4).
+/// What to open (SPEC §2.1).
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum SessionSpec {
-    /// An SSH session (M1-13).
+    /// An SSH session.
     Ssh(SshSpec),
-    /// A local terminal (M1-12).
+    /// A local terminal.
     Local(LocalSpec),
-    /// A ready-made transport (tests, M1-08 `MockTransport`).
     Mock(MockSpec),
 }
 
@@ -106,7 +94,7 @@ impl SessionSpec {
     }
 }
 
-/// What SSH target to open. M1-13: the SSH connector resolves it into a
+/// What SSH target to open. The SSH connector resolves it into a
 /// [`SshTarget`](crate::ssh::SshTarget) in the `Resolving` state, through its
 /// [`HostResolver`](crate::ssh::HostResolver) (the saved host's settings, read fresh
 /// on every connect and reconnect). An unsaved target (quick connect) resolves from
@@ -119,7 +107,6 @@ pub struct SshSpec {
     pub port: u16,
     /// User name, if set.
     pub user: Option<String>,
-    // M1-13
     /// The saved host item (`None` for an unsaved target).
     pub host_id: Option<sverb_core::model::ItemId>,
     /// What the session is shown as (the host's label), if not `host`.
@@ -128,7 +115,7 @@ pub struct SshSpec {
     pub backspace: Option<sverb_core::model::Backspace>,
 }
 
-/// A local terminal (M1-12, SPEC §6.2).
+/// A local terminal (SPEC §6.2).
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct LocalSpec {
     /// Working directory (default: the user's home).

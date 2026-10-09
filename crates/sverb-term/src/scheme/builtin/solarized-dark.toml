@@ -1,4 +1,4 @@
-# solarized-dark: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# solarized-dark: built-in sverb terminal color scheme (SPEC §7.4).
 # Source: Solarized (dark), Ethan Schoonover, https://ethanschoonover.com/solarized/ (MIT).
 
 name = "solarized-dark"

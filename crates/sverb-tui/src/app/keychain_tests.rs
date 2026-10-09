@@ -1,5 +1,4 @@
-//! M2-02 reducer tests: the delete dialog's usage counts (T-03), the host form's
-//! "Use identity" / "Inline" toggle (T-06), identity CRUD requests, "Used by" and
+//! "Use identity" / "Inline" toggle, identity CRUD requests, "Used by" and
 //! "+ new identity".
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -36,7 +35,7 @@ fn keychain() -> AppHarness {
     app.views.keychain.set_catalog(Arc::clone(&cat));
     app.views.hosts.set_catalog(cat);
     app.open_section(Section::Keychain);
-    // M2-03: Keys is the default sub-tab; these tests are about Identities.
+    // Keys is the default sub-tab; these tests are about Identities.
     app.views.keychain.tab = crate::views::keychain::KeychainTab::Identities;
     h
 }
@@ -45,7 +44,6 @@ fn top(h: &AppHarness) -> &DialogKind {
     &h.app().dialogs().last().expect("a dialog").kind
 }
 
-// M2-02 T-03
 #[test]
 fn t03_delete_dialog_shows_direct_and_inherited_usage() {
     let mut h = keychain();
@@ -166,7 +164,6 @@ fn focused(h: &AppHarness) -> String {
     d.form.focused_key().unwrap_or_default().to_owned()
 }
 
-// M2-02 T-06
 #[test]
 fn t06_use_identity_vs_inline_toggles_fields_and_keeps_the_override() {
     let mut h = keychain();

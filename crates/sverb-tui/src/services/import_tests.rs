@@ -1,4 +1,3 @@
-//! M2-11 service tests: T-10 (dry run writes nothing), T-11 (backup round-trip), T-14
 //! (export file modes and refusal), T-17 (approvals at confirmation), one transaction.
 
 use std::path::{Path, PathBuf};
@@ -77,7 +76,6 @@ async fn apply(svc: &ImportService, source: &SourceSpec, policy: ConflictPolicy)
         .unwrap_or_else(|e| panic!("{e}"))
 }
 
-// T-10
 #[tokio::test]
 async fn t10_dry_run_writes_nothing() {
     let (svc, home) = service("t10").await;
@@ -124,7 +122,6 @@ async fn csv_import_then_duplicates() {
     assert_eq!(svc.items().await.unwrap_or_default().len(), 9);
 }
 
-// T-11
 #[tokio::test]
 async fn t11_backup_roundtrip() {
     let (svc, home) = service("t11-a").await;
@@ -177,7 +174,6 @@ async fn t11_backup_roundtrip() {
     }
 }
 
-// T-14
 #[tokio::test]
 async fn t14_export_modes_and_refusal() {
     let (svc, home) = service("t14").await;
@@ -223,7 +219,6 @@ async fn t14_export_modes_and_refusal() {
     assert!(!home.0.join("b").exists());
 }
 
-// T-17
 #[tokio::test]
 async fn t17_proxy_command_approved_at_confirmation() {
     let (svc, _home) = service("t17").await;
@@ -240,7 +235,6 @@ async fn t17_proxy_command_approved_at_confirmation() {
         .find(|a| a.field == "proxy.command")
         .unwrap_or_else(|| panic!("no approval: {:?}", report.approvals));
     assert_eq!(note.value, cmd);
-    // The stored host's value passes the M2-06 approval check on this device.
     let items = svc.items().await.unwrap_or_default();
     let host = items
         .iter()

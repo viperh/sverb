@@ -11,11 +11,10 @@
 //! session id.
 //!
 //! Hooks for later tasks, in flow order: the first hop's stream comes from
-//! `first_hop::open` (direct TCP, or a proxy: M2-06; jump streams: M2-05); agent
-//! forwarding (M2-07) in
-//! `channel::open_shell`; auto-start forwards (M2-08) after the shell opens.
+//! forwarding in
+//! `channel::open_shell`; auto-start forwards after the shell opens.
 //!
-//! M3-07: steps 2–4 go through the connector's pool (`jump::mux_ssh::connect`): a live
+//! Steps 2–4 go through the connector's pool (`jump::mux_ssh::connect`): a live
 //! connection to the same key is shared (no handshake, no auth; the state goes from
 //! `Resolving` to `Connected`), and jump hops are pooled too. The session then holds
 //! a lease on the connection; closing it releases the lease (the connection lingers
@@ -37,17 +36,16 @@ use super::{
     keepalive::{KEEPALIVE_MAX, keepalive_interval, measure_latency},
     resolved::SshTarget,
 };
-// M2-05: jump chains. Declared here because `ssh/mod.rs` is held by another task;
+// Jump chains. Declared here because `ssh/mod.rs` is held by another task;
 // the merge moves this to `ssh/mod.rs` as `mod jump;` (see the merge notes).
 #[path = "jump.rs"]
 pub(super) mod jump;
+use crate::forward as fwd;
 use crate::proxy::BoxedIo;
 use crate::{
     session::{Decision, SessionCmd, SessionEvent, SessionState, SshSpec, StateInput},
     transport::{ConnectCtx, ConnectError, Transport},
 };
-// M2-08
-use crate::forward as fwd;
 
 /// How long a host-key prompt may stay open (§6.1.1 step 3); then the key is rejected.
 pub const HOST_KEY_PROMPT_TIMEOUT: Duration = Duration::from_secs(120);
@@ -87,16 +85,16 @@ pub(crate) async fn connect(
 
     // 1. Resolve settings, then DNS (never cached).
     let mut host = conn.resolver.resolve(spec).await.map_err(fail)?;
-    // M2-07: agent forwarding needs a server for the channels, and forwarding the
+    // Agent forwarding needs a server for the channels, and forwarding the
     // system agent for a host configured on another device needs approval (§17.1).
     let agent = agent_server(conn, &mut host, session).map_err(fail)?;
-    // 2–4. M3-07: through the pool: a shared connection, or the first hop's stream
-    // (M2-06: direct TCP with DNS and Happy Eyeballs, or the proxy), the jump chain
-    // (M2-05), handshake and authentication (M2-07: `agent` serves a new connection's
+    // 2–4. Through the pool: a shared connection, or the first hop's stream
+    // (direct TCP with DNS and Happy Eyeballs, or the proxy), the jump chain
+    // , handshake and authentication (`agent` serves a new connection's
     // forwarded agent channels).
     let mut connected = jump::mux_ssh::connect(conn, conn.pool(), spec, &host, agent, ctx).await?;
 
-    // M2-08: a standalone tunnel has no shell channel; forwards ride on the handle.
+    // A standalone tunnel has no shell channel; forwards ride on the handle.
     if ctx.tunnel_only() {
         let handle = Arc::clone(connected.handle());
         let shared = Arc::clone(connected.shared());
@@ -107,7 +105,7 @@ pub(crate) async fn connect(
             &shared.forwards,
             Some(connected.token()),
         );
-        // M3-07: the lease (and through it the hops) lives as long as the tunnel.
+        // The lease (and through it the hops) lives as long as the tunnel.
         let pooled = connected.pooled();
         let guard = jump::mux_ssh::hold(connected.lease, guard);
         info!(%session, "ssh tunnel open");
@@ -120,7 +118,7 @@ pub(crate) async fn connect(
         }));
     }
 
-    // 5. Session channel: env, pty, shell. M3-07: a server refusing another session
+    // 5. Session channel: env, pty, shell. A server refusing another session
     // on a shared connection (`MaxSessions`) gets a new connection for this one.
     let timeout = host.connect_timeout;
     let channel = jump::mux_ssh::open_session(conn, &host, &mut connected, ctx).await?;
@@ -141,12 +139,12 @@ pub(crate) async fn connect(
     info.peer = connected.peer.clone();
     info.keepalive_secs = host.keepalive_secs;
     info.connected_at = Some(sverb_core::model::UnixMillis::now());
-    // M3-07: "shared connection (N channels)" in the info panel.
+    // "shared connection (N channels)" in the info panel.
     info.shared_channels = connected.pooled().then(|| connected.channels());
     ctx.emit(SessionEvent::SshInfo(info));
 
-    // 6–8. Data path, startup input, keepalive latency. (M2-08: auto-start forwards.)
-    let shared_forwards = Arc::clone(&shared.forwards); // M2-08
+    // 6–8. Data path, startup input, keepalive latency. (auto-start forwards.)
+    let shared_forwards = Arc::clone(&shared.forwards);
     let mut transport = SshTransport::start(
         write,
         Arc::clone(&handle),
@@ -156,11 +154,9 @@ pub(crate) async fn connect(
             startup: host.startup_input.clone().map(Bytes::from),
             shared,
             keepalive_secs: host.keepalive_secs,
-            // M2-05
             chain: chain.clone(),
         },
     );
-    // M2-08: report the connection to the forward hook (auto-start rules). M3-07:
     // the forwards also stop when the shared connection closes.
     if let Some(guard) = fwd::ssh_glue::attach_under(
         ctx,
@@ -171,7 +167,7 @@ pub(crate) async fn connect(
     ) {
         transport.own_task(guard);
     }
-    // M3-07: the session's lease (and through it the jump hops) lives as long as the
+    // The session's lease (and through it the jump hops) lives as long as the
     // transport; closing a shared connection's session only closes its channel.
     transport.set_shared_connection(connected.pooled());
     transport.own_task(jump::mux_ssh::hold(connected.lease, None));
@@ -183,7 +179,6 @@ pub(crate) async fn connect(
     Ok(Box::new(transport))
 }
 
-// M2-07
 /// The agent server for `host`'s forwarded channels; clears `host.agent_forwarding`
 /// when there is nothing to serve them with.
 fn agent_server(
@@ -223,7 +218,7 @@ fn agent_server(
 
 /// Steps 3–4 over `stream`: the SSH handshake (the handler asks the verifier and,
 /// through us, the user) and authentication, ending with `AuthSucceeded` (which moves
-/// a jump chain on to its next hop). M2-05: run once per hop.
+/// a jump chain on to its next hop). Run once per hop.
 pub(super) async fn establish(
     conn: &SshConnector,
     host: &SshTarget,
@@ -234,7 +229,7 @@ pub(super) async fn establish(
         host: host.address.clone(),
         port: host.port,
     };
-    // M1-15: the verifier reloads the known hosts first.
+    // The verifier reloads the known hosts first.
     conn.verifier.prepare(&target).await;
     let config = Arc::new(client_config(host, &conn.verifier.known_key_types(&target)));
     let shared = Arc::new(Shared::default());
@@ -266,7 +261,6 @@ pub(super) async fn establish(
         }
     };
 
-    // 4. Authentication (M1-14 seam).
     conn.auth
         .authenticate(
             &mut AuthSession {

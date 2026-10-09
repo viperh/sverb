@@ -1,5 +1,3 @@
-//! M1-06 dialog tests (T-18 … T-21).
-
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::Duration;
@@ -36,7 +34,6 @@ fn accept_reject() -> Modal {
     )
 }
 
-// T-18
 #[test]
 fn t18_dialog_captures_all_keys() {
     let mut h = AppHarness::new(Config::default());
@@ -63,7 +60,6 @@ fn t18_dialog_captures_all_keys() {
     );
 }
 
-// T-19
 #[test]
 fn t19_mnemonics_and_danger_default() {
     let mut m = accept_reject();
@@ -129,7 +125,6 @@ fn t19_mnemonics_and_danger_default() {
     assert_eq!(h.effects(), &[Effect::Quit { code: 3 }]);
 }
 
-// T-20
 #[test]
 fn t20_timeout_counts_down_and_fires() {
     let mut m = accept_reject().with_timeout(
@@ -218,7 +213,6 @@ fn all_dialogs() -> Vec<(&'static str, Modal)> {
     ]
 }
 
-// T-21
 #[test]
 fn t21_every_dialog_type_snapshots() {
     for (name, modal) in all_dialogs() {

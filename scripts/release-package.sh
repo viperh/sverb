@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# M7-07: build one release archive (SPEC §20; used by .github/workflows/cd.yml).
+# Build one release archive (SPEC §20; used by .github/workflows/cd.yml).
 #
 #   scripts/release-package.sh <sverb|sverb-server> <version> <label> <binary> <out-dir> [assets-dir]
 #

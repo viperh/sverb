@@ -1,4 +1,4 @@
-//! M2-08 T-19: `sverb forward <rule>` on a PTY prints the listening line, the forward
+//! `sverb forward <rule>` on a PTY prints the listening line, the forward
 //! works until SIGINT (Ctrl-C), and `--detach` returns with a pid file while the
 //! background process keeps forwarding.
 //!
@@ -160,7 +160,7 @@ fn setup(tag: &str) -> Setup {
     }
 }
 
-/// T-19: the listening line, a working forward, and Ctrl-C stops it (exit 0).
+/// The listening line, a working forward, and Ctrl-C stops it (exit 0).
 #[test]
 fn t19_forward_until_sigint() -> TestResult {
     let s = setup("forward");
@@ -188,7 +188,7 @@ fn t19_forward_until_sigint() -> TestResult {
     Ok(())
 }
 
-/// T-19: `--detach` returns, the pid file exists, and the forward keeps working.
+/// `--detach` returns, the pid file exists, and the forward keeps working.
 #[test]
 fn t19_forward_detach_writes_a_pid_file() -> TestResult {
     let s = setup("forward-detach");

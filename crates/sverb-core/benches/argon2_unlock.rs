@@ -1,4 +1,3 @@
-//! M7-06 `argon2_unlock` (informational; SPEC §5.3: 0.5–1 s): one password KDF with
 //! the production parameters, what every password unlock pays.
 #![allow(missing_docs, clippy::unwrap_used)]
 

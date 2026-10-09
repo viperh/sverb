@@ -1,4 +1,3 @@
-//! M7-05 T-03 (fixture half): the canary convention end to end through the real binary.
 //!
 //! With `SVERB_LOG=trace`, a backup that holds planted canaries (a host password
 //! `CANARY-PW-…`, a hostname `canary-host-….example`, the export password

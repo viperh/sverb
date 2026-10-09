@@ -1,5 +1,5 @@
-//! M5-02: shared vault routes over HTTP: create, grant, revoke, the membership
-//! listings, read-only push enforcement (T-04, server half) and the audit rows.
+//! Shared vault routes over HTTP: create, grant, revoke, the membership
+//! listings, read-only push enforcement (server half) and the audit rows.
 //!
 //! The server never sees a vault key, so the grants here carry opaque bytes (the
 //! client-side signing and verification are covered in `sverb-sync`'s
@@ -426,7 +426,7 @@ async fn grant_rules(h: &Harness) {
     assert_eq!(perm(bob.user_id), "write");
     assert_eq!(perm(carol.user_id), "read");
 
-    // T-04: Bob pushes, Carol (read) is refused.
+    // Bob pushes, Carol (read) is refused.
     let changes = format!("/v1/vaults/{vault}/changes");
     let (st, v) = h
         .call("POST", &changes, Some(push_body(Uuid::now_v7())), bob.t())

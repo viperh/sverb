@@ -1,5 +1,4 @@
 # syntax=docker/dockerfile:1.7
-# sverb-server image (SPEC §10.7, task M4-01).
 #
 #   docker build -f deploy/Dockerfile.server -t sverb-server .
 #
@@ -15,7 +14,7 @@ RUN apk add --no-cache musl-dev build-base
 WORKDIR /src
 COPY . .
 # rust-toolchain.toml pins the channel; add the musl target to whatever it installs.
-# M7-07: the target follows the build platform (x86_64 or aarch64), so
+# The target follows the build platform (x86_64 or aarch64), so
 # `docker buildx build --platform linux/arm64` builds an arm64 binary. The release
 # images are built from the release binaries instead (Dockerfile.server.release).
 ENV RUSTFLAGS="-C target-feature=+crt-static"

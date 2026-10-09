@@ -1,6 +1,5 @@
-//! M2-08 reducer tests: the Forwards view (load, list, live refresh at ≤ 2 Hz, status
 //! bar), its requests (start, start without terminal, stop, add, delete) and the
-//! non-loopback bind confirmation (T-18).
+//! non-loopback bind confirmation.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -167,7 +166,7 @@ fn start_stop_standalone_add_delete() {
     assert!(effects.contains(&Effect::Vault(VaultEffect::Items(ItemEffect::Delete(id)))));
 }
 
-/// T-18: a non-loopback bind asks for confirmation the first time only. The manager
+/// A non-loopback bind asks for confirmation the first time only. The manager
 /// answers the first start with `NeedsApproval`; "Yes" approves and starts; the next
 /// start goes straight through (the manager no longer asks, see
 /// `sverb-conn` `forward::tests::lifecycle_and_approval`).
@@ -230,7 +229,7 @@ fn t18_non_loopback_bind_confirmed_first_time_only() {
         [ForwardsEffect::Start(id)]
     );
     assert!(h.app().dialogs().is_empty());
-    // M2-10: "No" denies (for this session); with nothing to deny it is empty.
+    // "No" denies (for this session); with nothing to deny it is empty.
     h.send(UiEvent::Forwards(ForwardsEvent::NeedsApproval {
         rule: id,
         values: Vec::new(),
@@ -243,7 +242,6 @@ fn t18_non_loopback_bind_confirmed_first_time_only() {
     );
 }
 
-/// M2-10 T-10 (reducer + manager): "No" denies the values for the session; the next
 /// start is blocked without a dialog; a fresh manager (a new start of sverb) asks
 /// again.
 #[test]

@@ -1,4 +1,3 @@
-//! M2-07 T-11…T-13 against OpenSSH in Docker (`forward` profile,
 //! `AllowAgentForwarding yes`): `ssh-add -l` on the remote. The loopback versions run
 //! without Docker in `sverb-conn`'s `agent::loopback_tests`. The "system agent" is an
 //! in-memory agent ([`MemoryAgent`]), never the developer's.
@@ -54,7 +53,7 @@ async fn forwarding(
     }
 }
 
-/// T-11: `builtin` → the remote `ssh-add -l` lists exactly the forwardable keys.
+/// `builtin` → the remote `ssh-add -l` lists exactly the forwardable keys.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t11_builtin_forwarding() {
@@ -79,7 +78,7 @@ async fn t11_builtin_forwarding() {
     s.close().await;
 }
 
-/// T-12: `system` with an agent holding a different key → the remote sees that key.
+/// `system` with an agent holding a different key → the remote sees that key.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t12_system_forwarding() {
@@ -101,7 +100,7 @@ async fn t12_system_forwarding() {
     s.close().await;
 }
 
-/// T-13: forwarding off → "Could not open a connection to your authentication agent".
+/// Forwarding off → "Could not open a connection to your authentication agent".
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t13_forwarding_off() {

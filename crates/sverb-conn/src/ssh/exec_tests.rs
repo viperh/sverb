@@ -1,5 +1,4 @@
-//! M2-04 loopback tests: exec channels (T-02…T-05), install key (T-06…T-09) and the
-//! concurrency cap (T-11) against the in-process exec server
+//! concurrency cap against the in-process exec server
 //! ([`exec_testing`](super::exec_testing)). The Docker variants are in
 //! `sverb-e2e/tests/openssh_exec.rs`.
 
@@ -61,7 +60,7 @@ fn secs(n: u64) -> ExecOpts {
     ExecOpts::with_timeout(Duration::from_secs(n))
 }
 
-/// T-02: stdout, stderr and the exit status.
+/// Stdout, stderr and the exit status.
 #[tokio::test]
 async fn t02_exec_basic() {
     let (_home, addr) = server(true).await;
@@ -90,7 +89,7 @@ async fn t02_exec_basic() {
     conn.close().await;
 }
 
-/// T-03: 1 MiB kept, `truncated`, and the command still completes.
+/// 1 MiB kept, `truncated`, and the command still completes.
 #[tokio::test]
 async fn t03_output_cap() {
     let (_home, addr) = server(true).await;
@@ -104,7 +103,7 @@ async fn t03_output_cap() {
     conn.close().await;
 }
 
-/// T-04: the timeout sends TERM; the result says so within about 3 s.
+/// The timeout sends TERM; the result says so within about 3 s.
 #[tokio::test]
 async fn t04_timeout() {
     let (_home, addr) = server(true).await;
@@ -119,7 +118,7 @@ async fn t04_timeout() {
     conn.close().await;
 }
 
-/// T-05: with a PTY both streams end up in stdout.
+/// With a PTY both streams end up in stdout.
 #[tokio::test]
 async fn t05_pty_merge() {
     let (_home, addr) = server(true).await;
@@ -162,7 +161,7 @@ async fn install(addr: std::net::SocketAddr, public: &str) -> InstallOutcome {
     out
 }
 
-/// T-06: installed, then already present, then key auth works.
+/// Installed, then already present, then key auth works.
 #[tokio::test]
 async fn t06_install_key() {
     let (home, addr) = server(true).await;
@@ -188,7 +187,7 @@ async fn t06_install_key() {
     conn.close().await;
 }
 
-/// T-07: a comment with a quote (`bob's key`) installs exactly.
+/// A comment with a quote (`bob's key`) installs exactly.
 #[tokio::test]
 async fn t07_quote_in_comment() {
     let (home, addr) = server(true).await;
@@ -199,7 +198,7 @@ async fn t07_quote_in_comment() {
     assert_eq!(text, format!("{line}\n"));
 }
 
-/// T-08: a Windows-like server is reported as unsupported.
+/// A Windows-like server is reported as unsupported.
 #[tokio::test]
 async fn t08_windows_like() {
     let (home, addr) = server(false).await;
@@ -209,7 +208,7 @@ async fn t08_windows_like() {
     assert!(!home.0.join(".ssh").exists());
 }
 
-/// T-09: `~/.ssh` is 700 and `authorized_keys` 600 (umask 077).
+/// `~/.ssh` is 700 and `authorized_keys` 600 (umask 077).
 #[tokio::test]
 async fn t09_permissions() {
     let (home, addr) = server(true).await;
@@ -277,7 +276,7 @@ async fn no_prompts_fails_cleanly() {
     assert!(res.is_err());
 }
 
-/// T-11: 25 targets, never more than 10 in flight.
+/// 25 targets, never more than 10 in flight.
 #[tokio::test]
 async fn t11_concurrency_cap() {
     let in_flight = Arc::new(AtomicUsize::new(0));

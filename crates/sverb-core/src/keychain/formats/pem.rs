@@ -1,4 +1,4 @@
-//! M2-03: PEM PKCS#1 RSA (`BEGIN RSA PRIVATE KEY`) and SEC1 EC (`BEGIN EC PRIVATE KEY`)
+//! PEM PKCS#1 RSA (`BEGIN RSA PRIVATE KEY`) and SEC1 EC (`BEGIN EC PRIVATE KEY`)
 //! private keys, plain or legacy-encrypted (OpenSSL "traditional" format:
 //! `Proc-Type: 4,ENCRYPTED` + `DEK-Info: AES-{128,192,256}-CBC,<iv>`, key derived with
 //! `EVP_BytesToKey(MD5, 1 round)`). DES / 3DES-encrypted PEMs are refused with a

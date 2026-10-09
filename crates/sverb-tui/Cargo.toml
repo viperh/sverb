@@ -13,65 +13,65 @@ workspace = true
 
 [features]
 sync = ["dep:sverb-sync", "dep:uuid"]
-# M0-08: exposes `sverb_tui::testing` (AppHarness, FakeSessionRegistry) to other crates' tests.
+# Exposes `sverb_tui::testing` (AppHarness, FakeSessionRegistry) to other crates' tests.
 test-util = []
-# M0-05: crash-path hooks (`SVERB_TEST_HOOK`) used by the binary's PTY tests.
+# Crash-path hooks (`SVERB_TEST_HOOK`) used by the binary's PTY tests.
 test-hooks = []
-# M1-04: logind `PrepareForSleep` suspend detection (zbus). Not implemented yet; the
+# Logind `PrepareForSleep` suspend detection (zbus). Not implemented yet; the
 # feature is reserved so the lock-on-suspend hook has a stable name.
 suspend-detect = []
 
 [dependencies]
 sverb-conn = { workspace = true }
-# M1-13: implementing the SSH connector's `HostResolver` (an `#[async_trait]`).
+# Implementing the SSH connector's `HostResolver` (an `#[async_trait]`).
 async-trait = { workspace = true }
 sverb-core = { workspace = true }
 sverb-crypto = { workspace = true }
 sverb-proto = { workspace = true }
 sverb-store = { workspace = true }
 sverb-sync = { workspace = true, optional = true }
-# M5-01: org and member ids in the sync service.
+# Org and member ids in the sync service.
 uuid = { workspace = true, optional = true }
 sverb-term = { workspace = true }
 
-# M0-11: notification timestamps in `ui.date_format`.
+# Notification timestamps in `ui.date_format`.
 chrono = { workspace = true }
-# M0-08: reducer, views, keymap registry, services and the interim runtime loop.
+# Reducer, views, keymap registry, services and the interim runtime loop.
 crossterm = { workspace = true }
 futures = { workspace = true }
 ratatui = { workspace = true }
 serde = { workspace = true }
-# M0-10: `sverb keys --dump --json`.
+# `sverb keys --dump --json`.
 serde_json = { workspace = true }
 strum = { workspace = true }
 tokio = { workspace = true }
-# M0-09: `DelayQueue` for the timer service.
+# `DelayQueue` for the timer service.
 tokio-util = { workspace = true, features = ["time"] }
 tracing = { workspace = true }
-# M1-11: OSC 52 clipboard payloads.
+# OSC 52 clipboard payloads.
 base64 = { workspace = true }
-# M1-04: vault service (LMK/VK zeroization, the OS keyring for keyring unlock).
+# Vault service (LMK/VK zeroization, the OS keyring for keyring unlock).
 keyring = { workspace = true }
 zeroize = { workspace = true }
-# M1-06: list filter (same fuzzy matcher as the search index) and the multiline
+# List filter (same fuzzy matcher as the search index) and the multiline
 # field. `ratatui-textarea` is the ratatui-0.30 successor of `tui-textarea` (which
 # only supports ratatui ≤ 0.29); keys are converted by hand, so no crossterm feature.
 nucleo-matcher = { workspace = true }
 ratatui-textarea = { workspace = true }
-# M3-04: opening confirmed links (`services::opener`).
+# Opening confirmed links (`services::opener`).
 open = { workspace = true }
 
-# M0-08: suspend raises SIGTSTP, which only exists on unix.
+# Suspend raises SIGTSTP, which only exists on unix.
 [target.'cfg(unix)'.dependencies]
 signal-hook = { workspace = true }
-# M7-06: the startup kitty-keyboard probe polls the tty with a 50 ms budget (safe
+# The startup kitty-keyboard probe polls the tty with a 50 ms budget (safe
 # `poll`; crossterm's own probe waits up to 2 s). Same major as crossterm's rustix.
 rustix = { workspace = true }
 
-# M0-08: reducer property tests and TestBackend snapshots.
+# Reducer property tests and TestBackend snapshots.
 [dev-dependencies]
 insta = { workspace = true }
 pretty_assertions = { workspace = true }
 proptest = { workspace = true }
-# M0-09: paused virtual time for the loop tests.
+# Paused virtual time for the loop tests.
 tokio = { workspace = true, features = ["test-util"] }

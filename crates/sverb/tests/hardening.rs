@@ -1,4 +1,3 @@
-//! M7-05 T-01 (binary level): the running `sverb` is not dumpable and has a core limit
 //! of 0. Checked from outside, without ptrace: the kernel makes `/proc/<pid>/*` of a
 //! non-dumpable process owned by root, and `/proc/<pid>/limits` shows the core limit.
 //! The in-process twin (`PR_GET_DUMPABLE`) is `crates/sverb-core/tests/hardening.rs`.

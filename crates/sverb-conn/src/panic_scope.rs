@@ -1,4 +1,3 @@
-//! Marks code that runs inside a contained session task (M1-08, M0-05 open note).
 //!
 //! The global panic hook (`crates/sverb/src/panic.rs`) restores the terminal and shuts
 //! logging down on every panic, which is right for the UI task but wrong for a session

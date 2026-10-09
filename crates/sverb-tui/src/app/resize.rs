@@ -1,5 +1,5 @@
-//! M3-01: split resizing, resize mode, mouse drags of split borders, zoom, tab rename
-//! and reorder, and `equalize_panes` (SPEC §8.3, §8.4; `03-KEYBINDINGS.md` §3.1 A6,
+//! Split resizing, resize mode, mouse drags of split borders, zoom, tab rename
+//! and reorder, and `equalize_panes` (SPEC §8.3, §8.4.1 A6,
 //! §4.1, §4.4).
 //!
 //! - **Resize** (`leader H J K L`): **one** step ([`Layout::resize`]: 5% of the nearest
@@ -44,7 +44,7 @@ use crate::views::{
 };
 use crate::widgets::dialog::{Modal, ModalAnswer};
 
-/// Resize mode ends after this long without a key (`03-KEYBINDINGS.md` §4.4).
+/// Resize mode ends after this long without a key.
 pub const RESIZE_MODE_IDLE: Duration = Duration::from_secs(10);
 
 /// Steps of `H J K L` in resize mode.
@@ -80,7 +80,6 @@ pub struct BorderDrag {
 }
 
 impl App {
-    /// The M3-01 actions. Returns `false` for actions it doesn't own.
     pub(crate) fn apply_pane_ops_action(
         &mut self,
         action: ActionName,

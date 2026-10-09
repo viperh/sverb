@@ -1,4 +1,4 @@
-//! M1-04: the lock overlay (SPEC §5.3, `tasks/03-KEYBINDINGS.md` §4.4).
+//! The lock overlay (SPEC §5.3).
 //!
 //! While the vault is locked, every pane (and the section area) is covered: nothing
 //! decrypted is visible and keys are never forwarded to a session. Only the unlock

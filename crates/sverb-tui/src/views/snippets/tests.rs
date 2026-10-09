@@ -1,4 +1,4 @@
-//! M2-09: the Snippets view and dialogs (T-04 masking in the UI, T-07 at the dialog
+//! The Snippets view and dialogs (T-04 masking in the UI, T-07 at the dialog
 //! level, results and export, the editor's "add variables?" prompt).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]

@@ -1,8 +1,8 @@
-//! M1-05 T-12: full index build of 10k synthetic items (decrypt included) and a
+//! Full index build of 10k synthetic items (decrypt included) and a
 //! 5-char query over them. Targets: build ≈ 50 ms on a modern CPU (< 150 ms on CI),
 //! query < 5 ms.
 //!
-//! M7-06: `index_build_10k` and `search_query_10k` (gated by `scripts/bench-gate.py`).
+//! `index_build_10k` and `search_query_10k` (gated by `scripts/bench-gate.py`).
 #![allow(missing_docs, clippy::unwrap_used, clippy::expect_used)]
 
 use std::hint::black_box;

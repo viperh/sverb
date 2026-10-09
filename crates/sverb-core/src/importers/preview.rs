@@ -96,7 +96,6 @@ pub fn fill_fields(plan: &mut ImportPlan) {
                     put(&mut f, "jump", labels(plan, &h.jump_chain));
                 }
                 put(&mut f, "proxy_command", h.proxy_command.clone());
-                // M7-03
                 put(&mut f, "proxy", h.proxy.as_ref().map(ToString::to_string));
                 put(
                     &mut f,
@@ -628,7 +627,7 @@ pub struct ItemWrite {
 }
 
 /// A locally-acting value the user saw in the preview: approved at confirmation
-/// (M2-10 §2.2).
+/// .
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ApprovalNote {
     /// The item defining the value.
@@ -791,7 +790,7 @@ pub fn materialize(
                         value: c.clone(),
                     });
                 }
-                // M7-03: SOCKS5 / HTTP proxies (PuTTY); no password.
+                // SOCKS5 / HTTP proxies (PuTTY); no password.
                 if let Some(p) = &h.proxy {
                     let auth = p.user.clone().map(|user| ProxyAuth {
                         user,

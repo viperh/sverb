@@ -1,5 +1,3 @@
-//! `/v1/shares` (SPEC §10.4 "Sharing"; task M6-01).
-
 use std::time::Duration;
 
 use axum::extract::ws::{CloseFrame, Message, WebSocket, WebSocketUpgrade};

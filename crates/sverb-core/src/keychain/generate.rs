@@ -1,4 +1,3 @@
-//! M2-03 §2.2: key generation (SPEC §9.4).
 //!
 //! Ed25519 (default), ECDSA P-256/384/521 and RSA 2048/3072/4096 from the OS CSPRNG.
 //! With a passphrase the private key is stored **encrypted in OpenSSH format**

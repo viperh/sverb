@@ -1,4 +1,4 @@
-//! M3-07: connection sharing (SPEC §6.1.3, §6.1.4, §15 `ssh.multiplex`).
+//! Connection sharing (SPEC §6.1.3, §6.1.4, §15 `ssh.multiplex`).
 //!
 //! A [`Pool`] keeps the live connections by [`MuxKey`]. Sessions, exec runs,
 //! standalone forwards and jump hops ask the pool for a connection and get a [`Lease`]:

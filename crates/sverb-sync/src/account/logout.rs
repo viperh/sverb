@@ -1,5 +1,4 @@
 //! Disconnect (`sverb logout`, Settings → Sync → Disconnect; §1.1,
-//! §11.2.1, M4-08 §2.8).
 //!
 //! * The tokens are revoked server-side (`POST /v1/auth/logout`); offline,
 //!   the local part still runs and the report says so.

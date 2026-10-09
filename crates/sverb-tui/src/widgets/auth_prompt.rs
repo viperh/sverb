@@ -1,5 +1,4 @@
-//! M1-14: the authentication prompt dialog and the per-session prompt queue
-//! (SPEC §6.1.1 step 4, task M1-14 §2.3).
+//! The authentication prompt dialog and the per-session prompt queue
 //!
 //! - [`AuthPromptDialog`]: one dialog per request — "Authenticate to `<label>`", the
 //!   server's name and instruction (already sanitized by the connector:

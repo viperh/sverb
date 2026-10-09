@@ -1,4 +1,4 @@
-//! M3-04: copy mode, mouse selection and hyperlinks in the reducer (SPEC §7.1, §7.3, §8.2,
+//! Copy mode, mouse selection and hyperlinks in the reducer (SPEC §7.1, §7.3, §8.2,
 //! §17).
 //!
 //! - **Copy mode** (`leader [`): [`crate::views::sessions::copy_mode::CopyState`]
@@ -172,7 +172,7 @@ impl App {
         self
     }
 
-    // M7-01: also read by `app/history.rs`.
+    // Also read by `app/history.rs`.
     pub(crate) fn emulator(&self, id: SessionId) -> Option<SharedEmulator> {
         self.copy.terms.0.as_ref()?.emulator(id)
     }

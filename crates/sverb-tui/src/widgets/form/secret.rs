@@ -1,4 +1,4 @@
-//! M1-06: the `Secret` field (passwords, passphrases).
+//! The `Secret` field (passwords, passphrases).
 //!
 //! - The value lives in a [`SecretString`] (zeroized on drop, `[REDACTED]` in `Debug`);
 //!   every edit builds the next value in a `Zeroizing` buffer.

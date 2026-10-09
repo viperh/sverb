@@ -1,6 +1,6 @@
 //! A tiny side scanner for the few sequences `alacritty_terminal` ignores but sverb needs:
 //!
-//! - OSC 7 (working directory) and OSC 133 (semantic prompt marks, M7-01),
+//! - OSC 7 (working directory) and OSC 133 (semantic prompt marks),
 //! - `CSI > 4 ; n m` / `CSI > 4 n` (xterm modifyOtherKeys level),
 //! - `CSI ? 1015 h/l` (urxvt mouse encoding),
 //! - `ESC c` (RIS) to reset the above.

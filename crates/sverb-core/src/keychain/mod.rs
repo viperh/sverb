@@ -1,4 +1,4 @@
-//! M2-03: the keychain (SPEC §4.5, §4.6, §9.4): SSH key generation, import, export,
+//! The keychain (SPEC §4.5, §4.6, §9.4): SSH key generation, import, export,
 //! passphrase changes and certificates. UI-agnostic; the TUI (`views/keychain`) and the
 //! CLI (`sverb keys …`) drive it.
 //!
@@ -8,7 +8,7 @@
 //! - [`import`]: OpenSSH, PEM PKCS#1 RSA and SEC1 EC (plain or legacy
 //!   `Proc-Type: 4,ENCRYPTED` AES-CBC), PKCS#8 (plain or PBES2-encrypted), and a lone
 //!   `.pub` public key (an agent / hardware reference key, SPEC §9.4). PuTTY `.ppk`
-//!   plugs in through the [`import::KeyImporter`] registry (M7-03). Everything is stored
+//!   plugs in through the [`import::KeyImporter`] registry. Everything is stored
 //!   re-serialized in OpenSSH format.
 //! - [`export`]: public line, private key file (mode `0600`, optional re-encryption),
 //!   passphrase changes.
@@ -65,7 +65,6 @@ pub enum KeychainError {
     /// A legacy encrypted PEM with a cipher we can't decrypt.
     #[error("unsupported encrypted PEM ({0}); convert it with `ssh-keygen -p -f <file>`")]
     UnsupportedEncryptedPem(String),
-    /// A registered [`import::KeyImporter`] refused the key (e.g. PuTTY before M7-03).
     #[error("{0}")]
     Importer(String),
     /// A file could not be read.

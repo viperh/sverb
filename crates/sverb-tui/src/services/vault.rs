@@ -1,4 +1,4 @@
-//! M1-04: the vault service: executes `Effect::Vault` and owns the keys.
+//! The vault service: executes `Effect::Vault` and owns the keys.
 //!
 //! - [`VaultEngine`] (`vault/engine.rs`) does the work: Argon2 and keyring calls in
 //!   `spawn_blocking`, store transactions, key wrapping. It never contacts a server.
@@ -9,7 +9,7 @@
 //! - After an unlock it reads the persistent flags and sends `UiEvent::Meta` (the
 //!   one-time leader notice), and it persists `Effect::SetMetaFlag`.
 //!
-//! - M1-05: it owns the in-memory search index ([`ItemIndex`]): built in the
+//! - It owns the in-memory search index ([`ItemIndex`]): built in the
 //!   unlock decrypt pass, updated per item write / remote apply
 //!   ([`VaultService::index_upsert`], [`VaultService::index_remove`]), published to
 //!   the reducer as `UiEvent::IndexUpdated(Arc<IndexSnapshot>)`, and dropped (so
@@ -20,10 +20,10 @@
 //! `VaultEvent::LockRequested`.
 
 pub mod engine;
-// M1-07: item writes and reads (save, delete, duplicate, pin, the Hosts catalog).
+// Item writes and reads (save, delete, duplicate, pin, the Hosts catalog).
 pub mod items;
 pub mod os_keyring;
-// M5-02: shared vaults: adopting granted vault keys, names, read-only flags,
+// Shared vaults: adopting granted vault keys, names, read-only flags,
 // credential overrides (§13).
 pub mod shared;
 
@@ -32,7 +32,6 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use sverb_core::model::{ItemBody, ItemId, VaultId};
 use sverb_core::paths::Paths;
-// M1-05
 use sverb_core::search::{IndexSnapshot, ItemIndex};
 use sverb_core::vault::{Argon2Cost, KeyringStore, VaultError};
 use sverb_store::Store;
@@ -41,10 +40,9 @@ use tracing::{debug, warn};
 pub use self::engine::{
     Initialized, UnlockMethod, UnlockedVault, VaultEngine, VaultStatus, vault_display_name,
 };
-pub use self::os_keyring::{KEYRING_ENV, OsKeyring, keyring_from_env};
-// M7-06
 #[cfg(feature = "test-hooks")]
 pub use self::os_keyring::FileKeyring;
+pub use self::os_keyring::{KEYRING_ENV, OsKeyring, keyring_from_env};
 use super::EventSender;
 use crate::app::{
     MetaFlag, MetaFlags, UiEvent, UnlockFailure, UnlockRequest, VaultEffect, VaultEvent,
@@ -57,13 +55,10 @@ pub struct VaultService {
     engine: VaultEngine,
     unlocked: Arc<Mutex<Option<Arc<UnlockedVault>>>>,
     generation: Arc<AtomicU64>,
-    // M1-05
     /// The decrypted search index (`None` while locked).
     index: Arc<Mutex<Option<ItemIndex>>>,
-    // M1-07
     /// The HLC clock of item writes in this unlocked session (`None` while locked).
     items_clock: Arc<Mutex<Option<items::SharedClock>>>,
-    // M5-02
     /// Where new hosts go (the vault selector; `None`: Personal).
     new_item_vault: Arc<Mutex<Option<VaultId>>>,
 }
@@ -76,14 +71,11 @@ impl VaultService {
             unlocked: Arc::new(Mutex::new(None)),
             generation: Arc::new(AtomicU64::new(0)),
             index: Arc::new(Mutex::new(None)),
-            // M1-07
             items_clock: Arc::new(Mutex::new(None)),
-            // M5-02
             new_item_vault: Arc::new(Mutex::new(None)),
         }
     }
 
-    // M2-08
     /// A service over `engine` holding `vault`, already unlocked (headless commands
     /// such as `sverb forward`, which unlock before building their services).
     pub fn from_unlocked(engine: VaultEngine, vault: UnlockedVault) -> Self {
@@ -130,18 +122,18 @@ impl VaultService {
         self.slot().is_some()
     }
 
-    /// The unlocked vault, for services that read or write items (M1-05, M1-07).
+    /// The unlocked vault, for services that read or write items.
     /// `None` while locked. Do not keep it across a lock.
     pub fn unlocked(&self) -> Option<Arc<UnlockedVault>> {
         self.slot().clone()
     }
 
-    /// Keys currently alive (test hook, T-13).
+    /// Keys currently alive (test hook).
     pub fn live_keys(&self) -> usize {
         self.engine.live_keys()
     }
 
-    /// Drop (and so zeroize) the keys now. M1-05: the search index (and the
+    /// Drop (and so zeroize) the keys now. The search index (and the
     /// service's snapshot of it) is dropped too.
     pub fn lock(&self) {
         self.generation.fetch_add(1, Ordering::SeqCst);
@@ -149,7 +141,6 @@ impl VaultService {
         drop(keys);
         let index = self.index_slot().take();
         drop(index);
-        // M1-07
         self.items_clock
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -165,9 +156,9 @@ impl VaultService {
             drop(vault);
             return false;
         }
-        // M1-05: the service owns the index from here on.
+        // The service owns the index from here on.
         let index = vault.take_index();
-        // M1-07: item writes resume the HLC from `meta.hlc_last`.
+        // Item writes resume the HLC from `meta.hlc_last`.
         *self
             .items_clock
             .lock()
@@ -176,8 +167,6 @@ impl VaultService {
         *self.index_slot() = index;
         true
     }
-
-    // M1-05 ------------------------------------------------------------ search index
 
     fn index_slot(&self) -> std::sync::MutexGuard<'_, Option<ItemIndex>> {
         self.index.lock().unwrap_or_else(PoisonError::into_inner)
@@ -213,7 +202,6 @@ impl VaultService {
         }
     }
 
-    // M1-07
     /// Item operations for the unlocked vault; `None` while locked.
     pub fn item_ops(&self) -> Option<items::ItemOps> {
         let vault = self.unlocked()?;
@@ -222,7 +210,7 @@ impl VaultService {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clone()?;
-        // M5-02: new hosts go to the selected vault.
+        // New hosts go to the selected vault.
         let new_vault = *self
             .new_item_vault
             .lock()
@@ -282,7 +270,6 @@ impl VaultService {
         let tx = tx.clone();
         match effect {
             VaultEffect::Lock => self.lock(),
-            // M1-07
             VaultEffect::Items(op) => items::execute(self, op, &tx),
             VaultEffect::Initialize { password, keyring } => {
                 tokio::spawn(async move {
@@ -373,9 +360,9 @@ impl VaultService {
                 seen_leader_notice: seen,
             };
             let _ = tx.send(UiEvent::Meta(flags)).await;
-            // M5-02: shared vaults by their names (sealed under their keys).
+            // Shared vaults by their names (sealed under their keys).
             self.refresh_vault_names().await;
-            // M1-05: the index built during unlock.
+            // The index built during unlock.
             if let Some(snapshot) = self.index_snapshot() {
                 let _ = tx.send(UiEvent::IndexUpdated(snapshot)).await;
             }
@@ -383,7 +370,6 @@ impl VaultService {
     }
 }
 
-// M1-05
 /// Send `UiEvent::IndexUpdated` without blocking the caller.
 fn publish(snapshot: Arc<IndexSnapshot>, tx: &EventSender) {
     match tx.try_send(UiEvent::IndexUpdated(snapshot)) {

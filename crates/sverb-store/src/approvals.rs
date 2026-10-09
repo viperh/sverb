@@ -1,4 +1,4 @@
-//! M2-10: the `local_approvals` table (SPEC §17.1): the device-local allowlist of
+//! The `local_approvals` table (SPEC §17.1): the device-local allowlist of
 //! values that act on this machine.
 //!
 //! One row per `(item_id, field)`, holding the SHA-256 of the exact value the user
@@ -159,8 +159,6 @@ impl Store {
         self.read(|r| r.list_local_approvals()).await
     }
 }
-
-// ---------------------------------------------------------------------- M2-10 runtime
 
 /// Every row as `(item, field, hash)`, read on `conn` (at open).
 pub(crate) fn load_rows(conn: &Connection) -> Result<Vec<(ItemId, String, ValueHash)>> {

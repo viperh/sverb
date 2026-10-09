@@ -1,4 +1,3 @@
-//! Recording chunk sealing (§7.5). M3-05 only does the file I/O.
 //!
 //! `recording_key = HKDF(LMK, info = "sverb/recording/v1")`,
 //! `aad = conn_id (16) || chunk_index (u64 BE) || is_last (u8)`,

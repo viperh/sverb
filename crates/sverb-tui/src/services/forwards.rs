@@ -1,4 +1,4 @@
-//! M2-08: the forwards service (SPEC §9.6). Owns the [`ForwardManager`], which is the
+//! The forwards service (SPEC §9.6). Owns the [`ForwardManager`], which is the
 //! session manager's forward hook: SSH sessions report their connections to it, so a
 //! host's auto-start rules start when it connects and restart after a reconnect, and
 //! every rule stops when its connection goes away.
@@ -38,7 +38,6 @@ fn send(tx: &EventSender, ev: ForwardsEvent) {
 }
 
 /// Rules (with this device's authorship of their risky fields, informational since
-/// M2-10) and host labels.
 async fn load(ops: &ItemOps) -> Result<(Vec<ForwardRule>, Vec<(ItemId, String)>), ErrorReport> {
     let items = ops
         .list(&[ItemKind::PortForward, ItemKind::Host])
@@ -71,7 +70,6 @@ fn start_error(rule: ItemId, err: StartError, standalone: bool) -> ForwardsEvent
             values,
             standalone,
         },
-        // M2-10
         StartError::Blocked(values) => ForwardsEvent::Failed(ErrorReport::msg(format!(
             "The forward was blocked by approval policy ({}); it is asked again after sverb restarts",
             values
@@ -131,7 +129,7 @@ impl ForwardsService {
                     );
                     return;
                 };
-                // M2-10: confirmations are the device's `local_approvals`.
+                // Confirmations are the device's `local_approvals`.
                 self.manager.set_approvals(vault.store().device_approvals());
                 let (manager, tx) = (self.manager.clone(), tx.clone());
                 tokio::spawn(async move {
@@ -249,7 +247,7 @@ impl ForwardsService {
                 self.statuses(tx);
             }
             ForwardsEffect::Approve(values) => self.manager.approve(&values),
-            // M2-10: remembered for this session only.
+            // Remembered for this session only.
             ForwardsEffect::Deny(values) => self.manager.deny(&values),
         }
     }

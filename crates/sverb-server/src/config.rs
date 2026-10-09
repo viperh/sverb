@@ -196,7 +196,7 @@ pub struct Limits {
     pub share_ttl_hours: u32,
     /// Tombstones older than this many days are purged by GC.
     pub tombstone_horizon_days: u32,
-    /// M4-04: hours between background GC runs (`admin gc` in-process);
+    /// Hours between background GC runs (`admin gc` in-process);
     /// 0 disables the job.
     pub gc_interval_hours: u32,
 }
@@ -425,7 +425,6 @@ impl Config {
                 file.tombstone_horizon_days,
                 defaults.tombstone_horizon_days,
             )?,
-            // M4-04
             gc_interval_hours: num_or(
                 &env,
                 "SVERB_GC_INTERVAL_HOURS",

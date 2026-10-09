@@ -1,4 +1,4 @@
-//! M7-05 (M2-07 T-14): the owner-only DACL of the `sverb agent` named pipe, and the
+//! The owner-only DACL of the `sverb agent` named pipe, and the
 //! check that a connected client runs as the same user (SPEC §6.1.6).
 //!
 //! - The pipe is created with a **protected** DACL from the SDDL

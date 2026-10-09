@@ -1,7 +1,6 @@
-//! M2-06 tests: HTTP CONNECT and SOCKS5 against in-process mock proxies, ProxyCommand
 //! streams, the approval stub, and SSH through each proxy kind to the in-process
-//! russh server (no Docker). The Docker variants (T-09/T-10/T-11) are `#[ignore]`d at
-//! the end for the M1-18 harness.
+//! russh server (no Docker). The Docker variants are `#[ignore]`d at
+//! the end for the Docker e2e harness.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -43,7 +42,7 @@ fn target<'a>(host: &'a str, port: u16) -> HopTarget<'a> {
 
 // ------------------------------------------------------------- HTTP CONNECT
 
-/// T-01: request formatting without and with auth, and an IPv6 target.
+/// Request formatting without and with auth, and an IPv6 target.
 #[test]
 fn t01_http_connect_request_format() {
     assert_eq!(
@@ -107,7 +106,7 @@ fn limits() -> http_connect::Limits {
     http_connect::Limits::with_timeout(Duration::from_secs(5))
 }
 
-/// T-02: bytes after the header terminator come first on the stream.
+/// Bytes after the header terminator come first on the stream.
 #[tokio::test]
 async fn t02_http_early_bytes_are_preserved() {
     let reply =
@@ -129,7 +128,7 @@ async fn t02_http_early_bytes_are_preserved() {
     assert!(res.unwrap().pending().is_empty());
 }
 
-/// T-03: 407, other codes, oversized headers, slowloris.
+/// 407, other codes, oversized headers, slowloris.
 #[tokio::test]
 async fn t03_http_errors() {
     let reply = b"HTTP/1.1 407 Proxy Authentication Required\r\n\r\n".to_vec();
@@ -173,7 +172,7 @@ async fn t03_http_errors() {
     assert!(matches!(res.unwrap_err(), HttpConnectError::Malformed(_)));
 }
 
-/// T-03: no `\r\n\r\n` within the timeout → timeout.
+/// No `\r\n\r\n` within the timeout → timeout.
 #[tokio::test(start_paused = true)]
 async fn t03_http_slowloris_times_out() {
     let started = tokio::time::Instant::now();
@@ -284,7 +283,7 @@ async fn socks_mock(mock: SocksMock) -> (SocketAddr, Arc<StdMutex<Vec<SocksSeen>
     (addr, log)
 }
 
-/// T-04: CONNECT by domain name (ATYP 0x03, not a resolved IP), user/password
+/// CONNECT by domain name (ATYP 0x03, not a resolved IP), user/password
 /// sub-negotiation, reply 0x05 → "connection refused".
 #[tokio::test]
 async fn t04_socks5_domain_auth_and_reply_codes() {
@@ -345,7 +344,7 @@ async fn t04_socks5_domain_auth_and_reply_codes() {
 
 // ------------------------------------------------------------- ProxyCommand
 
-/// T-05: substitution.
+/// Substitution.
 #[test]
 fn t05_proxy_command_substitution() {
     assert_eq!(expand_command("nc %h %p", "a", 22, "u").unwrap(), "nc a 22");
@@ -383,7 +382,7 @@ fn t05_proxy_command_substitution() {
     assert_eq!(validate_command("nc %h %p %r %%"), Ok(()));
 }
 
-/// T-06: data flows both ways through a ProxyCommand (`cat` echoes).
+/// Data flows both ways through a ProxyCommand (`cat` echoes).
 #[cfg(unix)]
 #[tokio::test]
 async fn t06_proxy_command_stream_echo() {
@@ -410,7 +409,7 @@ fn alive(pid: u32) -> bool {
     std::path::Path::new(&format!("/proc/{pid}")).exists()
 }
 
-/// T-07: the child is killed and reaped within 2 s of the stream being dropped.
+/// The child is killed and reaped within 2 s of the stream being dropped.
 #[cfg(target_os = "linux")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_child_killed_on_close() {
@@ -425,7 +424,7 @@ async fn t07_child_killed_on_close() {
     }
 }
 
-/// T-08: stderr ends up in the error when the command gives up (the debug-log half is
+/// Stderr ends up in the error when the command gives up (the debug-log half is
 /// `tests/proxy_logs.rs`, a process of its own for reliable capture).
 #[cfg(unix)]
 #[tokio::test]
@@ -447,7 +446,7 @@ async fn t08_stderr_captured() {
     assert_eq!(stream.stderr_tail(), ["nc: connect to db port 22: refused"]);
 }
 
-/// T-12: a ProxyCommand stamped by another device needs approval and is not run.
+/// A ProxyCommand stamped by another device needs approval and is not run.
 #[cfg(unix)]
 #[tokio::test]
 async fn t12_approval_gate() {
@@ -512,7 +511,6 @@ async fn t12_approval_gate() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// M2-10 T-04/T-05/T-10 (connector level): with the device's explicit approvals, a
 /// stored ProxyCommand runs only with a row for its exact value, whoever stamped it;
 /// a remote change asks again; a session denial fails with "blocked by approval
 /// policy".
@@ -752,19 +750,19 @@ async fn ssh_through_proxy_command() {
     ssh_over(hop).await;
 }
 
-// ------------------------------------------------------------- Docker (M1-18)
+// ------------------------------------------------------------- Docker
 
-/// T-09: SOCKS5 via a `microsocks`/`dante` container → SSH connects through it.
+/// SOCKS5 via a `microsocks`/`dante` container → SSH connects through it.
 #[test]
 #[ignore = "needs Docker (M1-18 harness)"]
 fn t09_e2e_socks5_container() {}
 
-/// T-10: HTTP CONNECT via `tinyproxy` with basic auth; wrong password → 407 message.
+/// HTTP CONNECT via `tinyproxy` with basic auth; wrong password → 407 message.
 #[test]
 #[ignore = "needs Docker (M1-18 harness)"]
 fn t10_e2e_http_connect_container() {}
 
-/// T-11: ProxyCommand `nc %h %p` from the test image → connects.
+/// ProxyCommand `nc %h %p` from the test image → connects.
 #[test]
 #[ignore = "needs Docker (M1-18 harness)"]
 fn t11_e2e_proxy_command_container() {}

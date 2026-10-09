@@ -1,4 +1,4 @@
-//! M2-02: the Keychain view's Identities sub-tab (SPEC §4.4, §8.5, §9.3).
+//! The Keychain view's Identities sub-tab (SPEC §4.4, §8.5, §9.3).
 //!
 //! - **Rows**: every live identity in index order (alphabetical), with its user name,
 //!   the auth summary (`password`, `key: <label>`, `password + key`) and how many

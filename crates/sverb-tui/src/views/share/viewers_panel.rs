@@ -1,4 +1,4 @@
-//! M6-03: the viewers panel (`leader S` on a shared pane; §14.1 step 7, §14.3).
+//! The viewers panel (`leader S` on a shared pane; §14.1 step 7, §14.3).
 //!
 //! ```text
 //! ┌ Shared · control ─────────────────────────────────────┐

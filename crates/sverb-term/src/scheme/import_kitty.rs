@@ -1,4 +1,4 @@
-//! Kitty theme import (M1-10, SPEC §7.4): `.conf` files with `color0` … `color255`,
+//! Kitty theme import (SPEC §7.4): `.conf` files with `color0` … `color255`,
 //! `foreground`, `background`, `cursor` and `selection_background`. Other keys are ignored.
 
 use super::{ColorScheme, Draft, Rgb, SchemeError};

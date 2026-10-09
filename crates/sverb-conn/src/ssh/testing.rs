@@ -59,7 +59,6 @@ pub struct Seen {
     pub input: Vec<u8>,
     /// Seen by the server.
     pub users: Vec<String>,
-    // M2-08
     /// `direct-tcpip` requests (host as sent, port).
     pub direct: Vec<(String, u32)>,
     /// Active `tcpip-forward` listeners by (address, port).
@@ -68,7 +67,6 @@ pub struct Seen {
     pub cancelled: Vec<(String, u32)>,
     /// Channels carrying forwarded data (not the shell).
     pub tunnel_channels: std::collections::HashSet<ChannelId>,
-    // M2-09
     /// The shell prints nothing when it starts (tests of the startup-input delay).
     pub quiet_shell: bool,
 }
@@ -102,7 +100,6 @@ impl server::Handler for TestServer {
         Ok(())
     }
 
-    // M2-08
     async fn channel_open_direct_tcpip(
         &mut self,
         channel: Channel<Msg>,
@@ -118,7 +115,7 @@ impl server::Handler for TestServer {
         Ok(())
     }
 
-    // M2-08: listens on 127.0.0.1 whatever the requested address (tests stay on
+    // Listens on 127.0.0.1 whatever the requested address (tests stay on
     // loopback); `port = 0` allocates.
     async fn tcpip_forward(
         &mut self,
@@ -156,7 +153,6 @@ impl server::Handler for TestServer {
         Ok(true)
     }
 
-    // M2-08
     async fn cancel_tcpip_forward(
         &mut self,
         address: &str,
@@ -221,7 +217,7 @@ impl server::Handler for TestServer {
         session: &mut Session,
     ) -> Result<(), Self::Error> {
         session.channel_success(channel)?;
-        // M2-09: a silent shell (the startup input then waits for the delay).
+        // A silent shell (the startup input then waits for the delay).
         if self.seen.lock().quiet_shell {
             return Ok(());
         }
@@ -264,7 +260,7 @@ impl server::Handler for TestServer {
     ) -> Result<(), Self::Error> {
         let input = {
             let mut seen = self.seen.lock();
-            // M2-08: forwarded data is handled by the channel's splice task.
+            // Forwarded data is handled by the channel's splice task.
             if seen.tunnel_channels.contains(&channel) {
                 return Ok(());
             }
@@ -283,7 +279,7 @@ impl server::Handler for TestServer {
     }
 }
 
-// M2-08: port forwarding on the test server (loopback only).
+// Port forwarding on the test server (loopback only).
 
 /// Where the test server connects a `direct-tcpip` request: loopback IPs, `localhost`,
 /// and names ending in `.sverb-test` (→ 127.0.0.1, standing in for the remote side's

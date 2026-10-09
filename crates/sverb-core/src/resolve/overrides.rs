@@ -1,4 +1,4 @@
-//! M5-02: the credential override layer (SPEC §13.4).
+//! The credential override layer (SPEC §13.4).
 //!
 //! A [`CredentialOverride`] in the user's personal vault sits **above the
 //! shared host's own credential fields** (`identity_id`, `username`, `password`,

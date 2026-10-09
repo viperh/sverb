@@ -17,7 +17,7 @@ sverb-core = { workspace = true }
 sverb-crypto = { workspace = true }
 sverb-proto = { workspace = true }
 sverb-store = { workspace = true }
-# M4-05: the notification WebSocket client (`ws`).
+# The notification WebSocket client (`ws`).
 fastrand = { workspace = true }
 futures = { workspace = true }
 rustls = { workspace = true }
@@ -28,22 +28,22 @@ tokio-tungstenite = { workspace = true }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
 webpki-roots = { workspace = true }
-# M4-07: the engine (HTTP client, tokens, push/pull, status).
+# The engine (HTTP client, tokens, push/pull, status).
 # rustls with our own `ring` ClientConfig (no aws-lc, no native-tls).
 reqwest = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true }
 zeroize = { workspace = true }
 parking_lot = { workspace = true }
-# M4-08: id remapping of imported item bodies (account::merge_local).
+# Id remapping of imported item bodies (account::merge_local).
 ciborium = { workspace = true }
-# M6-03: the share's expiry (`CreateShareResponse::expires_at`).
+# The share's expiry (`CreateShareResponse::expires_at`).
 chrono = { workspace = true }
 
-# M4-05: paused time for the backoff sequence test.
+# Paused time for the backoff sequence test.
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util"] }
-# M4-07: in-process sverb-server (in-memory backend) on loopback for the
+# In-process sverb-server (in-memory backend) on loopback for the
 # engine's integration tests; no PostgreSQL needed.
 axum = { workspace = true }
 chrono = { workspace = true }
@@ -54,6 +54,6 @@ sverb-crypto = { workspace = true, features = ["insecure-test-ksf"] }
 tower = { workspace = true }
 hyper = { workspace = true }
 hyper-util = { workspace = true }
-# M6-03: the share tests run real sessions (local pty / mock) and viewer emulators.
+# The share tests run real sessions (local pty / mock) and viewer emulators.
 sverb-conn = { workspace = true, features = ["test-util"] }
 sverb-term = { workspace = true }

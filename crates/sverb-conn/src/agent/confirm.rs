@@ -1,4 +1,4 @@
-//! M2-07: `confirm_on_use` prompts (SPEC §6.1.6): "**`<host>`** requests a signature
+//! `confirm_on_use` prompts (SPEC §6.1.6): "**`<host>`** requests a signature
 //! with key **`<key>`** — `[a]llow once` / `[d]eny`".
 //!
 //! [`ConfirmQueue`] is the [`Confirmer`] for a UI: each request gets an id and goes

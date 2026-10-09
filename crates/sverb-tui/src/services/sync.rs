@@ -1,19 +1,18 @@
-//! M4-07: the sync service (feature `sync`). M4-09: wired to the UI.
+//! The sync service (feature `sync`). Wired to the UI.
 //!
 //! Runs one [`SyncEngine`] while the vault is unlocked (§12, §2.1):
 //! `SyncEffect::Start` after unlock, `SyncEffect::Stop` on lock (the WS
 //! disconnects and the engine's keys are dropped). Every committed write that
 //! queues an outbox row ([`sverb_store::Store::outbox_changes`]) is a local change
 //! for the push debounce. New vault keys are opened by a [`TrustedKeySource`]
-//! (M5-03: grants verified against the pins).
+//! (grants verified against the pins).
 //!
 //! Engine events are forwarded as `UiEvent::Sync`. Remote changes the engine
 //! applied are folded into the search index here (decrypt, `index_upsert` /
 //! `index_remove`), so the reducer gets the usual `UiEvent::IndexUpdated`.
 //!
-//! M4-09 also runs, for the Settings section: the local state
 //! ([`sverb_sync::local_info`]), devices, disconnect, team pins, and the account
-//! wizard. The wizard's flows (M4-08) live here, with their secrets and their
+//! wizard. The wizard's flows live here, with their secrets and their
 //! randomness (the recovery-word check), never in the reducer; after every input
 //! the UI gets the next [`WizardScreen`].
 
@@ -43,7 +42,7 @@ use crate::app::sync_ui::{
     WizardScreen,
 };
 
-// M5-02: Settings → Vaults, the admin reconcile, adopting granted vaults.
+// Settings → Vaults, the admin reconcile, adopting granted vaults.
 mod vaults;
 
 /// Owns the running engine (if any) and the account wizard. Cheap to clone.
@@ -54,7 +53,7 @@ pub struct SyncService {
     config: Arc<Config>,
     account: AccountConfig,
     wizard: Arc<tokio::sync::Mutex<Option<Flow>>>,
-    // M5-02: when the background admin reconcile last ran.
+    // When the background admin reconcile last ran.
     reconciled: Arc<Mutex<Option<std::time::Instant>>>,
 }
 
@@ -121,20 +120,18 @@ impl SyncService {
                 user,
                 accept_new_key,
             } => self.team(Some((user, accept_new_key)), tx),
-            // M5-01
             SyncEffect::Team(op) => self.team_op(op, tx),
-            // M5-02
             SyncEffect::Vaults(op) => self.vault_op(op, tx),
         }
     }
 
-    // M5-01: Settings → Team (orgs, members, invites, audit).
+    // Settings → Team (orgs, members, invites, audit).
     fn team_op(&self, op: TeamOp, tx: &EventSender) {
         let Some(lmk) = self.lmk() else { return };
         let this = self.clone();
         let tx = tx.clone();
         tokio::spawn(async move {
-            // M5-04: removing a member rotates every vault they had (§13.2); the
+            // Removing a member rotates every vault they had (§13.2); the
             // list is taken before the removal deletes their grants.
             let rotate = match &op {
                 TeamOp::Remove { org, user } => this.vaults_to_rotate(&lmk, org, user).await,
@@ -479,7 +476,7 @@ impl SyncService {
     }
 }
 
-/// [`TrustedKeySource`] for a signed-in account (M5-03); without account keys,
+/// [`TrustedKeySource`] for a signed-in account; without account keys,
 /// nothing can be opened.
 async fn key_source(store: &Store, lmk: &sverb_crypto::Key32) -> Arc<dyn VaultKeySource> {
     match acct::load_account_keys(store, lmk).await {
@@ -532,13 +529,13 @@ async fn forward(mut rx: mpsc::UnboundedReceiver<SyncEvent>, sync: SyncService, 
         if let SyncEvent::Applied { items, .. } = &ev {
             reindex(&vault, items, &tx).await;
         }
-        // M5-02: load a granted vault's key before its items are indexed; after a
+        // Load a granted vault's key before its items are indexed; after a
         // successful cycle, grant `manage` to org admins without a key (throttled).
         match &ev {
             SyncEvent::VaultAdded { .. } => {
                 vault.adopt_new_vaults().await;
             }
-            // M5-04: the engine stored the rotated key; the item service switches.
+            // The engine stored the rotated key; the item service switches.
             SyncEvent::KeyRotated { .. } => {
                 vault.refresh_vault_keys().await;
             }
@@ -569,7 +566,7 @@ async fn reindex(vault: &VaultService, items: &[sverb_core::model::ItemId], tx: 
 
 // ---------------------------------------------------------------- flows
 
-// M5-04: both boxed (clippy large_enum_variant; the flows are large).
+// Both boxed (clippy large_enum_variant; the flows are large).
 enum Flow {
     Register(Box<RegisterFlow>),
     Login(Box<LoginFlow>),

@@ -1,4 +1,4 @@
-//! M4-02: the shared OPAQUE suite, client against server, in-process.
+//! The shared OPAQUE suite, client against server, in-process.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use sverb_crypto::account::derive_akek;
@@ -63,7 +63,7 @@ fn register_then_login_with_the_production_ksf() {
     )
     .unwrap();
     assert_eq!(reg_export, login_export);
-    // AKEK derivation (M4-03) is therefore stable too.
+    // AKEK derivation is therefore stable too.
     assert_eq!(
         derive_akek(&reg_export).expose_secret(),
         derive_akek(&login_export).expose_secret()

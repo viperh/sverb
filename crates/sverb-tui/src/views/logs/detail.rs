@@ -1,4 +1,4 @@
-//! M3-06: the Logs detail pane and the Logs dialogs (error details, delete, clear older,
+//! The Logs detail pane and the Logs dialogs (error details, delete, clear older,
 //! export, replay). Their keys are handled by the reducer (`app/logs.rs`).
 
 use std::{

@@ -1,16 +1,14 @@
-//! Shell chrome widgets (M0-11). Each is a set of free functions over plain data and
+//! Shell chrome widgets. Each is a set of free functions over plain data and
 //! a resolved [`Theme`](crate::theme::Theme); rendering is infallible at every size.
 //!
 //! - [`topbar`]: app name, vault selector, sync indicator, lock icon,
-//! - [`tabbar`]: session tabs (M1-17 fills in the real tab model),
 //! - [`statusbar`]: mode, session, forwards, REC, BROADCAST, sync, key hint, dropped
 //!   right-to-left by priority when space is short,
 //! - [`toast`]: the toast stack (top right),
 //! - [`which_key`]: the which-key popup (bottom right, above the status bar),
 //! - [`log_pane`]: the `--debug` log pane,
-//! - [`terminal_pane`] (M1-10): a session's terminal content with its border and overlays.
+//! - [`terminal_pane`]: a session's terminal content with its border and overlays.
 //!
-//! M1-06 adds the shared components (plain state + `View` impls, reducer-testable):
 //! - [`list`]: `ListView<R>`, the one list every section view uses (fuzzy filter,
 //!   multi-select, sort, tree mode, detail pane, virtualized rendering),
 //! - [`form`]: the full-screen form framework and its field widgets,
@@ -19,14 +17,14 @@
 pub mod log_pane;
 pub mod statusbar;
 pub mod tabbar;
-// M1-10: the session pane (terminal content, title, state overlays).
+// The session pane (terminal content, title, state overlays).
 pub mod terminal_pane;
 pub mod toast;
 pub mod topbar;
 pub mod which_key;
-// M1-13: SSH session details (status bar latency, session info panel).
+// SSH session details (status bar latency, session info panel).
 pub mod session_info;
-// M1-06: shared list, form and dialog components.
+// Shared list, form and dialog components.
 pub mod confirm;
 pub mod dialog;
 #[cfg(test)]
@@ -37,9 +35,8 @@ pub mod list;
 mod list_tests;
 #[cfg(test)]
 pub(crate) mod test_util;
-// M1-14: the auth prompt dialog and the per-session prompt queue.
+// The auth prompt dialog and the per-session prompt queue.
 pub mod auth_prompt;
-// M2-04: per-host results of exec runs (install key; M2-09 snippet runs).
 pub mod results_table;
 
 use ratatui::text::Span;

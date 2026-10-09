@@ -1,4 +1,4 @@
-//! M2-11: results of the import / export wizard (`services::import`).
+//! Results of the import / export wizard (`services::import`).
 //!
 //! A result finds its wizard by dialog id: a preview or an error updates it; a
 //! finished import or export closes it and shows a toast. A result whose wizard was

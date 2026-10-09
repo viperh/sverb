@@ -3,7 +3,7 @@
 //! `schema_version` bumps only for breaking changes. Migrations are pure
 //! `fn(ItemBody) -> ItemBody` steps that run on read, one version at a time. A body
 //! with a newer version than this build understands is opened **read-only**; the store
-//! (M1-03) rejects writes to it and the UI shows "Update sverb to edit this item".
+//!  rejects writes to it and the UI shows "Update sverb to edit this item".
 
 use super::body::ItemBody;
 use super::kinds::ItemKind;
@@ -22,7 +22,6 @@ pub const CURRENT_SCHEMA: [(ItemKind, u16); 13] = [
     (ItemKind::Tag, 1),
     (ItemKind::HistoryEntry, 1),
     (ItemKind::ConnLog, 1),
-    // M5-02
     (ItemKind::CredentialOverride, 1),
 ];
 

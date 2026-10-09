@@ -1,4 +1,3 @@
-//! M3-07 loopback tests of shared connections against an in-process russh server that
 //! counts TCP connections, authentications and session channels, and can enforce a
 //! `MaxSessions`-like limit (no Docker). The OpenSSH variants (T-05…T-08 with `ss -tn`
 //! in the container) are in `crates/sverb-e2e/tests/openssh_mux.rs` (`#[ignore]`d).

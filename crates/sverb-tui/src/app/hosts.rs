@@ -1,4 +1,4 @@
-//! M1-07: hosts in the reducer (SPEC §9.1).
+//! Hosts in the reducer (SPEC §9.1).
 //!
 //! - Keeps the Hosts view fed: every new index snapshot goes to the view and asks the
 //!   vault service for a fresh [`crate::views::hosts::catalog::HostCatalog`]
@@ -9,11 +9,10 @@
 //!   through the index, `resolve_host_arg`) or an unsaved target parsed by
 //!   `sverb_core::quick_connect`. An unsaved target that connects gets the
 //!   "Save as host?" offer; `s` opens the form prefilled.
-//! - Connecting emits `Effect::OpenSession` with `SessionSpec::Ssh` (until M1-13 lands
 //!   the SSH connector the session ends with "Ssh sessions are not available yet"),
 //!   applies the host's recording setting (`resolve_record_sessions`), and records the
 //!   connection time (`ItemEffect::TouchConnected`) once the session is connected.
-//! - M2-01: connecting and "copy as command" use the resolved settings (group chain,
+//! - Connecting and "copy as command" use the resolved settings (group chain,
 //!   vault defaults, config; `sverb_core::resolve`). Each connection resolves anew,
 //!   so changing a group's defaults affects the next connection only. Groups and tags
 //!   are organized through `views/hosts/organize.rs` dialogs.
@@ -21,7 +20,7 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-// M5-02: the vault selector, move / copy to vault, credential overrides.
+// The vault selector, move / copy to vault, credential overrides.
 mod shared_vaults;
 pub use shared_vaults::SharedVaultEvent;
 
@@ -32,7 +31,6 @@ use sverb_core::model::{
     DEFAULT_SSH_PORT, ItemId, ItemKind,
     group::{DeleteGroupMode, DeletePlan, plan_delete},
 };
-// M2-01
 use sverb_core::quick_connect::{self, QuickTarget};
 use sverb_core::resolve::{GlobalDefaults, Source};
 use sverb_core::search::resolve_host_arg;
@@ -47,7 +45,6 @@ use crate::views::{
     dialogs::ModalDialog,
     hosts::{
         HostsRequest,
-        // M2-01
         catalog::HostCatalog,
         form::{
             GroupFormInit, HOST_FORM_FEATURES, HostFormDialog, HostFormInit, InheritCx, group_form,
@@ -76,7 +73,7 @@ pub enum ItemEffect {
         id: EffectId,
         /// The item (`None`: new, in the Personal vault).
         item: Option<ItemId>,
-        /// Its kind (M1-07: hosts).
+        /// Its kind (hosts).
         kind: ItemKind,
         /// The changed fields.
         changes: FieldChanges,
@@ -106,7 +103,6 @@ pub enum ItemEffect {
     },
     /// Record a successful connection (device-local, frecency).
     TouchConnected(ItemId),
-    // M2-01
     /// Set `group_id` on hosts (`None`: the top level). Failures: `ItemFailed`.
     MoveToGroup {
         /// The hosts.
@@ -142,7 +138,6 @@ pub enum ItemEffect {
         /// `color`
         color: Option<String>,
     },
-    // M2-02
     /// Create (`item: None`, in `vault` or the Personal vault) or update an identity
     /// from form changes. Answered with `EffectDone(Ok(EffectOutput::Item(id)))`.
     SaveIdentity {
@@ -171,11 +166,9 @@ pub enum ItemEffect {
         /// "Convert to inline credentials on those hosts".
         convert: bool,
     },
-    // M2-03
     /// Keychain work (generate, import, export, passphrase, certificates, flags).
     /// Results come back as `VaultEvent::Keychain`.
     Keychain(crate::app::keychain::keys::KeychainEffect),
-    // M5-02
     /// New items go to this vault (`None`: the Personal vault): the vault
     /// selector (§4.13).
     SetNewItemVault(Option<sverb_core::model::VaultId>),
@@ -222,7 +215,6 @@ pub struct HostsUi {
     sessions: BTreeMap<SessionId, SessionOrigin>,
     /// `sverb connect <target>` waiting for the first catalog.
     pending_connect: Option<String>,
-    // M5-02
     /// `general.default_vault` was applied to the vault selector since unlock.
     default_vault_applied: bool,
 }
@@ -243,7 +235,7 @@ impl App {
         {
             return;
         }
-        // M2-02: the Keychain's Identities sub-tab follows the index too.
+        // The Keychain's Identities sub-tab follows the index too.
         self.views.keychain.set_index(Arc::clone(&index));
         self.views.hosts.set_index(index);
         self.needs_redraw = true;
@@ -266,13 +258,11 @@ impl App {
     /// The vault locked: decrypted host data goes.
     pub(crate) fn hosts_on_lock(&mut self) {
         self.views.hosts.clear();
-        // M2-02
         self.views.keychain.clear();
         if let Some(id) = self.hosts.loading.take() {
             self.pending.remove(&id);
         }
         self.hosts.reload = false;
-        // M5-02
         self.hosts.default_vault_applied = false;
         self.needs_redraw = true;
     }
@@ -289,7 +279,7 @@ impl App {
                 self.hosts.loading = None;
                 match result {
                     Ok(EffectOutput::Hosts(catalog)) if self.index().is_some() => {
-                        // M5-02: the vault selected at unlock (§4.13).
+                        // The vault selected at unlock (§4.13).
                         if !self.hosts.default_vault_applied {
                             self.hosts.default_vault_applied = true;
                             let v = shared_vaults::default_vault(
@@ -303,7 +293,7 @@ impl App {
                                 )));
                             }
                         }
-                        // M2-02: identities, their usage counts and key names.
+                        // Identities, their usage counts and key names.
                         self.views.keychain.set_catalog(Arc::clone(&catalog));
                         self.views.hosts.set_catalog(catalog);
                         self.needs_redraw = true;
@@ -322,7 +312,7 @@ impl App {
                 let pos = self.dialogs.iter().position(|d| d.id == *dialog);
                 match result {
                     Ok(out) => {
-                        // M2-01: the group / vault-defaults editor saves the same way.
+                        // The group / vault-defaults editor saves the same way.
                         let what = match pos.map(|p| &self.dialogs[p].kind) {
                             Some(DialogKind::Organize(OrganizeDialog::GroupForm(g))) => {
                                 if g.vault_defaults {
@@ -351,7 +341,6 @@ impl App {
                             Some(DialogKind::HostForm(f)) => {
                                 f.form.save_failed(report.short.clone());
                             }
-                            // M2-01
                             Some(DialogKind::Organize(OrganizeDialog::GroupForm(g))) => {
                                 g.form.save_failed(report.short.clone());
                             }
@@ -367,7 +356,6 @@ impl App {
                 Ok(_) => {}
                 Err(report) => self.push_error(&report, effects),
             },
-            // M2-02
             PendingKind::SaveIdentity { .. } | PendingKind::EditIdentity => {
                 self.keychain_on_effect_done(kind, result, effects);
             }
@@ -404,7 +392,7 @@ impl App {
                 }
                 self.views.hosts.clear_marks();
             }
-            // M1-17: each host in a split of the current tab.
+            // Each host in a split of the current tab.
             HostsRequest::ConnectSplit(ids) => {
                 self.connect_split(ids, effects);
                 self.views.hosts.clear_marks();
@@ -435,8 +423,7 @@ impl App {
                 self.views.hosts.clear_marks();
             }
             HostsRequest::CopyCommand(id) => self.copy_ssh_command(id, effects),
-            // M7-01: "Clear history" (asks first).
-            // M5-02
+            // "Clear history" (asks first).
             HostsRequest::VaultSelected(v) => {
                 effects.push(Effect::Vault(VaultEffect::Items(
                     ItemEffect::SetNewItemVault(v),
@@ -454,7 +441,6 @@ impl App {
                     .unwrap_or_else(|| "this host".to_owned());
                 self.confirm_clear_history(Some(id), &label, effects);
             }
-            // M2-01
             HostsRequest::MoveToGroup(ids) => {
                 if let Some(c) = self.organize_catalog(effects) {
                     self.push_dialog(DialogKind::Organize(OrganizeDialog::GroupPicker(
@@ -519,7 +505,6 @@ impl App {
                     ))));
                 }
             }
-            // M2-11
             HostsRequest::Import => {
                 self.push_dialog(DialogKind::ImportWizard(Box::new(
                     crate::views::import_wizard::ImportWizard::import(
@@ -534,8 +519,6 @@ impl App {
             }
         }
     }
-
-    // ------------------------------------------------------------------ M2-01
 
     /// The catalog for an organizing dialog, or a "still loading" hint.
     fn organize_catalog(&mut self, effects: &mut Vec<Effect>) -> Option<Arc<HostCatalog>> {
@@ -672,7 +655,7 @@ impl App {
             self.config.ssh.keepalive_secs,
             HOST_FORM_FEATURES,
         );
-        // M2-01: placeholders resolve the draft against the catalog.
+        // Placeholders resolve the draft against the catalog.
         let vault = init.item.map(|_| init.summary.vault);
         let mut dialog = HostFormDialog {
             item: init.item,
@@ -759,7 +742,7 @@ impl App {
         let entry = self.views.hosts.index().and_then(|i| i.get(item)).cloned();
         let (spec, label, scheme, record) = match (summary, &entry) {
             (Some(h), _) => {
-                // M2-01: resolved now, so this connection uses the current group
+                // Resolved now, so this connection uses the current group
                 // defaults; open sessions keep the settings they started with.
                 let r = catalog
                     .as_ref()
@@ -826,7 +809,7 @@ impl App {
             self.set_session_scheme(id, scheme);
         }
         self.hosts.sessions.insert(id, SessionOrigin::Saved(item));
-        // M3-05: per-host recording (M2-01: resolved through the group chain).
+        // Per-host recording (resolved through the group chain).
         self.auto_record(id, record, effects);
     }
 
@@ -912,7 +895,6 @@ impl App {
     }
 }
 
-// M2-01
 /// What deleting `group` does, from the catalog's hosts and groups.
 pub fn group_delete_plan(
     catalog: &HostCatalog,

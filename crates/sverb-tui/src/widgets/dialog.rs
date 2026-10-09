@@ -1,5 +1,4 @@
-//! M1-06: generic modal dialogs (SPEC §8.6): `Confirm`, `Prompt`, `Choice`,
-//! `Progress` and `Info`. Specialized dialogs (host key M1-15, auth prompts, snippet
+//! Generic modal dialogs (SPEC §8.6): `Confirm`, `Prompt`, `Choice`,
 //! variables, agent confirm) build on [`Modal`].
 //!
 //! A [`Modal`] is pure state. [`Modal::handle_key`] returns `Some(answer)` once the
@@ -326,7 +325,7 @@ impl Modal {
         self.timeout.is_some() || matches!(self.kind, ModalKind::Progress { .. })
     }
 
-    /// The dialog edits text (Insert mode, M0-10).
+    /// The dialog edits text (Insert mode).
     pub fn wants_text(&self) -> bool {
         matches!(self.kind, ModalKind::Prompt { .. })
     }

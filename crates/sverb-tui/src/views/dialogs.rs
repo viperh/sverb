@@ -1,13 +1,10 @@
 //! Modal dialogs. They sit on a stack in `App::dialogs`; the top one sees input first
 //! and consumes every key while open (it is modal).
 //!
-//! M1-06 adds [`DialogKind::Modal`]: the generic dialogs of `widgets::dialog`
 //! (`Confirm`, `Prompt`, `Choice`, `Progress`, `Info`) with answers routed to effects.
-//! The minimal item form stays until M1-07 moves item editing onto `widgets::form`.
 
-use std::fmt::Write as _;
-// M1-06
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 
 use crossterm::event::KeyCode;
 use ratatui::{
@@ -19,19 +16,17 @@ use ratatui::{
 
 use super::{Outcome, RenderCx, View, ViewCx, ViewEvent};
 use crate::{
-    // M1-11
     app::SessionId,
     app::{Effect, notify::Notification, state::PendingKind},
     keymap::{Keymap, Table, action::ActionName, chord::KeyChord},
-    // M1-06
     widgets::dialog::{Modal, ModalAnswer},
 };
 
-// M1-15: the unknown-key modal and the changed-key screen.
+// The unknown-key modal and the changed-key screen.
 pub mod host_key;
-// M2-07: the `confirm_on_use` agent prompt.
+// The `confirm_on_use` agent prompt.
 pub mod agent_confirm;
-// M5-04: key rotation progress, restart prompt, revoke text.
+// Key rotation progress, restart prompt, revoke text.
 #[cfg(feature = "sync")]
 pub mod rotation;
 
@@ -52,18 +47,14 @@ pub struct Dialog {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum DialogKind {
-    // M0-08
     /// "Sessions are open. Quit?" `y` quits, `n`/`Esc` cancels.
     ConfirmQuit,
-    /// Full-screen help: the effective keymap, searchable with `/` (M0-11).
+    /// Full-screen help: the effective keymap, searchable with `/`.
     Help(HelpState),
-    // M0-10
-    /// First-run notice about the leader (`tasks/03-KEYBINDINGS.md` §5.3). Shown once.
+    /// First-run notice about the leader. Shown once.
     LeaderNotice,
-    // M0-11
     /// The notification history (`leader !`).
     Notifications(NotificationList),
-    // M1-11
     /// "Paste N lines into `<host>`?": a multi-line paste into a pane without bracketed
     /// paste (`terminal.paste_confirm_multiline`). `y`/`Enter` pastes, `n`/`Esc` cancels.
     ConfirmPaste(PasteConfirm),
@@ -71,16 +62,13 @@ pub enum DialogKind {
     /// `clipboard.allow_remote_write = "ask"`. `a` allow once, `f` allow for this session,
     /// `d`/`Esc` deny.
     RemoteClipboard(RemoteClipboard),
-    // M1-06
     /// A generic modal (`widgets::dialog::Modal`). Its answer pushes the effects
     /// registered for it and closes the dialog. Timeouts and spinners tick through
     /// `TimerKind::DialogTick` (`App::push_modal`).
     Modal(ModalDialog),
-    // M3-06
     /// The Logs dialogs (error details, delete, clear older, export, the replay player).
     /// The reducer answers their keys (`app/logs.rs`).
     Logs(super::logs::LogsDialog),
-    // M1-07
     /// The host form (add / edit), full screen. Saves go out as
     /// `VaultEffect::Items(ItemEffect::Save)`; the reducer closes it on success.
     HostForm(super::hosts::form::HostFormDialog),
@@ -88,62 +76,49 @@ pub enum DialogKind {
     QuickConnect(super::hosts::quick::QuickConnect),
     /// "Save as host?" after an unsaved target connected (keys: `App::on_hosts_dialog_key`).
     SaveHostOffer(super::hosts::quick::SaveHostOffer),
-    // M2-01
     /// Groups and tags: the group / vault-defaults editor, move to group, bulk tags,
     /// delete group, the tag manager (`views/hosts/organize.rs`).
     Organize(super::hosts::organize::OrganizeDialog),
-    // M2-02
     /// The identity form, delete (with convert-to-inline) and "Used by" dialogs
     /// (`views/keychain/identity_form.rs`).
     Identity(super::keychain::identity_form::IdentityDialog),
-    // M1-14:
     /// An authentication prompt (password, key passphrase, keyboard-interactive) from a
     /// connecting session (`widgets::auth_prompt`). The dialog records its answer; the
     /// reducer takes it after the dispatch (`App::take_auth_answer`), answers the
     /// session and shows the next queued prompt.
     AuthPrompt(crate::widgets::auth_prompt::AuthPromptDialog),
-    // M1-15
     /// A session's host-key question: the unknown-key modal or the full-screen
     /// changed-key warning. Its answer is `Effect::HostKeyDecision`.
     HostKey(host_key::HostKeyDialog),
     /// The Known Hosts dialogs: edit an entry, the import / export path prompts.
     KnownHosts(super::known_hosts::KnownHostsDialog),
-    // M2-08
     /// The port-forward add / edit form. Its save is `Effect::Forwards(Save)`.
     Forward(super::forwards::ForwardDialog),
-    // M2-09:
     /// A snippet dialog: the `leader e` picker, the host picker, the variable form,
     /// the editor, exec results. The reducer takes its answer after the key
     /// (`App::take_snippet_answer`) and pops it.
     Snippet(Box<super::snippets::SnippetDialog>),
-    // M2-11
     /// The import / export wizard (`views/import_wizard.rs`). Its requests are
     /// `Effect::Import`; results (`UiEvent::Import`) find it by its dialog id.
     ImportWizard(Box<super::import_wizard::ImportWizard>),
-    // M2-12
     /// The command palette (`leader p`, `ctrl-k`). The reducer ranks its results and
     /// carries out its answer after the key (`App::take_palette_answer`).
     Palette(Box<super::palette::PaletteState>),
-    // M3-03
     /// The workspaces dialog (list / picker with preview, save and rename prompts).
     /// The reducer carries out its answer after the key (`App::take_workspaces_answer`).
     Workspaces(Box<super::workspaces::WorkspacesDialog>),
-    // M7-01
     /// The autocomplete / history overlay (`leader Space`), anchored at the pane's
     /// cursor. The reducer takes its answer after each key (`App::take_autocomplete_answer`).
     Autocomplete(Box<super::sessions::autocomplete::Autocomplete>),
-    // M4-09
     /// The account wizard (log in / create an account). The reducer takes its answer
     /// after each key (`App::take_wizard_answer`); screens come from the sync service.
     AccountWizard(Box<super::settings::account_wizard::AccountWizardDialog>),
-    // M6-03
     /// A terminal-sharing dialog: the start dialog, a viewer's approval modal, the
     /// viewers panel. The reducer takes its answer after the key
     /// (`App::take_share_answer`).
     Share(Box<super::share::ShareDialog>),
 }
 
-// M1-06
 /// A [`Modal`] on the app's dialog stack, with the effects each answer triggers.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModalDialog {
@@ -154,7 +129,6 @@ pub struct ModalDialog {
     pub on_answer: BTreeMap<String, Vec<Effect>>,
 }
 
-// M1-06
 impl ModalDialog {
     /// A dialog whose answers do nothing but close it.
     pub fn new(modal: Modal) -> Self {
@@ -181,13 +155,11 @@ impl ModalDialog {
     }
 }
 
-// M1-11
 /// Lines of a paste shown in [`DialogKind::ConfirmPaste`].
 pub const PASTE_PREVIEW_LINES: usize = 5;
 /// Characters of a remote clipboard write shown in [`DialogKind::RemoteClipboard`].
 pub const CLIPBOARD_PREVIEW_CHARS: usize = 200;
 
-// M1-11
 /// State of the multi-line paste confirmation. The keys are handled by the reducer
 /// (`app/input/remote_io.rs`).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -204,7 +176,6 @@ pub struct PasteConfirm {
     pub preview: Vec<String>,
 }
 
-// M1-11
 /// State of the remote clipboard write prompt. The keys are handled by the reducer
 /// (`app/input/remote_io.rs`).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -233,7 +204,6 @@ impl RemoteClipboard {
     }
 }
 
-// M0-11
 /// State of the help overlay.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct HelpState {
@@ -245,7 +215,6 @@ pub struct HelpState {
     pub scroll: usize,
 }
 
-// M0-11
 /// State of the notification history overlay: a snapshot taken when it opened.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NotificationList {
@@ -280,7 +249,6 @@ impl Dialog {
         }
     }
 
-    // M0-11
     fn handle_help(help: &mut HelpState, code: KeyCode, cx: &mut ViewCx<'_>) {
         cx.request_redraw();
         if help.searching {
@@ -317,7 +285,6 @@ impl Dialog {
         }
     }
 
-    // M0-11
     fn handle_notifications(list: &mut NotificationList, code: KeyCode, cx: &mut ViewCx<'_>) {
         cx.request_redraw();
         let last = list.entries.len().saturating_sub(1);
@@ -339,7 +306,6 @@ impl Dialog {
     }
 }
 
-// M1-07
 fn handle_host_form(
     id: DialogId,
     d: &mut super::hosts::form::HostFormDialog,
@@ -349,7 +315,7 @@ fn handle_host_form(
     use crate::widgets::form::FormRequest;
     d.form.handle(ev, cx);
     super::hosts::form::sync_identity(&mut d.form);
-    // M2-01: inherited placeholders follow the draft's group.
+    // Inherited placeholders follow the draft's group.
     d.sync_inherited();
     match d.form.take_request() {
         Some(FormRequest::Save(changes)) => {
@@ -358,7 +324,7 @@ fn handle_host_form(
                 return;
             }
             let changes = d.save_changes(changes);
-            // M2-02: switching "Use identity" / "Inline" clears the other mode.
+            // Switching "Use identity" / "Inline" clears the other mode.
             let changes = super::hosts::form::credential_changes(&d.form, changes);
             let item = d.item;
             cx.issue(
@@ -384,7 +350,6 @@ impl View for Dialog {
     fn handle(&mut self, ev: &ViewEvent, cx: &mut ViewCx<'_>) -> Outcome {
         let id = self.id;
         match &mut self.kind {
-            // M1-07
             DialogKind::HostForm(d) => handle_host_form(id, d, ev, cx),
             DialogKind::QuickConnect(q) => {
                 cx.request_redraw();
@@ -410,7 +375,6 @@ impl View for Dialog {
                     Self::handle_help(help, key.code, cx);
                 }
             }
-            // M0-10
             DialogKind::LeaderNotice => {
                 if let ViewEvent::Key(key) = ev
                     && matches!(key.code, KeyCode::Esc | KeyCode::Enter | KeyCode::Char('q'))
@@ -418,15 +382,13 @@ impl View for Dialog {
                     cx.close();
                 }
             }
-            // M0-11
             DialogKind::Notifications(list) => {
                 if let ViewEvent::Key(key) = ev {
                     Self::handle_notifications(list, key.code, cx);
                 }
             }
-            // M1-11: the reducer answers their keys (it owns the per-session allow list).
+            // The reducer answers their keys (it owns the per-session allow list).
             DialogKind::ConfirmPaste(_) | DialogKind::RemoteClipboard(_) => {}
-            // M1-06
             DialogKind::Modal(m) => {
                 cx.request_redraw();
                 match ev {
@@ -442,11 +404,9 @@ impl View for Dialog {
                     ViewEvent::Mouse(_) => {}
                 }
             }
-            // M3-06: answered by the reducer (`App::on_logs_dialog_key`).
+            // Answered by the reducer (`App::on_logs_dialog_key`).
             DialogKind::Logs(_) => {}
-            // M2-01
             DialogKind::Organize(o) => o.handle(id, ev, cx),
-            // M1-15
             DialogKind::HostKey(h) => {
                 cx.request_redraw();
                 match ev {
@@ -464,7 +424,6 @@ impl View for Dialog {
                 }
             }
             DialogKind::KnownHosts(k) => k.handle(ev, cx),
-            // M2-08
             DialogKind::Forward(f) => {
                 f.handle(ev, cx);
                 if let Some((item, rule)) = f.take_result() {
@@ -474,7 +433,6 @@ impl View for Dialog {
                     }));
                 }
             }
-            // M1-14:
             DialogKind::AuthPrompt(a) => {
                 cx.request_redraw();
                 match ev {
@@ -487,27 +445,19 @@ impl View for Dialog {
                     ViewEvent::Mouse(_) => {}
                 }
             }
-            // M2-02
             DialogKind::Identity(d) => d.handle(id, ev, cx),
-            // M2-09:
             DialogKind::Snippet(d) => d.handle(ev, cx),
-            // M2-11
             DialogKind::ImportWizard(w) => w.handle(id, ev, cx),
-            // M2-12
             DialogKind::Palette(p) => p.handle(ev, cx),
-            // M3-03
             DialogKind::Workspaces(w) => {
                 w.handle(ev, cx);
             }
-            // M4-09
             DialogKind::AccountWizard(w) => {
                 w.handle(ev, cx);
             }
-            // M6-03
             DialogKind::Share(d) => {
                 d.handle(ev, cx);
             }
-            // M7-01
             DialogKind::Autocomplete(a) => {
                 cx.request_redraw();
                 match ev {
@@ -531,49 +481,33 @@ impl View for Dialog {
                     Line::raw("y quit · n / Esc cancel"),
                 ],
             ),
-            // M0-11: full screen, drawn by `render_help`.
+            // Full screen, drawn by `render_help`.
             DialogKind::Help(help) => return render_help(help, frame, area, cx),
             DialogKind::Notifications(list) => {
                 return render_notifications(list, frame, area, cx);
             }
-            // M1-06
             DialogKind::Modal(m) => return m.modal.render(frame, area, cx),
-            // M3-06
             DialogKind::Logs(d) => {
                 return super::logs::detail::render_dialog(d, None, frame, area, cx);
             }
-            // M1-07
             DialogKind::HostForm(d) => return d.form.render(frame, area, cx),
             DialogKind::QuickConnect(q) => return q.render(frame, area, cx),
             DialogKind::SaveHostOffer(o) => return o.render(frame, area, cx),
-            // M2-01
             DialogKind::Organize(o) => return o.render(frame, area, cx),
-            // M1-15
             DialogKind::HostKey(h) => return h.render(frame, area, cx),
             DialogKind::KnownHosts(k) => return k.render(frame, area, cx),
-            // M2-08
             DialogKind::Forward(f) => return f.render(frame, area, cx),
-            // M1-14:
             DialogKind::AuthPrompt(a) => return a.render(frame, area, cx),
-            // M2-02
             DialogKind::Identity(d) => return d.render(frame, area, cx),
-            // M2-09:
             DialogKind::Snippet(d) => return d.render(frame, area, cx),
-            // M2-11
             DialogKind::ImportWizard(w) => return w.render(frame, area, cx),
-            // M2-12
             DialogKind::Palette(p) => return p.render(frame, area, cx),
-            // M3-03
             DialogKind::Workspaces(w) => return w.render(frame, area, cx),
-            // M4-09
             DialogKind::AccountWizard(w) => return w.render(frame, area, cx),
-            // M6-03
             DialogKind::Share(d) => return d.render(frame, area, cx),
-            // M7-01: anchored at the cursor (absolute screen cells).
+            // Anchored at the cursor (absolute screen cells).
             DialogKind::Autocomplete(a) => return a.render(frame, area, cx.theme),
-            // M0-10
             DialogKind::LeaderNotice => (" Welcome to sverb ", leader_notice(cx)),
-            // M1-11
             DialogKind::ConfirmPaste(p) => {
                 let mut lines = vec![
                     Line::raw(format!("Paste {} lines into {}?", p.lines, p.host)),
@@ -622,7 +556,6 @@ impl View for Dialog {
     }
 }
 
-// M0-11
 /// A themed dialog frame.
 fn dialog_block<'a>(title: &'a str, cx: &RenderCx<'_>) -> Block<'a> {
     Block::bordered()
@@ -630,7 +563,6 @@ fn dialog_block<'a>(title: &'a str, cx: &RenderCx<'_>) -> Block<'a> {
         .border_style(cx.theme.border_for(cx.focused))
 }
 
-// M0-11
 /// The help overlay's rows: the effective keymap (minus `toggle_log_pane` without
 /// `--debug`), filtered by the query, with a heading per table.
 pub fn help_lines(query: &str, cx: &RenderCx<'_>) -> Vec<Line<'static>> {
@@ -677,7 +609,6 @@ pub fn help_lines(query: &str, cx: &RenderCx<'_>) -> Vec<Line<'static>> {
     lines
 }
 
-// M0-11
 fn render_help(help: &HelpState, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {
     if area.width < 3 || area.height < 3 {
         return;
@@ -704,7 +635,6 @@ fn render_help(help: &HelpState, frame: &mut Frame<'_>, area: Rect, cx: &RenderC
     frame.render_widget(Paragraph::new(lines), inner);
 }
 
-// M0-11
 /// `ui.date_format`, or `--` before the runtime stamped the entry. Never panics on a
 /// bad format (validation rejects those; a failure just shows the RFC 3339 time).
 fn format_time(n: &Notification, fmt: &str) -> String {
@@ -718,7 +648,6 @@ fn format_time(n: &Notification, fmt: &str) -> String {
     out
 }
 
-// M0-11
 fn render_notifications(
     list: &NotificationList,
     frame: &mut Frame<'_>,
@@ -784,7 +713,6 @@ fn render_notifications(
     );
 }
 
-// M0-10
 /// The §5.3 first-run text, rendered from the configured leader.
 fn leader_notice(cx: &RenderCx<'_>) -> Vec<Line<'static>> {
     let leader = cx

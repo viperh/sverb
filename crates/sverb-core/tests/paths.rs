@@ -1,4 +1,4 @@
-//! Integration tests for `Paths::ensure` (M0-03 T-09, T-10).
+//! Integration tests for `Paths::ensure`.
 #![cfg(unix)]
 
 use std::{
@@ -50,7 +50,6 @@ fn mode(path: &Path) -> std::io::Result<u32> {
     Ok(std::fs::metadata(path)?.permissions().mode() & 0o777)
 }
 
-// T-09
 #[test]
 fn ensure_creates_private_dirs() -> TestResult {
     let home = TempHome::new("ensure")?;
@@ -67,7 +66,6 @@ fn ensure_creates_private_dirs() -> TestResult {
     Ok(())
 }
 
-// T-10
 #[test]
 fn ensure_refuses_loose_runtime_dir() -> TestResult {
     let home = TempHome::new("runtime")?;

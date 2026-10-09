@@ -1,4 +1,4 @@
-//! M2-03: the keychain's form dialogs (SPEC §9.4).
+//! The keychain's form dialogs (SPEC §9.4).
 //!
 //! - **Generate** (`a`): type (Ed25519 default, ECDSA P-256/384/521, RSA
 //!   2048/3072/4096), label (default `"<type> <date>"`), comment (default
@@ -6,7 +6,7 @@
 //!   passphrase in vault" (default on). RSA shows a progress note while the service
 //!   generates it off the UI thread.
 //! - **Generated**: the public key and fingerprint, with `c` copy and `H` install on
-//!   hosts (M2-04: unavailable).
+//!   hosts (unavailable).
 //! - **Paste** (`p`): a multiline key field and an optional label.
 //! - **Change passphrase** (`P`): current (only when it isn't stored), new, confirm,
 //!   remember.

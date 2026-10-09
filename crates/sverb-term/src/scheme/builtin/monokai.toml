@@ -1,4 +1,4 @@
-# monokai: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# monokai: built-in sverb terminal color scheme (SPEC §7.4).
 # Source: Monokai, Wimer Hazenberg; base16 variant, https://github.com/chriskempson/base16 (MIT).
 
 name = "monokai"

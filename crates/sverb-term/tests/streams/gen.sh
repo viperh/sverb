@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Deterministic test-pattern programs for the M1-09 replay fixtures. Run under a pty by
 # record.sh (so the kernel's onlcr turns "\n" into "\r\n", as with any real program).
 #   gen.sh color | utf8 | decstbm
 set -euo pipefail

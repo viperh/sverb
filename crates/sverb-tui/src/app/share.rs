@@ -1,4 +1,4 @@
-//! M6-03: terminal sharing in the reducer (SPEC §14).
+//! Terminal sharing in the reducer (SPEC §14).
 //!
 //! **Host.** `leader S` (`share_pane`) on a live pane opens the start dialog
 //! (`views::share::start_dialog`); its answer is `ShareEffect::Start`. The service

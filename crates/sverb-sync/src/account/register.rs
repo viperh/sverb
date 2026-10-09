@@ -1,4 +1,4 @@
-//! Local-only → new account (§11.2.1, M4-08 §2.1).
+//! Local-only → new account (§11.2.1).
 //!
 //! 1. [`prepare_registration`]: probe the server, verify the **current**
 //!    master password locally (it unwraps the LMK), generate the account
@@ -179,7 +179,6 @@ pub async fn prepare_registration(
     let lmk = local::try_local_password(store, password)
         .await?
         .ok_or(AccountError::WrongLocalPassword)?;
-    // M1-04 already enforced this at setup; checked again because the same
     // password now also protects the server-side bundle.
     require_strong(password)?;
     let (row, vk) = local::personal_vault(store, &lmk).await?;

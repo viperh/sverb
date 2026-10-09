@@ -1,4 +1,4 @@
-//! M5-02: Settings → Vaults in the reducer (SPEC §13.1, §13.2): shared vaults of
+//! Settings → Vaults in the reducer (SPEC §13.1, §13.2): shared vaults of
 //! the account's orgs ("needs key" for org admins without a grant), create,
 //! grant with a permission, revoke (asks first), and the admin reconcile. The
 //! work runs in the sync service; results come back as [`VaultsResult`].
@@ -32,7 +32,6 @@ pub enum VaultsResult {
     },
     /// A request failed (a key-change refusal says so loudly).
     Failed(String),
-    // M5-04
     /// A key rotation's progress (opens / updates the progress dialog).
     Rotation {
         /// Vault (id text).
@@ -74,7 +73,7 @@ impl App {
         me: bool,
         effects: &mut Vec<Effect>,
     ) {
-        // M5-04: revoking someone else rotates the vault key right away.
+        // Revoking someone else rotates the vault key right away.
         let (title, body, label) = rotation::revoke_text(vault_name, email, me);
         let modal = Modal::confirm(
             title,
@@ -127,7 +126,6 @@ impl App {
                 self.sync.model.vaults.error = Some(e.clone());
                 self.push_toast(ToastLevel::Error, e, effects);
             }
-            // M5-04
             VaultsResult::Rotation {
                 vault,
                 phase,
@@ -150,7 +148,7 @@ impl App {
     }
 }
 
-// M5-04: the key rotation dialogs.
+// The key rotation dialogs.
 impl App {
     /// The name shown for a shared vault (id text): its listed name, else a
     /// short id.

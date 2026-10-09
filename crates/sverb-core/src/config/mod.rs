@@ -2,7 +2,7 @@
 //!
 //! No ratatui and no crossterm here. Key chords and theme names are kept as strings
 //! and checked through the [`KeymapValidator`] and [`ThemeCatalog`] traits, which the
-//! TUI (M0-10, M0-11) and `sverb-term` (M1-10) implement. Until then the
+//! TUI and `sverb-term` implement. Until then the
 //! [`StubKeymapValidator`] and [`StubThemeCatalog`] stand in.
 //!
 //! Loading is all-or-nothing: a file with any error never partially applies. At
@@ -136,7 +136,7 @@ impl LoadOutcome {
     }
 }
 
-/// Result of a leader check (`03-KEYBINDINGS.md` §5.2).
+/// Result of a leader check.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LeaderCheck {
     /// Fine.
@@ -147,7 +147,7 @@ pub enum LeaderCheck {
     Reject(String),
 }
 
-/// Checks key chords and action names. Implemented by `sverb-tui` (M0-10).
+/// Checks key chords and action names. Implemented by `sverb-tui`.
 pub trait KeymapValidator: fmt::Debug + Send + Sync {
     /// Parse a chord; returns its normalized form (used to find duplicates) or why it is invalid.
     fn parse_chord(&self, chord: &str) -> Result<String, String>;
@@ -159,7 +159,7 @@ pub trait KeymapValidator: fmt::Debug + Send + Sync {
     fn action_exists(&self, mode: &str, action: &str) -> bool;
 }
 
-/// Knows which UI themes and terminal color schemes exist (M0-11, M1-10).
+/// Knows which UI themes and terminal color schemes exist.
 pub trait ThemeCatalog: fmt::Debug + Send + Sync {
     /// Whether a UI theme of this name exists.
     fn has_ui_theme(&self, name: &str) -> bool;
@@ -261,17 +261,15 @@ impl Config {
 }
 
 // ---------------------------------------------------------------------------
-// Stubs until M0-10 (keymap) and M0-11/M1-10 (themes) provide the real ones.
 // ---------------------------------------------------------------------------
 
-/// Stand-in chord parser and action list following `03-KEYBINDINGS.md`. Replaced by M0-10.
 ///
 /// Chord syntax: `[ctrl-][alt-][shift-]<key>`, where `<key>` is one character or a
 /// named key (`esc`, `enter`, `tab`, `space`, `f1`…`f12`, arrows, …).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct StubKeymapValidator;
 
-/// Action names known to the stub (`03-KEYBINDINGS.md` §4).
+/// Action names known to the stub.
 const STUB_ACTIONS: &[&str] = &[
     "send_leader",
     "new_tab_pick_host",
@@ -325,8 +323,7 @@ const STUB_ACTIONS: &[&str] = &[
     "quit",
 ];
 
-// M3-04
-/// Copy-mode action names (`[keys.copy]`, `03-KEYBINDINGS.md` §4.3). sverb-tui's copy-mode
+/// Copy-mode action names (`[keys.copy]`). sverb-tui's copy-mode
 /// table (`views::sessions::copy_mode::CopyAction`) has exactly these.
 pub const COPY_ACTIONS: &[&str] = &[
     "move_left",
@@ -423,7 +420,6 @@ impl StubKeymapValidator {
         let mut chars = rest.chars();
         let key = match (chars.next(), chars.next()) {
             (Some(c), None) if !c.is_whitespace() && !c.is_control() => {
-                // Legacy control-byte aliases (03-KEYBINDINGS.md §3.2 implementation note).
                 let c = if ctrl {
                     match c {
                         '4' => '\\',
@@ -517,7 +513,7 @@ impl KeymapValidator for StubKeymapValidator {
     }
 
     fn modes(&self) -> Vec<String> {
-        // M3-04: `[keys.copy]`.
+        // `[keys.copy]`.
         vec![
             "terminal".to_owned(),
             "normal".to_owned(),
@@ -526,7 +522,7 @@ impl KeymapValidator for StubKeymapValidator {
     }
 
     fn action_exists(&self, mode: &str, action: &str) -> bool {
-        // M3-04: copy mode has its own actions.
+        // Copy mode has its own actions.
         if mode == "copy" {
             return action == "none" || COPY_ACTIONS.contains(&action);
         }
@@ -535,13 +531,12 @@ impl KeymapValidator for StubKeymapValidator {
 }
 
 /// Stand-in theme catalog: the built-in UI theme names and the `terminal` scheme. The TUI
-/// passes its real catalog (`sverb_tui::theme::UiThemeCatalog`, M0-11); M1-10 adds schemes.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct StubThemeCatalog;
 
 impl ThemeCatalog for StubThemeCatalog {
     fn has_ui_theme(&self, name: &str) -> bool {
-        // M0-11: `high-contrast` added.
+        // `high-contrast` added.
         matches!(name, "default-dark" | "default-light" | "high-contrast")
     }
 

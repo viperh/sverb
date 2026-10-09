@@ -1,4 +1,4 @@
-//! M1-16: the auto-reconnect schedule (SPEC §6.1.2), as pure functions.
+//! The auto-reconnect schedule (SPEC §6.1.2), as pure functions.
 //!
 //! Attempt `n` (1-based) waits `min(2^(n-1), 30)` seconds: 1, 2, 4, 8, 16, 30, 30, …,
 //! up to [`MAX_ATTEMPTS`] tries, each with ±[`JITTER`] jitter so many sessions dropped
@@ -86,7 +86,7 @@ mod tests {
 
     use super::*;
 
-    // T-01: 1, 2, 4, 8, 16, 30, 30, 30, 30, 30 with ±20% jitter; no 11th attempt.
+    // 1, 2, 4, 8, 16, 30, 30, 30, 30, 30 with ±20% jitter; no 11th attempt.
     #[test]
     fn t01_backoff_schedule() {
         let bases: Vec<u64> = (1..=MAX_ATTEMPTS)
@@ -116,7 +116,7 @@ mod tests {
         assert_eq!(a, delay(5, &mut SplitMix64::new(1)).unwrap());
     }
 
-    // T-02: no auto-reconnect for HostKey, Auth or Exited.
+    // No auto-reconnect for HostKey, Auth or Exited.
     #[test]
     fn t02_no_auto_reconnect_for_hostkey_auth_exited() {
         for reason in [

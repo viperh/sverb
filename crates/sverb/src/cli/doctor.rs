@@ -1,4 +1,4 @@
-//! M7-04: `sverb doctor [--algos] [--json] [--ascii]` (SPEC §16, §6.1.8).
+//! `sverb doctor [--algos] [--json] [--ascii]` (SPEC §16, §6.1.8).
 //!
 //! A headless, read-only diagnosis in sections (environment, terminal, agent,
 //! keyring, sync). Every line is marked `✓` ok, `·` info, `!` warning or `✗`
@@ -47,11 +47,10 @@ pub(crate) struct DoctorArgs {
     /// List the supported SSH algorithms
     #[arg(long)]
     pub algos: bool,
-    // M7-04
     /// Machine-readable output
     #[arg(long)]
     pub json: bool,
-    // M7-05: in `help` (not a doc comment), so rustdoc doesn't read `[ok]` as a link.
+    // In `help` (not a doc comment), so rustdoc doesn't read `[ok]` as a link.
     #[arg(long, help = "Mark lines with [ok] [warn] [fail] instead of symbols")]
     pub ascii: bool,
 }
@@ -296,7 +295,7 @@ fn mode_text(mode: u32) -> String {
     format!("{:04o}", mode & 0o7777)
 }
 
-/// The permission line for a path (T-03).
+/// The permission line for a path.
 pub(crate) fn path_check(fact: &PathFact) -> Check {
     let id = format!("env.path.{}", fact.label.replace(' ', "_"));
     let shown = fact.path.display().to_string();
@@ -876,7 +875,7 @@ fn kind_id(kind: AlgoKind) -> (&'static str, &'static str) {
     }
 }
 
-/// The `--algos` data for `supported` (pure; T-04).
+/// The `--algos` data for `supported` (pure).
 pub(crate) fn algo_categories(supported: &[SupportedAlgos]) -> Vec<AlgoCategory> {
     supported
         .iter()

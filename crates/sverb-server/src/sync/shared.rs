@@ -1,4 +1,4 @@
-//! M5-02: shared vaults (SPEC §13.1, §13.2): creation, grants, revocation and
+//! Shared vaults (SPEC §13.1, §13.2): creation, grants, revocation and
 //! the membership listings, on both backends.
 //!
 //! The rules (checked under the same lock / in the same transaction as the
@@ -11,7 +11,6 @@
 //!   **current** key version; no rotation is running;
 //! * **revoke** (`DELETE …/members/{user}`): a `manage` member or org admin, or
 //!   the member leaving; every key version's row goes (the revoking client then
-//!   rotates the vault key, M5-04 [`super::rotation`]);
 //! * **visibility**: a vault the caller has no grant on and no implicit
 //!   `manage` for is `404` (its existence is not revealed).
 //!
@@ -45,7 +44,6 @@ pub mod kinds {
     pub const VAULT_GRANTED: &str = "vault.member_granted";
     /// A member's access was revoked (target: the user; meta: vault).
     pub const VAULT_REVOKED: &str = "vault.member_revoked";
-    // M5-04
     /// The vault key was rotated (target: the vault; meta: key version, item
     /// count).
     pub const VAULT_ROTATED: &str = "vault.rotated";

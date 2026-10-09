@@ -1,4 +1,4 @@
-//! M3-05: the recording replay player (SPEC §9.12), embedded by the Logs view (M3-06).
+//! The recording replay player (SPEC §9.12), embedded by the Logs view.
 //!
 //! ```text
 //! ┌ Replay · web-1 ───────────────────────────────┐

@@ -1,4 +1,4 @@
-//! M1-06: the `Number` field: digits only, with an inclusive range.
+//! The `Number` field: digits only, with an inclusive range.
 //!
 //! Non-digit characters are rejected as they are typed (the key is consumed and
 //! nothing changes). The range is checked on blur and on save, so a half-typed value

@@ -1,4 +1,3 @@
-//! M0-04 integration tests for the global logging setup (T-01, T-02, T-03, T-04,
 //! T-05, T-07, T-08, T-11, T-12).
 //!
 //! `logging::init` installs a process-global subscriber, so every scenario runs in a
@@ -245,7 +244,6 @@ fn is_empty_dir(dir: &Path) -> bool {
     std::fs::read_dir(dir).map_or(true, |mut d| d.next().is_none())
 }
 
-// T-01
 fn t01_file_in_state_dir() -> TestResult {
     let home = Home::new("t01")?;
     home.run("emit", &[(MSG_ENV, "t01-hello")])?;
@@ -262,7 +260,6 @@ fn t01_file_in_state_dir() -> TestResult {
     Ok(())
 }
 
-// T-02
 fn t02_no_truncation_across_runs() -> TestResult {
     let home = Home::new("t02")?;
     home.run("emit", &[(MSG_ENV, "t02-run-A")])?;
@@ -273,7 +270,6 @@ fn t02_no_truncation_across_runs() -> TestResult {
     Ok(())
 }
 
-// T-03
 fn t03_retention_keeps_seven_files() -> TestResult {
     let home = Home::new("t03")?;
     std::fs::create_dir_all(home.state())?;
@@ -303,7 +299,6 @@ fn t03_retention_keeps_seven_files() -> TestResult {
     Ok(())
 }
 
-// T-04
 fn t04_sverb_log_controls_the_filter() -> TestResult {
     let home = Home::new("t04a")?;
     home.run("levels", &[("SVERB_LOG", "warn")])?;
@@ -330,7 +325,6 @@ fn t04_sverb_log_controls_the_filter() -> TestResult {
     Ok(())
 }
 
-// T-04
 fn t04_rust_log_is_ignored() -> TestResult {
     let home = Home::new("t04c")?;
     home.run("levels", &[("RUST_LOG", "trace")])?;
@@ -343,7 +337,6 @@ fn t04_rust_log_is_ignored() -> TestResult {
     Ok(())
 }
 
-// T-05
 fn t05_invalid_sverb_log_degrades() -> TestResult {
     let home = Home::new("t05")?;
     home.run("levels", &[("SVERB_LOG", "=[[[")])?;
@@ -359,14 +352,12 @@ fn t05_invalid_sverb_log_degrades() -> TestResult {
     Ok(())
 }
 
-// T-07
 fn t07_global_crash_ring_filters() -> TestResult {
     let home = Home::new("t07")?;
     home.run("crash_ring", &[])?;
     Ok(())
 }
 
-// T-08
 fn t08_redaction_canary() -> TestResult {
     let home = Home::new("t08")?;
     let out = home.run("canary", &[("SVERB_LOG", "trace")])?;
@@ -388,7 +379,6 @@ fn t08_redaction_canary() -> TestResult {
     Ok(())
 }
 
-// T-11
 fn t11_non_blocking_flush() -> TestResult {
     let home = Home::new("t11")?;
     home.run("flood", &[])?;
@@ -399,7 +389,6 @@ fn t11_non_blocking_flush() -> TestResult {
     Ok(())
 }
 
-// T-12
 fn t12_stdout_and_stderr_stay_clean() -> TestResult {
     for (tag, env) in [
         ("t12a", vec![("SVERB_LOG", "trace")]),

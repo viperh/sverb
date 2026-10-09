@@ -46,7 +46,7 @@ impl CharsetCodec {
     ///
     /// # Errors
     /// [`UnknownCharset`] if `encoding_rs` doesn't recognize the label. Config validation
-    /// (M1-07) rejects such labels on save.
+    ///  rejects such labels on save.
     pub fn for_label(label: &str) -> Result<Self, UnknownCharset> {
         Encoding::for_label(label.trim().as_bytes())
             .map(Self::for_encoding)

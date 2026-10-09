@@ -1,4 +1,4 @@
-//! M2-02: the identity dialogs (SPEC §4.4, §9.3) on the dialog stack
+//! The identity dialogs (SPEC §4.4, §9.3) on the dialog stack
 //! (`DialogKind::Identity`).
 //!
 //! - **Form** (add `a`, edit `e`, and "+ new identity" from the host form's picker):
@@ -379,7 +379,6 @@ pub enum IdentityDialog {
     Delete(DeleteIdentityDialog),
     /// The hosts using an identity.
     UsedBy(UsedByDialog),
-    // M2-03
     /// The Keys / Certificates dialogs (`views/keychain/import_dialog.rs`). They share
     /// the Keychain section's dialog slot, so no other dialog wiring is needed.
     Keychain(Box<super::import_dialog::KeychainDialog>),
@@ -390,7 +389,6 @@ impl IdentityDialog {
     pub fn wants_text(&self) -> bool {
         match self {
             Self::Form(_) => true,
-            // M2-03
             Self::Keychain(d) => d.wants_text(),
             _ => false,
         }
@@ -411,7 +409,6 @@ impl IdentityDialog {
                     d.handle_key(k, cx);
                 }
             }
-            // M2-03
             Self::Keychain(d) => d.handle(ev, cx),
         }
     }
@@ -422,7 +419,6 @@ impl IdentityDialog {
             Self::Form(d) => d.form.render(frame, area, cx),
             Self::Delete(d) => d.render(frame, area, cx),
             Self::UsedBy(d) => d.render(frame, area, cx),
-            // M2-03
             Self::Keychain(d) => d.render(frame, area, cx),
         }
     }

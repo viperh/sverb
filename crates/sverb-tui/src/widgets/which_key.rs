@@ -1,6 +1,4 @@
-//! The which-key popup (M0-10 entries, M0-11 placement and styling): bottom right of
 //! the body, just above the status bar, a multi-column `key → description` list
-//! grouped like `tasks/03-KEYBINDINGS.md` §4.5. Entries flow top-to-bottom into as
 //! many columns as needed. `toggle_log_pane` is left out without `--debug`.
 
 use ratatui::{

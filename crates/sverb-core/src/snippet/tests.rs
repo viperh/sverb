@@ -1,5 +1,3 @@
-//! M2-09 unit tests: T-01 … T-04, T-06, T-13 and the exports.
-
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::sync::{Arc, Mutex};
@@ -36,7 +34,6 @@ fn host(label: &str, address: &str, user: &str) -> Builtins {
     }
 }
 
-// T-01
 #[test]
 fn t01_parsing_table() {
     for (src, want) in [
@@ -98,7 +95,6 @@ fn user_vars_dedup_and_skip_builtins() {
     assert!(t.uses_builtins());
 }
 
-// T-02
 #[test]
 fn t02_substitution_is_literal_unless_quoted() {
     let values = Values::new().with("x", "a; rm -rf /", false);
@@ -140,7 +136,6 @@ fn t02_substitution_is_literal_unless_quoted() {
     ));
 }
 
-// T-03
 #[test]
 fn t03_builtins_per_host() {
     let t =
@@ -188,7 +183,6 @@ impl std::io::Write for LogBuf {
     }
 }
 
-// T-04
 #[test]
 fn t04_secrets_masked_and_never_in_history_or_logs() {
     const CANARY: &str = "CANARY-pw-8f3a1";
@@ -280,14 +274,12 @@ fn vars_merge_declared_and_undeclared() {
     assert_eq!(v.get("b"), Some(("s", true)));
 }
 
-// T-05 (text side; the bracketing itself is M1-11's, tested in sverb-conn)
 #[test]
 fn t05_paste_text_has_no_trailing_newline() {
     assert_eq!(paste_text("ls -la\n"), "ls -la");
     assert_eq!(paste_text("a\nb\r\n\n"), "a\nb");
 }
 
-// T-06
 #[test]
 fn t06_paste_and_execute_lines() {
     assert_eq!(paste_execute_bytes("l1\nl2\nl3"), b"l1\rl2\rl3\r");
@@ -337,7 +329,6 @@ fn catalog() -> (TargetCatalog, Vec<ItemId>) {
     (c, ids)
 }
 
-// T-13
 #[test]
 fn t13_target_resolution() {
     let (c, ids) = catalog();

@@ -1,4 +1,4 @@
-//! M2-02: the Keychain section in the reducer (SPEC §8.5, §9.3).
+//! The Keychain section in the reducer (SPEC §8.5, §9.3).
 //!
 //! - Carries out the Identities sub-tab's requests: add / edit (the identity form,
 //!   edit loads the password first: `ItemEffect::LoadIdentity`), duplicate, delete
@@ -8,15 +8,15 @@
 //!   (in the host's vault); once saved, the new identity is put into that host form.
 //! - The view gets its index and catalog with the Hosts view (`app/hosts.rs`) and
 //!   drops them on lock.
-//! - M2-03: the Keys and Certificates sub-tabs and their dialogs ([`keys`]).
+//! - The Keys and Certificates sub-tabs and their dialogs ([`keys`]).
 
 use sverb_core::model::ItemId;
 
-// M2-03: keys and certificates (generate, import, export, passphrase, certificates).
+// Keys and certificates (generate, import, export, passphrase, certificates).
 pub mod keys;
 #[cfg(test)]
 mod keys_tests;
-// M2-04: install key on host.
+// Install key on host.
 pub mod install;
 #[cfg(test)]
 mod install_tests;
@@ -44,15 +44,14 @@ impl App {
         if let Some(req) = self.views.keychain.take_request() {
             match req {
                 KeychainRequest::Identity(r) => self.on_identity_request(r, effects),
-                // M2-03
                 r @ (KeychainRequest::Key(_) | KeychainRequest::Cert(_)) => {
                     self.on_keychain_key_request(&r, effects);
                 }
             }
         }
-        // M2-03: a keychain dialog's answer.
+        // A keychain dialog's answer.
         self.take_keychain_dialog_answer(effects);
-        // M2-04: host-key decisions for install connections go to the run.
+        // Host-key decisions for install connections go to the run.
         self.reroute_install_answers(effects);
         let Some(top) = self.dialogs.last_mut() else {
             return;

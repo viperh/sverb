@@ -1,4 +1,4 @@
-//! M5-02: shared vaults in the sync service (SPEC §13.1, §13.2): Settings →
+//! Shared vaults in the sync service (SPEC §13.1, §13.2): Settings →
 //! Vaults requests ([`VaultOp`]) through [`VaultAdmin`], and the background
 //! admin reconcile (org owners and admins without a key get `manage` from any
 //! `manage` member's client, at most every [`RECONCILE_EVERY`]).
@@ -94,12 +94,10 @@ impl SyncService {
                         vault: None,
                     }
                 } else {
-                    // M5-04 (§13.2): the revoking client rotates the key right away.
                     info!(vault = %v, "access revoked; rotating the vault key");
                     self.rotate(&admin, &vault, tx, "Access revoked").await?
                 }
             }
-            // M5-04
             VaultOp::Rotate { vault } => self.rotate(&admin, &vault, tx, "").await?,
             VaultOp::Reconcile => {
                 let r = admin.reconcile_admins().await?;
@@ -122,7 +120,6 @@ impl SyncService {
         })
     }
 
-    // M5-04
     /// Rotates `vault` with progress events; a failure is a
     /// [`VaultsResult::RotationFailed`] (the rotation stays resumable).
     async fn rotate(
@@ -174,7 +171,6 @@ impl SyncService {
         })
     }
 
-    // M5-04
     /// The shared vaults to rotate after `user` is removed from `org` (§13.2:
     /// every vault they held a grant on that this account manages). Called before
     /// the removal; empty when leaving or without account keys.

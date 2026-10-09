@@ -49,7 +49,7 @@ pub struct MembershipRow {
 #[must_use]
 pub fn rotation_view(rotation: Option<&serde_json::Value>) -> Option<RotationView> {
     rotation.map(|r| {
-        // M5-04: who runs it and since when (abandonment is decided by the
+        // Who runs it and since when (abandonment is decided by the
         // route with the server clock, `rotation::mark_abandoned`).
         let state = super::rotation::RotationState::parse(r);
         RotationView {

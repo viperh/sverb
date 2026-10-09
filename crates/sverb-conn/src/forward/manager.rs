@@ -48,7 +48,6 @@ pub enum StartError {
     /// Values that act locally need confirmation first (§9.6, §17.1).
     #[error("needs approval: {}", .0.iter().map(ToString::to_string).collect::<Vec<_>>().join(", "))]
     NeedsApproval(Vec<RiskyValue>),
-    // M2-10
     /// The user denied one of these values in this session (§17.1): not asked again
     /// until the next start of sverb.
     #[error("blocked by approval policy: {}", .0.iter().map(ToString::to_string).collect::<Vec<_>>().join(", "))]
@@ -93,7 +92,7 @@ struct State {
 
 struct Inner {
     state: Mutex<State>,
-    // M2-10: replaceable (the TUI attaches the store's approvals once it has them).
+    // Replaceable (the TUI attaches the store's approvals once it has them).
     approvals: parking_lot::RwLock<Arc<dyn ApprovalStore>>,
 }
 
@@ -120,7 +119,7 @@ impl Default for ForwardManager {
 }
 
 impl ForwardManager {
-    /// A manager with in-memory approvals (nothing persisted; M2-10: attach the
+    /// A manager with in-memory approvals (nothing persisted; Attach the
     /// store's with [`ForwardManager::set_approvals`]).
     pub fn new() -> Self {
         Self::with_approvals(Arc::new(
@@ -128,7 +127,6 @@ impl ForwardManager {
         ))
     }
 
-    /// A manager remembering confirmations in `approvals` (M2-10's store).
     pub fn with_approvals(approvals: Arc<dyn ApprovalStore>) -> Self {
         Self {
             inner: Arc::new(Inner {
@@ -143,7 +141,6 @@ impl ForwardManager {
         Arc::clone(&self.inner.approvals.read())
     }
 
-    // M2-10
     /// Use `approvals` from now on (the device's `local_approvals`).
     pub fn set_approvals(&self, approvals: Arc<dyn ApprovalStore>) {
         *self.inner.approvals.write() = approvals;
@@ -157,7 +154,6 @@ impl ForwardManager {
         }
     }
 
-    // M2-10
     /// Record the user's denial of `values` for this session.
     pub fn deny(&self, values: &[RiskyValue]) {
         let store = self.approvals();
@@ -166,7 +162,6 @@ impl ForwardManager {
         }
     }
 
-    // M2-10
     /// `Ok` when nothing needs confirmation; else `NeedsApproval`, or `Blocked` when
     /// one of the values was denied in this session.
     fn check_approvals(&self, rule: &ForwardRule) -> Result<(), StartError> {
@@ -303,7 +298,7 @@ impl ForwardManager {
             return Ok(());
         }
         entry.rule.validate()?;
-        // M2-10: session denials fail without asking again.
+        // Session denials fail without asking again.
         if let Err(e) = self.check_approvals(&entry.rule) {
             entry.live.set_state(ForwardState::NeedsApproval);
             return Err(e);
@@ -332,7 +327,7 @@ impl ForwardManager {
         let mut state = self.inner.state.lock();
         let entry = state.rules.get_mut(&id).ok_or(StartError::UnknownRule)?;
         entry.rule.validate()?;
-        // M2-10: session denials fail without asking again.
+        // Session denials fail without asking again.
         if let Err(e) = self.check_approvals(&entry.rule) {
             entry.live.set_state(ForwardState::NeedsApproval);
             return Err(e);

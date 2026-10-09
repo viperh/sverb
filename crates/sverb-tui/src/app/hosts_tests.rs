@@ -1,5 +1,4 @@
-//! M1-07 reducer tests: bulk delete (T-08), address validation in the form (T-09),
-//! quick connect and "Save as host" (T-10), connect / copy / launch.
+//! quick connect and "Save as host", connect / copy / launch.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -37,7 +36,6 @@ fn opened(effects: &[Effect]) -> Vec<SshSpec> {
         .collect()
 }
 
-// T-08
 #[test]
 fn t08_bulk_delete_confirms_then_deletes_each() {
     let mut h = AppHarness::new(Config::default());
@@ -66,7 +64,6 @@ fn t08_bulk_delete_confirms_then_deletes_each() {
     );
 }
 
-// T-09
 #[test]
 fn t09_invalid_address_blocks_the_save() {
     let mut h = AppHarness::new(Config::default());
@@ -109,7 +106,6 @@ fn t09_invalid_address_blocks_the_save() {
     );
 }
 
-// T-10
 #[test]
 fn t10_quick_connect_and_save_as_host() {
     let mut h = AppHarness::new(Config::default());
@@ -290,8 +286,6 @@ fn launch_connect_resolves_saved_hosts_then_parses() {
     );
 }
 
-// ---------------------------------------------------------------------- M2-01
-
 mod m2_01 {
     use std::sync::Arc;
 
@@ -369,7 +363,6 @@ mod m2_01 {
         }
     }
 
-    // M2-01 T-05
     #[test]
     fn t05_tree_collapses_and_bulk_moves_to_a_group() {
         let (mut h, ids) = seeded(4, 1, None);
@@ -408,7 +401,6 @@ mod m2_01 {
         );
     }
 
-    // M2-01 T-06
     #[test]
     fn t06_delete_group_moves_contents_to_the_parent() {
         let (mut h, ids) = seeded(3, 2, None);
@@ -440,7 +432,6 @@ mod m2_01 {
         );
     }
 
-    // M2-01 T-07
     #[test]
     fn t07_delete_all_types_the_count_above_ten() {
         let (mut h, _) = seeded(12, 12, None);
@@ -487,7 +478,6 @@ mod m2_01 {
         );
     }
 
-    // M2-01 T-10 (reducer half; tests/groups.rs checks the writes)
     #[test]
     fn t10_bulk_tags_add_and_remove() {
         let (mut h, ids) = seeded(5, 0, None);
@@ -555,7 +545,6 @@ mod m2_01 {
         opened(effects).iter().map(|s| s.port).collect()
     }
 
-    // M2-01 T-12
     #[test]
     fn t12_group_default_port_applies_to_the_next_connection_only() {
         let (mut h, ids) = seeded(1, 1, Some(2222));

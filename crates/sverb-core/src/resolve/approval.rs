@@ -1,4 +1,4 @@
-//! M2-10: approval of values that act on this machine (SPEC §17.1).
+//! Approval of values that act on this machine (SPEC §17.1).
 //!
 //! Some settings make sverb do something **locally** when it connects: run a
 //! ProxyCommand, listen on a non-loopback address, connect from this machine to a
@@ -8,7 +8,7 @@
 //!
 //! - **Classification** ([`local_actions`]) runs on the **resolved** host (group and
 //!   vault defaults can carry these values too). Each [`LocalAction`] is keyed by the
-//!   item that *defines* the value (provenance, M2-01), the field and the exact value.
+//!   item that *defines* the value (provenance), the field and the exact value.
 //! - **Approvals** are rows `(item_id, field, sha256(value))` in the device-local
 //!   `local_approvals` table (sverb-store), never synced. A changed value hashes
 //!   differently, so its status becomes [`ApprovalStatus::ChangedSinceApproval`] and
@@ -267,7 +267,7 @@ impl HostItems<'_> {
             Source::Group { id, .. } => Some(*id),
             Source::VaultDefaults => self.vault_defaults,
             Source::GlobalConfig | Source::BuiltinDefault => None,
-            // M5-02: the user's own override item (personal vault).
+            // The user's own override item (personal vault).
             Source::Override { item } => Some(*item),
         }
     }

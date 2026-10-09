@@ -1,4 +1,4 @@
-//! Injectable wall clock (M1-03 §2.5). All store timestamps are UNIX milliseconds.
+//! Injectable wall clock. All store timestamps are UNIX milliseconds.
 
 use std::fmt::Debug;
 use std::sync::atomic::{AtomicI64, Ordering};

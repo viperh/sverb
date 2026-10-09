@@ -1,11 +1,10 @@
-//! M2-08 tests.
 //!
 //! - T-01…T-09: SOCKS conformance over an in-memory stream with a mock opener.
 //! - T-10…T-12: local forwards through the manager over a mock tunnel.
 //! - Loopback (no Docker) equivalents of T-13…T-17 against the in-process russh
 //!   server (`ssh::testing`): -L, -R with a server-allocated port, -D with remote DNS,
 //!   connection drop and reconnect, standalone tunnels. The Docker e2e variants are at
-//!   the end, `#[ignore]`d for the M1-18 harness.
+//!   the end, `#[ignore]`d for the Docker e2e harness.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -113,7 +112,7 @@ fn v5(cmd: u8, atyp: u8, addr: &[u8], port: u16) -> Vec<u8> {
 
 // ---------------------------------------------------------------- T-01 … T-09
 
-/// T-01: CONNECT IPv4 → opener gets `"1.2.3.4", 80`; reply `05 00 00 01 0…0`.
+/// CONNECT IPv4 → opener gets `"1.2.3.4", 80`; reply `05 00 00 01 0…0`.
 #[tokio::test]
 async fn t01_connect_ipv4() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -123,7 +122,7 @@ async fn t01_connect_ipv4() {
     assert_eq!(reply, [&[5_u8, 0][..], &OK5[..]].concat());
 }
 
-/// T-02: CONNECT domain → the opener gets the domain string, unresolved.
+/// CONNECT domain → the opener gets the domain string, unresolved.
 #[tokio::test]
 async fn t02_connect_domain_is_not_resolved() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -135,7 +134,7 @@ async fn t02_connect_domain_is_not_resolved() {
     assert_eq!(&reply[2..], OK5);
 }
 
-/// T-03: CONNECT IPv6.
+/// CONNECT IPv6.
 #[tokio::test]
 async fn t03_connect_ipv6() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -146,7 +145,7 @@ async fn t03_connect_ipv6() {
     assert_eq!(&reply[2..], OK5);
 }
 
-/// T-04: BIND and UDP ASSOCIATE → `0x07`, no channel.
+/// BIND and UDP ASSOCIATE → `0x07`, no channel.
 #[tokio::test]
 async fn t04_bind_and_udp_not_supported() {
     for cmd in [2, 3] {
@@ -159,7 +158,7 @@ async fn t04_bind_and_udp_not_supported() {
     }
 }
 
-/// T-05: only `0x02` (user/password) offered → `05 FF` and close.
+/// Only `0x02` (user/password) offered → `05 FF` and close.
 #[tokio::test]
 async fn t05_no_acceptable_method() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -168,7 +167,7 @@ async fn t05_no_acceptable_method() {
     assert_eq!(reply, [5, 0xFF]);
 }
 
-/// T-06: unknown ATYP → `0x08`.
+/// Unknown ATYP → `0x08`.
 #[tokio::test]
 async fn t06_unknown_atyp() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -177,7 +176,7 @@ async fn t06_unknown_atyp() {
     assert_eq!(reply[2..], [5, 0x08, 0, 1, 0, 0, 0, 0, 0, 0]);
 }
 
-/// T-07: SOCKS4 CONNECT IPv4 → `0x5A`; SOCKS4a domain → the opener gets the domain.
+/// SOCKS4 CONNECT IPv4 → `0x5A`; SOCKS4a domain → the opener gets the domain.
 #[tokio::test]
 async fn t07_socks4_and_4a() {
     let (tunnel, _peers) = MockTunnel::new(None);
@@ -205,7 +204,7 @@ async fn t07_socks4_and_4a() {
     assert_eq!(reply[1], 0x5B);
 }
 
-/// T-08: truncated and garbage requests close without panicking; a silent client
+/// Truncated and garbage requests close without panicking; a silent client
 /// times out after 10 s (virtual time).
 #[tokio::test(start_paused = true)]
 async fn t08_truncated_garbage_and_timeout() {
@@ -234,7 +233,7 @@ async fn t08_truncated_garbage_and_timeout() {
     drop(client);
 }
 
-/// T-09: opener failures map to SOCKS replies (`connect failed` → `0x05`, …).
+/// Opener failures map to SOCKS replies (`connect failed` → `0x05`, …).
 #[tokio::test]
 async fn t09_open_failure_replies() {
     for (fail, code) in [
@@ -314,7 +313,7 @@ async fn free_port() -> u16 {
 
 // ---------------------------------------------------------------- T-10 … T-12
 
-/// T-10: half-close both ways (like `nc -N`): the client sends data then FIN; the
+/// Half-close both ways (like `nc -N`): the client sends data then FIN; the
 /// channel sees the data then eof; the server answers after eof and the client reads
 /// the answer, then eof.
 #[tokio::test]
@@ -368,7 +367,7 @@ async fn t10_half_close() {
     .await;
 }
 
-/// T-11: 300 concurrent connections → 256 carried, 44 closed at once; after some
+/// 300 concurrent connections → 256 carried, 44 closed at once; after some
 /// close, new ones succeed.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t11_channel_cap() {
@@ -442,7 +441,7 @@ async fn t11_channel_cap() {
     assert_eq!(fm.status(id).unwrap().refused, 44);
 }
 
-/// T-12: the bind port is taken → `error: address in use`.
+/// The bind port is taken → `error: address in use`.
 #[tokio::test]
 async fn t12_bind_in_use() {
     let taken = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -882,9 +881,8 @@ mod loopback {
     }
 }
 
-// ---------------------------------------------------------------- Docker e2e (M1-18)
+// ---------------------------------------------------------------- Docker e2e
 
-/// T-13 (e2e): -L to the container's `python3 -m http.server`. Needs the M1-18
 /// harness; the loopback variant is `loopback::t13_local_forward_loopback`.
 #[test]
 #[ignore = "needs the M1-18 Docker harness"]

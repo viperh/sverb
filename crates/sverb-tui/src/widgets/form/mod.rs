@@ -1,8 +1,7 @@
-//! M1-06: the full-screen form framework (SPEC §8.6) and its field widgets.
+//! The full-screen form framework (SPEC §8.6) and its field widgets.
 //!
 //! A [`Form`] is a title, ordered [`Section`]s of [`Field`]s, a dirty flag and
 //! validation hooks. It is plain data with a [`View`] impl, so reducer tests drive it
-//! with key events; the owner (e.g. M1-07's host editor) reads the outcome with
 //! [`Form::take_request`]:
 //! - [`FormRequest::Save`] carries [`FieldChanges`] (only the fields that differ from
 //!   the initial values). The owner turns it into its save effect and reports back
@@ -10,7 +9,7 @@
 //! - [`FormRequest::Cancel`]: `Esc` on a clean form, or "Discard" in the
 //!   "Discard changes?" confirm a dirty form shows.
 //!
-//! Keys (Insert mode, `tasks/03-KEYBINDINGS.md` §4.3): `Tab`/`Shift-Tab` move between
+//! Keys (Insert mode): `Tab`/`Shift-Tab` move between
 //! fields (`↑/↓` too, where the field does not use them), `ctrl-s` saves, `Esc`
 //! cancels, `ctrl-r` reveals a secret field. Everything else goes to the focused field.
 //!
@@ -24,14 +23,13 @@
 //!
 //! An empty optional field shows its [`Inherited`] value dimmed with its source:
 //! `22 (default)`, `2222 (from group "prod")` (provenance from settings resolution,
-//! M2-01; until then only global defaults).
 
 pub mod kv_list;
 pub mod multiline;
 pub mod multiselect;
 pub mod number;
 pub mod reference;
-// M2-05: ordered reference lists (the jump chain).
+// Ordered reference lists (the jump chain).
 pub mod ref_list;
 pub mod secret;
 pub mod select;
@@ -65,9 +63,8 @@ pub use kv_list::{KeyCheck, KvListInput};
 pub use multiline::MultilineInput;
 pub use multiselect::MultiSelectInput;
 pub use number::NumberInput;
-pub use reference::{RefValue, ReferenceInput};
-// M2-05
 pub use ref_list::RefListInput;
+pub use reference::{RefValue, ReferenceInput};
 pub use secret::{SecretInput, SecretValue};
 pub use select::{SelectInput, SelectOption};
 pub use text::{TextEdit, TextInput};
@@ -94,7 +91,6 @@ pub enum FieldValue {
     Reference(Option<ItemId>),
     /// `KeyValueList` fields.
     Pairs(Vec<(String, String)>),
-    // M2-05
     /// `RefList` fields: the ids in order.
     References(Vec<ItemId>),
 }
@@ -111,7 +107,6 @@ impl FieldValue {
             Self::Choices(c) => c.is_empty(),
             Self::Reference(r) => r.is_none(),
             Self::Pairs(p) => p.is_empty(),
-            // M2-05
             Self::References(r) => r.is_empty(),
         }
     }
@@ -296,7 +291,6 @@ pub enum FieldWidget {
     KeyValueList(KvListInput),
     /// Multi-line text.
     Multiline(Box<MultilineInput>),
-    // M2-05
     /// An ordered list of item references.
     RefList(RefListInput),
 }
@@ -315,7 +309,7 @@ pub struct Field {
     pub required: bool,
     /// Not reachable and dimmed (e.g. inline credentials while an identity is picked).
     pub disabled: bool,
-    /// Not shown at all (fields of features that have not landed, M1-07 §2.3).
+    /// Not shown at all (fields of features that have not landed).
     pub hidden: bool,
     /// The inherited value shown when the field is empty.
     pub inherited: Option<Inherited>,
@@ -420,7 +414,6 @@ impl Field {
         )
     }
 
-    // M2-05
     /// An ordered list of references to items of `kind`.
     pub fn reference_list(key: &str, label: &str, kind: ItemKind, rows: Vec<RefValue>) -> Self {
         Self::new(
@@ -497,7 +490,6 @@ impl Field {
                 FieldValue::Pairs(kv.rows)
             }
             FieldWidget::Multiline(m) => FieldValue::Text(m.text()),
-            // M2-05
             FieldWidget::RefList(l) => FieldValue::References(l.ids()),
         }
     }
@@ -522,7 +514,6 @@ impl Field {
                     return Err(format!("row {}: {msg}", row + 1));
                 }
             }
-            // M2-05
             FieldWidget::RefList(l) => {
                 if let Some(err) = &l.error {
                     return Err(err.clone());
@@ -543,7 +534,6 @@ impl Field {
             FieldWidget::MultiSelect(m) => m.is_open(),
             FieldWidget::Reference(r) => r.is_open(),
             FieldWidget::KeyValueList(kv) => kv.is_editing(),
-            // M2-05
             FieldWidget::RefList(l) => l.is_open(),
             _ => false,
         }
@@ -557,7 +547,6 @@ impl Field {
             FieldWidget::MultiSelect(m) => m.blur(),
             FieldWidget::Reference(r) => r.blur(),
             FieldWidget::KeyValueList(kv) => kv.blur(),
-            // M2-05
             FieldWidget::RefList(l) => l.blur(),
             _ => {}
         }
@@ -580,7 +569,6 @@ impl Field {
             FieldWidget::Reference(r) => r.handle_key(key, index),
             FieldWidget::KeyValueList(kv) => kv.handle_key(key),
             FieldWidget::Multiline(m) => m.handle_key(key),
-            // M2-05
             FieldWidget::RefList(l) => l.handle_key(key, index),
         }
     }
@@ -593,7 +581,6 @@ impl Field {
             FieldWidget::Reference(r) => r.paste(s, index),
             FieldWidget::KeyValueList(kv) => kv.paste(s),
             FieldWidget::Multiline(m) => m.paste(s),
-            // M2-05
             FieldWidget::RefList(l) => l.paste(s, index),
             _ => false,
         }
@@ -604,7 +591,6 @@ impl Field {
             FieldWidget::Select(s) => s.popup(),
             FieldWidget::MultiSelect(m) => m.popup(),
             FieldWidget::Reference(r) => r.popup(),
-            // M2-05
             FieldWidget::RefList(l) => l.popup(),
             _ => None,
         }
@@ -910,7 +896,7 @@ impl Form {
         self.confirm.is_some()
     }
 
-    /// The form takes text input (Insert mode, M0-10) unless it is read-only.
+    /// The form takes text input (Insert mode) unless it is read-only.
     pub fn insert_mode(&self) -> bool {
         self.read_only.is_none() || self.confirm.is_some()
     }
@@ -1198,7 +1184,6 @@ impl Form {
             }
             FieldWidget::KeyValueList(kv) => kv_lines(kv, focused && cursor, w, base, theme),
             FieldWidget::Multiline(m) => multiline_lines(m, cursor, w, base),
-            // M2-05
             FieldWidget::RefList(l) => {
                 ref_list_lines(l, f.inherited.as_ref(), focused && cursor, w, base, theme)
             }
@@ -1206,7 +1191,6 @@ impl Form {
     }
 }
 
-// M2-05
 fn ref_list_lines(
     l: &RefListInput,
     inherited: Option<&Inherited>,

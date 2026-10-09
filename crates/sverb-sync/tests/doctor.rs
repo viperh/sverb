@@ -1,4 +1,4 @@
-//! M7-04 T-06: the sync checks of `sverb doctor` against the in-process
+//! The sync checks of `sverb doctor` against the in-process
 //! `sverb-server` (in-memory backend) on loopback. The exit-code half (✗ → exit 1)
 //! is tested in `crates/sverb/src/cli/doctor_tests.rs`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]

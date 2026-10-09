@@ -1,4 +1,4 @@
-//! M7-01: the static completion set of common commands (SPEC §9.10): coreutils, git,
+//! The static completion set of common commands (SPEC §9.10): coreutils, git,
 //! docker, kubectl and systemctl subcommands, shipped as `static_commands.txt`.
 
 use std::sync::OnceLock;

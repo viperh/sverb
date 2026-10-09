@@ -1,6 +1,6 @@
 //! Field validation (SPEC §4.2, §4.3, §6.1.4, §9.7) as pure functions.
 //!
-//! Errors carry the field name so forms (M1-06) can show them inline.
+//! Errors carry the field name so forms can show them inline.
 
 use std::collections::HashSet;
 use std::fmt;
@@ -307,7 +307,6 @@ mod tests {
 
     use super::*;
 
-    // T-11
     #[test]
     fn address_table() {
         for (input, normalized) in [
@@ -354,7 +353,6 @@ mod tests {
         }
     }
 
-    // T-12
     #[test]
     fn port_range() {
         assert!(validate_port("port", 0).is_err());
@@ -362,7 +360,6 @@ mod tests {
         assert!(validate_port("port", 65535).is_ok());
     }
 
-    // T-13
     #[test]
     fn env_names() {
         assert!(validate_env_name("PATH").is_ok());
@@ -376,7 +373,6 @@ mod tests {
         (1..=n).map(|i| ItemId::from_bytes([i; 16])).collect()
     }
 
-    // T-14
     #[test]
     fn jump_chain_rules() {
         let h = ids(20);
@@ -415,7 +411,6 @@ mod tests {
         assert!(validate_jump_chain(h[0], &[h[5]], none).is_ok());
     }
 
-    // T-15
     #[test]
     fn group_parent_cycles() {
         let g = ids(4);

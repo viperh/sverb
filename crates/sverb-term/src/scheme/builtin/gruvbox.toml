@@ -1,4 +1,4 @@
-# gruvbox: built-in sverb terminal color scheme (M1-10, SPEC §7.4).
+# gruvbox: built-in sverb terminal color scheme (SPEC §7.4).
 # Source: Gruvbox (dark, medium), Pavel Pertsev, https://github.com/morhetz/gruvbox (MIT).
 
 name = "gruvbox"

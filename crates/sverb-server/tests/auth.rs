@@ -1,4 +1,4 @@
-//! M4-02: authentication, tokens, devices, TOTP, password change, recovery
+//! Authentication, tokens, devices, TOTP, password change, recovery
 //! and account deletion, end to end over HTTP with the real client-side
 //! OPAQUE code (`sverb_crypto::opaque`, with the cheap test KSF).
 //!
@@ -271,7 +271,7 @@ impl Harness {
     }
 
     /// A vault id that already exists, so the personal-vault insert of the
-    /// next registration that uses it fails (T-03).
+    /// next registration that uses it fails.
     async fn occupy_vault_id(&self, id: Uuid) {
         match &self.backend {
             Backend::Mem(m) => m.with_data(|d| d.fail_vault_insert = true),
@@ -301,7 +301,7 @@ impl Harness {
         }
     }
 
-    /// A shared vault with `members` (T-14).
+    /// A shared vault with `members`.
     async fn shared_vault(&self, members: &[Uuid]) -> Uuid {
         let id = Uuid::now_v7();
         match &self.backend {
@@ -486,7 +486,7 @@ impl Account {
 }
 
 /// Registration through both endpoints, building keys, bundles and the
-/// self-grant exactly like the client will (M4-08).
+/// self-grant exactly like the client will.
 async fn try_register(
     h: &Harness,
     email: &str,
@@ -668,7 +668,7 @@ async fn new_password_material(
 
 // ---------------------------------------------------------------- scenarios
 
-/// T-01: register → login round-trip; export_key equal across logins;
+/// Register → login round-trip; export_key equal across logins;
 /// the private bundle opens with the AKEK from login.
 async fn t01_roundtrip(h: &Harness) {
     let a = open_and_register(h, "alice@example.com").await;
@@ -700,7 +700,7 @@ async fn t01_roundtrip(h: &Harness) {
     );
 }
 
-/// T-02: wrong password and unknown email fail identically.
+/// Wrong password and unknown email fail identically.
 async fn t02_enumeration(h: &Harness) {
     let a = open_and_register(h, "bob@example.com").await;
     let wrong = login_with(h, &a.email, b"not the password", json!({})).await;
@@ -731,7 +731,7 @@ async fn t02_enumeration(h: &Harness) {
     );
 }
 
-/// T-03: a failure in the vault insert leaves no user, and the invite is
+/// A failure in the vault insert leaves no user, and the invite is
 /// not consumed.
 async fn t03_register_atomic(h: &Harness) {
     let token = h.invite("carol@example.com").await;
@@ -765,7 +765,7 @@ async fn t03_register_atomic(h: &Harness) {
     assert!(!a.session.is_instance_admin);
 }
 
-/// T-04: registration gating with the real flow.
+/// Registration gating with the real flow.
 async fn t04_gating(h: &Harness) {
     let reg = |email: &'static str, extra: Value| async move {
         try_register(h, email, "pw", extra, None)
@@ -825,7 +825,7 @@ async fn t04_gating(h: &Harness) {
     );
 }
 
-/// T-05: access tokens expire after 15 minutes (time travel).
+/// Access tokens expire after 15 minutes (time travel).
 async fn t05_access_expiry(h: &Harness) {
     let a = open_and_register(h, "erin@example.com").await;
     assert_eq!(devices_status(h, a.access()).await, StatusCode::OK);
@@ -901,7 +901,7 @@ async fn t06_t07_rotation_and_reuse(h: &Harness) {
     };
     assert!(used, "old refresh token has used_at set");
 
-    // T-07: replaying the old refresh token → 401 and the family is gone.
+    // Replaying the old refresh token → 401 and the family is gone.
     let (st, v) = h
         .post(
             "/v1/auth/refresh",
@@ -934,7 +934,7 @@ async fn t06_t07_rotation_and_reuse(h: &Harness) {
     );
 }
 
-/// T-08: logout revokes the current device only.
+/// Logout revokes the current device only.
 async fn t08_logout(h: &Harness) {
     let a = open_and_register(h, "grace@example.com").await;
     let b = login(h, &a).await;
@@ -1037,7 +1037,7 @@ async fn t09_devices(h: &Harness) {
     );
 }
 
-/// T-10: TOTP enable/confirm, then login needs a valid, fresh code.
+/// TOTP enable/confirm, then login needs a valid, fresh code.
 async fn t10_totp(h: &Harness) {
     let a = open_and_register(h, "judy@example.com").await;
     let (st, setup) = h
@@ -1128,7 +1128,7 @@ async fn t10_totp(h: &Harness) {
     login(h, &a).await;
 }
 
-/// T-11: password change.
+/// Password change.
 async fn t11_password_change(h: &Harness) {
     let a = open_and_register(h, "mallory@example.com").await;
     let b = login(h, &a).await;
@@ -1200,7 +1200,7 @@ async fn t11_password_change(h: &Harness) {
     );
 }
 
-/// T-12: tokens are stored only as hashes.
+/// Tokens are stored only as hashes.
 async fn t12_hashed(h: &Harness) {
     let a = open_and_register(h, "niaj@example.com").await;
     let r = reauth(h, &a, &a.password).await;
@@ -1226,7 +1226,7 @@ async fn t12_hashed(h: &Harness) {
     }
 }
 
-/// T-13: a disabled account fails exactly like a wrong password.
+/// A disabled account fails exactly like a wrong password.
 async fn t13_disabled(h: &Harness) {
     let a = open_and_register(h, "olivia@example.com").await;
     let wrong = login_with(h, &a.email, b"wrong", json!({})).await;
@@ -1244,7 +1244,7 @@ async fn t13_disabled(h: &Harness) {
     );
 }
 
-/// T-14: deleting the account removes the personal vault and its items;
+/// Deleting the account removes the personal vault and its items;
 /// shared vault items stay.
 async fn t14_delete(h: &Harness) {
     let a = open_and_register(h, "peggy@example.com").await;
@@ -1612,7 +1612,6 @@ both!(
     login_state_expires_pg
 );
 
-/// `login/start` calls the M4-01 rate limiter (5 per email per minute).
 #[tokio::test]
 async fn login_start_is_rate_limited() {
     let h = Harness::mem_with(RateLimiters::default());

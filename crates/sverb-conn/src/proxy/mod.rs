@@ -1,8 +1,8 @@
-//! M2-06: proxies for the first hop (SPEC §6.1.5).
+//! Proxies for the first hop (SPEC §6.1.5).
 //!
 //! A configured [`ProxyConfig`] replaces the direct TCP step of the SSH flow: the
 //! connector asks [`open_first_hop`] (the stream factory) for the first hop's byte
-//! stream, and runs the SSH handshake over it. Jump chains (M2-05) apply the proxy
+//! stream, and runs the SSH handshake over it. Jump chains apply the proxy
 //! to the first hop only.
 //!
 //! - [`socks5`]: SOCKS5 via `tokio-socks`, CONNECT **by domain name** (the proxy
@@ -15,7 +15,7 @@
 //!   detail, killed when the stream is dropped (session close or connect failure).
 //!
 //! **§17.1:** a ProxyCommand runs a local process, so before it is spawned the
-//! [`LocalApprovals`] check must pass. M2-10: sverb checks against the device's
+//! [`LocalApprovals`] check must pass. Sverb checks against the device's
 //! explicit `local_approvals` rows
 //! ([`DeviceApprovals`](sverb_core::resolve::approval::DeviceApprovals)); a value
 //! denied in this session fails with "blocked by approval policy" without asking.
@@ -180,14 +180,13 @@ pub trait LocalApprovals: Send + Sync + fmt::Debug {
     /// May `value` of `field` (defined by `origin.item_id`) act on this device?
     fn check(&self, field: &str, value: &str, origin: &ValueOrigin) -> Approval;
 
-    // M2-10
     /// Was `value` denied in this session (fail without asking again)?
     fn is_blocked(&self, _field: &str, _value: &str, _origin: &ValueOrigin) -> bool {
         false
     }
 }
 
-// M2-10: the device's explicit approvals. A value of an unsaved target (no item:
+// The device's explicit approvals. A value of an unsaved target (no item:
 // typed into this process, e.g. quick connect) is approved; a stored value needs its
 // row with the exact value's hash.
 impl LocalApprovals for sverb_core::resolve::approval::DeviceApprovals {
@@ -206,8 +205,7 @@ impl LocalApprovals for sverb_core::resolve::approval::DeviceApprovals {
     }
 }
 
-/// The M2-06 stub: a value is approved when it was typed on this device
-/// ([`ValueOrigin::typed_here`]). Superseded by `DeviceApprovals` (M2-10: a stamp's
+/// ([`ValueOrigin::typed_here`]). Superseded by `DeviceApprovals` (a stamp's
 /// device id alone is not trusted); kept for tests.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct StampApprovals;
@@ -350,7 +348,7 @@ pub async fn open_first_hop(
             })
         }
         ProxyConfig::Command { command, origin } => {
-            // M2-10: denied in this session → fail without asking again.
+            // Denied in this session → fail without asking again.
             if approvals.check(COMMAND_FIELD, command, origin) != Approval::Approved
                 && approvals.is_blocked(COMMAND_FIELD, command, origin)
             {
@@ -384,6 +382,6 @@ pub async fn open_first_hop(
     }
 }
 
-// M2-06: end-to-end proxy tests through SshConnector.
+// End-to-end proxy tests through SshConnector.
 #[cfg(test)]
 mod connector_tests;

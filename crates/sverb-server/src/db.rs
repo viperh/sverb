@@ -1,7 +1,7 @@
 //! Postgres pool and migrations (SPEC §10.3).
 //!
 //! Queries are runtime-checked (`sqlx_core::query*`), so building never needs
-//! a database. Migrations live in `crates/sverb-server/migrations/` (M7-07: inside the
+//! a database. Migrations live in `crates/sverb-server/migrations/` (inside the
 //! crate so `cargo package` includes them; `migrations/server/` at the repository root
 //! links to them) and are embedded into the binary with `include_str!`; add new files to
 //! [`MIGRATIONS`] in order.
@@ -18,15 +18,15 @@ use sqlx_postgres::{PgPool, PgPoolOptions};
 /// Embedded migrations: `(version, description, sql)`.
 pub const MIGRATIONS: &[(i64, &str, &str)] = &[
     (1, "init", include_str!("../migrations/0001_init.sql")),
-    // M4-02: login states, TOTP replay step, reauth tokens, recovery codes.
+    // Login states, TOTP replay step, reauth tokens, recovery codes.
     (
         2,
         "login_states",
         include_str!("../migrations/0002_login_states.sql"),
     ),
-    // M4-04: tombstone GC index.
+    // Tombstone GC index.
     (3, "sync", include_str!("../migrations/0003_sync.sql")),
-    // M6-01: share_sessions.require_account.
+    // share_sessions.require_account.
     (4, "share", include_str!("../migrations/0004_share.sql")),
 ];
 

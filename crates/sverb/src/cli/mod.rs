@@ -1,10 +1,10 @@
-//! M0-07: the command line (SPEC §16).
+//! The command line (SPEC §16).
 //!
 //! [`Cli`] is the clap tree; [`dispatch`] runs a parsed command and returns the exit
 //! code. One module per command group holds its arguments and body. Bodies whose
 //! feature task has not landed return [`CliError::NotImplemented`] naming that task.
 //!
-//! Conventions (see `tasks/M0-07-cli-surface.md` §2.3):
+//! Conventions:
 //! - exit codes are the constants in [`exit`], listed in `sverb --help`,
 //! - errors print as `error: …` / `  caused by: …` ([`sverb_core::error_report`]),
 //! - `--json` output is wrapped as `{"version":1,"data":…}` ([`output`], `docs/cli-json.md`),
@@ -21,7 +21,7 @@ pub(crate) mod doctor;
 pub(crate) mod exit;
 pub(crate) mod export;
 pub(crate) mod forward;
-// M7-07: man page and shell completions (hidden `sverb generate`).
+// Man page and shell completions (hidden `sverb generate`).
 pub(crate) mod generate;
 pub(crate) mod hosts;
 pub(crate) mod import;
@@ -32,10 +32,9 @@ pub(crate) mod team;
 pub(crate) mod vault;
 
 #[cfg(test)]
-mod tests;
-// M4-09
-#[cfg(test)]
 mod sync_tests;
+#[cfg(test)]
+mod tests;
 
 #[cfg(not(feature = "sync"))]
 use std::ffi::OsString;
@@ -60,7 +59,6 @@ pub(crate) use exit::CliError;
     after_long_help = exit::HELP
 )]
 pub(crate) struct Cli {
-    // M0-04
     /// Log at debug level and keep recent log lines for the log pane
     /// (log files may then contain hostnames)
     #[arg(long, global = true)]
@@ -139,7 +137,6 @@ pub(crate) enum Command {
     /// Diagnose terminal capabilities, agent and sync; list SSH algorithms
     Doctor(doctor::DoctorArgs),
     /// Generate the man page or shell completions (for packagers)
-    // M7-07
     #[command(hide = true)]
     Generate(generate::GenerateArgs),
     /// Sync-only commands in a local-only build (and unknown commands).
@@ -162,7 +159,7 @@ pub(crate) const FEATURES: &str = if cfg!(feature = "sync") {
 };
 
 impl Cli {
-    // M0-03: parse argv with a `--version` text that lists the resolved paths.
+    // Parse argv with a `--version` text that lists the resolved paths.
     /// Parse `std::env::args`, exiting with clap's message (code 2) on bad input.
     pub(crate) fn parse_with(paths: &Paths) -> Self {
         Self::try_parse_with(paths, std::env::args_os()).unwrap_or_else(|e| e.exit())
@@ -186,7 +183,7 @@ impl Cli {
         Ok(cli)
     }
 
-    /// Whether this invocation runs without the TUI (logging uses this, M0-04).
+    /// Whether this invocation runs without the TUI (logging uses this).
     pub(crate) fn is_headless(&self) -> bool {
         match &self.command {
             None | Some(Command::Connect { .. }) => false,
@@ -206,7 +203,7 @@ const VERSION_MESSAGE: &str = concat!(
     ")"
 );
 
-// M0-03: prints all four roots and whether SVERB_HOME is in effect.
+// Prints all four roots and whether SVERB_HOME is in effect.
 /// The `--version` text: version, git describe, build date, features and paths.
 pub(crate) fn version(paths: &Paths) -> String {
     let author = clap::crate_authors!();
@@ -247,14 +244,13 @@ pub(crate) struct Ctx {
     pub paths: Paths,
     /// The config loaded at startup (defaults if the file was rejected).
     pub config: Config,
-    /// Validators for config.toml (stubs until M0-10/M0-11).
     pub validators: Validators,
     pub tty: Tty,
 }
 
 /// Run `cli` and print any error. Returns the process exit code.
 pub(crate) async fn dispatch(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> u8 {
-    // M5-01: boxed, the TUI future is large (clippy::large_futures).
+    // Boxed, the TUI future is large (clippy::large_futures).
     match Box::pin(run(cli, ctx, out)).await {
         Ok(code) => code,
         Err(err) => {
@@ -281,20 +277,20 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
         }
         #[cfg(feature = "sync")]
         Command::Join { link } => Box::pin(launch_tui(LaunchIntent::Join(link), ctx)).await,
-        // M1-07: unlocks the vault (async).
+        // Unlocks the vault (async).
         Command::Hosts(cmd) => hosts::run(cmd, ctx, out).await,
-        // M2-03: `keys list | generate | import | export` unlock the vault (async).
+        // `keys list | generate | import | export` unlock the vault (async).
         Command::Keys(args) => keys::run(args, ctx, out).await,
         Command::Keymap(args) => keys::run_dump(args.json, ctx, out),
-        // M2-08: unlocks the vault and runs the tunnel (async).
+        // Unlocks the vault and runs the tunnel (async).
         Command::Forward(args) => forward::run(args, ctx, out).await,
-        // M2-09: unlocks the vault and runs on the hosts (async).
+        // Unlocks the vault and runs on the hosts (async).
         Command::Snippet(cmd) => snippet::run(cmd, ctx, out).await,
-        // M2-11: imports unlock the vault (async).
+        // Imports unlock the vault (async).
         Command::Import(args) => import::run(args, ctx, out).await,
-        // M3-05: `export recording` unlocks the vault (async).
+        // `export recording` unlocks the vault (async).
         Command::Export(cmd) => export::run(cmd, ctx, out).await,
-        // M2-10: unlocks the vault and asks on the TTY (async).
+        // Unlocks the vault and asks on the TTY (async).
         Command::Approve(args) => {
             let opts = approve::ApproveOptions {
                 all: args.all,
@@ -302,37 +298,35 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
             };
             approve::run_async(&args.host, opts, ctx, out).await
         }
-        // M2-07: serves until Ctrl-C; `lock` reaches the TUI's control socket (async).
+        // Serves until Ctrl-C; `lock` reaches the TUI's control socket (async).
         Command::Agent(args) => agent::run(args, ctx, out).await,
         Command::Lock => vault::lock(ctx).await,
-        // M1-04
         Command::Unlock => vault::unlock(ctx).await,
         #[cfg(feature = "sync")]
-        // M4-08: the account flows (async, TTY prompts).
+        // The account flows (async, TTY prompts).
         Command::Login(args) => account::login(args, ctx).await,
         #[cfg(feature = "sync")]
         Command::Logout(args) => account::logout(args, ctx).await,
         #[cfg(feature = "sync")]
         Command::Register(args) => account::register(args, ctx).await,
         #[cfg(feature = "sync")]
-        // M4-07: one headless engine cycle (async).
+        // One headless engine cycle (async).
         Command::Sync(args) => account::sync(args, ctx, out).await,
         #[cfg(feature = "sync")]
         Command::Devices(cmd) => devices::run(cmd, ctx, out).await,
         #[cfg(feature = "sync")]
-        // M5-03: `team verify` opens the store (async).
+        // `team verify` opens the store (async).
         Command::Team(cmd) => team::run_async(cmd, ctx, out).await,
         Command::Config(args) => config::run(args, ctx, out),
-        // M7-04: probes the agent, keyring and sync server (async).
+        // Probes the agent, keyring and sync server (async).
         Command::Doctor(args) => doctor::run(args, ctx, out).await,
-        // M7-07
         Command::Generate(args) => generate::run(args, ctx, out),
         #[cfg(not(feature = "sync"))]
         Command::External(args) => external(&args),
     }
 }
 
-// M0-07: local-only builds catch the sync command names here (T-04).
+// Local-only builds catch the sync command names here.
 #[cfg(not(feature = "sync"))]
 fn external(args: &[OsString]) -> Result<u8, CliError> {
     let name = args
@@ -349,7 +343,7 @@ fn external(args: &[OsString]) -> Result<u8, CliError> {
 
 /// `sverb`, `connect`, `--workspace`, `join`: hand over to the TUI.
 async fn launch_tui(intent: LaunchIntent, ctx: &Ctx) -> Result<u8, CliError> {
-    // Before touching the terminal: no escape bytes may reach a pipe or file (T-09).
+    // Before touching the terminal: no escape bytes may reach a pipe or file.
     if !ctx.tty.stdout {
         return Err(CliError::NoTty);
     }
@@ -359,11 +353,11 @@ async fn launch_tui(intent: LaunchIntent, ctx: &Ctx) -> Result<u8, CliError> {
     }
     let launch = LaunchCtx {
         config: ctx.config.clone(),
-        // M0-10: built-ins merged with `general.leader` and `[keys.*]`.
+        // Built-ins merged with `general.leader` and `[keys.*]`.
         keymap: Keymap::from_config(&ctx.config),
         config_file: Some(ctx.paths.config_file()),
         validators: ctx.validators.clone(),
-        // M1-04: the TUI opens the store and starts locked.
+        // The TUI opens the store and starts locked.
         paths: Some(ctx.paths.clone()),
     };
     // The TUI future is large (clippy::large_futures); keep it on the heap.
@@ -374,7 +368,7 @@ async fn launch_tui(intent: LaunchIntent, ctx: &Ctx) -> Result<u8, CliError> {
 }
 
 /// Shorthand for a stub body.
-// M7-04: `doctor` was the last stub; kept for commands added later.
+// `doctor` was the last stub; kept for commands added later.
 #[allow(dead_code)]
 pub(crate) fn not_implemented<T>(
     command: &'static str,

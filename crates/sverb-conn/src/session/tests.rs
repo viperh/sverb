@@ -1,4 +1,3 @@
-//! M1-08 integration tests: the actor and manager over `MockTransport`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
@@ -195,7 +194,7 @@ impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for Capture {
     }
 }
 
-/// T-02: an illegal input is logged at `error` and ends in `Disconnected { Internal }`.
+/// An illegal input is logged at `error` and ends in `Disconnected { Internal }`.
 #[tokio::test]
 async fn t02_illegal_transition_degrades_to_disconnected() {
     let capture = Capture::default();
@@ -235,7 +234,7 @@ async fn t02_illegal_transition_degrades_to_disconnected() {
     .await;
 }
 
-/// T-03: a flood with no acknowledgement gives exactly one `Dirty`; after the ack,
+/// A flood with no acknowledgement gives exactly one `Dirty`; after the ack,
 /// one more chunk gives exactly one more.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t03_dirty_coalescing() {
@@ -261,7 +260,7 @@ async fn t03_dirty_coalescing() {
     assert!(h.dirty.load(Ordering::Acquire));
 }
 
-/// T-04: 1 MiB in one read is fed in ≤ 64 KiB slices.
+/// 1 MiB in one read is fed in ≤ 64 KiB slices.
 #[tokio::test]
 async fn t04_lock_chunks() {
     let (mgr, mut rx) = manager();
@@ -286,7 +285,7 @@ async fn t04_lock_chunks() {
     assert_eq!(chunks, vec![actor::LOCK_CHUNK; 16]);
 }
 
-/// T-05: the emulator's replies (DA1) are written back to the transport.
+/// The emulator's replies (DA1) are written back to the transport.
 #[tokio::test]
 async fn t05_responses_written_back() {
     let (mgr, mut rx) = manager();
@@ -306,7 +305,7 @@ async fn t05_responses_written_back() {
     assert!(reply.starts_with(b"\x1b[?"), "{reply:?}");
 }
 
-/// T-06: a render thread locking the emulator at ~1 kHz while 50 MB are fed: no
+/// A render thread locking the emulator at ~1 kHz while 50 MB are fed: no
 /// deadlock within 10 s (the lock is never held across `.await`; clippy denies
 /// `await_holding_lock` as well).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -355,7 +354,7 @@ async fn t06_no_lock_across_await_stress() {
     assert!(renders.load(Ordering::SeqCst) > 0);
 }
 
-/// T-08: a panicking session reports `Disconnected { Internal }`; others keep working.
+/// A panicking session reports `Disconnected { Internal }`; others keep working.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t08_panic_containment() {
     let (mgr, mut rx) = manager();
@@ -400,7 +399,7 @@ async fn t08_panic_containment() {
     assert_eq!(mgr.ids(), vec![good.id]);
 }
 
-/// T-09: shutdown closes every session; one that ignores Close is aborted after the
+/// Shutdown closes every session; one that ignores Close is aborted after the
 /// timeout (virtual time).
 #[tokio::test(start_paused = true)]
 async fn t09_shutdown() {
@@ -440,7 +439,7 @@ async fn t09_shutdown() {
     }
 }
 
-/// T-10: a 1,000-char OSC title arrives capped at 256 chars; the same title twice is
+/// A 1,000-char OSC title arrives capped at 256 chars; the same title twice is
 /// one event.
 #[tokio::test]
 async fn t10_title_cap_and_coalescing() {
@@ -593,7 +592,6 @@ async fn input_and_resize() {
     assert_eq!(other.id, SessionId(43));
 }
 
-// M1-11
 mod input_encoding {
     use pretty_assertions::assert_eq;
     use sverb_term::{
@@ -611,7 +609,7 @@ mod input_encoding {
         wait_for(rx, id, |ev| *ev == SessionEvent::Bell).await;
     }
 
-    /// T-06 (M1-11): the same `Up` sent to two sessions is encoded with each one's own
+    /// The same `Up` sent to two sessions is encoded with each one's own
     /// DECCKM: `ESC [ A` vs `ESC O A`.
     #[tokio::test]
     async fn t06_per_pane_key_encoding() {
@@ -706,7 +704,6 @@ mod input_encoding {
     }
 }
 
-// M1-11
 mod mouse_routing {
     use pretty_assertions::assert_eq;
     use sverb_term::modes::input::{KeyMods, MouseAction, MouseButton, MouseInput};
@@ -745,7 +742,6 @@ mod mouse_routing {
     }
 }
 
-// M3-05
 mod recording {
     use pretty_assertions::assert_eq;
     use sverb_crypto::Key32;

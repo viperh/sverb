@@ -11,7 +11,7 @@
 //!   `sverb_crypto::envelope::seal_item` encrypts.
 //!
 //! Field names, CBOR shapes and enum strings are documented in `docs/data-model.md`.
-//! Merging (§12.4) lives in `merge.rs` (M4-06).
+//! Merging (§12.4) lives in `merge.rs`.
 
 mod body;
 pub(crate) mod fields;
@@ -20,18 +20,18 @@ mod host;
 mod ids;
 mod items;
 mod kinds;
-// M4-06: field-level merge (§12.4).
+// Field-level merge (§12.4).
 pub mod merge;
 pub mod migrate;
 pub mod validate;
-// M2-01: group tree helpers, tag palette and tag rules (§4.3, §4.11, §9.2).
+// Group tree helpers, tag palette and tag rules (§4.3, §4.11, §9.2).
 pub mod group;
 pub mod tag;
-// M2-02: identity usage counts, vault scoping, convert-to-inline (§4.4, §9.3).
+// Identity usage counts, vault scoping, convert-to-inline (§4.4, §9.3).
 pub mod identity;
-// M3-03: the typed form of a saved workspace (tabs, layout leaves, broadcast sets).
+// The typed form of a saved workspace (tabs, layout leaves, broadcast sets).
 pub mod workspace;
-// M5-02: per-user credential overrides and cross-vault reference rules (§13.4).
+// Per-user credential overrides and cross-vault reference rules (§13.4).
 mod credential_override;
 pub mod vault_refs;
 
@@ -39,16 +39,15 @@ pub mod vault_refs;
 mod tests;
 
 pub use body::{BodyCodecError, ItemBody, SECRET_FIELDS, Stamped, is_secret_field};
+pub use credential_override::CredentialOverride;
 pub use fields::{ViewError, WireEnum};
 pub use hlc::{ClockSkew, Hlc, HlcClock, MAX_SKEW, ManualClock, PhysicalClock, SystemClock};
+pub use host::ExplicitEmpty;
+pub use host::resolve_record_sessions;
 pub use host::{
     AgentSource, AlgoOverrides, Backspace, DEFAULT_SSH_PORT, GROUP_DEFAULTS_PREFIX, Group, Host,
     HostDefaults, Proxy, ProxyAuth,
 };
-// M3-05
-pub use host::resolve_record_sessions;
-// M2-01
-pub use host::ExplicitEmpty;
 pub use ids::{
     ConnId, DeviceId, IdGen, IdParseError, ItemId, OrgId, SeqGen, SessionId, UserId, V7Gen, VaultId,
 };
@@ -58,8 +57,6 @@ pub use items::{
     VarDef, Workspace,
 };
 pub use kinds::ItemKind;
-// M5-02
-pub use credential_override::CredentialOverride;
 pub use merge::{MergeOutcome, SchemaOutcome, merge, merge_all};
 pub use migrate::{CURRENT_SCHEMA, MigrateOutcome, current_schema, migrate};
 pub use validate::ValidationError;

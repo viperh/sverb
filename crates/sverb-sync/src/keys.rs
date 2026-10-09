@@ -168,14 +168,14 @@ impl VaultKeys {
 /// key rotation (§13.2) or a new membership.
 ///
 /// Opening a grant needs the account's X25519 private key, which only the
-/// account layer (M4-08 / M5-04) holds; the engine asks through this trait.
+/// account layer holds; the engine asks through this trait.
 pub trait VaultKeySource: Send + Sync + fmt::Debug {
     /// The key `version` of `vault`, from the caller's grant in `view`, or
     /// `None` when it can't be opened (no account keys loaded, bad
     /// signature).
     fn open_grant(&self, view: &VaultView, version: u32) -> Option<Key32>;
 
-    // M5-02: adopting shared vaults (`engine.rs`). Defaults suit sources that
+    // Adopting shared vaults (`engine.rs`). Defaults suit sources that
     // can't check memberships (they open nothing new anyway).
     /// The account whose grants this source opens.
     fn account(&self) -> Option<uuid::Uuid> {

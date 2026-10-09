@@ -1,4 +1,4 @@
-//! M6-03: the share tap, an observer of a session's output (SPEC §14.1 step 7).
+//! The share tap, an observer of a session's output (SPEC §14.1 step 7).
 //!
 //! A terminal share copies every output chunk to its viewers **after** the session
 //! fed it to the emulator, so a snapshot of the emulator plus the chunks that follow

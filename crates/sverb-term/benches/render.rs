@@ -1,6 +1,6 @@
-//! T-15 (M1-10): render a full 300×100 grid with dense SGR (SPEC §19: < 2 ms per frame).
+//! Render a full 300×100 grid with dense SGR (SPEC §19: < 2 ms per frame).
 //!
-//! `cargo bench -p sverb-term --bench render`. M7-06: `render_300x100`, gated by
+//! `cargo bench -p sverb-term --bench render`. `render_300x100`, gated by
 //! `scripts/bench-gate.py` (< 2 ms locally, < 4 ms on CI).
 #![allow(missing_docs, clippy::unwrap_used)]
 

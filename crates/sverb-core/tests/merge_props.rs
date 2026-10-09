@@ -1,4 +1,4 @@
-//! M4-06: property tests for the field-level merge (SPEC §12.4, §19).
+//! Property tests for the field-level merge (SPEC §12.4, §19).
 //!
 //! - T-05: `merge` is commutative, associative and idempotent on random bodies.
 //! - T-06: N = 2..5 simulated offline devices make random edits, then exchange bodies
@@ -21,7 +21,7 @@ fn dev(b: u8) -> DeviceId {
 }
 
 // ---------------------------------------------------------------------------------
-// T-05: algebraic properties over random bodies.
+// Algebraic properties over random bodies.
 
 /// Small alphabets so that collisions (same key, same HLC, same device) are frequent.
 fn arb_value() -> impl Strategy<Value = Value> {
@@ -56,13 +56,11 @@ fn arb_body() -> impl Strategy<Value = ItemBody> {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(1000))]
 
-    // T-05
     #[test]
     fn merge_is_commutative(a in arb_body(), b in arb_body()) {
         prop_assert_eq!(merge(&a, &b).body, merge(&b, &a).body);
     }
 
-    // T-05
     #[test]
     fn merge_is_associative(a in arb_body(), b in arb_body(), c in arb_body()) {
         let left = merge(&merge(&a, &b).body, &c).body;
@@ -70,7 +68,6 @@ proptest! {
         prop_assert_eq!(left, right);
     }
 
-    // T-05
     #[test]
     fn merge_is_idempotent(a in arb_body(), b in arb_body()) {
         let aa = merge(&a, &a);
@@ -84,7 +81,7 @@ proptest! {
         prop_assert!(again.changed_fields.is_empty());
     }
 
-    // T-05: `resurrected` is exactly "was deleted, no longer is".
+    // `resurrected` is exactly "was deleted, no longer is".
     #[test]
     fn resurrection_flag_matches_deletion_rule(a in arb_body(), b in arb_body()) {
         let out = merge(&a, &b);
@@ -93,7 +90,7 @@ proptest! {
 }
 
 // ---------------------------------------------------------------------------------
-// T-06: N-device simulation.
+// N-device simulation.
 
 /// SplitMix64: a tiny deterministic RNG driven by the proptest-chosen seed.
 struct Rng(u64);
@@ -357,7 +354,6 @@ fn simulate(seed: u64, n: usize) -> Result<(), TestCaseError> {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(1000))]
 
-    // T-06
     #[test]
     fn n_devices_converge(seed in any::<u64>(), n in 2_usize..=5) {
         simulate(seed, n)?;

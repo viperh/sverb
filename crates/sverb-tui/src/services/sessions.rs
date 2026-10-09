@@ -1,4 +1,4 @@
-//! M1-08: the session service. Executes `Effect::OpenSession`, `SendToSession` and
+//! The session service. Executes `Effect::OpenSession`, `SendToSession` and
 //! `CloseSession` through the [`SessionManager`] (sverb-conn), and adapts the manager's
 //! events to the loop's session channel ([`NoticeSink`]).
 //!
@@ -10,7 +10,7 @@
 //! queue is full (see `runtime::sessions` for the whole contract).
 //!
 //! # Keys and pastes
-//! M1-11: Terminal-mode keys arrive as `SessionInput::Key(KeyChord)` and go to the
+//! Terminal-mode keys arrive as `SessionInput::Key(KeyChord)` and go to the
 //! session as `SessionCmd::Key(KeyInput)`; pastes as `SessionCmd::Paste`. The session
 //! actor encodes them with **its own** emulator's modes (DECCKM, DECKPAM,
 //! modifyOtherKeys, remote kitty flags, bracketed paste: `sverb_term` input encoding),
@@ -30,7 +30,6 @@ use sverb_conn::{
     EventSink, OVERFLOW_WARN_BYTES, OpenOptions, SendOutcome, SessionCmd, SessionEvent,
     SessionManager, SessionRegistry, SessionSpec, SessionState, UiSender,
 };
-// M1-12
 use sverb_conn::{LocalConnector, LocalOptions, TransportKind};
 use sverb_core::error_report::ErrorReport;
 use tracing::{debug, warn};
@@ -74,7 +73,6 @@ impl EventSink for NoticeSink {
 /// The reducer event for a session event (`Dirty` never gets here: the loop's dirty
 /// tracker handles it).
 pub(crate) fn to_ui_event(id: SessionId, ev: SessionEvent) -> Option<UiEvent> {
-    // M1-08: `UiEvent::Session` (merged from .merge/agent-M1-08/).
     Some(UiEvent::Session(id, ev))
 }
 
@@ -96,23 +94,21 @@ impl SessionService {
             senders: HashMap::new(),
             overflow_warned: HashSet::new(),
         };
-        // M1-12: local shells (`leader t`), with default options until the runtime
+        // Local shells (`leader t`), with default options until the runtime
         // passes `[terminal]`.
         service.set_local_options(LocalOptions::default());
-        // M1-13: SSH with the default config and no vault (unsaved targets only) until
+        // SSH with the default config and no vault (unsaved targets only) until
         // the runtime registers the real one.
         service.set_ssh_connector(super::ssh::ssh_connector(None, Arc::default()));
         service
     }
 
-    // M1-12
     /// Options for local shells opened from now on (`terminal.term`).
     pub fn set_local_options(&self, opts: LocalOptions) {
         self.manager
             .register_connector(TransportKind::Local, Arc::new(LocalConnector::new(opts)));
     }
 
-    // M1-13
     /// Use `connector` for SSH sessions opened from now on.
     pub fn set_ssh_connector(&self, connector: sverb_conn::SshConnector) {
         self.manager
@@ -144,7 +140,7 @@ impl SessionService {
             rows,
             ..OpenOptions::default()
         };
-        // M1-13: the host's `backspace` for the key encoder (M1-11).
+        // The host's `backspace` for the key encoder.
         if let SessionSpec::Ssh(ssh) = &spec
             && let Some(backspace) = ssh.backspace
         {
@@ -166,7 +162,6 @@ impl SessionService {
         }
     }
 
-    // M2-08
     /// A standalone port-forward tunnel (SPEC §9.6): SSH without a shell channel and
     /// without a tab. It is reachable like other sessions (host-key and auth answers,
     /// reconnect, close), but the runtime gets no `Opened` notice (nothing to draw).
@@ -197,7 +192,7 @@ impl SessionService {
             debug!(session = id.0, "input for an unknown session dropped");
             return;
         };
-        // M1-11: the actor encodes with its own emulator's modes (per pane, SPEC §9.8);
+        // The actor encodes with its own emulator's modes (per pane, SPEC §9.8);
         // keys and pastes share the ordered, never-dropped input queue.
         let cmd = match input {
             SessionInput::Key(chord) => match chord.to_key_input() {
@@ -215,9 +210,9 @@ impl SessionService {
                 text,
                 confirm_multiline: false,
             },
-            // M1-17: pane-relative mouse events (the actor routes them, M1-11).
+            // Pane-relative mouse events (the actor routes them).
             SessionInput::Mouse(ev) => SessionCmd::Mouse(ev),
-            // M2-09: a snippet's Paste & execute lines, typed as is.
+            // A snippet's Paste & execute lines, typed as is.
             SessionInput::Raw(bytes) => SessionCmd::Input(sverb_conn::Bytes::from(bytes)),
         };
         match sender.send_ordered(cmd) {
@@ -245,14 +240,12 @@ impl SessionService {
         }
     }
 
-    // M3-05
     /// Deliver `ev` as if session `id` had sent it (the recording service reports
     /// `SessionEvent::Recording` this way, in order with the session's own events).
     pub fn notify(&self, id: SessionId, ev: SessionEvent) {
         let _ = self.notices.send(SessionNotice::Event(id, ev));
     }
 
-    // M3-05
     /// [`SessionService::notify`] for a background task.
     pub fn clone_notifier(&self) -> impl Fn(SessionId, SessionEvent) + Send + 'static {
         let notices = self.notices.clone();
@@ -261,7 +254,6 @@ impl SessionService {
         }
     }
 
-    // M1-17
     /// `Effect::ResizeSession`: `SessionCmd::Resize` with the pane's pixel size from the
     /// outer terminal's cell size (0 when unknown). Dropped when the queue is full (the
     /// next resize supersedes it).
@@ -299,7 +291,6 @@ mod tests {
     use super::*;
     use crate::runtime::sessions;
 
-    // M1-11
     use crate::keymap::chord::KeyChord;
 
     fn key(s: &str) -> KeyChord {
@@ -312,7 +303,7 @@ mod tests {
         let (tx, mut rx) = sessions::channel();
         let mut svc = SessionService::new(tx);
         let id = SessionId(7);
-        // M1-12: a shell that can't start: it opens and then disconnects.
+        // A shell that can't start: it opens and then disconnects.
         let broken = sverb_conn::LocalSpec {
             shell: Some("/nonexistent/sverb-no-such-shell".to_owned()),
             ..sverb_conn::LocalSpec::default()

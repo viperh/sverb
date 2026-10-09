@@ -1,4 +1,4 @@
-//! M1-11 T-16: arbitrary key chords, modifiers and terminal modes never panic the key,
+//! Arbitrary key chords, modifiers and terminal modes never panic the key,
 //! mouse or paste encoders.
 //!
 //!   cd crates/sverb-term/fuzz && cargo +nightly fuzz run key_encoder

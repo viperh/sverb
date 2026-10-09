@@ -6,7 +6,7 @@
 //! (§9.5). The table works on names (`String`s); [`to_russh`] converts it to
 //! `russh::Preferred`, dropping anything russh can't do.
 //!
-//! [`supported`] lists the result for `sverb doctor --algos` (M7-04).
+//! [`supported`] lists the result for `sverb doctor --algos`.
 
 use std::borrow::Cow;
 
@@ -330,15 +330,13 @@ pub struct SupportedAlgos {
     pub default: Vec<String>,
     /// Available as a per-host legacy opt-in.
     pub legacy: Vec<String>,
-    // M7-04
     /// Names in the spec's secure list that the pinned russh doesn't implement.
     pub unavailable: Vec<String>,
-    // M7-04
     /// Legacy names that can't be opted into with the pinned russh.
     pub legacy_unavailable: Vec<String>,
 }
 
-/// Everything sverb can negotiate with this build (`sverb doctor --algos`, M7-04).
+/// Everything sverb can negotiate with this build (`sverb doctor --algos`).
 pub fn supported() -> Vec<SupportedAlgos> {
     let table = secure_table();
     AlgoKind::ALL
@@ -352,7 +350,6 @@ pub fn supported() -> Vec<SupportedAlgos> {
                 .filter(|n| kind.is_supported(n))
                 .map(|n| (*n).to_owned())
                 .collect(),
-            // M7-04
             unavailable: kind
                 .secure()
                 .iter()
@@ -384,7 +381,7 @@ mod tests {
         names.iter().map(|n| (*n).to_owned()).collect()
     }
 
-    /// T-05: the secure list is filtered against russh, and legacy algorithms appear
+    /// The secure list is filtered against russh, and legacy algorithms appear
     /// only with an override, at the end.
     #[test]
     fn t05_algorithm_preferences() {
@@ -468,7 +465,7 @@ mod tests {
         );
     }
 
-    /// T-06: host-key types known for the host move to the front.
+    /// Host-key types known for the host move to the front.
     #[test]
     fn t06_host_key_reordering() {
         let table = preferences(&AlgoOverrides::default(), &s(&["rsa-sha2-512"]));

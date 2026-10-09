@@ -1,4 +1,4 @@
-//! The styled renderer behind [`Emulator::render`](crate::Emulator::render) (M1-10, SPEC §7.2).
+//! The styled renderer behind [`Emulator::render`](crate::Emulator::render) (SPEC §7.2).
 //!
 //! Walks the visible rows of the alacritty grid at the view's scroll offset and writes every
 //! cell straight into the ratatui [`Buffer`] (no per-cell allocation: symbols are set with

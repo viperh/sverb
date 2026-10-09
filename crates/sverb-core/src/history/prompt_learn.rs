@@ -1,4 +1,4 @@
-//! M7-01: learning the shell prompt for the heuristic capture tier (SPEC §9.10).
+//! Learning the shell prompt for the heuristic capture tier (SPEC §9.10).
 //!
 //! Without shell integration sverb does not know where the prompt ends. It watches the
 //! text left of the cursor at moments when the shell is waiting for input (the cursor at

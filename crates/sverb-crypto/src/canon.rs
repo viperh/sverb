@@ -27,22 +27,20 @@ pub mod labels {
     pub const ITEM_V1: &str = "sverb-item-v1";
     /// HKDF `info` for per-item subkeys (§11.4).
     pub const ITEM_KEY_V1: &str = "sverb/item/v1";
-    /// HPKE `info` prefix for vault-key grants (§11.3, used in M4-03).
     pub const VK_V1: &str = "sverb/vk/v1";
     /// HKDF `info` for the recording key (§7.5).
     pub const RECORDING_V1: &str = "sverb/recording/v1";
     /// AAD prefix for key wrapping under the LMK / KEKs (§5.3).
     pub const LMK_WRAP_V1: &str = "sverb-lmk-wrap-v1";
-    /// HKDF `info` for the account key-encryption key (§11.2, used in M4-03).
     pub const AKEK_V1: &str = "sverb/akek/v1";
-    // M6-02: confirmed against §14.2 (join HMAC key `info`, channel HKDF `info` prefix).
+    // Confirmed against §14.2 (join HMAC key `info`, channel HKDF `info` prefix).
     /// HKDF `info` deriving the share join HMAC key from `share_key` (§14.2.1).
     pub const SHARE_JOIN_V1: &str = "sverb/share/join/v1";
     /// HKDF `info` prefix of the per-viewer share channel key (§14.2.2).
     pub const SHARE_CHAN_V1: &str = "sverb/share/chan/v1";
-    /// Fixed trailer of the share `Welcome` MAC transcript (§14.2.1, M6-02).
+    /// Fixed trailer of the share `Welcome` MAC transcript (§14.2.1).
     pub const SHARE_WELCOME: &str = "welcome";
-    // M4-03: account bundles, recovery key, grants, fingerprints.
+    // Account bundles, recovery key, grants, fingerprints.
     /// AAD prefix of the account `private_bundle` (§11.2).
     pub const BUNDLE_V1: &str = "sverb/bundle/v1";
     /// HKDF `info` deriving the recovery KEK from the recovery key (§11.2).
@@ -51,7 +49,7 @@ pub mod labels {
     pub const RECOVERY_BUNDLE_V1: &str = "sverb/recovery-bundle/v1";
     /// Ed25519 signature input prefix for vault-key grants (§11.3).
     pub const GRANT_V1: &str = "sverb/grant/v1";
-    /// SHA-256 input prefix for account key fingerprints (§13.3, M5-03).
+    /// SHA-256 input prefix for account key fingerprints (§13.3).
     pub const FPR_V1: &str = "sverb/fpr/v1";
 }
 
@@ -194,7 +192,7 @@ pub fn aad_recording_chunk(conn_id: &Id16, chunk_index: u64, is_last: bool) -> V
         .finish()
 }
 
-// M4-03: account key hierarchy (§11.2), grants (§11.3), fingerprints (§13.3).
+// Account key hierarchy (§11.2), grants (§11.3), fingerprints (§13.3).
 
 /// HKDF `info` for the account key-encryption key (§11.2): `"sverb/akek/v1"`.
 #[must_use]
@@ -250,7 +248,7 @@ pub fn fpr_input(x25519_pub: &[u8; 32], ed25519_pub: &[u8; 32]) -> Vec<u8> {
         .finish()
 }
 
-// M6-02: terminal sharing (§14.2).
+// Terminal sharing (§14.2).
 
 /// HKDF `info` of the share join HMAC key (§14.2.1): `"sverb/share/join/v1"`.
 #[must_use]
@@ -325,14 +323,12 @@ pub fn aad_share_frame(share_id: &Id16, viewer_id: u32, dir: u8, seq: u64) -> Ve
 mod tests {
     use super::*;
 
-    // T-13
     #[test]
     fn len_prefixed_abc() {
         assert_eq!(len_prefixed(b"abc"), [0, 0, 0, 3, 0x61, 0x62, 0x63]);
         assert_eq!(len_prefixed(b""), [0, 0, 0, 0]);
     }
 
-    // T-13
     #[test]
     fn aad_item_layout() {
         let vault = [0xAA; 16];
@@ -353,7 +349,6 @@ mod tests {
         assert_eq!(aad[24], 1);
     }
 
-    // M4-03
     #[test]
     fn grant_sig_layout() {
         let m = sig_grant(&[1; 16], &[2; 16], 3, b"wk");
@@ -368,7 +363,6 @@ mod tests {
         assert_eq!(fpr_input(&[1; 32], &[2; 32]).len(), 12 + 64);
     }
 
-    // M6-02
     #[test]
     fn share_layouts() {
         assert_eq!(info_share_join(), b"sverb/share/join/v1");

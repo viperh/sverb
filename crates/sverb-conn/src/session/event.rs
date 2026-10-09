@@ -11,7 +11,6 @@
 use std::time::Duration;
 
 use sverb_core::error_report::ErrorReport;
-// M1-11
 use sverb_term::{ClipboardTarget, modes::input::MouseInput};
 
 use super::state::{AuthPrompt, SessionState, Verification};
@@ -23,7 +22,6 @@ pub const MAX_TITLE_CHARS: usize = 256;
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum SessionEvent {
-    // M1-08
     /// The emulator has undrawn output (at most one outstanding per session).
     Dirty,
     /// The window title changed (≤ [`MAX_TITLE_CHARS`] chars, no control characters;
@@ -33,20 +31,19 @@ pub enum SessionEvent {
     Bell,
     /// The state machine moved.
     State(SessionState),
-    /// Authentication needs the user (M1-14).
+    /// Authentication needs the user.
     Prompt(AuthPrompt),
-    /// A host key needs a decision (M1-15).
+    /// A host key needs a decision.
     HostKey(Verification),
     /// The remote process exited.
     Exit {
         /// Exit status.
         code: i32,
     },
-    /// Round-trip time of the last keepalive (M1-13).
+    /// Round-trip time of the last keepalive.
     Latency(Duration),
     /// Something went wrong that the user should see (a toast).
     Error(ErrorReport),
-    // M1-11
     /// The remote asked to set the local clipboard (OSC 52 write). The UI applies
     /// `clipboard.allow_remote_write` (SPEC §7.3, §17). Reads are never reported: the
     /// emulator denies them.
@@ -61,29 +58,24 @@ pub enum SessionEvent {
     PasteConfirm(String),
     /// A mouse event the remote didn't ask for (or with Shift held): sverb handles it.
     Mouse(MouseInput),
-    // M3-05
     /// A recording of this session started, stopped or failed. Sent by the UI's recording
     /// service (not the actor) through the session event channel, so the reducer sees it
     /// in order with the session's other events.
     Recording(RecordingStatus),
-    // M1-13
     /// The SSH session is up: negotiated algorithms, server version and the address
     /// actually connected to (for the session info panel, SPEC §6.1.8). Sent once per
     /// connection, just before `State(Connected)`.
     SshInfo(SshSessionInfo),
-    // M1-14
     /// Authentication succeeded, and the answer the user typed into this prompt was part
     /// of it (the password was accepted, or the key whose passphrase was typed
     /// authenticated). Sent just before `AuthSucceeded`, so the UI saves a credential
     /// the user asked to save only once it is known to be right (SPEC §6.1.1 step 4).
     PromptAccepted(super::state::PromptKind),
-    // M7-01
     /// The shell ran a command, captured through OSC 133 shell integration
     /// (`sverb_term::osc133`): exact text and exit code. The UI records it in the history.
     Command(sverb_term::osc133::ShellCommand),
 }
 
-// M1-13
 /// What the session info panel shows about an SSH connection.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct SshSessionInfo {
@@ -106,14 +98,12 @@ pub struct SshSessionInfo {
     pub keepalive_secs: u32,
     /// When the session connected (wall clock).
     pub connected_at: Option<sverb_core::model::UnixMillis>,
-    // M3-07
     /// The connection is shared (`ssh.multiplex`): its channels (shells, exec runs,
     /// tunnels, jump hops through it) when this session connected. `None`: the
     /// session has a connection of its own.
     pub shared_channels: Option<usize>,
 }
 
-// M3-05
 /// What happened to a session recording. `token` is the reducer's id for one
 /// start/stop cycle, so a late `Stopped` of an earlier recording is ignored.
 #[derive(Debug, Clone, PartialEq, Eq)]

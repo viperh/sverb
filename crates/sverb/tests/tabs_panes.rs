@@ -1,8 +1,6 @@
-//! M1-17 T-15 (local variant): tabs and splits end to end in a PTY, with resize
 //! propagation checked from inside the panes (`stty size`) and full-screen programs
 //! (`htop`, `tmux`) drawn in split panes across an outer resize.
 //!
-//! The SSH variant (vim/htop/tmux on a remote host in Docker) is M1-18's
 //! (`#[ignore]`d there); local shells exercise the same pane, layout and resize code.
 //! The screen is checked by feeding sverb's output into a terminal emulator
 //! (`sverb-term`), since ratatui only writes the cells that changed.

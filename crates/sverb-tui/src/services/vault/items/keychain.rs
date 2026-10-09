@@ -1,4 +1,4 @@
-//! M2-03: keychain work for the TUI (`ItemEffect::Keychain`) and the CLI (`sverb keys`).
+//! Keychain work for the TUI (`ItemEffect::Keychain`) and the CLI (`sverb keys`).
 //!
 //! [`ItemOps`] gains the keychain writes (create a key, set its flags or passphrase,
 //! attach / delete certificates, delete a key with its certificates); [`run`] executes
@@ -554,7 +554,7 @@ pub async fn run(ops: &ItemOps, op: KeychainEffect, index: impl Fn(&Written)) ->
                 candidates,
             }
         }
-        // M2-04: install runs go to `items::install` before this (they report
+        // Install runs go to `items::install` before this (they report
         // progress over time).
         KeychainEffect::Install(_) => KeychainOutcome::Done,
     };

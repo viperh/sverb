@@ -1,4 +1,4 @@
-//! The shell in the reducer (M0-11): sidebar, sections, regions, the session-area
+//! The shell in the reducer: sidebar, sections, regions, the session-area
 //! toggle, the debug log pane, theme state and drawing the whole frame.
 //!
 //! Layout math lives in [`crate::views::shell`]; widgets in [`crate::widgets`].
@@ -13,7 +13,6 @@ use ratatui::{
 use sverb_core::logging::{DEBUG_WARNING, LogRing};
 
 use super::{App, Effect, Focus, Mode, ToastLevel};
-// M1-10
 use crate::widgets::terminal_pane::{PaneCursor, PaneSource};
 use crate::{
     keymap::{
@@ -73,7 +72,6 @@ impl App {
         self
     }
 
-    // M7-07
     /// Whether the environment asks for ASCII glyphs (`ui.ascii = "auto"`: a non-UTF-8
     /// locale or `TERM=linux`; `runtime::capabilities::TermEnv::wants_ascii`).
     #[must_use]
@@ -83,7 +81,7 @@ impl App {
         self
     }
 
-    /// M7-07: rewrite the finished frame in ASCII when `ui.ascii` asks for it.
+    /// Rewrite the finished frame in ASCII when `ui.ascii` asks for it.
     pub(crate) fn render_glyph_fallback(&self, frame: &mut Frame<'_>) {
         if self.theme.ascii {
             crate::theme::glyphs::asciify(frame.buffer_mut());
@@ -118,7 +116,7 @@ impl App {
             self.config.ui.truecolor,
             self.theme_env,
         )
-        // M7-07: `ui.ascii`, `ui.reduce_motion`.
+        // `ui.ascii`, `ui.reduce_motion`.
         .with_glyphs(
             crate::theme::glyphs::ascii_wanted(self.config.ui.ascii, self.ascii_env),
             self.config.ui.reduce_motion,
@@ -147,7 +145,7 @@ impl App {
         }
     }
 
-    /// The first event: show the one-time `--debug` warning (M0-04).
+    /// The first event: show the one-time `--debug` warning.
     pub(crate) fn on_launch_shell(&mut self, effects: &mut Vec<Effect>) {
         if self.debug() && !self.debug_warning_shown {
             self.debug_warning_shown = true;
@@ -168,7 +166,7 @@ impl App {
             ActionName::ToggleSidebar => self.toggle_sidebar(),
             ActionName::ToggleViews => self.toggle_views(),
             ActionName::NotificationHistory => self.open_notification_history(effects),
-            // M1-13: the session info panel (SSH sessions).
+            // The session info panel (SSH sessions).
             ActionName::SessionInfo => self.open_session_info(effects),
             ActionName::ToggleLogPane => {
                 if self.debug() {
@@ -192,7 +190,6 @@ impl App {
         true
     }
 
-    // M1-13
     /// `session_info`: negotiated algorithms, server version, connected time, latency.
     fn open_session_info(&mut self, effects: &mut Vec<Effect>) {
         use crate::views::dialogs::ModalDialog;
@@ -294,27 +291,21 @@ impl App {
             (Region::Main, MainView::Sections) if self.shell.section == Section::Hosts => {
                 Some(&mut self.views.hosts)
             }
-            // M3-06
             (Region::Main, MainView::Sections) if self.shell.section == Section::Logs => {
                 Some(&mut self.views.logs)
             }
-            // M2-02
             (Region::Main, MainView::Sections) if self.shell.section == Section::Keychain => {
                 Some(&mut self.views.keychain)
             }
-            // M1-15
             (Region::Main, MainView::Sections) if self.shell.section == Section::Known => {
                 Some(&mut self.views.known_hosts)
             }
-            // M2-08
             (Region::Main, MainView::Sections) if self.shell.section == Section::Forwards => {
                 Some(&mut self.views.forwards)
             }
-            // M2-09
             (Region::Main, MainView::Sections) if self.shell.section == Section::Snippets => {
                 Some(&mut self.views.snippets)
             }
-            // M4-09
             (Region::Main, MainView::Sections) if self.shell.section == Section::Settings => {
                 Some(&mut self.views.settings)
             }
@@ -383,15 +374,13 @@ impl App {
 
     /// Status-bar data.
     fn status_info(&self) -> StatusInfo {
-        // M1-08/M1-13 (session), M2-08 (forwards), M3-05 (REC), M3-02 (broadcast),
-        // M4-09 (sync) fill in the other segments.
         let mut info = StatusInfo::new(self.derive_mode(), self.status_hint());
-        // M3-05: `REC ●` while the focused session is recorded.
+        // `REC ●` while the focused session is recorded.
         info.recording = self
             .focused_session()
             .is_some_and(|id| self.tabs.recording.contains_key(&id));
-        // M1-13: `label · ssh · 23ms` for a focused SSH session.
-        // M2-08: `⇄ L:5432→db:5432` / `⇄ 3 forwards`.
+        // `label · ssh · 23ms` for a focused SSH session.
+        // `⇄ L:5432→db:5432` / `⇄ 3 forwards`.
         info.forwards = crate::views::forwards::status_segment(&self.views.forwards.statuses());
         info.session = self.focused_session().and_then(|id| {
             let ssh = self.tabs.ssh.get(&id)?;
@@ -400,14 +389,14 @@ impl App {
                 ssh,
             ))
         });
-        // M3-02: `BROADCAST ×N` while the focused pane's input is broadcast.
-        // M4-09: `⟳ synced` / `offline (3 pending)` (`None` in local-only mode).
+        // `BROADCAST ×N` while the focused pane's input is broadcast.
+        // `⟳ synced` / `offline (3 pending)` (`None` in local-only mode).
         info.sync = self.sync.indicator().map(|(text, _)| text);
         if let Some(b) = self.broadcast_status() {
             info.broadcast = Some(b.count);
             info.broadcast_note = b.note;
         }
-        // M3-01: `RESIZE` (the mode segment is drawn in the accent color).
+        // `RESIZE` (the mode segment is drawn in the accent color).
         if self.resize_mode_shown() {
             info.mode = "RESIZE".to_owned();
             info.hint = super::resize::RESIZE_HINT.to_owned();
@@ -418,7 +407,7 @@ impl App {
     // ---- drawing ------------------------------------------------------------------
 
     /// Draw the whole UI. Infallible: tiny areas degrade, they never panic.
-    /// M1-10: session content comes from `panes`; returns the focused pane's cursor.
+    /// Session content comes from `panes`; returns the focused pane's cursor.
     pub(crate) fn render_shell(
         &self,
         frame: &mut Frame<'_>,
@@ -443,14 +432,13 @@ impl App {
             debug: self.debug(),
         };
 
-        // M4-09: the sync indicator (hidden in local-only mode).
+        // The sync indicator (hidden in local-only mode).
         let (sync, sync_level) = self.sync.indicator().unzip();
         let top = TopBarInfo {
             sync,
             sync_level,
-            // M5-02: the vault selector (`V` in Hosts).
+            // The vault selector (`V` in Hosts).
             vault: self.views.hosts.vault_label(),
-            // M7-07
             ascii: theme.ascii,
             ..TopBarInfo::default()
         };
@@ -458,7 +446,7 @@ impl App {
 
         // Tab bar (with the status segments on its right when merged).
         let info = self.status_info();
-        // M1-17: the same area mouse clicks are tested against.
+        // The same area mouse clicks are tested against.
         let tab_area = self.tab_bar_area(&rects);
         if tab_area.width < rects.tab_bar.width {
             let status = Rect {
@@ -483,24 +471,18 @@ impl App {
                 if self.shell.section == Section::Hosts {
                     self.views.hosts.render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Logs {
-                    // M3-06
                     self.views.logs.render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Known {
-                    // M1-15
                     self.views
                         .known_hosts
                         .render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Keychain {
-                    // M2-02
                     self.views.keychain.render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Forwards {
-                    // M2-08
                     self.views.forwards.render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Snippets {
-                    // M2-09
                     self.views.snippets.render(frame, rects.main, &rcx(focused));
                 } else if self.shell.section == Section::Settings {
-                    // M4-09
                     self.views.settings.render(frame, rects.main, &rcx(focused));
                 } else {
                     render_placeholder(frame, rects.main, self.shell.section, &rcx(focused));
@@ -508,7 +490,7 @@ impl App {
                 if let Some(detail) = rects.detail {
                     let focused = no_dialog && in_sections && self.shell.region == Region::Detail;
                     if self.shell.section == Section::Logs {
-                        // M3-06: the highlighted entry.
+                        // The highlighted entry.
                         crate::views::logs::detail::render_detail_pane(
                             self.views.logs.selected_entry(),
                             self.views.logs.utc_offset_secs,
@@ -517,25 +499,25 @@ impl App {
                             &rcx(focused),
                         );
                     } else if self.shell.section == Section::Hosts {
-                        // M1-07: the selected host.
+                        // The selected host.
                         self.views.hosts.render_detail(frame, detail, &rcx(focused));
                     } else if self.shell.section == Section::Known {
-                        // M1-15: fingerprint and randomart of the selected entry.
+                        // Fingerprint and randomart of the selected entry.
                         self.views
                             .known_hosts
                             .render_detail(frame, detail, &rcx(focused));
                     } else if self.shell.section == Section::Keychain {
-                        // M2-02: the selected identity.
+                        // The selected identity.
                         self.views
                             .keychain
                             .render_detail(frame, detail, &rcx(focused));
                     } else if self.shell.section == Section::Forwards {
-                        // M2-08: the selected rule.
+                        // The selected rule.
                         self.views
                             .forwards
                             .render_detail(frame, detail, &rcx(focused));
                     } else if self.shell.section == Section::Snippets {
-                        // M2-09: the selected snippet, variables highlighted.
+                        // The selected snippet, variables highlighted.
                         self.views
                             .snippets
                             .render_detail(frame, detail, &rcx(focused));
@@ -544,7 +526,7 @@ impl App {
                     }
                 }
             }
-            // M1-10: terminal panes; M1-17: the active tab's layout.
+            // Terminal panes; The active tab's layout.
             MainView::Sessions => match self.render_session_area(frame, rects.main, panes) {
                 Some(c) => cursor = c,
                 None => {
@@ -588,7 +570,6 @@ impl App {
         cursor
     }
 
-    // M1-17
     /// The tab bar's area: the tab-bar row, minus the status segments on its right
     /// when the status bar is merged into it (under 24 rows).
     pub(crate) fn tab_bar_area(&self, rects: &ShellRects) -> Rect {
@@ -657,7 +638,7 @@ fn render_placeholder(frame: &mut Frame<'_>, area: Rect, section: Section, cx: &
     );
 }
 
-/// The detail pane (filled by each section's list view, M1-06).
+/// The detail pane (filled by each section's list view).
 fn render_detail(frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {
     let block = Block::bordered()
         .title(Span::styled(" Details ", cx.theme.title_for(cx.focused)))

@@ -1,4 +1,4 @@
-//! M1-05: the in-memory decrypted item index and its read-only snapshots (SPEC §5.2).
+//! The in-memory decrypted item index and its read-only snapshots (SPEC §5.2).
 //!
 //! [`ItemIndex`] is the mutable index owned by the vault service: built from every
 //! decrypted item on unlock, updated per item write or remote apply, dropped on lock.

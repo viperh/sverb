@@ -1,4 +1,4 @@
-//! M7-01: OSC 133 shell integration (T-01 parser split at every byte boundary, T-02 a
+//! OSC 133 shell integration (T-01 parser split at every byte boundary, T-02 a
 //! recorded bash session with the integration installed).
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]
 
@@ -44,7 +44,7 @@ fn cmd(command: &str, exit_code: Option<i32>) -> ShellCommand {
     }
 }
 
-/// T-01: A/B/C/D (with and without exit codes, BEL and ST terminated) are recognized
+/// A/B/C/D (with and without exit codes, BEL and ST terminated) are recognized
 /// whatever the read boundaries, and the captured command is the same.
 #[test]
 fn t01_marks_split_at_every_byte_boundary() {
@@ -83,7 +83,7 @@ fn t01_marks_split_at_every_byte_boundary() {
     }
 }
 
-/// T-02: a recorded bash session with the integration (colored prompt, a stray `D` from
+/// A recorded bash session with the integration (colored prompt, a stray `D` from
 /// the rc file, a failing command, a command wrapped over three rows at 40 columns, an
 /// empty `Enter`) gives exactly three commands with their exit codes.
 #[test]

@@ -1,4 +1,4 @@
-//! M1-04: the keyring seam for keyring unlock (SPEC §5.3).
+//! The keyring seam for keyring unlock (SPEC §5.3).
 //!
 //! The vault service talks to the OS keyring only through [`KeyringStore`]. The real
 //! implementation (the `keyring` crate) lives in `sverb_tui::services::vault`; tests

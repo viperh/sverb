@@ -1,4 +1,4 @@
-//! M2-04: "install key on host" over exec (SPEC §9.4).
+//! "install key on host" over exec (SPEC §9.4).
 //!
 //! For each host: `uname` first (a POSIX `sh` login shell is required; Windows OpenSSH
 //! fails it), then the §9.4 command with the public key line POSIX-single-quoted. The

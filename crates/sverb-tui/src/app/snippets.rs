@@ -1,4 +1,4 @@
-//! M2-09: snippets in the reducer (SPEC §9.7, §8.5, §6.1.1 step 6).
+//! Snippets in the reducer (SPEC §9.7, §8.5, §6.1.1 step 6).
 //!
 //! - **Data:** `SnippetsEffect::Load` after unlock and on every index update (one load
 //!   in flight) fills the Snippets view; locking drops the decrypted snippets and every
@@ -7,7 +7,6 @@
 //!   `Enter` / `p` run in the last focused pane, `r` picks hosts. Every run goes through
 //!   the variable form (live, masked preview). Its answer becomes:
 //!   - *Paste*: `SessionInput::PasteUnchecked` (bracketed by the session under mode
-//!     2004, terminators stripped, M1-11), no trailing newline;
 //!   - *Paste & execute*: `SessionInput::Raw(l1\rl2\r…)`, never bracketed;
 //!   - *Exec on hosts*: the results dialog and `SnippetsEffect::Run` (at most
 //!     [`DEFAULT_CONCURRENCY`] hosts at a time, built-ins per host). The runs'
@@ -15,7 +14,6 @@
 //!     their answers are rerouted to the run (`App::reroute_snippet_answers`).
 //!
 //!   Pane runs also send a `SnippetsEffect::History` record whose command keeps secret
-//!   values as `{{name}}` (M7-01 stores it; nothing is stored until then).
 //! - **Startup snippets:** a snippet without unanswered variables is typed by the
 //!   connection itself once the shell prints (or after 500 ms; `services/ssh.rs`). One
 //!   with variables without defaults is checked when the pane connects
@@ -508,7 +506,7 @@ impl App {
 
     /// Take the answer of the top snippet dialog (after a key).
     pub(crate) fn take_snippet_answer(&mut self, effects: &mut Vec<Effect>) {
-        // M3-02: a startup snippet is typed into its own pane only (never broadcast).
+        // A startup snippet is typed into its own pane only (never broadcast).
         let startup = matches!(
             self.dialogs.last().map(|d| &d.kind),
             Some(DialogKind::Snippet(d)) if matches!(
@@ -569,7 +567,7 @@ impl App {
 
     /// The variable form's answer: type into the pane, or start the exec run.
     fn run_request(&mut self, req: RunRequest, startup: bool, effects: &mut Vec<Effect>) {
-        // M3-02: snippet runs typed into a pane follow its broadcast set (SPEC §9.8);
+        // Snippet runs typed into a pane follow its broadcast set (SPEC §9.8);
         // a startup snippet only goes to the pane that connected.
         let send = |app: &Self, session, input: SessionInput, effects: &mut Vec<Effect>| {
             if startup {

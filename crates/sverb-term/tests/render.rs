@@ -1,4 +1,4 @@
-//! M1-10: the styled renderer (T-01 … T-09).
+//! The styled renderer.
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]
 
 use std::fmt::Write as _;
@@ -79,7 +79,6 @@ fn fixture(name: &str) -> Vec<u8> {
     std::fs::read(&path).unwrap_or_else(|e| panic!("{path}: {e}"))
 }
 
-// T-01: the M1-09 fixtures, rendered with styles.
 #[test]
 fn snapshots() {
     for name in ["vim", "htop", "less_man"] {
@@ -92,7 +91,7 @@ fn snapshots() {
     }
 }
 
-// T-02: every SGR attribute.
+// Every SGR attribute.
 #[test]
 fn modifiers() {
     let cases: [(&str, Modifier); 9] = [
@@ -119,7 +118,7 @@ fn modifiers() {
     );
 }
 
-// T-03: wide chars.
+// Wide chars.
 #[test]
 fn wide_chars() {
     let e = emu(10, 2, "a中b".as_bytes());
@@ -130,7 +129,7 @@ fn wide_chars() {
     assert_eq!(cell(&buf, 3, 0).symbol(), "b");
 }
 
-// T-04: combining characters stay in one cell.
+// Combining characters stay in one cell.
 #[test]
 fn combining() {
     let e = emu(10, 2, "e\u{301}x".as_bytes());
@@ -139,7 +138,7 @@ fn combining() {
     assert_eq!(cell(&buf, 1, 0).symbol(), "x");
 }
 
-// T-05: the `terminal` scheme passes named colors through.
+// The `terminal` scheme passes named colors through.
 #[test]
 fn terminal_scheme() {
     let e = emu(
@@ -174,7 +173,7 @@ fn terminal_scheme() {
     assert!(matches!(cell(&buf, 3, 0).bg, Color::Indexed(0..=15)));
 }
 
-// T-06: a named scheme remaps.
+// A named scheme remaps.
 #[test]
 fn named_scheme() {
     let dracula = scheme::builtin("dracula").unwrap();
@@ -211,7 +210,7 @@ fn remote_palette_override() {
     assert_eq!(cell(&buf, 0, 0).fg, Color::Rgb(0x12, 0x34, 0x56));
 }
 
-// T-07: mono (NO_COLOR) keeps attributes only.
+// Mono (NO_COLOR) keeps attributes only.
 #[test]
 fn mono() {
     let e = emu(10, 2, b"\x1b[1;31;44mB\x1b[0;7;38;2;1;2;3mI");
@@ -231,7 +230,7 @@ fn mono() {
     assert_eq!(cell(&buf, 1, 0).modifier, Modifier::REVERSED);
 }
 
-// T-08: focused → real cursor; unfocused → hollow cell; scrolled back → none.
+// Focused → real cursor; unfocused → hollow cell; scrolled back → none.
 #[test]
 fn cursor() {
     let e = emu(10, 3, b"ab");
@@ -286,7 +285,7 @@ fn cursor() {
     }
 }
 
-// T-09: the scroll indicator.
+// The scroll indicator.
 #[test]
 fn scroll_indicator() {
     let mut lines = Vec::new();

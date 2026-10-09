@@ -1,4 +1,4 @@
-//! M2-07: the TUI side of the agent (SPEC §6.1.6).
+//! The TUI side of the agent (SPEC §6.1.6).
 //!
 //! - [`VaultAgentKeys`]: the built-in agent's keys, read from the vault on each
 //!   request: Key items with `agent_forwardable = true` (decrypted with their stored

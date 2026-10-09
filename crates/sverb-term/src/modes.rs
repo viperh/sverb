@@ -132,9 +132,8 @@ impl Default for TermModes {
     }
 }
 
-// M1-11: the input encoders (keys, mouse, paste) live in `src/input/`. They are declared
+// The input encoders (keys, mouse, paste) live in `src/input/`. They are declared
 // here because `lib.rs` was held by another agent; `lib.rs` re-exports them as
-// `sverb_term::input` once merged (see .merge/agent-M1-11/MERGE-NOTES.md).
 #[path = "input/mod.rs"]
 pub mod input;
 

@@ -1,4 +1,4 @@
-//! M1-06: `Select` (single choice) and `Toggle` fields.
+//! `Select` (single choice) and `Toggle` fields.
 //!
 //! `Select`: `←/→` cycle through the options in place; `Enter` (or `Space`) opens a
 //! dropdown, where `↑/↓` (`ctrl-p/ctrl-n`) move, `Enter` picks and `Esc` closes.

@@ -1,5 +1,3 @@
-//! M1-06 list tests (T-01 … T-07).
-
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
@@ -108,7 +106,6 @@ fn cursor_line(screen: &str) -> usize {
         .expect("cursor visible")
 }
 
-// T-01
 #[test]
 fn t01_navigation_keeps_the_selection_in_view_with_scrolloff() {
     let mut list = hundred();
@@ -185,7 +182,6 @@ fn t01_navigation_keeps_the_selection_in_view_with_scrolloff() {
     );
 }
 
-// T-02
 #[test]
 fn t02_filter_highlights_and_esc_restores_the_selection() {
     let mut list = ListView::new("Hosts");
@@ -273,7 +269,6 @@ fn t02_filter_through_the_search_index() {
     assert_eq!(list.highlights(0), &[0, 1, 2, 3]);
 }
 
-// T-03
 #[test]
 fn t03_marks_and_bulk_targets() {
     let mut list = hundred();
@@ -299,7 +294,6 @@ fn t03_marks_and_bulk_targets() {
     assert_eq!(list.marks().len(), 10, "host-10..19");
 }
 
-// T-04
 #[test]
 fn t04_sort_keys_cycle_and_reverse() {
     let by_name = SortKey::new("name", |a: &Row, b: &Row| a.name.cmp(&b.name));
@@ -345,7 +339,6 @@ fn tree() -> ListView<Row> {
     list
 }
 
-// T-05
 #[test]
 fn t05_tree_collapse_and_expand() {
     let mut list = tree();
@@ -380,7 +373,6 @@ fn t05_tree_collapse_and_expand() {
     assert_eq!(names(&list).len(), 4);
 }
 
-// T-06
 #[test]
 fn t06_detail_pane_at_wide_widths_only() {
     let mut list = hundred();
@@ -405,7 +397,6 @@ fn t06_detail_pane_at_wide_widths_only() {
     assert!(!list.detail_full());
 }
 
-// T-07
 #[test]
 fn t07_render_10k_rows_under_2ms() {
     let mut list = ListView::new("Hosts");

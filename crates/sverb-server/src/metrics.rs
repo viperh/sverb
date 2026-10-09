@@ -8,12 +8,6 @@
 //! |---|---|---|---|
 //! | `http_requests_total` | counter | `method`, `route`, `status` | [`layer`] |
 //! | `http_request_duration_seconds` | histogram | `method`, `route` | [`layer`] |
-//! | `sverb_ws_connections_active` | gauge | | M4-05 |
-//! | `sverb_ws_messages_sent_total` | counter | | M4-05 |
-//! | `sverb_sync_push_items_total`, `sverb_sync_push_bytes_total` | counter | | M4-04 |
-//! | `sverb_sync_pull_items_total`, `sverb_sync_pull_bytes_total` | counter | | M4-04 |
-//! | `sverb_share_relays_active`, `sverb_share_viewers_active` | gauge | | M6-01 |
-//! | `sverb_share_bytes_relayed_total` | counter | | M6-01 |
 
 use std::sync::OnceLock;
 use std::time::{Duration, Instant};
@@ -29,7 +23,7 @@ pub const HTTP_REQUESTS_TOTAL: &str = "http_requests_total";
 pub const HTTP_REQUEST_DURATION_SECONDS: &str = "http_request_duration_seconds";
 /// Open WebSocket connections.
 pub const WS_CONNECTIONS_ACTIVE: &str = "sverb_ws_connections_active";
-/// M4-05: WebSocket messages sent (notifications and heartbeats).
+/// WebSocket messages sent (notifications and heartbeats).
 pub const WS_MESSAGES_SENT_TOTAL: &str = "sverb_ws_messages_sent_total";
 /// Items accepted by push.
 pub const SYNC_PUSH_ITEMS_TOTAL: &str = "sverb_sync_push_items_total";
@@ -43,7 +37,7 @@ pub const SYNC_PULL_BYTES_TOTAL: &str = "sverb_sync_pull_bytes_total";
 pub const SHARE_RELAYS_ACTIVE: &str = "sverb_share_relays_active";
 /// Connected share viewers.
 pub const SHARE_VIEWERS_ACTIVE: &str = "sverb_share_viewers_active";
-/// M6-01: relayed share bytes (both directions, envelope header included).
+/// Relayed share bytes (both directions, envelope header included).
 pub const SHARE_BYTES_RELAYED_TOTAL: &str = "sverb_share_bytes_relayed_total";
 
 /// How often histogram/summary upkeep runs.

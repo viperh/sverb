@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Re-record the M1-09 emulator replay fixtures (tests/streams/*.bin).
 #
 # Requirements: util-linux `script`, python3, and for the program fixtures: nvim (or vim), htop,
 # tmux, less, man. Every recording runs in a fresh pty at 80x24 with TERM=xterm-256color.

@@ -1,4 +1,4 @@
-//! M7-07 T-06: the accessibility pass (SPEC §8.8, §21 M7).
+//! The accessibility pass (SPEC §8.8, §21 M7).
 //!
 //! - Every registry action is keyboard-reachable: it has a default binding, or the
 //!   command palette lists it (in the state where it applies).
@@ -29,7 +29,6 @@ use crate::{
 const LEADER: &str = "ctrl-\\";
 
 /// Actions the palette lists only while connected to a sync server (§1.1: no sync UI in
-/// local-only mode). They are covered by the M4-09 / M6-03 palette tests.
 const CONNECTED_ONLY: &[ActionName] = &[
     ActionName::SharePane,
     ActionName::SyncStatus,

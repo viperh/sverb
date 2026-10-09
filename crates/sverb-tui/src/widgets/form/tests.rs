@@ -1,5 +1,3 @@
-//! M1-06 form tests (T-08 … T-17).
-
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -72,7 +70,6 @@ fn host_form() -> Form {
         .validator(FormValidator::new("host", host_rules))
 }
 
-// T-08
 #[test]
 fn t08_tab_order_follows_fields() {
     let mut form = host_form();
@@ -110,7 +107,6 @@ fn focus(form: &mut Form, key: &str) {
     panic!("no field {key}");
 }
 
-// T-09
 #[test]
 fn t09_secret_masked_reveal_and_remask() {
     let mut form = host_form();
@@ -137,7 +133,6 @@ fn t09_secret_masked_reveal_and_remask() {
     }
 }
 
-// T-10
 #[test]
 fn t10_number_rejects_letters_and_checks_the_range() {
     let mut form = host_form();
@@ -164,7 +159,6 @@ fn t10_number_rejects_letters_and_checks_the_range() {
     );
 }
 
-// T-11
 #[test]
 fn t11_save_blocks_on_errors_and_sends_only_changes() {
     let mut form = host_form();
@@ -223,7 +217,6 @@ fn t11_form_validator_errors_land_on_their_field() {
     );
 }
 
-// T-12
 #[test]
 fn t12_esc_confirms_when_dirty() {
     let mut clean = host_form();
@@ -274,7 +267,6 @@ fn index_with(items: &[(ItemKind, &str)]) -> (Arc<sverb_core::search::IndexSnaps
     (index.snapshot(), ids)
 }
 
-// T-13
 #[test]
 fn t13_reference_picker_filters_by_kind() {
     let (index, ids) = index_with(&[
@@ -315,7 +307,6 @@ fn t13_reference_picker_filters_by_kind() {
     );
 }
 
-// T-14
 #[test]
 fn t14_key_value_list_add_edit_delete() {
     let mut form = Form::new("Env").section(
@@ -376,7 +367,6 @@ fn t14_key_value_list_add_edit_delete() {
     assert!(matches!(form.take_request(), Some(FormRequest::Save(_))));
 }
 
-// T-15
 #[test]
 fn t15_inherited_placeholder_is_dimmed() {
     let form = Form::new("Edit host").section(
@@ -405,7 +395,6 @@ fn t15_inherited_placeholder_is_dimmed() {
     assert!(!form.is_dirty());
 }
 
-// T-16
 #[test]
 fn t16_read_only_form() {
     let mut form = host_form().read_only(ReadOnly::Vault);
@@ -425,7 +414,6 @@ fn t16_read_only_form() {
     assert!(text(&draw(&newer, 80, 24, false)).contains("Update sverb to edit this item"));
 }
 
-// T-17
 #[test]
 fn t17_failed_save_keeps_the_edits() {
     let mut form = host_form();

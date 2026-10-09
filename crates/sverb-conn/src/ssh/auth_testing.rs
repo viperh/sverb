@@ -1,4 +1,3 @@
-//! M1-14 test support (`test-util`): the in-process russh server with configurable
 //! authentication: `publickey` (authorized keys, a trusted user CA for certificates),
 //! `password`, a scripted `keyboard-interactive` conversation, the method list it
 //! advertises (kept on every rejection, as OpenSSH does), `server-sig-algs` (RFC 8308;

@@ -1,4 +1,4 @@
-//! M1-07: the Hosts detail pane: every field of the selected host, notes rendered as
+//! The Hosts detail pane: every field of the selected host, notes rendered as
 //! plain Markdown text (bold / italic / code / list styling only; links shown with
 //! their URL, not clickable), last connected (relative) and the vault.
 
@@ -55,7 +55,7 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
             .cloned()
             .unwrap_or_else(|| format!("(missing {})", id.short()))
     };
-    // M2-01: values the host doesn't set show where they come from.
+    // Values the host doesn't set show where they come from.
     let r = catalog.resolve(host, &GlobalDefaults::default());
     lines.push(row("Label", host.display_label().to_owned(), theme));
     lines.push(row("Address", host.address.clone(), theme));
@@ -77,7 +77,7 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
         (Some(u), src) => lines.push(inherited("User", with_source(u.clone(), src), theme)),
         (None, _) => lines.push(inherited("User", "(local user)", theme)),
     }
-    // M2-02: a deleted identity resolves as none (§12.4); the chip says so. An
+    // A deleted identity resolves as none (§12.4); the chip says so. An
     // identity inherited from a group or the vault defaults shows its source.
     let missing_identity = r
         .warnings
@@ -117,7 +117,7 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
         lines.push(row("Key", name(&catalog.keys, id), theme));
     }
     if let Some(id) = host.group_id {
-        // M2-01: a deleted group resolves as none (§12.4); say so.
+        // A deleted group resolves as none (§12.4); say so.
         match catalog.group_name(id) {
             Some(g) => lines.push(row("Group", group_path(id, catalog, g), theme)),
             None => lines.push(Line::from(vec![
@@ -187,7 +187,7 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
     for (k, v) in &host.env {
         lines.push(row("Env", format!("{k}={v}"), theme));
     }
-    // M2-01: settings inherited from a group or the vault defaults.
+    // Settings inherited from a group or the vault defaults.
     lines.extend(inherited_lines(&r, catalog, theme));
     match host.last_connected_at {
         Some(t) => lines.push(row("Connected", relative_time(t, catalog.loaded_at), theme)),
@@ -199,7 +199,6 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
         .cloned()
         .unwrap_or_else(|| "Personal".to_owned());
     lines.push(row("Vault", vault, theme));
-    // M5-02
     if catalog.is_read_only_vault(host.vault) {
         lines.push(Line::styled("Read-only vault", theme.warn));
     }
@@ -333,14 +332,12 @@ fn inline(text: &str, base: Style, theme: &Theme) -> Vec<Span<'static>> {
     spans
 }
 
-// ---------------------------------------------------------------------- M2-01
-
 /// `value (from group "prod")`, `value (default)`.
 fn with_source(value: String, src: &Source) -> String {
     match src {
         Source::BuiltinDefault | Source::GlobalConfig => format!("{value} (default)"),
         Source::Host => value,
-        // M5-02: this user's own credentials for a shared host (§13.4).
+        // This user's own credentials for a shared host (§13.4).
         Source::Override { .. } => format!("{value} (your override)"),
         src => format!("{value} (from {src})"),
     }
@@ -392,7 +389,7 @@ fn inherited_lines(r: &ResolvedHost, catalog: &HostCatalog, theme: &Theme) -> Ve
     let mut out = Vec::new();
     for (key, label) in INHERITED_ROWS {
         let src = r.source(key);
-        // M5-02: and from this user's credential override.
+        // And from this user's credential override.
         if !matches!(
             src,
             Source::Group { .. } | Source::VaultDefaults | Source::Override { .. }

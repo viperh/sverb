@@ -21,7 +21,7 @@ path = "src/main.rs"
 sverb-crypto = { workspace = true }
 sverb-proto = { workspace = true }
 
-# M4-01: already pinned in [workspace.dependencies].
+# Already pinned in [workspace.dependencies].
 clap = { workspace = true }
 hex = { workspace = true }
 serde = { workspace = true }
@@ -36,9 +36,9 @@ tracing-subscriber = { workspace = true, features = ["json"] }
 uuid = { workspace = true }
 zeroize = { workspace = true }
 
-# M4-01: server stack (pinned in [workspace.dependencies]). sqlx-core +
+# Server stack (pinned in [workspace.dependencies]). sqlx-core +
 # sqlx-postgres instead of the `sqlx` facade: see the comment there.
-# M4-05: `ws` for /v1/ws.
+# `ws` for /v1/ws.
 axum = { workspace = true, features = ["ws"] }
 axum-server = { workspace = true }
 base64 = { workspace = true }
@@ -53,18 +53,18 @@ sqlx-core = { workspace = true }
 sqlx-postgres = { workspace = true }
 tower = { workspace = true }
 tower-http = { workspace = true }
-# M4-02: TOTP second factor (RFC 6238); secrets and otpauth URIs are built here.
+# TOTP second factor (RFC 6238); secrets and otpauth URIs are built here.
 totp-rs = { workspace = true }
-# M4-05: the WebSocket session is written against futures Stream/Sink.
+# The WebSocket session is written against futures Stream/Sink.
 futures = { workspace = true }
 
-# M4-01: router tests via tower::ServiceExt::oneshot.
+# Router tests via tower::ServiceExt::oneshot.
 [dev-dependencies]
 futures-core = { workspace = true }
 http-body-util = { workspace = true }
-# M4-02: cheap client KSF for the auth test suites (sverb_crypto::opaque).
+# Cheap client KSF for the auth test suites (sverb_crypto::opaque).
 sverb-crypto = { workspace = true, features = ["insecure-test-ksf"] }
-# M4-05: a real WebSocket client for the /v1/ws end-to-end test.
+# A real WebSocket client for the /v1/ws end-to-end test.
 tokio-tungstenite = { workspace = true }
-# M4-05: paused time for the 5 s auth / 30 s heartbeat / expiry tests.
+# Paused time for the 5 s auth / 30 s heartbeat / expiry tests.
 tokio = { workspace = true, features = ["test-util"] }

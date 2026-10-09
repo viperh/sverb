@@ -1,4 +1,4 @@
-//! M2-09: the Snippets section and the snippet dialogs (SPEC §8.5, §9.7).
+//! The Snippets section and the snippet dialogs (SPEC §8.5, §9.7).
 //!
 //! ```text
 //! ┌ Snippets ──────────────────────────────┐┌ Details ─────────────────────────┐
@@ -7,7 +7,6 @@
 //! └────────────────────────────────────────┘└───────────────────────────────────┘
 //! ```
 //!
-//! - **List** (the shared M1-06 list: `/` filters, also on `#tag` and the script; `Space`
 //!   marks; `s` sorts). Keys: `Enter` run here (the snippet's run mode), `r` run on
 //!   hosts…, `p` paste, `a` add, `e` edit, `y` duplicate, `d` delete. The detail pane
 //!   shows the script with its variables highlighted.

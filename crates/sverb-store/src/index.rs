@@ -1,7 +1,7 @@
 //! The optional `item_index` TEMP table (§5.2) for SQL-side filtering.
 //!
-//! **Decision (M1-03 §2.2):** the decrypted search index lives in Rust memory
-//! (M1-05, nucleo). This TEMP table is optional. A TEMP table exists only on the
+//! **Decision:** the decrypted search index lives in Rust memory
+//! (nucleo). This TEMP table is optional. A TEMP table exists only on the
 //! connection that created it, so it lives on the **writer** connection, and
 //! `temp_store = MEMORY` keeps it off disk (not even temp files).
 //!

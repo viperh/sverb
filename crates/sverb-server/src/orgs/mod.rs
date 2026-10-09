@@ -1,4 +1,3 @@
-//! Orgs, roles, invites and the audit log (SPEC §13.1, §13.2, §13.5; task M5-01).
 //!
 //! * The role rules are pure functions ([`check_invite`], [`check_set_role`],
 //!   [`check_remove`], [`check_audit`]) shared by both backends, which call them
@@ -12,7 +11,7 @@
 //! Invites (§13.2) carry a 256-bit token stored only as its SHA-256, expire after
 //! 7 days, and are single-use; an email-bound invite must be accepted by the
 //! account with that email. An org invite can also be presented at registration
-//! (invite-only servers, M4-02); the membership is added once the account exists.
+//! (invite-only servers); the membership is added once the account exists.
 
 pub mod mem;
 pub mod pg;
@@ -407,7 +406,7 @@ mod tests {
         }
     }
 
-    // T-02: the role permission matrix.
+    // The role permission matrix.
     #[test]
     fn t02_permission_matrix() {
         use Role::{Admin as A, Member as M, Owner as O};

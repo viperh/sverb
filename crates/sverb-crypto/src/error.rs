@@ -23,7 +23,7 @@ pub enum CryptoError {
     /// Decompression failed or exceeded the output cap.
     #[error("decompression failed")]
     Decompress,
-    // M4-03: Ed25519 verification failure (grants, §11.3 / §13.3). Kept apart
+    // Ed25519 verification failure (grants, §11.3 / §13.3). Kept apart
     // from `Auth` so callers can tell "untrusted grant" from "cannot decrypt".
     /// An Ed25519 signature did not verify (wrong key, tampered message or
     /// malformed signature). Deliberately carries no detail.

@@ -1,4 +1,4 @@
-//! M0-07 / M2-09: `sverb snippet run <snippet> --on <host|#tag|group>... [--json]
+//! `sverb snippet run <snippet> --on <host|#tag|group>... [--json]
 //! [--var name=value]... [--concurrency N] [--timeout S]` (SPEC §16, §9.7).
 //!
 //! - Always *Exec on hosts*, whatever the snippet's `run_mode`.
@@ -53,7 +53,6 @@ pub(crate) enum SnippetCmd {
         /// Print JSON (`{"version":1,"data":…}`)
         #[arg(long)]
         json: bool,
-        // M2-09:
         /// A variable value, `name=value` (repeatable)
         #[arg(long = "var", value_name = "NAME=VALUE")]
         vars: Vec<String>,
@@ -81,7 +80,6 @@ pub(crate) struct RunArgs {
 /// Asks for a missing variable on the terminal (`None`: no terminal / cancelled).
 pub(crate) type AskVar<'a> = &'a mut dyn FnMut(&VarDef) -> Option<String>;
 
-// M2-09:
 /// `sverb snippet …`
 pub(crate) async fn run(cmd: SnippetCmd, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
     match cmd {

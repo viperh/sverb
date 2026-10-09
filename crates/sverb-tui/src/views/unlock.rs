@@ -1,4 +1,3 @@
-//! M1-04: the unlock prompt and the change-password form (SPEC §5.3, task M1-04 §2.3,
 //! §2.5, §2.6).
 //!
 //! Plain data plus pure key handling and infallible rendering. The reducer

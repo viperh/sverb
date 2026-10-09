@@ -1,4 +1,4 @@
-//! M5-03: the `pinned_keys` repository (SPEC §13.3).
+//! The `pinned_keys` repository (SPEC §13.3).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

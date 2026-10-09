@@ -1,5 +1,4 @@
-//! M5-02: shared vaults end to end against the in-process server (memory
-//! backend, loopback HTTP + WebSocket): create, grant (with M5-03 trust checks),
+//! Shared vaults end to end against the in-process server (memory
 //! receive and verify, read-only enforcement, move with references, credential
 //! overrides, the admin reconcile and the 3-member scenario.
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
@@ -200,7 +199,7 @@ async fn spawn_ws(m: &Member) -> (SyncHandle, mpsc::UnboundedReceiver<SyncEvent>
     (h, rx)
 }
 
-// T-01: Alice (admin) creates a shared vault, grants Bob `write` and Carol
+// Alice (admin) creates a shared vault, grants Bob `write` and Carol
 // `read`; both receive it over the WebSocket and decrypt its items.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t01_create_grant_receive() {
@@ -277,8 +276,8 @@ async fn t01_create_grant_receive() {
     carol_h.shutdown().await;
 }
 
-// T-02: granting to a member whose key changed on the server is refused
-// client-side (M5-03); the first grant pinned the key on first sight (TOFU).
+// Granting to a member whose key changed on the server is refused
+// client-side; the first grant pinned the key on first sight (TOFU).
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_grant_refused_on_changed_key() {
     let server = TestServer::start().await;
@@ -344,7 +343,7 @@ async fn t02_grant_refused_on_changed_key() {
     );
 }
 
-// T-03: the server tampers with Bob's grant signature: Bob's client refuses the
+// The server tampers with Bob's grant signature: Bob's client refuses the
 // vault key, keeps the vault out, and reports an error.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t03_tampered_grant_refused() {
@@ -471,7 +470,7 @@ async fn t04_read_member_cannot_push() {
     assert!(err.is_status(403), "{err:?}");
 }
 
-// T-06: moving a personal host that uses a personal identity into a shared
+// Moving a personal host that uses a personal identity into a shared
 // vault: blocked (the identity is listed); with "also copy the identity" the
 // host and an identity copy land in the shared vault (Bob sees them) and the
 // personal host is tombstoned.
@@ -603,7 +602,7 @@ async fn resolve_on(m: &Member, vault: VaultId, host: ItemId) -> sverb_core::res
     r
 }
 
-// T-07: Bob's override username applies on Bob's device only; Alice still sees
+// Bob's override username applies on Bob's device only; Alice still sees
 // the shared value. Provenance "(your override)".
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t07_credential_override() {
@@ -654,7 +653,7 @@ async fn t07_credential_override() {
     assert!(server.item(shared, item).is_none());
 }
 
-// T-09: an org admin without a grant ("needs key") is granted `manage` by a
+// An org admin without a grant ("needs key") is granted `manage` by a
 // manage member's reconcile, then adopts the vault.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t09_admin_auto_grant() {

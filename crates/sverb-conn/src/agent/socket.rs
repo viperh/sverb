@@ -1,4 +1,4 @@
-//! M2-07: private Unix sockets for the local agent (`agent.sock`) and the TUI's control
+//! Private Unix sockets for the local agent (`agent.sock`) and the TUI's control
 //! channel (`control.sock`) (SPEC §6.1.6).
 //!
 //! - The directory is created `0700` when missing. An existing directory that other

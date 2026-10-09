@@ -1,4 +1,4 @@
-//! M1-04: the OS keyring (`keyring` crate: Secret Service, macOS Keychain, Windows
+//! The OS keyring (`keyring` crate: Secret Service, macOS Keychain, Windows
 //! Credential Manager) behind [`KeyringStore`].
 //!
 //! Tests never use this type: they inject `sverb_core::vault::MemKeyring`. The
@@ -49,7 +49,7 @@ impl KeyringStore for OsKeyring {
 /// The keyring the binary uses: [`OsKeyring`], or [`NoKeyring`] when
 /// `SVERB_KEYRING` is `off`/`0`/`none`/`disabled`.
 pub fn keyring_from_env() -> Arc<dyn KeyringStore> {
-    // M7-06: `SVERB_KEYRING=file:<dir>` (test-hooks builds only) for the startup
+    // `SVERB_KEYRING=file:<dir>` (test-hooks builds only) for the startup
     // benchmark, which needs keyring unlock in a child process.
     #[cfg(feature = "test-hooks")]
     if let Some(dir) = std::env::var(KEYRING_ENV)
@@ -71,7 +71,6 @@ pub fn keyring_from_env() -> Arc<dyn KeyringStore> {
     }
 }
 
-// M7-06
 /// A keyring kept as plain files in a directory: **test builds only** (the
 /// `test-hooks` feature, never in release builds). One file per account, named by
 /// the account's hex encoding. The startup benchmark uses it to unlock by keyring

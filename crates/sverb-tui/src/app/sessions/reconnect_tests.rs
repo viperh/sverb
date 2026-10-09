@@ -1,4 +1,3 @@
-//! M1-16 reducer and rendering tests (T-03, T-04, T-08 reducer variant, T-09).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -110,7 +109,7 @@ fn leaks(effects: &[Effect]) -> bool {
     })
 }
 
-// T-03: banner keys.
+// Banner keys.
 #[test]
 fn t03_banner_keys() {
     let mut app = app(false);
@@ -325,7 +324,7 @@ fn t08_gives_up_after_ten_attempts() {
     assert!(effects.contains(&Effect::ReconnectSession(ID)));
 }
 
-// T-09: `Esc` cancels the countdown; a plain `c` does nothing; `Enter` is "now".
+// `Esc` cancels the countdown; a plain `c` does nothing; `Enter` is "now".
 #[test]
 fn t09_cancel_countdown() {
     let mut app = app(true);
@@ -420,7 +419,7 @@ fn pane(overlay: PaneOverlay) -> PaneInfo {
     }
 }
 
-// T-04: the banner for a keepalive timeout at 80×24 (content stays visible above it).
+// The banner for a keepalive timeout at 80×24 (content stays visible above it).
 #[test]
 fn t04_banner_timeout_80x24() {
     let text = render_text(
@@ -435,7 +434,7 @@ fn t04_banner_timeout_80x24() {
     insta::assert_snapshot!("t04_banner_timeout_80x24", text);
 }
 
-// T-04: the countdown banner at 80×24.
+// The countdown banner at 80×24.
 #[test]
 fn t04_countdown_80x24() {
     let text = render_text(
@@ -451,7 +450,7 @@ fn t04_countdown_80x24() {
     insta::assert_snapshot!("t04_countdown_80x24", text);
 }
 
-// T-04: the Exited footer (SSH and local) at 80×24.
+// The Exited footer (SSH and local) at 80×24.
 #[test]
 fn t04_exited_footer_80x24() {
     let text = render_text(
@@ -476,7 +475,6 @@ fn t04_exited_footer_80x24() {
     assert!(local.contains("Process exited (code 130) — [Enter] restart · ^g x close"));
 }
 
-// M2-05
 /// A jump chain's `Connecting { hop, of }` shows per-hop progress in the pane (names
 /// come from the catalog; without one, the hop numbers) and clears once connected. A
 /// single-hop connection shows nothing new.

@@ -1,4 +1,3 @@
-//! M0-07 integration tests: the real binary, with `SVERB_HOME` in a temp dir.
 //! T-09 (no TUI without a terminal) and T-10 (`sverb config …`).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -34,7 +33,6 @@ fn text(bytes: &[u8]) -> String {
     String::from_utf8_lossy(bytes).into_owned()
 }
 
-// T-09
 #[test]
 fn tui_without_terminal_exits_1_without_escape_bytes() {
     let home = home("notty");
@@ -54,7 +52,6 @@ fn tui_without_terminal_exits_1_without_escape_bytes() {
     }
 }
 
-// T-10
 #[test]
 fn config_path_honors_sverb_home() {
     let home = home("path");
@@ -65,7 +62,6 @@ fn config_path_honors_sverb_home() {
     assert!(Path::new(path.trim_end()).starts_with(&home), "{path}");
 }
 
-// T-10
 #[test]
 fn config_print_default_equals_embedded_file() {
     let home = home("default");
@@ -75,7 +71,6 @@ fn config_print_default_equals_embedded_file() {
     assert_eq!(text(&out.stdout), embedded);
 }
 
-// T-10
 #[test]
 fn config_check_valid_and_invalid() {
     let home = home("check");
@@ -121,13 +116,13 @@ fn headless_stub_does_not_hang() {
     let start = Instant::now();
     let out = sverb(&home, &["hosts", "list"]);
     assert!(start.elapsed() < Duration::from_secs(2));
-    // M1-07: `hosts list` needs the vault; a fresh home fails fast (exit 3).
+    // `hosts list` needs the vault; a fresh home fails fast (exit 3).
     assert_eq!(out.status.code(), Some(3));
     assert!(out.stdout.is_empty());
     assert!(text(&out.stderr).contains("not initialized"));
 }
 
-// T-06: the template's knobs are gone.
+// The template's knobs are gone.
 #[test]
 fn tick_rate_is_rejected() {
     let home = home("tick");

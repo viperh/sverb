@@ -1,5 +1,4 @@
-//! M2-01 integration tests: groups, tags and vault defaults through the item service
-//! (the writes behind T-06, T-07, T-09, T-10 and T-12). Small Argon2 parameters,
+//! (the writes behind T-06). Small Argon2 parameters,
 //! in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -123,7 +122,6 @@ async fn group_view(ops: &ItemOps, id: ItemId) -> Option<Group> {
     Some(Group::try_from(&l.body).unwrap())
 }
 
-// M2-01 T-06 (the writes)
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t06_delete_group_moves_hosts_and_subgroups_to_the_parent() {
     let fx = Fixture::new("t06");
@@ -145,7 +143,6 @@ async fn t06_delete_group_moves_hosts_and_subgroups_to_the_parent() {
     assert_eq!(host_view(&ops, c).await.unwrap().group_id, None);
 }
 
-// M2-01 T-07 (the writes)
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_delete_group_and_everything_below() {
     let fx = Fixture::new("t07");
@@ -170,7 +167,6 @@ async fn t07_delete_group_and_everything_below() {
     assert!(host_view(&ops, c).await.is_some());
 }
 
-// M2-01 T-10 (the writes)
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t10_bulk_tags_change_only_the_tags_field() {
     let fx = Fixture::new("t10");
@@ -219,7 +215,6 @@ async fn t10_bulk_tags_change_only_the_tags_field() {
     assert_eq!(ws.len(), 1, "no new tag");
 }
 
-// M2-01 T-09 (the service refuses duplicates too)
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t09_tag_names_are_unique_per_vault() {
     let fx = Fixture::new("t09");
@@ -262,7 +257,6 @@ async fn group_cycles_are_rejected_on_save() {
     assert!(matches!(r, Err(ItemError::Invalid(_))));
 }
 
-// M2-01 T-12 (the catalog side): resolution follows the stored group defaults, and
 // vault defaults (a reserved group item) sit below the groups.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn catalog_resolves_groups_and_vault_defaults() {

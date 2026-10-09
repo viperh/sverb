@@ -1,4 +1,4 @@
-//! M4-09: what this device knows about its sync setup, without contacting the
+//! What this device knows about its sync setup, without contacting the
 //! server or unlocking: the Settings → Sync panel and `sverb sync --status`.
 //!
 //! The time of the last successful cycle is kept in `meta`

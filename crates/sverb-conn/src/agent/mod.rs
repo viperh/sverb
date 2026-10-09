@@ -1,4 +1,4 @@
-//! M2-07: agent forwarding, the built-in agent and the local agent socket (SPEC §6.1.6).
+//! Agent forwarding, the built-in agent and the local agent socket (SPEC §6.1.6).
 //!
 //! - [`proto`]: the agent wire protocol subset.
 //! - [`builtin`]: the built-in agent over vault keys with `agent_forwardable = true`
@@ -10,14 +10,14 @@
 //!   peer uid check, stale-socket handling); [`serve_local`] runs the agent on it.
 //! - [`control`]: the TUI's control socket (`sverb lock`).
 //! - `pipe_windows`: the Windows named pipe, with the owner-only DACL and client SID
-//!   check of `dacl_windows` (M7-05; a documented `unsafe` exception).
+//!   check of `dacl_windows` (a documented `unsafe` exception).
 
 pub mod builtin;
 pub mod confirm;
 pub mod control;
 pub mod forward;
 pub mod peercred;
-// M7-05: the owner-only pipe DACL (Win32 security calls; `unsafe` allowed here only).
+// The owner-only pipe DACL (Win32 security calls; `unsafe` allowed here only).
 #[cfg(windows)]
 mod dacl_windows;
 #[cfg(windows)]
@@ -28,7 +28,7 @@ pub mod socket;
 
 #[cfg(test)]
 mod tests;
-// M2-07: needs the ssh/{mod,connect,channel}.rs copies.
+// Needs the ssh/{mod,connect,channel}.rs copies.
 #[cfg(test)]
 mod loopback_tests;
 
@@ -44,7 +44,7 @@ pub use forward::{AgentForwarding, AgentServer, RawAgent, SystemRawAgent};
 pub const APPROVAL_FIELD: &str = sverb_core::resolve::approval::AGENT_FIELD;
 
 /// Does forwarding with `source` act locally (§17.1: exposes the system agent)?
-/// M2-10: the classification lives in `sverb_core::resolve::approval`.
+/// The classification lives in `sverb_core::resolve::approval`.
 pub fn needs_approval(forwarding: bool, source: sverb_core::model::AgentSource) -> bool {
     sverb_core::resolve::approval::agent_acts_locally(forwarding, source)
 }

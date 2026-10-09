@@ -1,4 +1,4 @@
-//! M5-02: Settings → Vaults (SPEC §13.1, §13.2).
+//! Settings → Vaults (SPEC §13.1, §13.2).
 //!
 //! ```text
 //! Sync · Devices · Team · Vaults
@@ -16,12 +16,12 @@
 //! [x] Revoke  [g] Grant admins  [R] Rotate key  [u] Reload
 //! ```
 //!
-//! M5-04: revoking a member rotates the vault key right away (a progress
+//! Revoking a member rotates the vault key right away (a progress
 //! dialog); `R` rotates it on demand, resuming or restarting an interrupted
 //! rotation.
 //!
 //! Granting fetches the member's public keys and checks them against the pins
-//! (M5-03) in the sync service: a changed key is refused with an error that says
+//!  in the sync service: a changed key is refused with an error that says
 //! to compare safety numbers in Settings → Team. "needs key" marks a vault an org
 //! admin manages implicitly but holds no grant for yet (§13.1): any `manage`
 //! member's client grants it (`g`, and in the background after a sync).
@@ -153,7 +153,7 @@ impl SettingsView {
                 vault: vault.map(|v| v.id),
             }),
             KeyCode::Char('g') => self.vault_op(VaultOp::Reconcile),
-            // M5-04: rotate the key (or resume / restart an interrupted rotation).
+            // Rotate the key (or resume / restart an interrupted rotation).
             KeyCode::Char('R') if manage => {
                 if let Some(v) = vault {
                     self.vault_op(VaultOp::Rotate { vault: v.id });
@@ -297,7 +297,7 @@ impl SettingsView {
         if p.current()
             .is_some_and(|v| v.permission == Permission::Manage && v.has_key)
         {
-            k.extend(key("R", "Rotate key")); // M5-04
+            k.extend(key("R", "Rotate key"));
         }
         k.extend(key("u", "Reload"));
         lines.push(Line::from(k));
@@ -411,7 +411,6 @@ mod tests {
             key(&mut v, KeyCode::Char('g')),
             Some(SettingsRequest::Vaults(VaultOp::Reconcile))
         );
-        // M5-04
         assert_eq!(
             key(&mut v, KeyCode::Char('R')),
             Some(SettingsRequest::Vaults(VaultOp::Rotate {
@@ -430,7 +429,7 @@ mod tests {
         key(&mut v, KeyCode::Char('j'));
         assert!(!v.handle_key(KeyCode::Char('m'), KeyModifiers::NONE));
         assert!(v.take_request().is_none());
-        // M5-04: nor rotate.
+        // Nor rotate.
         assert!(!v.handle_key(KeyCode::Char('R'), KeyModifiers::NONE));
         assert!(v.take_request().is_none());
     }

@@ -1,4 +1,3 @@
-//! M0-09 loop tests (T-01..T-06): `TestBackend`, fake input/sessions, paused time.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
@@ -212,7 +211,6 @@ async fn run(rig: &mut Rig) -> i32 {
     rig.event_loop.run(LaunchIntent::Plain).await.unwrap()
 }
 
-// T-01
 #[tokio::test(start_paused = true)]
 async fn idle_draws_nothing() {
     let mut rig = rig(app(), Probe::new());
@@ -222,7 +220,6 @@ async fn idle_draws_nothing() {
     assert_eq!(rec.draws, [Duration::ZERO], "only the initial frame");
 }
 
-// T-02
 #[tokio::test(start_paused = true)]
 async fn frame_rate_is_capped() {
     let mut a = app();
@@ -237,7 +234,6 @@ async fn frame_rate_is_capped() {
     assert!(rec.draws.len() >= 55, "{} draws", rec.draws.len());
 }
 
-// T-03
 #[tokio::test(start_paused = true)]
 async fn missed_ticks_are_skipped_not_bursted() {
     let mut probe = Probe::new();
@@ -274,7 +270,6 @@ async fn missed_ticks_are_skipped_not_bursted() {
     assert!(after_stall <= 2, "burst after the stall: {:?}", rec.draws);
 }
 
-// T-04
 #[tokio::test(start_paused = true)]
 async fn all_queued_input_is_applied_before_the_first_draw() {
     let rig_app = app();
@@ -295,7 +290,6 @@ async fn all_queued_input_is_applied_before_the_first_draw() {
     );
 }
 
-// T-05
 #[tokio::test(start_paused = true)]
 async fn output_flood_does_not_starve_input() {
     let mut a = app();
@@ -321,7 +315,7 @@ async fn output_flood_does_not_starve_input() {
     assert!(rec.draws.len() > 10);
 }
 
-// T-06: a draw that includes the pane acknowledges it.
+// A draw that includes the pane acknowledges it.
 #[tokio::test(start_paused = true)]
 async fn draw_acknowledges_a_visible_session() {
     let mut a = app();
@@ -353,7 +347,7 @@ async fn draw_acknowledges_a_visible_session() {
     assert_eq!(rec.flag_at_draw, [false, false]);
 }
 
-// T-06: a draw without the pane (hidden) leaves the flag set.
+// A draw without the pane (hidden) leaves the flag set.
 #[tokio::test(start_paused = true)]
 async fn draw_without_the_pane_keeps_the_flag() {
     // Focus stays on Hosts: session 1 is hidden.
@@ -397,7 +391,6 @@ async fn draw_without_the_pane_keeps_the_flag() {
 async fn timers_and_signals_reach_the_reducer() {
     let mut rig = rig(app(), Probe::new());
     // A toast schedules its expiry through the loop-owned timer service.
-    // M3-03: `--workspace` no longer toasts; `join` still does (until M6-03).
     rig.event_loop
         .apply(UiEvent::Launch(LaunchIntent::Join("l".into())))
         .unwrap();

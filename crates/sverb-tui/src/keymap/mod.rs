@@ -1,7 +1,6 @@
 //! Keys: chords, the action registry, the effective keymap, the leader state machine,
-//! which-key, `sverb keys --dump` and the config validator (M0-10, SPEC §8.2–§8.3).
+//! which-key, `sverb keys --dump` and the config validator (SPEC §8.2–§8.3).
 //!
-//! `tasks/03-KEYBINDINGS.md` is authoritative for every binding. In short:
 //! - **Terminal mode** (a live session pane has focus): every key except the leader
 //!   goes to the session. There is no Terminal-mode table and no config for one.
 //! - The **leader** (`ctrl-\` by default) works in every mode; the key after it is

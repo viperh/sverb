@@ -1,4 +1,4 @@
-//! M0-07: machine-readable output (`--json`), see `docs/cli-json.md`.
+//! Machine-readable output (`--json`), see `docs/cli-json.md`.
 //!
 //! Every `--json` document is one line: `{"version":1,"data":…}`. `version` changes
 //! only on incompatible changes to a command's `data`.
@@ -29,7 +29,7 @@ pub(crate) fn to_json<T: Serialize>(data: &T) -> Result<String, CliError> {
 }
 
 /// Print `data` as one JSON line.
-#[allow(dead_code)] // M0-10 (`keys --dump --json`), M1-07 (`hosts list --json`).
+#[allow(dead_code)]
 pub(crate) fn write_json<T: Serialize>(out: &mut dyn Write, data: &T) -> Result<(), CliError> {
     let mut text = to_json(data)?;
     text.push('\n');

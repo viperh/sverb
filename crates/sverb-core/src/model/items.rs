@@ -129,7 +129,6 @@ pub struct Key {
 }
 
 impl Key {
-    // M2-03
     /// A hardware / agent reference key (§9.4): no `private_key`, only `public_key`;
     /// auth asks the system agent to sign with it. Stored as the `agent_ref` flag;
     /// derived from the fields so existing struct literals stay valid.
@@ -148,7 +147,7 @@ impl Key {
         w.ids("certificate_ids", &self.certificate_ids);
         w.flag("agent_forwardable", self.agent_forwardable);
         w.flag("confirm_on_use", self.confirm_on_use);
-        // M2-03: derived from the fields (see `Key::is_agent_ref`), stored for readers.
+        // Derived from the fields (see `Key::is_agent_ref`), stored for readers.
         w.flag("agent_ref", self.is_agent_ref());
     }
 }
@@ -484,7 +483,6 @@ impl TryFrom<&ItemBody> for Snippet {
 // ---------------------------------------------------------------- Workspace (§4.10)
 
 /// A saved tab/pane layout (§4.10). The layout tree (§8.4) and broadcast groups are
-/// kept as opaque CBOR values until M3-03 defines their typed form; both are
 /// whole-value LWW fields.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Workspace {
@@ -583,7 +581,6 @@ pub struct HistoryEntry {
     pub executed_at: UnixMillis,
     /// `exit_code`
     pub exit_code: Option<i32>,
-    // M7-01 (spec addition)
     /// `verified`: captured exactly (shell integration, snippet runs). `false` for the
     /// heuristic capture without OSC 133 (shown as "unverified"). Stored only when
     /// `false`; a missing field reads as `true`.
@@ -592,7 +589,7 @@ pub struct HistoryEntry {
     pub read_only: bool,
 }
 
-// M7-01: `verified` defaults to `true`.
+// `verified` defaults to `true`.
 impl Default for HistoryEntry {
     fn default() -> Self {
         Self {
@@ -614,7 +611,6 @@ impl HistoryEntry {
         w.opt("host_id", self.host_id);
         w.always("executed_at", self.executed_at);
         w.opt("exit_code", self.exit_code);
-        // M7-01
         w.opt("verified", (!self.verified).then_some(false));
     }
 }
@@ -630,7 +626,6 @@ impl TryFrom<&ItemBody> for HistoryEntry {
             host_id: r.opt_id("host_id")?,
             executed_at: read_time(&r, "executed_at")?.unwrap_or_default(),
             exit_code: r.int("exit_code")?,
-            // M7-01
             verified: r.opt_bool("verified")?.unwrap_or(true),
             read_only,
         })
@@ -655,12 +650,11 @@ pub enum ConnResult {
 /// A connection log entry (§4.12). Synced only if `logs.sync = true`. The recording
 /// path is device-local and not an item field.
 ///
-/// M3-06 spec additions: `host_id` is optional (local shells and ephemeral quick-connect
 /// targets have no host item), plus `label`, `target` and `error_detail`
 /// (`docs/data-model.md`).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ConnLog {
-    /// `host_id` (M3-06: `None` for local shells and ephemeral hosts).
+    /// `host_id` (`None` for local shells and ephemeral hosts).
     pub host_id: Option<ItemId>,
     /// `started_at`
     pub started_at: UnixMillis,
@@ -674,7 +668,6 @@ pub struct ConnLog {
     pub bytes_out: u64,
     /// The body's schema is newer than this build (§4.1).
     pub read_only: bool,
-    // M3-06 (spec additions)
     /// `label`: what the attempt was shown as (host label, `local`), kept so the log
     /// still reads well after the host is renamed or deleted.
     pub label: String,
@@ -690,7 +683,7 @@ impl ConnLog {
     /// Writes the fields that differ from `body`.
     pub fn apply_to(&self, body: &mut ItemBody, clock: &mut HlcClock, device: DeviceId) {
         let mut w = Writer::new(body, clock, device);
-        // M3-06: optional (spec addition).
+        // Optional (spec addition).
         w.opt("host_id", self.host_id);
         w.always("started_at", self.started_at);
         w.opt("ended_at", self.ended_at);
@@ -709,19 +702,16 @@ impl ConnLog {
             Value::from(self.bytes_out),
             self.bytes_out == 0,
         );
-        // M3-06
         w.text("label", &self.label);
         w.opt("target", self.target.clone());
         w.opt_strs("error_detail", self.error_detail.as_deref());
     }
 
-    // M3-06
     /// Whether the attempt ended in a failure (anything but `Ok`; open entries are not).
     pub fn is_failure(&self) -> bool {
         matches!(&self.result, Some(r) if *r != ConnResult::Ok)
     }
 
-    // M3-06
     /// How long the attempt lasted (`None` while open).
     pub fn duration(&self) -> Option<Duration> {
         let end = self.ended_at?;
@@ -731,7 +721,6 @@ impl ConnLog {
     }
 }
 
-// M3-06
 impl ConnResult {
     /// Short label for lists (`ok`, `auth failed`, …).
     pub fn label(&self) -> &str {
@@ -759,7 +748,7 @@ impl TryFrom<&ItemBody> for ConnLog {
             Some(_) => return Err(r.type_err("result.kind")),
         };
         Ok(Self {
-            // M3-06: optional (spec addition).
+            // Optional (spec addition).
             host_id: r.opt_id("host_id")?,
             started_at: read_time(&r, "started_at")?.unwrap_or_default(),
             ended_at: read_time(&r, "ended_at")?,
@@ -767,7 +756,6 @@ impl TryFrom<&ItemBody> for ConnLog {
             bytes_in: r.int("bytes_in")?.unwrap_or(0),
             bytes_out: r.int("bytes_out")?.unwrap_or(0),
             read_only,
-            // M3-06
             label: r.opt_str("label")?.unwrap_or_default(),
             target: r.opt_str("target")?,
             error_detail: r.opt_strs("error_detail")?,

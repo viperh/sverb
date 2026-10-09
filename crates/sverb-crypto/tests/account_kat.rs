@@ -1,4 +1,4 @@
-//! M4-03 T-01: known-answer tests for the account key hierarchy, recovery
+//! Known-answer tests for the account key hierarchy, recovery
 //! key, vault-key grants, fingerprints and safety numbers.
 //!
 //! `tests/kat/account.json` is FROZEN: any change in output is a breaking

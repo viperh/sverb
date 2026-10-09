@@ -1,4 +1,4 @@
-//! M2-05: the `RefList` field: an **ordered** list of item references (the host form's
+//! The `RefList` field: an **ordered** list of item references (the host form's
 //! jump chain), with a fuzzy picker to add entries.
 //!
 //! Closed: `↑/↓` select a row (past the ends the form moves to the neighbouring

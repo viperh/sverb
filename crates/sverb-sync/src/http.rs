@@ -17,9 +17,9 @@ use sverb_proto::sync::{PullResponse, PushRequest, PushResponse, VaultView};
 use sverb_proto::version::{API_PREFIX, PROTO_HEADER, PROTO_VERSION};
 use uuid::Uuid;
 
-// M5-02: the shared vault endpoints (create, members, grants, org vaults).
+// The shared vault endpoints (create, members, grants, org vaults).
 mod shared_vaults;
-// M5-04: the key rotation endpoint.
+// The key rotation endpoint.
 mod rotation;
 
 use crate::error::SyncError;
@@ -108,7 +108,7 @@ impl ApiClient {
         })
     }
 
-    // M4-08: `send` split so bodiless responses (204) and headers are usable.
+    // `send` split so bodiless responses (204) and headers are usable.
     /// Sends `rb`; a 2xx gives `(status, headers, body)`, anything else the
     /// error envelope as [`SyncError::Api`].
     async fn fetch(
@@ -159,7 +159,7 @@ impl ApiClient {
         self.send(rb).await
     }
 
-    // M4-08: the account endpoints (`crate::account`).
+    // The account endpoints (`crate::account`).
     /// `POST /v1{path}` with a JSON body and a JSON response.
     pub(crate) async fn post_v1<B: Serialize + ?Sized, T: DeserializeOwned>(
         &self,
@@ -210,7 +210,7 @@ impl ApiClient {
         self.send(rb).await
     }
 
-    // M5-03: the keys are pinned and compared by `crate::trust` (§13.3).
+    // The keys are pinned and compared by `crate::trust` (§13.3).
     /// `GET /v1/users/{id}/public-keys`.
     ///
     /// # Errors
@@ -225,7 +225,7 @@ impl ApiClient {
         self.send(rb).await
     }
 
-    // M4-09: Settings → Devices and `sverb devices`.
+    // Settings → Devices and `sverb devices`.
     /// `GET /v1/devices`.
     ///
     /// # Errors
@@ -248,7 +248,7 @@ impl ApiClient {
         self.fetch(rb).await.map(drop)
     }
 
-    // M5-01: orgs, members, invites, the audit log.
+    // Orgs, members, invites, the audit log.
     /// `GET /v1/orgs`.
     ///
     /// # Errors

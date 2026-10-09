@@ -1,4 +1,3 @@
-//! M2-05 T-05…T-08 against OpenSSH in Docker: a [`JumpNet`] (bastion published, inner
 //! host reachable only from the bastion). The loopback versions run without Docker in
 //! `sverb-conn` (`ssh::connect::jump::tests`).
 //!
@@ -156,7 +155,7 @@ async fn run(handle: &SessionHandle, rx: &mut Events, answer: Option<Decision>) 
     out
 }
 
-/// T-05: a shell on `inner` through `bastion`; the known hosts get both entries under
+/// A shell on `inner` through `bastion`; the known hosts get both entries under
 /// their own names (the inner one as the bastion reaches it).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -198,7 +197,7 @@ async fn t05_single_hop() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-06: a wrong password on the bastion → "hop 1/2 (bastion): …"; on the inner host
+/// A wrong password on the bastion → "hop 1/2 (bastion): …"; on the inner host
 /// → "hop 2/2 (inner): …".
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -220,7 +219,7 @@ async fn t06_hop_labelled_errors() {
     }
 }
 
-/// T-07: the inner host's first connection asks with the hop (`hop 2/2`).
+/// The inner host's first connection asks with the hop (`hop 2/2`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t07_host_key_prompt_shows_the_hop() {
@@ -246,7 +245,7 @@ async fn t07_host_key_prompt_shows_the_hop() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-08: `docker stop bastion` → the target session disconnects naming the hop.
+/// `docker stop bastion` → the target session disconnects naming the hop.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t08_bastion_dies() {

@@ -1,4 +1,4 @@
-//! M2-09: multi-host snippet runs over exec channels (SPEC §9.7, §16).
+//! Multi-host snippet runs over exec channels (SPEC §9.7, §16).
 //!
 //! [`run_on_hosts`] runs one [`RunJob`] (a parsed template and the user's values) on
 //! many [`RunTarget`]s, at most `concurrency` at a time ([`DEFAULT_CONCURRENCY`]),

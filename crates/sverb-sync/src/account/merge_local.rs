@@ -1,5 +1,5 @@
 //! Importing a local personal vault into the account's personal vault at
-//! login (§11.2.1, M4-08 §2.2): the dry-run duplicate preview and the
+//! login (§11.2.1): the dry-run duplicate preview and the
 //! id-remapping importer.
 //!
 //! * **Likely duplicates** (§11.2.1): same `address:port:user` for hosts, same

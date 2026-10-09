@@ -1,4 +1,3 @@
-//! `/v1/ws` notification protocol (SPEC §10.4; task M4-05).
 //!
 //! JSON text messages tagged by `type`. The access token is never put in the
 //! URL: the client's first message must be [`ClientMsg::Auth`] within
@@ -81,7 +80,6 @@ pub enum AccessChange {
     Rotated,
 }
 
-/// A viewer asking to join one of the caller's shares (§14, task M6-01).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ShareViewer {
     /// Relay-assigned viewer id.
@@ -121,7 +119,7 @@ pub enum ServerMsg {
         /// The new `account_keys.version`.
         key_version: u32,
     },
-    /// A viewer waits for approval on one of the caller's shares (M6-01).
+    /// A viewer waits for approval on one of the caller's shares.
     ShareJoinRequest {
         /// The share.
         share_id: Uuid,

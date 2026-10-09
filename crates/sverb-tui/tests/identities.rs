@@ -1,4 +1,3 @@
-//! M2-02 integration tests: identities through the item service (T-01, T-02, T-04,
 //! T-05) and the vault scoping of saves. Small Argon2 parameters, in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -163,7 +162,6 @@ async fn host_view(ops: &ItemOps, id: ItemId) -> Host {
     Host::try_from(&ops.load(id).await.unwrap().unwrap().body).unwrap()
 }
 
-// M2-02 T-01
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t01_identity_shared_by_three_hosts() {
     let fx = Fixture::new("t01");
@@ -184,7 +182,6 @@ async fn t01_identity_shared_by_three_hosts() {
     }
 }
 
-// M2-02 T-02
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t02_editing_the_identity_changes_every_host_without_writing_them() {
     let fx = Fixture::new("t02");
@@ -213,7 +210,6 @@ async fn t02_editing_the_identity_changes_every_host_without_writing_them() {
     }
 }
 
-// M2-02 T-04
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_delete_with_convert_copies_inline_credentials() {
     let fx = Fixture::new("t04");
@@ -255,7 +251,6 @@ async fn t04_delete_with_convert_copies_inline_credentials() {
     assert_eq!(r.source(SettingKey::Username), &Source::Host);
 }
 
-// M2-02 T-05
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t05_delete_without_convert_falls_back_to_the_next_level() {
     let fx = Fixture::new("t05");

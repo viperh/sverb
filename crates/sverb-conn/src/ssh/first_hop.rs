@@ -1,11 +1,11 @@
-//! M2-06: the first hop's stream (SPEC §6.1.1 step 2, §6.1.5) — the stream factory
+//! The first hop's stream (SPEC §6.1.1 step 2, §6.1.5) — the stream factory
 //! `connect.rs` asks for the byte stream the SSH handshake runs over.
 //!
 //! - **Direct:** DNS (never cached), then TCP with Happy Eyeballs under the connect
 //!   timeout.
 //! - **Proxy:** [`crate::proxy::open_first_hop`] (SOCKS5 with remote DNS, HTTP
 //!   CONNECT, ProxyCommand behind the §17.1 approval check). No local DNS of the
-//!   target. Jump chains (M2-05) use this for their first hop only.
+//!   target. Jump chains use this for their first hop only.
 //!
 //! State inputs: `Resolved { hops: 1 }` then `TcpConnected { hop: 1 }`, either way.
 
@@ -39,7 +39,6 @@ pub async fn open(
     open_first_of(conn, host, 1, ctx).await
 }
 
-// M2-05
 /// [`open`] for the first hop of a chain of `hops` hops (`Resolved { hops }`): a jump
 /// chain's first hop is reached directly or through *its* proxy, like any host.
 ///

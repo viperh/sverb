@@ -1,4 +1,3 @@
-//! Authentication, account and device DTOs (SPEC §10.4, §11.2; task M4-02).
 //!
 //! Binary fields (OPAQUE messages, keys, bundles, grants) are base64url
 //! without padding ([`crate::b64`]). Tokens are opaque base64url strings.
@@ -490,7 +489,6 @@ impl std::fmt::Debug for AccountDeleteRequest {
     }
 }
 
-// M7-05 (SPEC §17 "Secrets in logs"): the request DTOs that carry one-time tokens or a
 // TOTP code print them as `[REDACTED]`.
 fn redacted(v: &Option<String>) -> &'static str {
     if v.is_some() {

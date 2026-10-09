@@ -1,4 +1,4 @@
-//! M2-03: OpenSSH private keys (`-----BEGIN OPENSSH PRIVATE KEY-----`), plain or
+//! OpenSSH private keys (`-----BEGIN OPENSSH PRIVATE KEY-----`), plain or
 //! encrypted (bcrypt-pbkdf). The public key is readable without the passphrase.
 
 use ssh_key::PrivateKey;

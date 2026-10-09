@@ -1,4 +1,4 @@
-//! M4-04: vault list, pull, push (gap-free revisions, limits, quota),
+//! Vault list, pull, push (gap-free revisions, limits, quota),
 //! rotation/read-only gating and tombstone GC, end to end over HTTP.
 //!
 //! Every scenario runs twice:
@@ -7,7 +7,7 @@
 //! * `*_pg`: against PostgreSQL (needs `DATABASE_URL`, see `common`;
 //!   otherwise prints "SKIPPED (needs PostgreSQL)").
 //!
-//! Tests run on a multi-threaded runtime so the concurrency scenario (T-04)
+//! Tests run on a multi-threaded runtime so the concurrency scenario
 //! has real parallelism.
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
 
@@ -428,7 +428,7 @@ fn revisions(res: &PushResponse) -> Vec<Option<u64>> {
 
 // ---------------------------------------------------------------- scenarios
 
-/// T-01: new items with base 0 → ok, revisions 1..n, head n; the vault list
+/// New items with base 0 → ok, revisions 1..n, head n; the vault list
 /// shows head, permission and the self-grant.
 async fn t01_push_new(h: &Harness) {
     let a = register(h, "alice@example.com").await;
@@ -478,7 +478,7 @@ async fn t01_push_new(h: &Harness) {
     );
 }
 
-/// T-02: stale base → conflict with `current`; in a mixed batch the
+/// Stale base → conflict with `current`; in a mixed batch the
 /// accepted changes get consecutive revisions and rejected ones consume
 /// none.
 async fn t02_conflicts(h: &Harness) {
@@ -547,7 +547,7 @@ async fn t02_conflicts(h: &Harness) {
     );
 }
 
-/// T-03: 1,200 items, limit 500 → pages of 500/500/200 with `more`
+/// 1,200 items, limit 500 → pages of 500/500/200 with `more`
 /// true/true/false, ascending, no duplicates.
 async fn t03_pagination(h: &Harness) {
     let a = register(h, "alice@example.com").await;
@@ -660,7 +660,7 @@ async fn t04_concurrency(h: &Harness) {
     }
 }
 
-/// T-05: a read-only member's push → 403 forbidden; pull works.
+/// A read-only member's push → 403 forbidden; pull works.
 async fn t05_read_only(h: &Harness) {
     let a = register(h, "alice@example.com").await;
     let b = register(h, "bob@example.com").await;
@@ -681,7 +681,7 @@ async fn t05_read_only(h: &Harness) {
     assert_eq!(list.len(), 2, "personal + shared");
 }
 
-/// T-06: rotation in progress → push 409 rotating, pull works, the vault
+/// Rotation in progress → push 409 rotating, pull works, the vault
 /// list shows the rotation.
 async fn t06_rotating(h: &Harness) {
     let a = register(h, "alice@example.com").await;
@@ -703,7 +703,7 @@ async fn t06_rotating(h: &Harness) {
     );
 }
 
-/// T-07: envelope of 1 MiB + 1 → item `too_large`; 501 changes → 400;
+/// Envelope of 1 MiB + 1 → item `too_large`; 501 changes → 400;
 /// 8 MiB + 1 of envelopes → 400; exactly 8 MiB passes.
 async fn t07_limits(h: &Harness) {
     let a = register(h, "alice@example.com").await;
@@ -798,7 +798,7 @@ async fn t08_quota(h: &Harness) {
     assert_eq!(total, 1024 * 1024);
 }
 
-/// T-09: GC purges tombstones older than the horizon, raises the floor;
+/// GC purges tombstones older than the horizon, raises the floor;
 /// `since` below the floor → 410 gone; `since=0` and `since=floor` work.
 async fn t09_gc(h: &Harness) {
     let a = register(h, "alice@example.com").await;
@@ -881,7 +881,7 @@ async fn t09_gc(h: &Harness) {
     assert_eq!(res.results[0].revision, Some(6));
 }
 
-/// T-10: non-members (and unknown vaults) get 404 for pull and push.
+/// Non-members (and unknown vaults) get 404 for pull and push.
 async fn t10_non_member(h: &Harness) {
     let a = register(h, "alice@example.com").await;
     let b = register(h, "bob@example.com").await;
@@ -899,7 +899,7 @@ async fn t10_non_member(h: &Harness) {
     assert_error(st, &v, StatusCode::UNAUTHORIZED, "auth_required");
 }
 
-/// T-11: a key-version mismatch → 400 invalid for the whole batch.
+/// A key-version mismatch → 400 invalid for the whole batch.
 async fn t11_key_version(h: &Harness) {
     let a = register(h, "alice@example.com").await;
     let mut stale = change(Uuid::now_v7(), 0, b"x", false);
@@ -918,7 +918,7 @@ async fn t11_key_version(h: &Harness) {
     );
 }
 
-/// T-12: items sealed client-side with a canary label → nothing in the
+/// Items sealed client-side with a canary label → nothing in the
 /// database contains the canary (text or bytes).
 async fn t12_no_plaintext(h: &Harness) {
     const CANARY: &str = "CANARY-prod-db-7731.internal";
@@ -964,7 +964,6 @@ impl ChangeNotifier for Recorder {
     }
 }
 
-/// The notify hook (for M4-05) fires after commits that accepted changes.
 async fn notify_hook(h: &Harness) {
     let rec = Arc::new(Recorder::default());
     h.state.sync().set_notifier(rec.clone());

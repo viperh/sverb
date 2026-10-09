@@ -1,4 +1,4 @@
-//! Cross-module tests for the item model (M1-02 T-05 … T-19).
+//! Cross-module tests for the item model.
 
 use std::time::Duration;
 
@@ -31,7 +31,6 @@ fn stamp_of(body: &ItemBody, field: &str) -> Option<(Hlc, DeviceId)> {
     body.get_stamped(field).map(Stamped::stamp)
 }
 
-// T-05
 #[test]
 fn stamped_ties_break_on_device() {
     let a = Stamped::new(Value::from(1), at(1), dev(1));
@@ -47,7 +46,6 @@ fn stamped_ties_break_on_device() {
     assert!(d.is_newer_than(&b));
 }
 
-// T-06
 #[test]
 fn set_stamps_and_skips_equal_values() {
     let (pc, mut clock) = clock();
@@ -62,7 +60,6 @@ fn set_stamps_and_skips_equal_values() {
     assert!(second > first);
 }
 
-// T-07
 #[test]
 fn tombstone_rule_and_resurrection() {
     let mut body = ItemBody::new(ItemKind::Host, 1);
@@ -84,7 +81,6 @@ fn tombstone_rule_and_resurrection() {
     assert!(!body.is_deleted());
 }
 
-// T-08
 #[test]
 fn unknown_fields_survive_view_round_trip() -> Result<(), ViewError> {
     let (_, mut clock) = clock();
@@ -127,7 +123,6 @@ fn applying_an_unchanged_view_creates_no_stamps() -> Result<(), ViewError> {
     Ok(())
 }
 
-// T-09
 #[test]
 fn proxy_is_flattened_and_sub_fields_stamp_independently() -> Result<(), ViewError> {
     let (pc, mut clock) = clock();
@@ -219,7 +214,6 @@ fn body_strategy() -> impl Strategy<Value = ItemBody> {
 }
 
 proptest! {
-    // T-10
     #[test]
     fn cbor_round_trip_is_lossless_and_deterministic(body in body_strategy()) {
         let bytes = body.to_cbor().map_err(|e| TestCaseError::fail(e.to_string()))?;
@@ -257,7 +251,6 @@ fn cbor_bytes_feed_seal_item() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// T-16
 #[test]
 fn newer_schema_yields_read_only_views() -> Result<(), ViewError> {
     let mut body = ItemBody::new(ItemKind::Host, 99);
@@ -272,7 +265,6 @@ fn newer_schema_yields_read_only_views() -> Result<(), ViewError> {
     Ok(())
 }
 
-// T-17
 #[test]
 fn wrong_field_types_are_reported() {
     let mut body = ItemBody::new(ItemKind::Host, 1);
@@ -304,7 +296,6 @@ fn wrong_field_types_are_reported() {
     ));
 }
 
-// T-18
 #[test]
 fn secrets_are_typed_and_redacted() -> Result<(), ViewError> {
     let (_, mut clock) = clock();
@@ -320,7 +311,6 @@ fn secrets_are_typed_and_redacted() -> Result<(), ViewError> {
     Ok(())
 }
 
-// T-19
 #[test]
 fn unset_beats_older_value() {
     let pc = ManualClock::new(T0 + Duration::from_secs(3));
@@ -370,7 +360,6 @@ fn group_defaults_use_dotted_keys() -> Result<(), ViewError> {
         },
         icon: None,
         read_only: false,
-        // M2-01
         is_vault_defaults: false,
     };
     group.apply_to(&mut body, &mut clock, dev(1));
@@ -421,18 +410,13 @@ fn every_view_round_trips() -> Result<(), ViewError> {
         pinned: true,
         algorithms: None,
         request_pty_for_exec: Some(true),
-        // M3-05
         record_sessions: Some(true),
-        // M1-16
         auto_reconnect: Some(false),
         read_only: false,
-        // M2-01
         explicit_empty: ExplicitEmpty::default(),
     };
     host.apply_to(&mut b, &mut clock, d);
-    // M3-05
     assert_eq!(b.get("record_sessions"), Some(&Value::Bool(true)));
-    // M1-16
     assert_eq!(b.get("auto_reconnect"), Some(&Value::Bool(false)));
     assert_eq!(b.get("backspace"), Some(&Value::from("ctrl-h")));
     assert_eq!(b.get("agent_forwarding"), Some(&Value::Bool(false)));
@@ -573,13 +557,12 @@ fn every_view_round_trips() -> Result<(), ViewError> {
         host_id: Some(id(1)),
         executed_at: UnixMillis(5),
         exit_code: Some(-1),
-        // M7-01
         verified: true,
         read_only: false,
     };
     v.apply_to(&mut b, &mut clock, d);
     assert_eq!(HistoryEntry::try_from(&b)?, v);
-    // M7-01: an unverified (heuristic) entry round-trips too.
+    // An unverified (heuristic) entry round-trips too.
     let v = HistoryEntry {
         verified: false,
         ..v
@@ -590,7 +573,7 @@ fn every_view_round_trips() -> Result<(), ViewError> {
     // ConnLog
     let mut b = ItemBody::new(ItemKind::ConnLog, 1);
     let v = ConnLog {
-        // M3-06: optional host, label, target and error detail (spec additions).
+        // Optional host, label, target and error detail (spec additions).
         host_id: Some(id(1)),
         started_at: UnixMillis(1),
         ended_at: Some(UnixMillis(2)),
@@ -607,7 +590,7 @@ fn every_view_round_trips() -> Result<(), ViewError> {
     assert_eq!(ConnLog::try_from(&b)?, v);
     assert_eq!(v.duration(), Some(std::time::Duration::from_millis(1)));
     assert!(v.is_failure());
-    // M3-06: a local shell's entry has no host; an open entry is no failure.
+    // A local shell's entry has no host; an open entry is no failure.
     let mut b = ItemBody::new(ItemKind::ConnLog, 1);
     let local = ConnLog {
         label: "local".into(),
@@ -622,7 +605,6 @@ fn every_view_round_trips() -> Result<(), ViewError> {
     Ok(())
 }
 
-// M3-05
 #[test]
 fn record_sessions_resolves_host_then_groups_then_global() -> Result<(), ViewError> {
     use crate::model::resolve_record_sessions;

@@ -1,4 +1,4 @@
-//! Store errors (M1-03 §2.6).
+//! Store errors.
 
 use rusqlite::ErrorCode;
 use sverb_core::model::ItemId;

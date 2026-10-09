@@ -1,4 +1,4 @@
-//! M1-11: input encoding (SPEC §7.3): keys, mouse and paste → bytes for the remote.
+//! Input encoding (SPEC §7.3): keys, mouse and paste → bytes for the remote.
 //!
 //! Everything here is pure: a function of the input and the pane's [`TermModes`], so the
 //! session actor encodes **per pane** with its own emulator's modes (SPEC §9.8: broadcast

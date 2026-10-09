@@ -135,7 +135,7 @@ impl Ctx {
                 }
                 other => other?,
             };
-            // M5-04: items under a key version this engine doesn't hold yet (a
+            // Items under a key version this engine doesn't hold yet (a
             // rotation committed and `vault_changed` overtook `vault_access
             // rotated`): fetch the new key first; without it, stop here so the
             // cursor never moves past items that can't be opened.
@@ -160,7 +160,6 @@ impl Ctx {
         }
     }
 
-    // M5-04
     /// Whether `items` include a key version newer than the loaded ones.
     fn needs_newer_key(&self, vault: VaultId, items: &[WireItem]) -> bool {
         let k = self.keys.read();

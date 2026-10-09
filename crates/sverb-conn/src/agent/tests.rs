@@ -1,6 +1,5 @@
-//! M2-07 unit and integration tests: the built-in agent (T-01..T-05), confirm prompts
-//! (T-06, queue side), the local socket (T-07, T-08, T-10), `ssh-add -l` against it
-//! (T-09, first half), and the control socket. Never touches the user's agent: the
+//! (queue side), the local socket, `ssh-add -l` against it
+//! (first half), and the control socket. Never touches the user's agent: the
 //! "system agent" is an in-process russh agent server.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]

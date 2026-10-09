@@ -1,4 +1,4 @@
-//! M6-03: the share service's runtime pieces: the viewer pane's transport (ordered
+//! The share service's runtime pieces: the viewer pane's transport (ordered
 //! resizes, no EOF, discarded writes), the mapping of viewer events into the pane,
 //! and a viewer pane opened through the session service.
 #![allow(clippy::unwrap_used, clippy::expect_used)]

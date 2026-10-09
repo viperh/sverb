@@ -1,6 +1,5 @@
-//! M4-07 integration tests: the client sync engine against an in-process
 //! `sverb-server` (in-memory backend, loopback HTTP). Test ids follow the
-//! task file (tasks/M4-07-client-sync-engine.md §4).
+//! task file.
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
 
 mod common;
@@ -44,7 +43,7 @@ fn drain_applied(rx: &mut mpsc::UnboundedReceiver<SyncEvent>) -> Vec<ItemId> {
     out
 }
 
-/// T-01: create 3 items → pushed after the 2 s debounce; server head 3,
+/// Create 3 items → pushed after the 2 s debounce; server head 3,
 /// nothing dirty, outbox empty.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t01_single_device_push_after_debounce() {
@@ -93,7 +92,7 @@ async fn t01_single_device_push_after_debounce() {
     handle.shutdown().await;
 }
 
-/// T-02: 10 edits within 1 s → one push request.
+/// 10 edits within 1 s → one push request.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_debounce_coalesces_edits() {
     let server = TestServer::start().await;
@@ -129,7 +128,7 @@ async fn t02_debounce_coalesces_edits() {
     handle.shutdown().await;
 }
 
-/// T-03: A edits the port, B edits the user of the same host offline; after
+/// A edits the port, B edits the user of the same host offline; after
 /// reconnecting both have port + user.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t03_two_clients_field_merge() {
@@ -171,7 +170,7 @@ async fn t03_two_clients_field_merge() {
     assert_eq!(a.body(id).await, b.body(id).await);
 }
 
-/// T-04: B pushes with a stale base → conflict → merge → the retry succeeds
+/// B pushes with a stale base → conflict → merge → the retry succeeds
 /// within 2 rounds.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t04_conflict_retry() {
@@ -201,7 +200,7 @@ async fn t04_conflict_retry() {
     assert_eq!(text(&body, "user").as_deref(), Some("postgres"));
 }
 
-/// T-06: a crash after applying 2 of 5 items of a page rolls the page and
+/// A crash after applying 2 of 5 items of a page rolls the page and
 /// the cursor back; after a restart the re-pull applies everything once.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t06_pull_page_atomicity() {
@@ -246,7 +245,7 @@ async fn t06_pull_page_atomicity() {
     assert_eq!(b.snapshot().await.len(), 5);
 }
 
-/// T-07: dirty local + remote change → merged, still dirty, the outbox base
+/// Dirty local + remote change → merged, still dirty, the outbox base
 /// rebased to the remote revision; the next push succeeds without conflict.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t07_pull_merges_into_dirty_item() {
@@ -282,7 +281,7 @@ async fn t07_pull_merges_into_dirty_item() {
     assert_eq!(a.body(id).await, b.body(id).await);
 }
 
-/// T-08: 410 Gone after server GC → full resync: clean local items deleted
+/// 410 Gone after server GC → full resync: clean local items deleted
 /// on the server disappear, a dirty local item absent on the server is
 /// pushed again as a new item.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -337,7 +336,7 @@ async fn t08_gone_full_resync() {
     assert!(applied.contains(&y), "the purge is reported to the index");
 }
 
-/// T-09: server down for 3 edits → `offline (3 pending)`; back → `synced`.
+/// Server down for 3 edits → `offline (3 pending)`; back → `synced`.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t09_offline_queue() {
     let server = TestServer::start().await;
@@ -374,7 +373,7 @@ async fn t09_offline_queue() {
     handle.shutdown().await;
 }
 
-/// T-10: B pushes → A applies within 1 s through the WS notification; with
+/// B pushes → A applies within 1 s through the WS notification; with
 /// the WS disabled, A applies within the (shortened) poll interval.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t10_ws_and_poll_triggered_pull() {
@@ -432,7 +431,7 @@ async fn t10_ws_and_poll_triggered_pull() {
     a_poll.shutdown().await;
 }
 
-/// T-11: 401 → refresh, the new tokens persisted before the next request;
+/// 401 → refresh, the new tokens persisted before the next request;
 /// a refresh-token reuse → `NeedsLogin`.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t11_token_refresh_and_reuse() {
@@ -487,7 +486,7 @@ impl VaultKeySource for Rotated {
     }
 }
 
-/// T-12: a push during a rotation → paused; after the rotation completes the
+/// A push during a rotation → paused; after the rotation completes the
 /// pending item is re-encrypted under the new key version and pushed.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t12_rotation_pauses_then_reencrypts() {
@@ -554,7 +553,7 @@ async fn t12_rotation_pauses_then_reencrypts() {
     assert_eq!(text(&body, "label").as_deref(), Some("during-rotation"));
 }
 
-/// T-13: a ConnLog with `logs.sync = false` is never pushed; `device_local`
+/// A ConnLog with `logs.sync = false` is never pushed; `device_local`
 /// and approvals never leave the device (request bodies inspected).
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t13_device_local_exclusions() {
@@ -647,7 +646,7 @@ async fn t13_device_local_exclusions() {
     assert!(server.item(a.vault, hist).is_none());
 }
 
-/// T-14: an undecryptable remote item is skipped with an error badge; the
+/// An undecryptable remote item is skipped with an error badge; the
 /// other items are applied.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t14_undecryptable_remote_item() {
@@ -744,7 +743,7 @@ async fn t15_offline_devices_converge() {
     assert_eq!(a.dirty_count().await + b.dirty_count().await, 0);
 }
 
-/// T-16: locking stops sync (no pushes, no pulls); unlocking resumes it.
+/// Locking stops sync (no pushes, no pulls); unlocking resumes it.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t16_lock_pauses_unlock_resumes() {
     let server = TestServer::start().await;

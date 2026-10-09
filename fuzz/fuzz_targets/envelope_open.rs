@@ -1,4 +1,3 @@
-//! M1-01 / T-16: feeds arbitrary bytes to `sverb_crypto::envelope::open_item` (via
 //! `fuzz_open_item`, which also exercises the unpad + capped zstd path). It must never
 //! panic. Run it with `cargo +nightly fuzz run envelope_open` from `fuzz/` (the cargo-fuzz
 //! workspace); the same body is property-tested on stable by

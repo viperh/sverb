@@ -40,8 +40,8 @@ RULES: dict[str, tuple[set[str] | None, set[str]]] = {
     "sverb-proto": ({"sverb-crypto"}, UI | {"rusqlite", "russh"}),
     "sverb-core": ({"sverb-crypto", "sverb-proto"}, UI | {"clap"}),
     "sverb-store": ({"sverb-core", "sverb-crypto"}, UI),
-    "sverb-conn": ({"sverb-core", "sverb-term"}, UI),  # M1-08: Emulator trait lives in sverb-term
-    "sverb-term": ({"sverb-core", "sverb-crypto"}, {"crossterm"}),  # M3-05: recording chunk sealing (sverb-crypto has no I/O)
+    "sverb-conn": ({"sverb-core", "sverb-term"}, UI),
+    "sverb-term": ({"sverb-core", "sverb-crypto"}, {"crossterm"}),
     "sverb-sync": (
         {"sverb-core", "sverb-store", "sverb-proto", "sverb-crypto"},
         UI,

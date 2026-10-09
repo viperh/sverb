@@ -1,4 +1,4 @@
-//! M1-18 harness self-tests against OpenSSH in Docker (T-01…T-05, T-07).
+//! Docker e2e harness self-tests against OpenSSH in Docker.
 //!
 //! `#[ignore]`d: run with `SVERB_E2E=1 cargo test -p sverb-e2e -- --ignored`. Without
 //! `SVERB_E2E=1` or a Docker daemon they print a skip message and pass (on CI a
@@ -12,7 +12,7 @@ use sverb_e2e::{
     Headless, JumpNet, Login, Profile, Sshd, diag, require_docker, ssh_key_file_type, timeout,
 };
 
-/// T-01: `exec` runs as the user `test`.
+/// `exec` runs as the user `test`.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t01_exec_whoami() {
@@ -27,7 +27,7 @@ async fn t01_exec_whoami() {
     assert_eq!(root.stdout.trim(), "0");
 }
 
-/// T-02: `Headless` logs in with a password and sees the shell prompt.
+/// `Headless` logs in with a password and sees the shell prompt.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t02_headless_password() {
@@ -41,7 +41,7 @@ async fn t02_headless_password() {
     session.close().await;
 }
 
-/// T-03: `pause` freezes sshd (no banner), `unpause` brings it back, and an open
+/// `pause` freezes sshd (no banner), `unpause` brings it back, and an open
 /// session continues afterwards.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -77,7 +77,7 @@ async fn seen_and_served(sshd: &Sshd) -> (String, String) {
     (seen.fingerprint, served)
 }
 
-/// T-04: `regenerate_host_key` changes the fingerprint the client sees.
+/// `regenerate_host_key` changes the fingerprint the client sees.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t04_regenerate_host_key() {
@@ -94,7 +94,7 @@ async fn t04_regenerate_host_key() {
     assert_ne!(before, after, "the host fingerprint changed");
 }
 
-/// T-05: the inner host of a `JumpNet` is not reachable from the runner, but is
+/// The inner host of a `JumpNet` is not reachable from the runner, but is
 /// from the bastion.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -127,7 +127,7 @@ async fn t05_jumpnet_inner_only_via_bastion() {
     session.close().await;
 }
 
-/// T-07: a failing test dumps the container logs and the screen.
+/// A failing test dumps the container logs and the screen.
 #[test]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 fn t07_failure_dumps_container_logs_and_screen() {

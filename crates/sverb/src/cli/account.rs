@@ -1,6 +1,5 @@
-//! M0-07: `sverb login | logout | register | sync` (sync builds only). M4-08:
 //! `login`, `logout`, `register` run the account flows of
-//! `sverb_sync::account` with TTY prompts. M4-07: `sverb sync [--now|--status]`
+//! `sverb_sync::account` with TTY prompts. `sverb sync [--now|--status]`
 //! runs one headless engine cycle / prints the local sync state.
 //!
 //! The recovery phrase is only ever written to a terminal: `sverb register`
@@ -41,7 +40,6 @@ pub(crate) struct LoginArgs {
     /// Sync server URL
     #[arg(long, value_name = "URL")]
     pub server: Option<String>,
-    // M4-08
     /// Account email
     #[arg(long, value_name = "EMAIL")]
     pub email: Option<String>,
@@ -55,7 +53,6 @@ pub(crate) struct LogoutArgs {
     pub keep_local: bool,
 }
 
-// M4-08
 /// `sverb register …`
 #[derive(Args, Debug, PartialEq, Eq)]
 pub(crate) struct RegisterArgs {
@@ -76,13 +73,10 @@ pub(crate) struct SyncArgs {
     /// Show the sync status (the default)
     #[arg(long)]
     pub status: bool,
-    // M4-09
     /// Machine-readable output
     #[arg(long)]
     pub json: bool,
 }
-
-// ------------------------------------------------------------------- M4-08
 
 const NEEDS_TTY: &str = "needs an interactive terminal (passwords are only read from a TTY)";
 
@@ -212,7 +206,7 @@ fn print_words(words: &[&str]) {
 
 /// `sverb register [--server URL] [--email E]` (§2.1).
 pub(crate) async fn register(args: RegisterArgs, ctx: &Ctx) -> Result<u8, CliError> {
-    // T-11: the recovery words are only ever shown on a terminal.
+    // The recovery words are only ever shown on a terminal.
     if !(ctx.tty.stdin && ctx.tty.stdout && ctx.tty.stderr) {
         return Err(CliError::Usage(format!(
             "`sverb register` {NEEDS_TTY}; the recovery phrase is only shown on a terminal"
@@ -419,7 +413,6 @@ pub(crate) async fn logout(args: LogoutArgs, ctx: &Ctx) -> Result<u8, CliError> 
     Ok(exit::OK)
 }
 
-// M4-07, M4-09
 /// `sverb sync`: without `--now` (or with `--status` alone) prints the local
 /// state (server, account, last sync, pending changes per vault) without
 /// unlocking or contacting the server. `--now` unlocks and runs one full cycle
@@ -444,7 +437,7 @@ pub(crate) async fn sync(args: SyncArgs, ctx: &Ctx, out: &mut dyn Write) -> Resu
     res
 }
 
-// M4-09: GrantKeySource like the TUI, so new vault keys (rotation) open headlessly too.
+// GrantKeySource like the TUI, so new vault keys (rotation) open headlessly too.
 async fn key_source(store: &Store, lmk: &Key32) -> Arc<dyn VaultKeySource> {
     match acct::load_account_keys(store, lmk).await {
         Ok(Some((a, k))) => Arc::new(acct::GrantKeySource::new(a.user_id, k)),
@@ -524,7 +517,6 @@ pub(crate) async fn sync_now(
     }
 }
 
-// M4-07, M4-09
 async fn status(ctx: &Ctx, json: bool, out: &mut dyn Write) -> Result<u8, CliError> {
     // A fresh home has no database: local-only, and nothing is created.
     let info = match open_store(ctx).await? {

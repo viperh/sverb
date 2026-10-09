@@ -1,4 +1,3 @@
-//! Seal / open of a 1 KiB item envelope (M7-06 `envelope_seal_open_1k`, informational).
 #![allow(missing_docs, clippy::unwrap_used)]
 
 use std::hint::black_box;

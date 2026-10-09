@@ -1,4 +1,4 @@
-//! M0-05: the panic hook (SPEC §17, §18). Replaces the template's `errors.rs`
+//! The panic hook (SPEC §17, §18). Replaces the template's `errors.rs`
 //! (color-eyre + human-panic + better-panic).
 //!
 //! [`install`] runs first in `main`, before paths and logging, so even a panic during
@@ -18,7 +18,7 @@
 //! recursing. A panic on another thread while a report is being written only prints
 //! its short message.
 //!
-//! M1-08: a panic inside a **session actor** is contained: the session manager catches
+//! A panic inside a **session actor** is contained: the session manager catches
 //! it through the task's `JoinHandle`, the pane shows "session crashed (see log)" and
 //! the UI keeps running. The actor is polled inside
 //! `sverb_conn::panic_scope::Contained`, so [`in_contained_task`] is true while the
@@ -47,7 +47,6 @@ use sverb_core::{
     paths::{Paths, SystemEnv},
 };
 use sverb_tui::runtime::terminal::restore_terminal;
-// M1-08
 use sverb_tui::services::sessions::in_contained_task;
 use tracing::Level;
 
@@ -101,7 +100,7 @@ enum HookEntry {
     Concurrent,
 }
 
-/// The re-entrancy decision (T-06). Marks the hook as running when it returns
+/// The re-entrancy decision. Marks the hook as running when it returns
 /// [`HookEntry::Report`].
 fn enter_hook(running: &AtomicBool, nested_on_this_thread: bool) -> HookEntry {
     if nested_on_this_thread {
@@ -126,7 +125,7 @@ fn hook(panic_hook: &PanicHook, info: &PanicHookInfo<'_>) {
             );
             std::process::abort();
         }
-        // M1-08: contained session panic while another report is being written.
+        // Contained session panic while another report is being written.
         HookEntry::Concurrent if in_contained_task() => {
             tracing::error!(target: "sverb::panic", "contained session panic: {}", message(info));
         }
@@ -134,7 +133,7 @@ fn hook(panic_hook: &PanicHook, info: &PanicHookInfo<'_>) {
             restore_terminal();
             let _ = writeln!(io::stderr(), "sverb crashed: {}", message(info));
         }
-        // M1-08: the UI keeps running; log and write the crash report only.
+        // The UI keeps running; log and write the crash report only.
         HookEntry::Report if in_contained_task() => {
             report_contained(panic_hook, info);
             IN_PANIC_HOOK.store(false, Ordering::SeqCst);
@@ -207,7 +206,7 @@ fn report(panic_hook: &PanicHook, info: &PanicHookInfo<'_>) {
     logging::shutdown();
 }
 
-// M1-08: a contained session panic (see the module docs): log it and write the crash
+// A contained session panic (see the module docs): log it and write the crash
 // report, but leave the terminal, stderr and the log file alone.
 fn report_contained(panic_hook: &PanicHook, info: &PanicHookInfo<'_>) {
     let msg = message(info);
@@ -419,7 +418,7 @@ mod tests {
 
     type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-    // T-06: a panic while the hook runs on the same thread takes the abort path;
+    // A panic while the hook runs on the same thread takes the abort path;
     // the decision function is tested, not the abort itself.
     #[test]
     fn nested_panic_takes_the_abort_path() {

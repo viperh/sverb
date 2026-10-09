@@ -1,5 +1,5 @@
-//! M0-07: `sverb config --check | --print-default | --path` (and hidden `--schema`),
-//! using `sverb_core::config` (M0-06).
+//! `sverb config --check | --print-default | --path` (and hidden `--schema`),
+//! using `sverb_core::config`.
 
 use std::{
     io::Write,

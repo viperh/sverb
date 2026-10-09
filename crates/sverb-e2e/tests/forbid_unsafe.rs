@@ -1,8 +1,7 @@
-//! T-03: `unsafe_code = "deny"` is inherited by every crate from `[workspace.lints]`.
+//! `unsafe_code = "deny"` is inherited by every crate from `[workspace.lints]`.
 //!
-//! M7-05: the level is `deny`, not `forbid` (SPEC §17): the two documented `unsafe`
+//! The level is `deny`, not `forbid` (SPEC §17): the two documented `unsafe`
 //! modules lift it with an inner `allow`, which `forbid` would reject. That those
-//! `allow`s appear nowhere else is checked by `scripts/check-unsafe.py` (M7-05 T-04,
 //! tested at the end of this file).
 //!
 //! trybuild cannot prove this: the project it generates for compile-fail cases
@@ -59,7 +58,7 @@ fn every_crate_inherits_workspace_lints() {
 }
 
 /// The workspace lints, applied through `[lints] workspace = true`, reject `unsafe`.
-/// (M7-05: `-D unsafe-code`, the `deny` level.)
+/// (`-D unsafe-code`, the `deny` level.)
 #[test]
 fn unsafe_block_fails_with_forbid_diagnostic() {
     let root = workspace_root();
@@ -120,7 +119,7 @@ path = "src/lib.rs"
     );
 }
 
-// M7-05 T-04: `scripts/check-unsafe.py` passes on the repository and fails when
+// `scripts/check-unsafe.py` passes on the repository and fails when
 // `allow(unsafe_code)` appears outside the two allowed modules.
 
 /// Runs the check on `root`; `(success, stderr)`.

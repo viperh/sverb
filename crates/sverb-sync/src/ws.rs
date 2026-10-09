@@ -1,12 +1,11 @@
 //! The notification WebSocket client (`/v1/ws`, SPEC §10.4, §12.5; task
-//! M4-05).
 //!
 //! [`run`] keeps one connection to the server open until cancelled:
 //!
 //! * connects with tokio-tungstenite over rustls (`ring`, webpki roots, or
 //!   the caller's [`rustls::ClientConfig`]), then sends
 //!   `{"type":"auth","token"}` as the first message (never in the URL);
-//! * emits [`WsEvent`]s for the sync engine (M4-07): `Connected` once the
+//! * emits [`WsEvent`]s for the sync engine: `Connected` once the
 //!   server has accepted the token (its first message), every notification,
 //!   and `Disconnected` with the delay before the next attempt;
 //! * answers `ping`, sends its own `ping` every 30 s and drops the
@@ -159,7 +158,7 @@ pub enum TokenError {
     Transient(String),
 }
 
-/// The token manager of the sync engine (M4-07).
+/// The token manager of the sync engine.
 pub trait TokenSource: Send + Sync {
     /// The current access token.
     fn access_token(&self) -> impl Future<Output = Result<String, TokenError>> + Send;

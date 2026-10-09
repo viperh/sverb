@@ -1,4 +1,4 @@
-//! M7-05: Windows process hardening (best effort): no fault dialogs, no heap in Windows
+//! Windows process hardening (best effort): no fault dialogs, no heap in Windows
 //! Error Reporting dumps, and `VirtualLock` for key pages.
 //!
 //! One of the two documented `unsafe` exceptions (SPEC §17; `scripts/check-unsafe.py`).

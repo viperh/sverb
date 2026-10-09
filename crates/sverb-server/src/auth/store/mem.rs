@@ -8,7 +8,6 @@
 //! Postgres tests exercise the real one.
 //!
 //! [`MemData::fail_vault_insert`] injects a failure at the personal-vault
-//! step of registration (task M4-02 T-03).
 
 use std::collections::BTreeMap;
 use std::sync::{Mutex, MutexGuard};
@@ -92,7 +91,7 @@ pub struct MemVault {
     pub name_enc: Vec<u8>,
     /// Key version.
     pub key_version: i32,
-    // M4-04: the sync columns.
+    // The sync columns.
     /// Owning org (shared vaults).
     pub org_id: Option<Uuid>,
     /// Highest assigned revision.
@@ -103,7 +102,6 @@ pub struct MemVault {
     pub rotation: Option<serde_json::Value>,
 }
 
-// M4-04
 impl MemVault {
     /// A fresh personal vault (head 0, no rotation).
     #[must_use]
@@ -136,7 +134,7 @@ impl MemVault {
     }
 }
 
-/// M4-04: an `items` row.
+/// An `items` row.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemItem {
     /// Revision of this version.
@@ -175,14 +173,13 @@ pub struct MemMember {
 /// An `invites` row (instance or org invite).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemInvite {
-    // M5-01
     /// Id.
     pub id: Uuid,
     /// Token hash.
     pub token_hash: [u8; 32],
     /// Bound email.
     pub email: Option<String>,
-    // M5-01: `org: bool` became the org id.
+    // `org: bool` became the org id.
     /// The org of an org invite; `None` for an instance invite.
     pub org_id: Option<Uuid>,
     /// Granted role (org invites).
@@ -195,7 +192,6 @@ pub struct MemInvite {
     pub accepted: bool,
 }
 
-// M5-01
 /// An `orgs` row.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemOrg {
@@ -219,7 +215,6 @@ pub struct MemRecoveryCode {
 /// An `audit_events` row.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MemAudit {
-    // M5-01
     /// Id (1, 2, …).
     pub id: i64,
     /// The org (`None`: an instance-level event).
@@ -251,7 +246,7 @@ pub struct MemData {
     pub vaults: BTreeMap<Uuid, MemVault>,
     /// `vault_members`.
     pub vault_members: Vec<MemMember>,
-    /// `items` by `(vault_id, item_id)` (M4-04: full rows).
+    /// `items` by `(vault_id, item_id)` (full rows).
     pub items: BTreeMap<(Uuid, Uuid), MemItem>,
     /// `login_states`.
     pub login_states: BTreeMap<Uuid, LoginStateRow>,
@@ -269,7 +264,6 @@ pub struct MemData {
     pub setup_token_hash: Option<[u8; 32]>,
     /// `invites`.
     pub invites: Vec<MemInvite>,
-    // M5-01
     /// `orgs`.
     pub orgs: BTreeMap<Uuid, MemOrg>,
     /// `org_members`: (org, user) → role.
@@ -277,7 +271,6 @@ pub struct MemData {
     /// Failure injection: the personal-vault insert of the next
     /// registrations fails.
     pub fail_vault_insert: bool,
-    // M5-04
     /// `items_rotation_staging` by `(vault_id, item_id)`: `(key_version,
     /// envelope)`.
     pub rotation_staging: BTreeMap<(Uuid, Uuid), (i32, Vec<u8>)>,
@@ -390,7 +383,7 @@ impl MemData {
                     Some(i) if self.invites[i].org_id.is_none() => {
                         Ok((RegistrationGrant::default(), Some(i), false))
                     }
-                    // M5-01: the membership is added once the account exists.
+                    // The membership is added once the account exists.
                     Some(i) => Ok((
                         RegistrationGrant {
                             org_invite: Some(self.invites[i].id),
@@ -704,7 +697,6 @@ impl MemStore {
         Ok(Some(AccessCtx { user_id, device_id }))
     }
 
-    // M4-05
     pub(super) fn access_expires_at(
         &self,
         hash: &TokenHash,
@@ -1007,7 +999,6 @@ impl MemStore {
             .map(|(id, _)| *id)
             .collect();
         d.items.retain(|(v, _), _| !personal.contains(v));
-        // M5-04
         d.rotation_staging.retain(|(v, _), _| !personal.contains(v));
         d.vault_members
             .retain(|m| !personal.contains(&m.vault_id) && m.user_id != user_id);

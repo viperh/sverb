@@ -1,4 +1,4 @@
-//! M0-09: event loop exits and terminal modes, end to end in a PTY (T-09..T-12).
+//! Event loop exits and terminal modes, end to end in a PTY (T-09..T-12).
 #![cfg(unix)]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -21,7 +21,7 @@ fn sverb(home: &Path) -> CommandBuilder {
 fn sverb_env(cmd: &mut CommandBuilder, home: &Path) {
     cmd.env("SVERB_HOME", home);
     cmd.env("TERM", "xterm-256color");
-    // M1-04: never the real OS keyring in tests.
+    // Never the real OS keyring in tests.
     cmd.env("SVERB_KEYRING", "off");
     cmd.env_remove("SVERB_TEST_HOOK");
     cmd.env_remove("RUST_BACKTRACE");
@@ -35,11 +35,10 @@ fn signal(pid: u32, sig: &str) -> TestResult {
     Ok(())
 }
 
-// T-09
 #[test]
 fn quit_restores_the_terminal() -> TestResult {
     let home = unique_home("m0-09-quit");
-    // M1-04: start from an initialized vault and unlock it.
+    // Start from an initialized vault and unlock it.
     init_vault(&home);
     let mut run = PtyRun::spawn(sverb(&home))?;
     let entered = run.wait_for("\x1b[?1049h", 0)?;
@@ -57,7 +56,6 @@ fn quit_restores_the_terminal() -> TestResult {
     Ok(())
 }
 
-// T-10
 #[test]
 fn sigterm_exits_cleanly_without_confirmation() -> TestResult {
     let home = unique_home("m0-09-term");
@@ -76,14 +74,14 @@ fn sigterm_exits_cleanly_without_confirmation() -> TestResult {
     Ok(())
 }
 
-// T-11: `ctrl-z` stops the process with the terminal restored; `SIGCONT` re-enters
+// `ctrl-z` stops the process with the terminal restored; `SIGCONT` re-enters
 // TUI mode and redraws. A job-control shell (`set -m`) runs sverb in the foreground:
 // a process in an orphaned process group would ignore SIGTSTP. The shell's
 // `waitpid(WUNTRACED)` reports the stop (`$? = 128 + SIGTSTP`), then `fg` continues it.
 #[test]
 fn suspend_and_resume() -> TestResult {
     let home = unique_home("m0-09-suspend");
-    // M1-04: start from an initialized vault and unlock it.
+    // Start from an initialized vault and unlock it.
     init_vault(&home);
     let mut cmd = CommandBuilder::new("sh");
     cmd.args([
@@ -117,11 +115,10 @@ fn suspend_and_resume() -> TestResult {
     Ok(())
 }
 
-// T-12
 #[test]
 fn mouse_capture_follows_config() -> TestResult {
     let home = unique_home("m0-09-mouse");
-    // M1-04: start from an initialized vault and unlock it.
+    // Start from an initialized vault and unlock it.
     init_vault(&home);
     std::fs::create_dir_all(home.join("config"))?;
     std::fs::write(

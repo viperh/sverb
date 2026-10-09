@@ -1,4 +1,4 @@
-//! M2-03: the keychain dialogs (`IdentityDialog::Keychain`, the Keychain section's
+//! The keychain dialogs (`IdentityDialog::Keychain`, the Keychain section's
 //! dialog slot on the stack).
 //!
 //! Every dialog records its answer ([`KeychainDialog::take_answer`]); the reducer
@@ -281,7 +281,6 @@ pub enum KeychainDialogKind {
     Confirm(ConfirmDialog),
     /// "Working…" (RSA generation, an import in flight).
     Busy(Modal),
-    // M2-04
     /// Install on hosts: the host picker.
     InstallPick(Box<super::install::InstallPicker>),
     /// Install on hosts: the per-host results.
@@ -323,7 +322,7 @@ impl KeychainDialog {
             | KeychainDialogKind::ChangePassphrase(_) => true,
             KeychainDialogKind::Path(p) => p.modal.wants_text(),
             KeychainDialogKind::Passphrase(p) => p.modal.wants_text(),
-            // M2-04: the picker's filter.
+            // The picker's filter.
             KeychainDialogKind::InstallPick(_) => true,
             _ => false,
         }
@@ -403,7 +402,6 @@ impl KeychainDialog {
                 _ => None,
             },
             KeychainDialogKind::Busy(_) => None,
-            // M2-04
             KeychainDialogKind::InstallPick(p) => p.handle(ev, cx),
             KeychainDialogKind::InstallResults(r) => r.handle(ev, cx),
         };
@@ -426,7 +424,6 @@ impl KeychainDialog {
             KeychainDialogKind::Passphrase(p) => p.modal.render(frame, area, cx),
             KeychainDialogKind::Confirm(c) => c.modal.render(frame, area, cx),
             KeychainDialogKind::Busy(m) => m.render(frame, area, cx),
-            // M2-04
             KeychainDialogKind::InstallPick(p) => p.render(frame, area, cx),
             KeychainDialogKind::InstallResults(r) => r.render(frame, area, cx),
         }

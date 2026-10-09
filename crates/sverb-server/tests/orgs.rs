@@ -1,8 +1,8 @@
-//! M5-01: orgs, roles, invites, public keys and the audit log over HTTP.
+//! Orgs, roles, invites, public keys and the audit log over HTTP.
 //!
 //! Every scenario runs on the in-memory store (`*_mem`) and on PostgreSQL
 //! (`*_pg`, needs `DATABASE_URL`; otherwise "SKIPPED (needs PostgreSQL)").
-//! The role matrix itself (T-02) is unit-tested in `src/orgs/mod.rs`.
+//! The role matrix itself is unit-tested in `src/orgs/mod.rs`.
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
 
 mod common;
@@ -244,7 +244,7 @@ impl Account {
     }
 }
 
-/// Registration through both endpoints (like the client, M4-08). `extra` is
+/// Registration through both endpoints (like the client). `extra` is
 /// merged into both requests (an invite token).
 async fn try_register(
     h: &Harness,
@@ -413,7 +413,7 @@ async fn remove(h: &Harness, by: &Account, org: Uuid, user: Uuid) -> (StatusCode
 
 // ---------------------------------------------------------------- scenarios
 
-// T-01: create → owner; list; members.
+// Create → owner; list; members.
 async fn t01_create_and_list(h: &Harness) {
     let a = register(h, "alice@example.test").await;
     let b = register(h, "bob@example.test").await;
@@ -545,7 +545,7 @@ async fn t02_permissions(h: &Harness) {
     assert_eq!(v.as_array().unwrap().len(), 2);
 }
 
-// T-03: tokens hashed, expiry, email binding, single-use link invites; and
+// Tokens hashed, expiry, email binding, single-use link invites; and
 // registration with an org invite on an invite-only server.
 async fn t03_invites(h: &Harness) {
     let owner = register(h, "owner@example.test").await;
@@ -607,7 +607,7 @@ async fn t03_invites(h: &Harness) {
     assert_eq!(v[0]["role"], "member");
 }
 
-// T-04: no SMTP → the link; SMTP (fake transport) → a mail with the link.
+// No SMTP → the link; SMTP (fake transport) → a mail with the link.
 async fn t04_mail(h: &Harness) {
     let owner = register(h, "owner@example.test").await;
     let org = create_org(h, &owner, "Acme").await;
@@ -636,7 +636,7 @@ async fn t04_mail(h: &Harness) {
     assert_eq!(sent.lock().unwrap().len(), 1);
 }
 
-// T-05: public keys only for users sharing an org.
+// Public keys only for users sharing an org.
 async fn t05_public_keys(h: &Harness) {
     let a = register(h, "alice@example.test").await;
     let b = register(h, "bob@example.test").await;
@@ -680,7 +680,7 @@ async fn t05_public_keys(h: &Harness) {
     );
 }
 
-// T-06: an audit event per action; meta never holds names, emails or envelopes.
+// An audit event per action; meta never holds names, emails or envelopes.
 async fn t06_audit_events(h: &Harness) {
     let owner = register(h, "owner@example.test").await;
     let bob = register(h, "bob@example.test").await;
@@ -737,7 +737,7 @@ async fn t06_audit_events(h: &Harness) {
     assert_eq!(changed.1, json!({ "from": "member", "to": "admin" }));
 }
 
-// T-07: pagination, admins only.
+// Pagination, admins only.
 async fn t07_audit_endpoint(h: &Harness) {
     let owner = register(h, "owner@example.test").await;
     let member = register(h, "member@example.test").await;

@@ -5,7 +5,7 @@
 //! [`APPLY_SCOPES`] table must list every key (another test checks that).
 //!
 //! # Hotspot
-//! Later tasks add keys here (see `tasks/01-DEPENDENCIES.md` §3). Add a field to the
+//! Later tasks add keys here. Add a field to the
 //! struct, its default, a row in [`APPLY_SCOPES`], the line in `default_config.toml`
 //! and regenerate `docs/config.schema.json` (`SVERB_BLESS_SCHEMA=1 cargo test -p sverb-core schema`).
 
@@ -125,7 +125,6 @@ pub enum TruecolorMode {
     Off,
 }
 
-// M7-07 (spec addition)
 /// ASCII fallback for UI glyphs (`ui.ascii`).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
@@ -157,7 +156,6 @@ pub struct UiConfig {
     pub which_key_delay_ms: u32,
     /// strftime-style format for dates shown in the UI.
     pub date_format: String,
-    // M7-07 (spec addition)
     /// ASCII glyph fallback: auto (non-UTF-8 locale or `TERM=linux`), on or off.
     pub ascii: AsciiMode,
     /// No animated glyphs (spinners show a static marker).
@@ -174,7 +172,6 @@ impl Default for UiConfig {
             show_which_key: true,
             which_key_delay_ms: 400,
             date_format: "%Y-%m-%d %H:%M".to_owned(),
-            // M7-07 (spec addition)
             ascii: AsciiMode::Auto,
             reduce_motion: false,
         }
@@ -297,7 +294,6 @@ pub struct SshConfig {
     pub max_auth_attempts: u32,
     /// TCP and handshake timeout in seconds (at least 1).
     pub connect_timeout_secs: u32,
-    // M1-16 (spec addition): §6.1.2 "optional auto-reconnect" names no key.
     /// Reconnect dropped sessions automatically (exponential backoff 1 s → 30 s, at most
     /// 10 tries). A host's `auto_reconnect` overrides it.
     pub auto_reconnect: bool,
@@ -315,7 +311,6 @@ impl Default for SshConfig {
             exec_timeout_secs: 60,
             max_auth_attempts: 5,
             connect_timeout_secs: 15,
-            // M1-16
             auto_reconnect: false,
         }
     }
@@ -329,7 +324,6 @@ pub struct RecordingConfig {
     pub enabled: bool,
     /// Also record keyboard input.
     pub include_input: bool,
-    // M3-06 (spec addition)
     /// Delete recordings this many days old. 0 keeps them until deleted.
     pub retention_days: u32,
 }
@@ -344,7 +338,6 @@ pub struct HistoryConfig {
     pub sync: bool,
     /// History entries kept per host.
     pub max_entries_per_host: u32,
-    // M7-01 (spec addition)
     /// Show an inline ghost-text suggestion after the cursor (needs shell integration,
     /// OSC 133). Accepted with `leader Tab` only.
     pub ghost_text: bool,
@@ -356,7 +349,6 @@ impl Default for HistoryConfig {
             enabled: true,
             sync: false,
             max_entries_per_host: 5000,
-            // M7-01
             ghost_text: false,
         }
     }
@@ -407,8 +399,8 @@ pub type ModeBindings = BTreeMap<KeyChordSpec, String>;
 ///
 /// User tables are merged key by key over the defaults (`p`, `-`, `|` after the
 /// leader, `ctrl-k` in Normal mode, `y`, `/` and `o` in copy mode), so a user file only
-/// lists its changes. `[keys.copy]` binds copy-mode actions (M3-04).
-/// The full built-in keymap lives in `sverb-tui` (M0-10) and is merged under this.
+/// lists its changes. `[keys.copy]` binds copy-mode actions.
+/// The full built-in keymap lives in `sverb-tui` and is merged under this.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 #[serde(transparent)]
 pub struct KeysConfig(pub BTreeMap<String, ModeBindings>);
@@ -433,7 +425,7 @@ impl Default for KeysConfig {
         let normal: ModeBindings = [(KeyChordSpec::from("ctrl-k"), "palette".to_owned())]
             .into_iter()
             .collect();
-        // M3-04: copy mode (`leader [`); the full built-in table lives in sverb-tui.
+        // Copy mode (`leader [`); the full built-in table lives in sverb-tui.
         let copy: ModeBindings = [("y", "yank"), ("/", "search_forward"), ("o", "open_link")]
             .into_iter()
             .map(|(k, v)| (KeyChordSpec::from(k), v.to_owned()))
@@ -441,7 +433,6 @@ impl Default for KeysConfig {
         Self(BTreeMap::from([
             ("terminal".to_owned(), terminal),
             ("normal".to_owned(), normal),
-            // M3-04
             ("copy".to_owned(), copy),
         ]))
     }
@@ -503,7 +494,6 @@ pub const APPLY_SCOPES: &[(&str, ApplyScope)] = &[
     ("ui.show_which_key", ApplyScope::Live),
     ("ui.which_key_delay_ms", ApplyScope::Live),
     ("ui.date_format", ApplyScope::Live),
-    // M7-07 (spec addition)
     ("ui.ascii", ApplyScope::Live),
     ("ui.reduce_motion", ApplyScope::Live),
     ("terminal.term", ApplyScope::NewSessions),
@@ -524,16 +514,13 @@ pub const APPLY_SCOPES: &[(&str, ApplyScope)] = &[
     ("ssh.exec_timeout_secs", ApplyScope::NewRuns),
     ("ssh.max_auth_attempts", ApplyScope::NewConnections),
     ("ssh.connect_timeout_secs", ApplyScope::NewConnections),
-    // M1-16 (spec addition)
     ("ssh.auto_reconnect", ApplyScope::NewConnections),
     ("recording.enabled", ApplyScope::NewSessions),
     ("recording.include_input", ApplyScope::NewSessions),
-    // M3-06 (spec addition): applied by the next maintenance run.
     ("recording.retention_days", ApplyScope::Live),
     ("history.enabled", ApplyScope::Live),
     ("history.sync", ApplyScope::Live),
     ("history.max_entries_per_host", ApplyScope::Live),
-    // M7-01 (spec addition)
     ("history.ghost_text", ApplyScope::Live),
     ("sync.push_debounce_ms", ApplyScope::Live),
     ("sync.poll_fallback_secs", ApplyScope::Live),

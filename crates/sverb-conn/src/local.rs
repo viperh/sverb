@@ -1,4 +1,4 @@
-//! M1-12: the local terminal transport (SPEC §6.2) over `portable-pty`.
+//! The local terminal transport (SPEC §6.2) over `portable-pty`.
 //!
 //! [`LocalConnector`] turns a [`SessionSpec::Local`] into a [`LocalTransport`]: a shell
 //! running in a pseudo-terminal on this machine. Register it with

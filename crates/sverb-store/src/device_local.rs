@@ -132,7 +132,6 @@ impl WriteTx<'_> {
         Ok(())
     }
 
-    // M4-08
     /// Moves the device-local row of `from` to `to` (an item re-created under a
     /// new id, e.g. imported into the account vault at login), replacing any row
     /// of `to`. A no-op when `from` has no row.
@@ -179,7 +178,7 @@ mod tests {
 
     const DAY: i64 = 86_400_000;
 
-    // T-10: two connects 14 days apart → 0.5·1 + 1 = 1.5; recent use ranks higher.
+    // Two connects 14 days apart → 0.5·1 + 1 = 1.5; recent use ranks higher.
     #[test]
     fn t10_frecency_half_life() {
         let first = bump_frecency(None, 0);

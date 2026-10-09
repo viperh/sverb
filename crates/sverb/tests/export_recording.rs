@@ -1,4 +1,4 @@
-//! M3-05 T-11: `sverb export recording <id> <out.cast>` writes plain asciicast v2 (every
+//! `sverb export recording <id> <out.cast>` writes plain asciicast v2 (every
 //! line is JSON), and refuses without `--yes` when there is no terminal to confirm on.
 //! The OS keyring is disabled (`SVERB_KEYRING=off`); the vault is unlocked on a PTY.
 #![cfg(unix)]
@@ -117,7 +117,7 @@ fn out_path(home: &Path) -> PathBuf {
     home.join("out.cast")
 }
 
-// T-11: no terminal and no --yes → refused (usage, exit 2), nothing written.
+// No terminal and no --yes → refused (usage, exit 2), nothing written.
 #[test]
 fn t11_refuses_without_yes_and_without_a_terminal() {
     let home = unique_home("m3-05-export-notty");
@@ -154,7 +154,7 @@ fn t11_refuses_without_yes_and_without_a_terminal() {
     let _ = std::fs::remove_dir_all(&home);
 }
 
-// T-11: --yes on a terminal: unlock, then a valid .cast file.
+// --yes on a terminal: unlock, then a valid .cast file.
 #[test]
 fn t11_exports_valid_asciicast_with_yes() -> TestResult {
     let home = unique_home("m3-05-export-yes");
@@ -176,7 +176,7 @@ fn t11_exports_valid_asciicast_with_yes() -> TestResult {
     Ok(())
 }
 
-// T-11: without --yes on a terminal: the confirmation is asked first.
+// Without --yes on a terminal: the confirmation is asked first.
 #[test]
 fn t11_confirms_on_a_terminal() -> TestResult {
     let home = unique_home("m3-05-export-confirm");

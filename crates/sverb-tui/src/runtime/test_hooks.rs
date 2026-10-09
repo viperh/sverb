@@ -1,4 +1,4 @@
-//! M0-05: crash-path hooks for the binary's PTY integration tests.
+//! Crash-path hooks for the binary's PTY integration tests.
 //!
 //! Compiled only with the `test-hooks` feature (never in release builds). The tests
 //! set `SVERB_TEST_HOOK` before launching the binary; the hook runs right after the

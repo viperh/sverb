@@ -10,7 +10,7 @@
 //! warning. Lines that cannot be an entry (missing fields, bad base64, a blob of another
 //! type, an unknown marker, a malformed hashed field) are skipped with a warning.
 //!
-//! Shared with the `~/.ssh/known_hosts` importer (M2-11).
+//! Shared with the `~/.ssh/known_hosts` importer.
 
 use crate::model::{KnownHost, KnownHostMarker};
 

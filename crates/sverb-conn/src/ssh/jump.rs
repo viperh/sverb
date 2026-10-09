@@ -1,4 +1,4 @@
-//! M2-05: jump hosts (SPEC §6.1.4, §6.1.1 step 2).
+//! Jump hosts (SPEC §6.1.4, §6.1.1 step 2).
 //!
 //! `jump_chain = [A, B]` connects to A, opens `direct-tcpip` to B on A's connection,
 //! runs SSH over that channel (`Channel::into_stream`), and opens `direct-tcpip` to the
@@ -12,7 +12,7 @@
 //! - **Host keys** are verified per hop under the hop's **own** `address:port` (as the
 //!   previous hop reaches it), like OpenSSH `ProxyJump`; the prompt carries
 //!   `hop i/n` from the state.
-//! - **Proxy:** only the first hop's TCP connection uses a proxy (M2-06): the first
+//! - **Proxy:** only the first hop's TCP connection uses a proxy: the first
 //!   hop's own proxy setting. The target's proxy is not used behind a chain.
 //! - **State:** `Resolved { hops: n }`, then per hop `TcpConnected { hop: i }`, the
 //!   handshake and `AuthSucceeded` (which moves on to `Connecting { i + 1, n }`).
@@ -22,7 +22,7 @@
 //!   transport. When a hop goes down the target's stream ends; the pump then reports
 //!   the hop ([`Chain::hop_failure`]): `Connect`, or `Timeout` after a keepalive
 //!   timeout.
-//! - M3-07: hop connections are shared through the multiplexer (`mux.rs`,
+//! - Hop connections are shared through the multiplexer (`mux.rs`,
 //!   `mux_ssh.rs`): the connect flow goes through `mux_ssh::connect`, which uses
 //!   [`resolve_hops`], [`open_direct`] and builds the [`Chain`] from the pooled hops
 //!   (with `ssh.multiplex = false` the hops of one chain are a private pool).
@@ -300,7 +300,7 @@ async fn open_direct(
 #[path = "jump_tests.rs"]
 mod tests;
 
-// M3-07: connection sharing, next to the jump chain it pools (the hops are pooled
+// Connection sharing, next to the jump chain it pools (the hops are pooled
 // connections). The merge may move these to `ssh/mod.rs` together with `jump`.
 #[path = "mux.rs"]
 pub(crate) mod mux;

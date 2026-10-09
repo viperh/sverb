@@ -1,6 +1,6 @@
-//! M2-09: the results of an exec run on hosts (SPEC §9.7).
+//! The results of an exec run on hosts (SPEC §9.7).
 //!
-//! The shared [`ResultsTable`] (M2-04): per host the status (`queued`, `running`, `ok`,
+//! The shared [`ResultsTable`]: per host the status (`queued`, `running`, `ok`,
 //! `exit N`, `timeout`, `error: …`), the duration and an expandable detail (stderr,
 //! then stdout) with a "truncated" badge. Keys: the table's (`↑↓`, `Enter` expand), `r`
 //! re-runs the failed hosts, `x` exports, `esc` closes (cancelling what still runs).

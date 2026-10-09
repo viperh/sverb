@@ -1,10 +1,10 @@
 //! Opening vault grants with the account keys (§11.3): the HPKE
-//! implementation of the engine's [`VaultKeySource`] (M4-07).
+//! implementation of the engine's [`VaultKeySource`].
 //!
 //! A grant is used only after its Ed25519 signature verifies against a
 //! granter key the client trusts. The account's own key is always trusted
 //! (personal-vault self-grants, §11.3); keys of other users come from a
-//! [`TrustedGranters`] lookup (TOFU pinning and safety numbers, M5-03). With
+//! [`TrustedGranters`] lookup (TOFU pinning and safety numbers). With
 //! no lookup, grants by other users are refused.
 
 use std::fmt;
@@ -19,7 +19,7 @@ use uuid::Uuid;
 
 use crate::keys::VaultKeySource;
 
-/// The Ed25519 public key of a granter the client trusts (M5-03).
+/// The Ed25519 public key of a granter the client trusts.
 pub trait TrustedGranters: Send + Sync + fmt::Debug {
     /// The trusted key of `user`, or `None` (grant refused).
     fn ed25519_pub(&self, user: Uuid) -> Option<[u8; 32]>;

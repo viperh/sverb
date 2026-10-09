@@ -1,11 +1,10 @@
-//! M1-16: reconnecting reuses the emulator (scrollback kept), writes a separator and
+//! Reconnecting reuses the emulator (scrollback kept), writes a separator and
 //! resets the modes the old remote left on (SPEC §6.1.2).
 //!
 //! - T-05 / T-06 over `MockTransport` (a connector that hands out a fresh mock pair per
 //!   connection),
 //! - a T-07-like run over the loopback SSH server: the TCP link is cut by a proxy, the
 //!   session is reconnected and output works again, with the old output still in the
-//!   scrollback. (The Docker variants, T-07/T-08 with `docker restart`, belong to M1-18.)
 #![allow(clippy::unwrap_used, clippy::expect_used, unreachable_pub)]
 
 use std::{net::SocketAddr, sync::Arc, time::Duration};
@@ -121,7 +120,7 @@ async fn wait_text(h: &SessionHandle, needle: &str) {
     .unwrap_or_else(|_| panic!("{needle:?} never shown:\n{}", all_text(h)));
 }
 
-// T-05: 500 lines, disconnect, reconnect → the scrollback still has them, plus the
+// 500 lines, disconnect, reconnect → the scrollback still has them, plus the
 // separator.
 #[tokio::test]
 async fn t05_scrollback_preserved_across_reconnect() {
@@ -186,7 +185,7 @@ fn regex_lite(line: &str) -> bool {
         && [0, 1, 3, 4, 6, 7].iter().all(|i| b[*i].is_ascii_digit())
 }
 
-// T-06: the remote left the alternate screen, DECCKM, bracketed paste and mouse
+// The remote left the alternate screen, DECCKM, bracketed paste and mouse
 // tracking on before dropping → cleared after the reconnect.
 #[tokio::test]
 async fn t06_modes_reset_on_reconnect() {

@@ -17,7 +17,7 @@
 //! | Connecting | `HostKeyNeeded(v)` | `AwaitingHostKey(v)` (same hop) |
 //! | Connecting | `AuthStarted(m)` | `Authenticating { m }` (same hop) |
 //! | Connecting | `TransportError(r)` | `Disconnected { r }` |
-//! | Connecting | `ChannelOpened` (M3-07: the rest of the chain was shared) | `Connected` |
+//! | Connecting | `ChannelOpened` (the rest of the chain was shared) | `Connected` |
 //! | AwaitingHostKey | `HostKeyAccepted` | `Connecting` (same hop) |
 //! | AwaitingHostKey | `HostKeyRejected` / `KeepaliveTimeout` (prompt timeout) | `Disconnected { HostKey }` |
 //! | AwaitingHostKey | `TransportError(r)` | `Disconnected { r }` |
@@ -37,7 +37,7 @@
 //! | any but Closed | `UserClose` | `Closed` |
 //! | Closed | anything | **illegal** |
 //!
-//! Everything else is illegal. Two rows differ from the task table (M1-08) and are
+//! Everything else is illegal. Two rows differ from the task table and are
 //! documented in the task report: `TcpConnected` does not advance the hop (the hop
 //! advances on `AuthSucceeded` of an intermediate hop, otherwise a two-hop chain would
 //! skip a hop), and a network error while a host-key or auth prompt is open is a normal
@@ -45,7 +45,6 @@
 
 use std::{fmt, time::Instant};
 
-/// How the user authenticates (SPEC §6.1.1). M1-14 adds the details.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum AuthMethod {
@@ -74,12 +73,10 @@ pub struct Verification {
     pub fingerprint: String,
     /// The key changed since it was last trusted (a warning, not a first-use prompt).
     pub changed: bool,
-    // M1-15
     /// What the prompt shows: key type, randomart, old fingerprints.
     pub details: HostKeyDetails,
 }
 
-// M1-15
 /// The details of a host-key question (the unknown-key modal, the changed-key screen).
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct HostKeyDetails {
@@ -98,7 +95,7 @@ pub struct HostKeyDetails {
     pub note: Option<String>,
 }
 
-/// A prompt the user has to answer during authentication (M1-14: one dialog per
+/// A prompt the user has to answer during authentication (one dialog per
 /// request, SPEC §6.1.1 step 4).
 ///
 /// Server-provided text (`name`, `instruction`, keyboard-interactive prompt lines) is
@@ -114,7 +111,6 @@ pub struct AuthPrompt {
     pub method: AuthMethod,
     /// Prompt lines (keyboard-interactive may ask several questions).
     pub prompts: Vec<PromptLine>,
-    // M1-14
     /// What is asked (decides the "save to vault" checkbox).
     pub kind: PromptKind,
     /// Dialog title: `Authenticate to <label>`.
@@ -126,7 +122,6 @@ pub struct AuthPrompt {
     pub instruction: String,
 }
 
-// M1-14
 impl AuthPrompt {
     /// A prompt of `kind` with `prompts`; the hop and method are set by the transition.
     pub fn new(kind: PromptKind, title: String, prompts: Vec<PromptLine>) -> Self {
@@ -143,7 +138,6 @@ impl AuthPrompt {
     }
 }
 
-// M1-14
 /// What an [`AuthPrompt`] asks for.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
@@ -210,7 +204,6 @@ pub enum DisconnectReason {
 }
 
 impl DisconnectReason {
-    /// A short user-facing message (SPEC §6.1.9). M1-13 adds host, address and the
     /// algorithm details to the messages it shows.
     pub fn message(self) -> String {
         match self {
@@ -257,7 +250,7 @@ pub enum SessionState {
     Authenticating {
         /// Method being tried.
         method: AuthMethod,
-        /// Current hop (M1-08: needed to tell intermediate from final hops).
+        /// Current hop (needed to tell intermediate from final hops).
         hop: usize,
         /// Number of hops.
         of: usize,
@@ -373,7 +366,7 @@ impl SessionState {
                 of: *of,
             }),
             (S::Connecting { .. }, I::TransportError(r)) => disc(*r),
-            // M3-07: a connection another session dialed meanwhile was shared, so the
+            // A connection another session dialed meanwhile was shared, so the
             // hops planned after the current one were never dialed.
             (S::Connecting { .. }, I::ChannelOpened) => Some(S::Connected { since: now }),
 
@@ -391,7 +384,6 @@ impl SessionState {
                     hop: *hop,
                     of: *of,
                     method: *method,
-                    // M1-14
                     ..p.clone()
                 }))
             }
@@ -512,7 +504,6 @@ mod tests {
                 text: "Password:".to_owned(),
                 echo: false,
             }],
-            // M1-14
             ..AuthPrompt::new(
                 PromptKind::KeyboardInteractive,
                 "Authenticate to test".to_owned(),
@@ -531,7 +522,7 @@ mod tests {
         i.name()
     }
 
-    /// T-01: every (state, input) pair over all variants (with intermediate and final
+    /// Every (state, input) pair over all variants (with intermediate and final
     /// hops), checked against an explicit allow-list; everything else must be illegal.
     #[test]
     fn t01_transition_table_exhaustive() {
@@ -642,7 +633,6 @@ mod tests {
             ("conn1/2", "hkneeded", hk(1, 2)),
             ("conn1/2", "authstarted", auth(pk, 1, 2)),
             ("conn1/2", "err", disc(err)),
-            // M3-07
             ("conn1/2", "channel", connected.clone()),
             (
                 "conn2/2",
@@ -652,7 +642,6 @@ mod tests {
             ("conn2/2", "hkneeded", hk(2, 2)),
             ("conn2/2", "authstarted", auth(pk, 2, 2)),
             ("conn2/2", "err", disc(err)),
-            // M3-07
             ("conn2/2", "channel", connected.clone()),
             (
                 "hostkey1/2",
@@ -747,7 +736,7 @@ mod tests {
         assert!(s.is_closed());
     }
 
-    /// T-11: a clean remote exit disconnects with `Exited(0)` and no reconnect banner.
+    /// A clean remote exit disconnects with `Exited(0)` and no reconnect banner.
     #[test]
     fn t11_remote_exit() {
         let now = Instant::now();

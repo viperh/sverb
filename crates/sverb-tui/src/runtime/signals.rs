@@ -1,4 +1,4 @@
-//! OS signals → [`LoopSignal`] (M0-09, SPEC §18).
+//! OS signals → [`LoopSignal`] (SPEC §18).
 //!
 //! - Unix: `SIGTERM`, `SIGHUP` and `SIGINT` → [`LoopSignal::Shutdown`] (`SIGINT` only
 //!   arrives outside raw mode, e.g. while suspended). `SIGCONT` →

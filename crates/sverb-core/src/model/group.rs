@@ -1,4 +1,4 @@
-//! M2-01: group tree helpers (SPEC §4.3, §9.2).
+//! Group tree helpers (SPEC §4.3, §9.2).
 //!
 //! Groups nest through `parent_id`. Writes reject cycles
 //! (`validate::validate_group_parent`), but synced data can still be inconsistent, so

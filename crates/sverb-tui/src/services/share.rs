@@ -1,4 +1,4 @@
-//! M6-03: the terminal-sharing service (feature `share`, SPEC §14).
+//! The terminal-sharing service (feature `share`, SPEC §14).
 //!
 //! **Hosting** (`ShareEffect::Start`): the pane's session gets a share tap
 //! (`SessionCmd::AttachShareTap`, wrapping a `sverb_sync::share::ShareFeed`), then

@@ -1,4 +1,4 @@
-//! The session manager (M1-08 §2.4): opens, tracks, closes and shuts down session
+//! The session manager: opens, tracks, closes and shuts down session
 //! actors, and contains their panics.
 //!
 //! Each session is two tasks: the actor (wrapped in
@@ -24,9 +24,8 @@ use std::{
 use async_trait::async_trait;
 use parking_lot::Mutex;
 use sverb_core::error_report::ErrorReport;
-use sverb_term::{AlacrittyEmulator, DEFAULT_SCROLLBACK, Emulator, EmulatorConfig};
-// M1-11
 use sverb_term::modes::input::EncodeOpts;
+use sverb_term::{AlacrittyEmulator, DEFAULT_SCROLLBACK, Emulator, EmulatorConfig};
 use tokio::{
     sync::mpsc,
     task::{AbortHandle, JoinError, JoinHandle},
@@ -34,6 +33,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, warn};
 
+use crate::connlog::{AttemptEnd, AttemptOutcome, ConnLogSink, NoConnLog};
 use crate::{
     panic_scope::Contained,
     session::{
@@ -43,8 +43,6 @@ use crate::{
     },
     transport::{ConnectCtx, ConnectError, Connector, Transport, TransportKind},
 };
-// M3-06
-use crate::connlog::{AttemptEnd, AttemptOutcome, ConnLogSink, NoConnLog};
 use sverb_core::model::UnixMillis;
 
 /// Builds the emulator for a new session.
@@ -65,10 +63,8 @@ pub struct OpenOptions {
     pub emulator: Option<Box<dyn Emulator>>,
     /// Transport read buffer size (default [`READ_BUFFER`]).
     pub read_buffer: usize,
-    // M1-11
     /// Key encoding options (the host's `backspace`), used by `SessionCmd::Key`.
     pub encode: EncodeOpts,
-    // M2-08
     /// A standalone tunnel (SPEC §9.6): SSH without a shell channel; the session only
     /// carries port forwards.
     pub tunnel_only: bool,
@@ -83,9 +79,7 @@ impl Default for OpenOptions {
             scrollback: DEFAULT_SCROLLBACK,
             emulator: None,
             read_buffer: READ_BUFFER,
-            // M1-11
             encode: EncodeOpts::default(),
-            // M2-08
             tunnel_only: false,
         }
     }
@@ -142,9 +136,7 @@ struct Inner {
     sessions: Mutex<Sessions>,
     connectors: Mutex<HashMap<TransportKind, Arc<dyn Connector>>>,
     factory: Mutex<EmulatorFactory>,
-    // M3-06
     connlog: Mutex<Arc<dyn ConnLogSink>>,
-    // M2-08
     forwards: Mutex<Option<Arc<dyn crate::forward::ForwardHook>>>,
 }
 
@@ -164,7 +156,6 @@ impl fmt::Debug for SessionManager {
 
 impl SessionManager {
     /// A manager whose sessions report to `sink`. The mock connector is registered;
-    /// M1-12 and M1-13 register the local and SSH connectors.
     pub fn new(sink: impl EventSink) -> Self {
         let mut connectors: HashMap<TransportKind, Arc<dyn Connector>> = HashMap::new();
         connectors.insert(TransportKind::Mock, Arc::new(MockConnector));
@@ -179,9 +170,7 @@ impl SessionManager {
                 }),
                 connectors: Mutex::new(connectors),
                 factory: Mutex::new(factory),
-                // M3-06
                 connlog: Mutex::new(Arc::new(NoConnLog)),
-                // M2-08
                 forwards: Mutex::new(None),
             }),
         }
@@ -192,14 +181,12 @@ impl SessionManager {
         self.inner.connectors.lock().insert(kind, connector);
     }
 
-    // M3-06
     /// Report connection attempts of sessions opened from now on to `sink` (default:
     /// [`NoConnLog`]).
     pub fn set_connlog_sink(&self, sink: Arc<dyn ConnLogSink>) {
         *self.inner.connlog.lock() = sink;
     }
 
-    // M2-08
     /// Report the connections of sessions opened from now on to `hook` (port
     /// forwards: auto-start, restart on reconnect, stop on connection loss).
     pub fn set_forward_hook(&self, hook: Arc<dyn crate::forward::ForwardHook>) {
@@ -252,7 +239,6 @@ impl SessionManager {
         let (cmd_tx, cmd_rx) = mpsc::channel(CMD_CAPACITY);
         let cancel = CancellationToken::new();
         let connector = self.inner.connectors.lock().get(&spec.kind()).cloned();
-        // M3-06
         let connlog = Arc::clone(&*self.inner.connlog.lock());
         let handle = SessionHandle {
             id,
@@ -273,17 +259,12 @@ impl SessionManager {
             state: SessionState::Resolving,
             last_title: None,
             deferred: Vec::new(),
-            // M1-11
             encode: opts.encode,
-            // M3-05
             recorder: None,
-            // M3-06
             connlog: Arc::clone(&connlog),
             attempt: None,
-            // M2-08
             forwards: self.inner.forwards.lock().clone(),
             tunnel_only: opts.tunnel_only,
-            // M6-03
             share_tap: None,
         };
         let task = rt.spawn(Contained::new(actor.run()));
@@ -293,7 +274,6 @@ impl SessionManager {
             task,
             Arc::clone(&self.inner.sink),
             Arc::downgrade(&self.inner),
-            // M3-06
             connlog,
         ));
         sessions.map.insert(
@@ -357,7 +337,7 @@ impl SessionManager {
         }
     }
 
-    /// Close every session, wait up to `timeout`, then abort the rest (Quit, M0-09).
+    /// Close every session, wait up to `timeout`, then abort the rest (Quit).
     pub async fn shutdown(&self, timeout: Duration) -> ShutdownReport {
         let mut tasks: Vec<(AbortHandle, JoinHandle<()>)> = Vec::new();
         {
@@ -403,7 +383,6 @@ async fn supervise(
     task: JoinHandle<()>,
     sink: Arc<dyn EventSink>,
     inner: Weak<Inner>,
-    // M3-06
     connlog: Arc<dyn ConnLogSink>,
 ) {
     let result: Result<(), JoinError> = task.await;
@@ -428,7 +407,7 @@ async fn supervise(
                 id,
                 SessionEvent::Error(ErrorReport::msg(DisconnectReason::Internal.message())),
             );
-            // M3-06: a crashed attempt still ends its ConnLog entry (ignored if the
+            // A crashed attempt still ends its ConnLog entry (ignored if the
             // actor had already ended it).
             connlog.attempt_ended(
                 id,
@@ -443,7 +422,7 @@ async fn supervise(
         }
         Err(_) => {
             debug!(session = %id, "session aborted");
-            // M3-06: aborted on quit: the attempt ends now (`ended_at` = quit time).
+            // Aborted on quit: the attempt ends now (`ended_at` = quit time).
             connlog.attempt_ended(
                 id,
                 AttemptEnd {

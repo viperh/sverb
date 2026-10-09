@@ -1,4 +1,4 @@
-//! M3-02: broadcast input sets (SPEC §9.8), pure set logic and target computation.
+//! Broadcast input sets (SPEC §9.8), pure set logic and target computation.
 //!
 //! Every tab has a [`BroadcastSet`]:
 //! - [`BroadcastSet::Off`]: input goes to the focused pane only,

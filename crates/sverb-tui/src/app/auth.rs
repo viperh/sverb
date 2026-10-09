@@ -1,8 +1,8 @@
-//! M1-14: authentication prompts in the reducer (SPEC §6.1.1 step 4, task §2.3, §2.5).
+//! Authentication prompts in the reducer (SPEC §6.1.1 step 4, task §2.3, §2.5).
 //!
 //! - `SessionEvent::Prompt(p)` queues the prompt ([`crate::widgets::auth_prompt::AuthPrompts`]); one dialog is on
 //!   screen at a time, the focused session's prompt first. The tab bar's 🔑 marker comes
-//!   from the session's `AwaitingUser` state (M1-17).
+//!   from the session's `AwaitingUser` state.
 //! - The dialog records its answer; after the dispatch [`App::take_auth_answer`] sends
 //!   `Effect::AuthAnswer` (responses or cancel), remembers a credential the user asked to
 //!   save, and shows the next prompt.
@@ -124,7 +124,7 @@ impl App {
         effects.push(Effect::AuthAnswer { id: session, reply });
         self.needs_redraw = true;
         self.show_next_auth_prompt();
-        // M2-04: an install connection's prompt answers go to its run.
+        // An install connection's prompt answers go to its run.
         self.reroute_install_answers(effects);
     }
 
@@ -142,7 +142,6 @@ impl App {
         }
         self.dialogs
             .retain(|d| !matches!(d.kind, DialogKind::AuthPrompt(_)));
-        // M2-04
         self.reroute_install_answers(effects);
     }
 }
@@ -232,7 +231,7 @@ mod tests {
             .collect()
     }
 
-    /// T-09: two panes prompt at once; the focused pane's dialog is shown first, the
+    /// Two panes prompt at once; the focused pane's dialog is shown first, the
     /// other one after it is answered.
     #[test]
     fn t09_prompt_queueing_focused_first() {
@@ -271,7 +270,7 @@ mod tests {
         assert_eq!(shown(&app), None);
     }
 
-    /// T-10: a wrong password typed with "save" checked → no save; the right one → a
+    /// A wrong password typed with "save" checked → no save; the right one → a
     /// save of the host with only `password` changed, once the login succeeded.
     #[test]
     fn t10_save_password_only_after_success() {

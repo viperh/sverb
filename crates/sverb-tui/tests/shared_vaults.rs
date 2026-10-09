@@ -1,7 +1,7 @@
-//! M5-02: shared vaults through the TUI's vault and item services: adopting a
-//! vault key while unlocked, names, the read-only permission (T-04), vault badges
-//! and the selector's data (T-05), move with a referenced identity (T-06),
-//! credential overrides (T-07) and the cross-vault rule on save (T-08).
+//! Shared vaults through the TUI's vault and item services: adopting a
+//! vault key while unlocked, names, the read-only permission, vault badges
+//! and the selector's data, move with a referenced identity,
+//! credential overrides and the cross-vault rule on save.
 //! Small Argon2 parameters, in-memory keyring, no network.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -239,7 +239,7 @@ async fn t04_read_only_vault_refuses_writes() {
     assert!(host(&ops, "new", None, None).await.is_ok());
 }
 
-// T-06: move a personal host using a personal identity to a shared vault:
+// Move a personal host using a personal identity to a shared vault:
 // blocked, then with "also copy" the host and an identity copy are in the shared
 // vault and the personal host is gone.
 #[tokio::test]

@@ -1,8 +1,7 @@
-//! M1-07: "copy as command" (SPEC §9.1): the OpenSSH command line equivalent to a
+//! "copy as command" (SPEC §9.1): the OpenSSH command line equivalent to a
 //! host, e.g. `ssh -J bastion,user@jump2:2222 -p 2222 -i ~/.ssh/id_ed25519 user@host`.
 //!
 //! [`render`] takes an [`SshTarget`], the subset of a resolved host the command line
-//! needs. M1-13's `ResolvedHost` (settings resolution) feeds it; until then the Hosts
 //! view builds it from the host's own fields.
 //!
 //! - `-J` lists the jump chain as `[user@]addr[:port]`, comma-separated; an IPv6 hop
@@ -175,7 +174,6 @@ mod tests {
         }
     }
 
-    // T-02
     #[test]
     fn t02_render_table() {
         let plain = host("example.com");

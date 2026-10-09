@@ -1,4 +1,4 @@
-//! M6-03: the start dialog (`leader S` on a pane that isn't shared; §14.1 step 1).
+//! The start dialog (`leader S` on a pane that isn't shared; §14.1 step 1).
 //!
 //! ```text
 //! ┌ Share this pane ─────────────────────────────┐

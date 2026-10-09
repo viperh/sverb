@@ -1,4 +1,3 @@
-//! M2-08 / T-20: feeds arbitrary bytes to the pure SOCKS parsers (`parse_hello`,
 //! `parse_request5`, SOCKS4/4a) via `sverb_conn::forward::socks::fuzz_socks_request`. It
 //! must never panic. Run it with `cargo +nightly fuzz run socks5_request` from `fuzz/` (the
 //! cargo-fuzz workspace); the same body is property-tested on stable by

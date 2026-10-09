@@ -1,4 +1,4 @@
-# M7-07: Nix flake (SPEC §20).
+# Nix flake (SPEC §20).
 #
 #   nix build .#sverb            # the client (with sync), man page and completions
 #   nix build .#sverb-server     # the sync server

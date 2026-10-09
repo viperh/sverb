@@ -1,4 +1,4 @@
-//! M3-03 T-07: `sverb --workspace <name>` opens the saved workspace right after unlock;
+//! `sverb --workspace <name>` opens the saved workspace right after unlock;
 //! an unknown name shows a toast listing the saved ones. The workspace holds a local
 //! shell (no network), seeded into the vault through the item service.
 #![cfg(unix)]
@@ -76,7 +76,6 @@ fn sverb(home: &std::path::Path, workspace: &str) -> CommandBuilder {
     cmd
 }
 
-// T-07
 #[test]
 fn t07_workspace_opens_after_unlock_and_unknown_names_toast() -> TestResult {
     let home = unique_home("m3-03-workspace");

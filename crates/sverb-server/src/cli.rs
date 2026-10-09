@@ -103,7 +103,7 @@ pub enum UserCommand {
     },
     /// List users.
     List,
-    /// M4-02: issue a one-time account-recovery code for EMAIL (valid 24 h)
+    /// Issue a one-time account-recovery code for EMAIL (valid 24 h)
     /// and print it (also mailed when SMTP is configured).
     RecoveryCode {
         /// The user's email.
@@ -240,7 +240,6 @@ async fn run_admin(config: &Config, command: AdminCommand) -> Result<(), AdminEr
                 }
                 Ok(())
             }
-            // M4-02
             UserCommand::RecoveryCode { email } => {
                 let code = admin::user::recovery_code(&pool, &email).await?;
                 println!("recovery code for {email} (valid 24 hours, single use):");
@@ -277,7 +276,7 @@ async fn run_admin(config: &Config, command: AdminCommand) -> Result<(), AdminEr
                 r.finished_shares,
                 r.purged_tombstones,
                 r.gc_floor_vaults,
-                r.abandoned_rotations // M5-04
+                r.abandoned_rotations
             );
             Ok(())
         }

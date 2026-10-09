@@ -1,12 +1,12 @@
-//! M0-07: `sverb team list | invite <email> | verify <user>` (sync builds only).
+//! `sverb team list | invite <email> | verify <user>` (sync builds only).
 //!
-//! M5-01: `team list [--json]` prints each org with its members and roles;
+//! `team list [--json]` prints each org with its members and roles;
 //! `team invite <email> [--org O] [--role member]` creates an invite and prints the
 //! link when the server has no SMTP (otherwise it says the mail went out);
 //! `team create <name>` and `team accept <link>` create and join orgs. `--org`
 //! takes a name or an id; it may be left out when the account is in one org.
 //!
-//! M5-03: `sverb team verify <user>` prints the 60-digit safety number between this
+//! `sverb team verify <user>` prints the 60-digit safety number between this
 //! account and a pinned member (12 groups of 5 digits, the same on both devices,
 //! §13.3) and asks "Mark as verified? [y/N]". After a key change it warns and asks
 //! "Accept new key? [y/N]" instead. Pins and verification are device-local
@@ -33,7 +33,6 @@ use super::{CliError, Ctx, exit, vault::require_unlocked, write_out};
 pub(crate) enum TeamCmd {
     /// List team members
     List {
-        // M5-01
         /// Machine-readable output
         #[arg(long)]
         json: bool,
@@ -42,7 +41,6 @@ pub(crate) enum TeamCmd {
     Invite {
         /// Email address
         email: String,
-        // M5-01
         /// Org name or id (needed when you are in several)
         #[arg(long, value_name = "ORG")]
         org: Option<String>,
@@ -50,7 +48,6 @@ pub(crate) enum TeamCmd {
         #[arg(long, default_value = "member", value_parser = parse_role)]
         role: Role,
     },
-    // M5-01
     /// Create an org (you become its owner)
     Create {
         /// Org name
@@ -73,7 +70,6 @@ fn parse_role(s: &str) -> Result<Role, String> {
         .ok_or_else(|| format!("unknown role `{s}` (member, admin, owner)"))
 }
 
-// M5-01
 /// The org `query` names (name, case-insensitive, or id), or the only one.
 pub(crate) fn pick_org<'a>(
     orgs: &'a [OrgView],
@@ -113,7 +109,6 @@ pub(crate) fn pick_org<'a>(
     }
 }
 
-// M5-01
 /// What `team invite` prints.
 pub(crate) fn invite_text(inv: &InviteCreated, org: &str) -> String {
     let who = inv.email.as_deref().unwrap_or("anyone with the link");
@@ -130,7 +125,6 @@ pub(crate) fn invite_text(inv: &InviteCreated, org: &str) -> String {
     t
 }
 
-// M5-01
 /// What `team list` prints.
 pub(crate) fn list_text(orgs: &[(OrgView, Vec<MemberView>)]) -> String {
     use std::fmt::Write as _;
@@ -171,7 +165,7 @@ fn account_failure(e: AccountError) -> CliError {
     }
 }
 
-// M5-01: list, invite, create, accept.
+// List, invite, create, accept.
 async fn run_remote(cmd: TeamCmd, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
     let unlocked = require_unlocked(ctx).await?;
     let store = unlocked.engine.store().clone();
@@ -242,7 +236,7 @@ async fn run_remote(cmd: TeamCmd, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
     Ok(exit::OK)
 }
 
-// M5-03: `cli/mod.rs` dispatches `team` here (async: `verify` opens the store).
+// `cli/mod.rs` dispatches `team` here (async: `verify` opens the store).
 pub(crate) async fn run_async(
     cmd: TeamCmd,
     ctx: &Ctx,
@@ -346,7 +340,7 @@ fn ask_yes(question: &str) -> bool {
         && matches!(line.trim().to_lowercase().as_str(), "y" | "yes")
 }
 
-// M5-01 T-09: `team invite` output and org picking.
+// `team invite` output and org picking.
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod team_tests {
@@ -469,7 +463,7 @@ mod tests {
             .collect()
     }
 
-    // T-06: `team verify bob` prints 12 groups of 5 digits and marks verified on `y`.
+    // `team verify bob` prints 12 groups of 5 digits and marks verified on `y`.
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn t06_team_verify_bob() {
         let (_dir, store) = store_with_pins("t06").await;

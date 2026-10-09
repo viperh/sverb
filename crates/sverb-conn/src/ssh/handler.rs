@@ -1,4 +1,3 @@
-//! The russh client handler: host-key verification (the M1-15 seam), negotiated
 //! algorithms, and why the connection ended.
 //!
 //! # Host-key verification seam
@@ -7,9 +6,7 @@
 //! `HostKeyRequest` to the connect flow and **awaits** the answer, which suspends the
 //! handshake: the connect flow moves the session to `AwaitingHostKey`, emits
 //! `SessionEvent::HostKey` and waits for `SessionCmd::HostKeyDecision` (120 s, then
-//! reject; SPEC §6.1.1 step 3). M1-15 implements the verifier over KnownHosts.
 //!
-//! Until M1-15 lands, the default is [`UnverifiedHostKeys`], which **rejects** every key
 //! with an explanatory message. [`InsecureAcceptAnyHostKey`] accepts every key with a
 //! warning; it is for tests and development only and must be chosen explicitly (the TUI
 //! enables it only with `SVERB_INSECURE_ACCEPT_ANY_HOST_KEY=1`).
@@ -60,9 +57,8 @@ pub enum HostKeyVerdict {
     Ask(Verification),
 }
 
-/// Decides whether to trust a server's host key (M1-15 implements it over KnownHosts:
 /// `ssh::verify::KnownHostsVerifier`).
-// M1-15: `async_trait` for `prepare`; implementations without it need no attribute.
+// `async_trait` for `prepare`; implementations without it need no attribute.
 #[async_trait::async_trait]
 pub trait HostKeyVerifier: Send + Sync + fmt::Debug {
     /// Check `key` for `target`.
@@ -80,7 +76,6 @@ pub trait HostKeyVerifier: Send + Sync + fmt::Debug {
         Vec::new()
     }
 
-    // M1-15
     /// Called once per hop before the handshake (before
     /// [`HostKeyVerifier::known_key_types`]): bring the known hosts up to date (the TUI
     /// reloads them from the vault). The default does nothing.
@@ -89,7 +84,6 @@ pub trait HostKeyVerifier: Send + Sync + fmt::Debug {
     }
 }
 
-/// The default until M1-15: rejects every host key (never connects unverified).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct UnverifiedHostKeys;
 
@@ -131,7 +125,6 @@ impl HostKeyVerifier for InsecureAcceptAnyHostKey {
     }
 }
 
-/// Always asks the user (tests of the prompt flow; M1-15's `ask` policy for unknown
 /// keys behaves the same way).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct AskEveryTime;
@@ -144,7 +137,6 @@ impl HostKeyVerifier for AskEveryTime {
             host: format!("{}:{}", target.host, target.port),
             fingerprint: key.fingerprint.clone(),
             changed: false,
-            // M1-15
             ..Verification::default()
         })
     }
@@ -174,9 +166,9 @@ pub(crate) struct Shared {
     pub(crate) info: Mutex<SshSessionInfo>,
     pub(crate) host_key_rejection: Mutex<Option<String>>,
     pub(crate) end: Mutex<Option<EndCause>>,
-    // M2-08: remote (-R) forwards of this connection, for `forwarded-tcpip` channels.
+    // Remote (-R) forwards of this connection, for `forwarded-tcpip` channels.
     pub(crate) forwards: Arc<crate::forward::RemoteRoutes>,
-    // M2-07: serves forwarded agent channels; `None` rejects them (no forwarding).
+    // Serves forwarded agent channels; `None` rejects them (no forwarding).
     pub(crate) agent: Mutex<Option<crate::agent::AgentServer>>,
 }
 
@@ -290,7 +282,7 @@ impl client::Handler for ClientHandler {
         Ok(())
     }
 
-    // M2-08: hand the channel to the matching remote forward, or reject it.
+    // Hand the channel to the matching remote forward, or reject it.
     async fn server_channel_open_forwarded_tcpip(
         &mut self,
         channel: russh::Channel<client::Msg>,
@@ -314,7 +306,7 @@ impl client::Handler for ClientHandler {
         Ok(())
     }
 
-    // M2-07: a forwarded `auth-agent@openssh.com` channel (SPEC §6.1.6).
+    // A forwarded `auth-agent@openssh.com` channel (SPEC §6.1.6).
     async fn server_channel_open_agent_forward(
         &mut self,
         channel: russh::Channel<client::Msg>,

@@ -1,4 +1,4 @@
-//! M1-05: in-memory decrypted search index and fuzzy search (SPEC §5.2, §8.5, §9.1).
+//! In-memory decrypted search index and fuzzy search (SPEC §5.2, §8.5, §9.1).
 //!
 //! - [`ItemIndex`]: the mutable index, owned by the vault service (`sverb-tui`
 //!   `services::vault`). Full build on unlock, incremental updates on writes and

@@ -1,5 +1,4 @@
 //! Vault sync: list, pull, push, quota and tombstone GC (SPEC §10.3–§10.5,
-//! §12.1–§12.3, §13.2; task M4-04).
 //!
 //! * [`vaults`]: `GET /v1/vaults` (memberships with wrapped keys);
 //! * [`pull`]: `GET /v1/vaults/{id}/changes` (§12.2, `410 Gone` below the
@@ -44,9 +43,9 @@ pub mod mem;
 pub mod pull;
 pub mod push;
 pub mod quota;
-// M5-04: vault key rotation (begin, upload, commit, abandonment).
+// Vault key rotation (begin, upload, commit, abandonment).
 pub mod rotation;
-// M5-02: shared vaults (create, grants, revoke, membership listings).
+// Shared vaults (create, grants, revoke, membership listings).
 pub mod shared;
 pub mod vaults;
 
@@ -95,7 +94,6 @@ impl SyncLimits {
     }
 }
 
-/// Receives a hint after every push commit that accepted changes. M4-05
 /// installs the WebSocket hub / `NOTIFY` publisher here; the default does
 /// nothing. Called **after** commit, never inside the transaction, so a
 /// slow subscriber can't extend the vault lock.
@@ -104,7 +102,6 @@ pub trait ChangeNotifier: Send + Sync + std::fmt::Debug {
     fn vault_changed(&self, vault_id: Uuid, head_revision: u64);
 }
 
-/// The default notifier (M4-05 replaces it).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct NoopNotifier;
 
@@ -245,7 +242,7 @@ impl SyncRuntime {
         self.limits
     }
 
-    /// Replaces the change notifier (M4-05, tests).
+    /// Replaces the change notifier (tests).
     pub fn set_notifier(&self, notifier: Arc<dyn ChangeNotifier>) {
         if let Ok(mut n) = self.notifier.write() {
             *n = notifier;

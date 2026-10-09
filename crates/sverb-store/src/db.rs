@@ -1,4 +1,4 @@
-//! Connection management (M1-03 §2.2): one writer behind a `tokio::sync::Mutex`,
+//! Connection management: one writer behind a `tokio::sync::Mutex`,
 //! a pool of [`READER_POOL_SIZE`] read-only connections, and the PRAGMAs every
 //! connection gets.
 //!
@@ -48,17 +48,14 @@ pub(crate) struct Inner {
     /// (`sverb_core::model::migrate::is_read_only`). Filled by the vault service
     /// after decrypting; in memory only, rebuilt on every unlock.
     read_only: RwLock<HashSet<ItemId>>,
-    // M2-10
     /// The device's `local_approvals`, in memory (§17.1); persists through a weak
     /// handle back to this store (`approvals::StoreSink`).
     pub(crate) approvals: Arc<sverb_core::resolve::approval::DeviceApprovals>,
-    // M4-09
     /// Bumped after every committed write that queued an outbox row
     /// ([`Store::outbox_changes`]).
     outbox: tokio::sync::watch::Sender<u64>,
 }
 
-// M2-10
 /// A non-owning handle to a [`Store`] (no reference cycle through its approvals).
 #[derive(Clone)]
 pub(crate) struct WeakStore(std::sync::Weak<Inner>);
@@ -109,7 +106,6 @@ pub struct WriteTx<'a> {
     pub(crate) conn: &'a Connection,
     pub(crate) now: i64,
     pub(crate) read_only: &'a RwLock<HashSet<ItemId>>,
-    // M4-09
     /// Set when this transaction queued an outbox row.
     pub(crate) enqueued: &'a std::cell::Cell<bool>,
 }
@@ -171,7 +167,7 @@ impl Store {
     }
 
     /// [`Store::open_at`] with extra migrations appended after the built-in ones.
-    /// Test hook (M1-03 T-04); not part of the stable API.
+    /// Test hook; not part of the stable API.
     ///
     /// # Errors
     /// As [`Store::open`].
@@ -195,7 +191,6 @@ impl Store {
         &self.inner.path
     }
 
-    // M4-09
     /// Changes whenever a committed write queued an outbox row (a local change to
     /// push). The sync engine's push debounce listens to it.
     pub fn outbox_changes(&self) -> tokio::sync::watch::Receiver<u64> {
@@ -235,7 +230,7 @@ impl Store {
                 f(&w)?
             };
             tx.commit()?;
-            // M4-09: wake the sync engine's push debounce.
+            // Wake the sync engine's push debounce.
             if enqueued.get() {
                 inner.outbox.send_modify(|n| *n = n.wrapping_add(1));
             }
@@ -374,7 +369,6 @@ fn open_inner(path: &Path, clock: Arc<dyn Clock>, extra: &[&'static str]) -> Res
         readers.push(conn);
     }
 
-    // M2-10
     let approval_rows = crate::approvals::load_rows(&writer)?;
 
     tracing::debug!(schema = supported, "store opened");
@@ -386,9 +380,7 @@ fn open_inner(path: &Path, clock: Arc<dyn Clock>, extra: &[&'static str]) -> Res
             reader_permits: Arc::new(Semaphore::new(READER_POOL_SIZE)),
             clock,
             read_only: RwLock::new(HashSet::new()),
-            // M2-10
             approvals: crate::approvals::device_approvals(WeakStore(weak.clone()), approval_rows),
-            // M4-09
             outbox: tokio::sync::watch::channel(0).0,
         }),
     })

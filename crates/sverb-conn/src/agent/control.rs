@@ -1,6 +1,5 @@
-//! M2-07: the TUI's control socket (`control.sock`, next to `agent.sock` in the runtime
+//! The TUI's control socket (`control.sock`, next to `agent.sock` in the runtime
 //! directory, same permission rules). `sverb lock` uses it to lock a running TUI
-//! (M1-04 `VaultEvent::LockRequested`).
 //!
 //! Protocol: the client sends one command line (`lock` or `ping`), the server answers
 //! one line (`ok <pid>` or `err <message>`) and closes. Only one TUI owns the socket;

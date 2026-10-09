@@ -1,4 +1,4 @@
-//! M1-13 T-17: a full loopback SSH connection logs no hostnames or addresses at `info`
+//! A full loopback SSH connection logs no hostnames or addresses at `info`
 //! and above (SPEC §17); the session id is logged instead. A test binary of its own so
 //! the capture subscriber sees every callsite.
 #![allow(clippy::unwrap_used, clippy::expect_used, unreachable_pub)]

@@ -1,9 +1,9 @@
-//! Terminal color schemes (M1-10, SPEC §7.4).
+//! Terminal color schemes (SPEC §7.4).
 //!
 //! A [`ColorScheme`] colors **pane content** only: the 16 ANSI colors, the default
 //! foreground/background, the cursor, an optional selection background and optionally the
 //! 240 extended palette entries (16–255; computed per xterm when absent). The sverb chrome
-//! uses the separate UI theme (`sverb-tui::theme`, M0-11).
+//! uses the separate UI theme (`sverb-tui::theme`).
 //!
 //! - **Built-ins** are TOML files under `scheme/builtin/`, embedded with `include_str!`
 //!   ([`BUILTIN_NAMES`], [`builtin`]).
@@ -85,7 +85,6 @@ impl fmt::Display for Rgb {
     }
 }
 
-/// A terminal color scheme (SPEC §7.4). M1-09 introduced it in `emulator.rs`; M1-10 owns it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ColorScheme {
     pub name: String,
@@ -645,7 +644,7 @@ mod tests {
         assert_eq!(Rgb::new(1, 2, 255).to_string(), "#0102ff");
     }
 
-    // T-10: every built-in parses and defines 16 ANSI colors + fg + bg.
+    // Every built-in parses and defines 16 ANSI colors + fg + bg.
     #[test]
     fn builtins_all_parse() {
         for name in BUILTIN_NAMES {

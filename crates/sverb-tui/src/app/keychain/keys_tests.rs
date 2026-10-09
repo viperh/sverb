@@ -1,6 +1,5 @@
-//! M2-03 reducer tests: the Keys / Certificates requests, dialog answers and service
 //! replies (passphrase tries → T-04, agent reference → T-05, duplicate "Use existing"
-//! → T-06, overwrite, private export warning; M2-04: `H` opens the install picker).
+//! → T-06, overwrite, private export warning; `H` opens the install picker).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -231,7 +230,7 @@ fn generate_form_submits_and_shows_the_public_key() {
         |e| matches!(e, Effect::CopyToClipboard(t) if t == "ssh-ed25519 AAAATEST me@host-sverb")
     ));
     h.keys("H");
-    // M2-04: install on hosts opens the host picker.
+    // Install on hosts opens the host picker.
     assert!(matches!(top(&h), Some(KeychainDialogKind::InstallPick(_))));
 }
 

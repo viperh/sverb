@@ -1,5 +1,3 @@
-//! Forgotten password with the recovery key (§11.2, M4-08 §2.7; server side
-//! M4-02 §2.3).
 //!
 //! 1. [`request_recovery_code`]: the server mails a one-time code (or the
 //!    operator issues it with `sverb-server admin user recovery-code`).

@@ -1,4 +1,4 @@
-//! UI themes (M0-11, SPEC §8.8).
+//! UI themes (SPEC §8.8).
 //!
 //! A [`UiTheme`] names colors by role (`border`, `accent`, `selection`, …). The
 //! reducer keeps a resolved [`Theme`]: ready-to-use [`Style`]s, computed once from the
@@ -14,7 +14,6 @@
 
 pub mod builtin;
 pub mod color;
-// M7-07
 pub mod glyphs;
 
 use std::ffi::OsStr;
@@ -57,7 +56,7 @@ pub struct UiTheme {
     pub error: Color,
     /// Information.
     pub info: Color,
-    /// Border of panes receiving broadcast input (M3-02).
+    /// Border of panes receiving broadcast input.
     pub broadcast_border: Color,
     /// Toast background.
     pub toast_bg: Color,
@@ -87,11 +86,10 @@ impl ThemeEnv {
 
     /// The process environment.
     pub fn from_process() -> Self {
-        // M7-04: the shared detection (`runtime::capabilities`, also used by `sverb doctor`).
+        // The shared detection (`runtime::capabilities`, also used by `sverb doctor`).
         Self::from_term_env(&crate::runtime::capabilities::TermEnv::from_process())
     }
 
-    // M7-04
     /// From the shared terminal environment.
     pub fn from_term_env(env: &crate::runtime::capabilities::TermEnv) -> Self {
         Self {
@@ -143,11 +141,10 @@ pub struct Theme {
     pub error: Style,
     /// Info text.
     pub info: Style,
-    /// Broadcast pane border (M3-02).
+    /// Broadcast pane border.
     pub broadcast_border: Style,
     /// Toast body.
     pub toast: Style,
-    // M7-07 (spec additions `ui.ascii`, `ui.reduce_motion`)
     /// Draw ASCII instead of box-drawing and symbol glyphs ([`glyphs::asciify`]).
     pub ascii: bool,
     /// No animated glyphs ([`glyphs::spinner`]).
@@ -239,7 +236,6 @@ impl Theme {
         }
     }
 
-    // M7-07
     /// With the glyph settings: ASCII output and reduced motion.
     #[must_use]
     pub fn with_glyphs(mut self, ascii: bool, reduce_motion: bool) -> Self {
@@ -273,7 +269,7 @@ impl Theme {
 }
 
 /// The real [`ThemeCatalog`] for `config.toml` validation: the built-in UI themes and
-/// (M1-10) the terminal color schemes: built-ins plus the user schemes published by the
+///  the terminal color schemes: built-ins plus the user schemes published by the
 /// last `SchemeCatalog::load` (`widgets::terminal_pane::load_schemes`).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct UiThemeCatalog;
@@ -284,7 +280,7 @@ impl ThemeCatalog for UiThemeCatalog {
     }
 
     fn has_color_scheme(&self, name: &str) -> bool {
-        // M1-10: the color scheme catalog.
+        // The color scheme catalog.
         sverb_term::scheme::scheme_known(name)
     }
 }
@@ -305,7 +301,7 @@ mod tests {
             assert!(UiThemeCatalog.has_ui_theme(name), "{name}");
         }
         assert!(!UiThemeCatalog.has_ui_theme("solarized"));
-        // M1-10: terminal color schemes.
+        // Terminal color schemes.
         for name in sverb_term::scheme::BUILTIN_NAMES {
             assert!(UiThemeCatalog.has_color_scheme(name), "{name}");
         }

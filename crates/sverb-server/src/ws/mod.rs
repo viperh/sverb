@@ -1,5 +1,4 @@
 //! WebSocket notifications at `/v1/ws` and multi-replica fan-out (SPEC
-//! §10.4, §10.7; task M4-05).
 //!
 //! ```text
 //!  push commit ─┐                       ┌─ replica A: Hub ─ sockets
@@ -164,7 +163,6 @@ impl WsRuntime {
         });
     }
 
-    /// A viewer waits on one of `owner`'s shares (M6-01 hook).
     pub fn share_join_request(&self, owner: Uuid, share_id: Uuid, viewer: ShareViewer) {
         self.publish(BusEvent::share_join_request(owner, share_id, viewer));
     }

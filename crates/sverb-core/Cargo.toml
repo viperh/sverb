@@ -18,21 +18,21 @@ workspace = true
 sverb-crypto = { workspace = true }
 sverb-proto = { workspace = true }
 
-# M0-03: platform base dirs and the per-SVERB_HOME Windows pipe name (paths.rs).
+# Platform base dirs and the per-SVERB_HOME Windows pipe name (paths.rs).
 directories = { workspace = true }
 serde = { workspace = true }
 sha2 = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 
-# M0-06: config.toml model (parsing with spans, JSON schema, hot reload, key suggestions).
+# config.toml model (parsing with spans, JSON schema, hot reload, key suggestions).
 notify = { workspace = true }
 schemars = { workspace = true }
 serde_json = { workspace = true }
 strsim = { workspace = true }
 toml = { workspace = true }
 
-# M0-04: secret types (secret.rs) and logging (logging/).
+# Secret types (secret.rs) and logging (logging/).
 parking_lot = { workspace = true }
 secrecy = { workspace = true }
 subtle = { workspace = true }
@@ -41,19 +41,19 @@ tracing-error = { workspace = true }
 tracing-subscriber = { workspace = true }
 zeroize = { workspace = true }
 
-# M1-02: item model (model/): CBOR bodies, HLC stamps, UUIDv7 ids, IDNA host validation.
+# Item model (model/): CBOR bodies, HLC stamps, UUIDv7 ids, IDNA host validation.
 ciborium = { workspace = true }
 idna = { workspace = true }
 uhlc = { workspace = true }
 uuid = { workspace = true }
 
-# M1-04: master-password strength (SPEC §11.2: zxcvbn score >= 3).
+# Master-password strength (SPEC §11.2: zxcvbn score >= 3).
 zxcvbn = { workspace = true }
 
-# M1-05: fuzzy search over the in-memory index (search/).
+# Fuzzy search over the in-memory index (search/).
 nucleo-matcher = { workspace = true }
 
-# M1-15: known_hosts (known_hosts/): key and certificate parsing (all host-key types, CA
+# known_hosts (known_hosts/): key and certificate parsing (all host-key types, CA
 # signature checks), hashed host names (HMAC-SHA1), base64, random salts. ssh-key is the
 # crate russh re-exports (`russh::keys`); hmac 0.13 / sha1 0.11 are already in Cargo.lock
 # through it.
@@ -63,7 +63,7 @@ sha1 = { workspace = true }
 base64 = { workspace = true }
 getrandom = { workspace = true }
 
-# M2-03: keychain (keychain/): key generation, import of PEM PKCS#1 / SEC1 / PKCS#8
+# Keychain (keychain/): key generation, import of PEM PKCS#1 / SEC1 / PKCS#8
 # (encrypted PBES2 and legacy `Proc-Type: 4,ENCRYPTED` AES-128-CBC), certificates. The
 # versions are the ones ssh-key 0.7 / russh already pull in (Cargo.lock).
 rsa = { workspace = true }
@@ -79,25 +79,25 @@ md-5 = { workspace = true }
 aes = { workspace = true }
 cbc = { workspace = true }
 
-# M2-11: import / export (importers/, exporters/): RFC 4180 CSV, `Include` globs,
+# Import / export (importers/, exporters/): RFC 4180 CSV, `Include` globs,
 # zstd for the backup payload.
 csv = { workspace = true }
 glob = { workspace = true }
 zstd = { workspace = true }
 
-# M7-03: PuTTY `.ppk` v3 key derivation (keychain/formats/ppk.rs); the Windows registry
+# PuTTY `.ppk` v3 key derivation (keychain/formats/ppk.rs); the Windows registry
 # reader of PuTTY sessions (importers/putty_sessions.rs). winreg 0.10.1 is already in
 # Cargo.lock (through another dependency).
 argon2 = { workspace = true }
 
-# M7-05: process hardening (hardening/unix.rs: prctl, setrlimit, mlock).
+# Process hardening (hardening/unix.rs: prctl, setrlimit, mlock).
 [target.'cfg(unix)'.dependencies]
 libc = { workspace = true }
 
-# M7-03: PuTTY sessions in the Windows registry.
+# PuTTY sessions in the Windows registry.
 [target.'cfg(windows)'.dependencies]
 winreg = { workspace = true }
-# M7-05: process hardening (hardening/windows.rs: SetErrorMode, WerSetFlags, VirtualLock).
+# Process hardening (hardening/windows.rs: SetErrorMode, WerSetFlags, VirtualLock).
 windows-sys = { workspace = true, features = [
     "Win32_System_Diagnostics_Debug",
     "Win32_System_ErrorReporting",
@@ -107,29 +107,28 @@ windows-sys = { workspace = true, features = [
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
-# M2-11: ssh_config fixture snapshots (T-01, T-13).
+# ssh_config fixture snapshots.
 insta = { workspace = true }
-# M0-06: T-23 hostile-input property test.
+# T-23 hostile-input property test.
 proptest = { workspace = true }
-# M0-04: T-10 compile-fail tests (Secret is not Clone/Serialize). serde_json is
-# also a normal dependency (M0-06); the dev entry keeps the test self-contained.
+# T-10 compile-fail tests (Secret is not Clone/Serialize). serde_json is
+# also a normal dependency; the dev entry keeps the test self-contained.
 serde_json = { workspace = true }
 trybuild = { workspace = true }
 
-# M1-05: benches/search.rs (T-12).
+# Benches/search.rs.
 criterion = { workspace = true }
 
-# M0-04: child-process logging tests own `main` (stdout must stay empty, T-12).
+# Child-process logging tests own `main` (stdout must stay empty).
 [[test]]
 name = "logging"
 harness = false
 
-# M1-05: index build (decrypt included) and query timing (T-12).
+# Index build (decrypt included) and query timing.
 [[bench]]
 name = "search"
 harness = false
 
-# M7-06
 [[bench]]
 name = "argon2_unlock"
 harness = false

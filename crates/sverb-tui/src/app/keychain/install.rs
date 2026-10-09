@@ -1,4 +1,4 @@
-//! M2-04: "Install key on host" in the reducer (SPEC §9.4, §6.1.7).
+//! "Install key on host" in the reducer (SPEC §9.4, §6.1.7).
 //!
 //! - `H` on a key (or in the "generated" dialog) opens the host picker
 //!   (`views/keychain/install.rs`); its answer is expanded into hosts

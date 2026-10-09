@@ -1,12 +1,11 @@
-//! Workspace invariants read from `cargo metadata` (M0-01 T-04, T-05).
+//! Workspace invariants read from `cargo metadata`.
 //!
 //! - every workspace package is MIT-licensed and declares a `rust-version`;
-//! - the crate layering of `tasks/M0-01` §2.3 holds: each crate depends directly
 //!   only on the internal crates it is allowed to, and its transitive closure over
 //!   *normal* dependencies (all features on) contains none of its forbidden crates;
 //! - the local-only binary (`--no-default-features`) links no `sverb-sync`.
 //!
-//! The CI layering job (M0-02) runs this file.
+//! The CI layering job runs this file.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -34,7 +33,6 @@ const IO_CRATES: &[&str] = &[
     "portable-pty",
 ];
 
-/// One row of the M0-01 §2.3 table.
 struct Rule {
     krate: &'static str,
     /// Direct internal (`sverb-*`) normal dependencies allowed. `None` = any.
@@ -77,13 +75,13 @@ const RULES: &[Rule] = &[
     },
     Rule {
         krate: "sverb-conn",
-        // M1-08: the session actor owns a `Box<dyn sverb_term::Emulator>` (task decision).
+        // The session actor owns a `Box<dyn sverb_term::Emulator>` (task decision).
         allowed_internal: Some(&["sverb-core", "sverb-term"]),
         forbidden: &["ratatui", "crossterm"],
     },
     Rule {
         krate: "sverb-term",
-        // M3-05: recordings are sealed with `sverb_crypto::recording` (no I/O crate).
+        // Recordings are sealed with `sverb_crypto::recording` (no I/O crate).
         allowed_internal: Some(&["sverb-core", "sverb-crypto"]),
         forbidden: &["crossterm"],
     },
@@ -180,7 +178,6 @@ fn package_id<'a>(meta: &'a Metadata, name: &str) -> &'a PackageId {
         .id
 }
 
-/// T-04
 #[test]
 fn every_package_is_mit_with_rust_version() {
     let meta = metadata(None);
@@ -209,7 +206,6 @@ fn layering_rules_cover_the_workspace() {
     assert_eq!(actual, ruled, "update RULES when adding or removing crates");
 }
 
-/// T-05
 #[test]
 fn dependency_direction_holds() {
     let meta = metadata(Some(CargoOpt::AllFeatures));
@@ -257,7 +253,7 @@ fn local_only_binary_has_no_sync() {
     );
 }
 
-// M0-05 T-11: the template's panic crates are gone. `libc` itself stays in the graph
+// The template's panic crates are gone. `libc` itself stays in the graph
 // (tokio, crossterm, … use it), so for `libc` only a *direct* dependency is checked.
 #[test]
 fn template_panic_crates_are_removed() {

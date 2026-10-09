@@ -1,4 +1,4 @@
-//! M7-05: fuzz entry points (SPEC §19 "Fuzzing"). Each function takes arbitrary bytes and
+//! Fuzz entry points (SPEC §19 "Fuzzing"). Each function takes arbitrary bytes and
 //! must never panic, hang or allocate without bound. The cargo-fuzz targets in
 //! `fuzz/fuzz_targets/` call them, and the property tests below run the same bodies on
 //! every `cargo test`, so they can't rot between fuzz runs.

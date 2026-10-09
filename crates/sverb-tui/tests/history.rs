@@ -1,4 +1,3 @@
-//! M7-01 integration tests for the history service: T-08 (`history.sync = false` queues
 //! nothing in the outbox), T-07 (the per-host cap trims the oldest, in the store), T-10
 //! (purging a host tombstones its entries). Small Argon2 parameters, in-memory keyring.
 
@@ -117,7 +116,6 @@ async fn live(fx: &Fixture) -> Vec<HistoryEntry> {
     list.into_iter().map(|s| s.entry).collect()
 }
 
-/// T-08
 #[tokio::test]
 async fn t08_no_outbox_rows_without_history_sync() {
     let fx = fixture("nosync").await;

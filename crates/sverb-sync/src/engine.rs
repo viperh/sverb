@@ -1,8 +1,7 @@
-//! The sync engine task (§12, §2.1; task M4-07).
 //!
 //! One [`SyncEngine`] runs per unlocked vault, spawned by the TUI's sync
 //! service or by headless `sverb sync`. It owns the HTTP client, the token
-//! manager, the WebSocket client (M4-05) and the timers, and talks to the
+//! manager, the WebSocket client and the timers, and talks to the
 //! store through its async API (SQLite and crypto run on the blocking pool:
 //! every page is decrypted, merged and committed inside one
 //! [`Store::write`] closure).
@@ -97,7 +96,7 @@ pub struct EngineConfig {
     pub retry: BackoffPolicy,
     /// Pull page size (≤ 500).
     pub page_limit: u32,
-    /// Test hook (T-06): panic inside the page transaction after applying
+    /// Test hook: panic inside the page transaction after applying
     /// this many items of a page.
     #[doc(hidden)]
     pub crash_after_items: Option<usize>,
@@ -175,13 +174,13 @@ pub(crate) struct Ctx {
     pub(crate) missing_key: HashSet<VaultId>,
     pub(crate) unknown_vaults: HashSet<VaultId>,
     pub(crate) undecryptable: HashSet<ItemId>,
-    // M4-09: one warning per device (the TUI also dedups per session).
+    // One warning per device (the TUI also dedups per session).
     pub(crate) skew_warned: HashSet<sverb_core::model::DeviceId>,
     pub(crate) needs_login: bool,
-    // M5-02: shared vaults whose grant was refused (vault → reason), so the
+    // Shared vaults whose grant was refused (vault → reason), so the
     // error is shown once and the status says so.
     pub(crate) rejected_grants: HashMap<VaultId, String>,
-    // M5-04: abandoned rotations already reported (one prompt per engine).
+    // Abandoned rotations already reported (one prompt per engine).
     pub(crate) abandoned_reported: HashSet<VaultId>,
 }
 
@@ -239,7 +238,7 @@ impl Ctx {
             && self.skew_warned.insert(s.device)
         {
             tracing::warn!(device = %s.device, ahead_s = s.ahead_by.as_secs(), "clock skew");
-            // M4-09: the UI turns this into "Clock skew detected on device X".
+            // The UI turns this into "Clock skew detected on device X".
             self.emit(SyncEvent::ClockSkew {
                 device: s.device.short(),
                 ahead_secs: s.ahead_by.as_secs(),
@@ -306,13 +305,13 @@ impl Ctx {
                 continue;
             };
             self.unknown_vaults.remove(&vault);
-            // M5-02: the UI shows "Read-only vault" from this.
+            // The UI shows "Read-only vault" from this.
             if view.kind == sverb_proto::sync::VaultKind::Shared {
                 crate::account::vaults::note_permission(&self.store, vault, view.permission).await;
             }
             if view.rotation.is_some() {
                 self.rotating.insert(vault);
-                // M5-04: an abandoned rotation is restarted by a `manage` client.
+                // An abandoned rotation is restarted by a `manage` client.
                 self.note_abandoned(view);
             } else if self.rotating.remove(&vault) {
                 tracing::info!(%vault, "key rotation finished; resuming pushes");
@@ -322,7 +321,7 @@ impl Ctx {
                 (k.current_version(vault).unwrap_or(0), k.kind(vault))
             };
             if view.key_version > current && view.rotation.is_none() {
-                // M5-04: the new grant of a rotated shared vault is checked
+                // The new grant of a rotated shared vault is checked
                 // against a fresh membership list and pinned granters.
                 if kind == Some(sverb_store::VaultKind::Shared) {
                     self.prepare_rotated_grant(view).await;
@@ -331,7 +330,7 @@ impl Ctx {
                     Some(key) => {
                         let kind = kind.unwrap_or(sverb_store::VaultKind::Personal);
                         self.keys.write().insert(vault, kind, view.key_version, key);
-                        // M5-04: re-seal local items still under an old key
+                        // Re-seal local items still under an old key
                         // version before the old key leaves the store.
                         self.reseal_local(vault).await?;
                         let (kv, wrapped) = self.keys.read().wrap_current(vault, &self.lmk)?;
@@ -353,7 +352,7 @@ impl Ctx {
                 self.missing_key.remove(&vault);
             }
         }
-        // M5-02: shared vaults granted since (`account::vaults`).
+        // Shared vaults granted since (`account::vaults`).
         self.adopt_new_vaults(&views).await?;
         Ok(())
     }
@@ -362,7 +361,7 @@ impl Ctx {
     /// when something was pushed (so the cursor moves past our revisions).
     pub(crate) async fn cycle(&mut self, refresh: bool) -> Result<(), SyncError> {
         self.cycle_inner(refresh).await?;
-        // M4-09: "last successful sync" for the status panel and `sverb sync --status`.
+        // "last successful sync" for the status panel and `sverb sync --status`.
         crate::info::record_sync(&self.store).await;
         Ok(())
     }
@@ -428,7 +427,6 @@ impl Ctx {
                 plural(read_only)
             ));
         }
-        // M5-02
         if !self.rejected_grants.is_empty() {
             let n = self.rejected_grants.len();
             issues.push(format!(
@@ -527,7 +525,6 @@ impl SyncEngine {
         })
     }
 
-    /// The token manager (test hook and M4-08).
     pub fn tokens(&self) -> &Arc<TokenManager> {
         &self.ctx.tokens
     }
@@ -818,7 +815,6 @@ async fn on_ws_event(ctx: &mut Ctx, ev: WsEvent) -> Option<Work> {
             ctx.needs_login = true;
             Some(Work::Quick)
         }
-        // M4-08 (§11.2.1): the password changed on another device (or the
         // account was recovered). This device's tokens are revoked; it keeps
         // unlocking locally with the old password until the user signs in
         // with the new one (`account::login`).

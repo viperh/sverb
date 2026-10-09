@@ -1,4 +1,4 @@
-//! M3-04: the selection model and copy-mode motions over grid text (SPEC §7.1, §8.2).
+//! The selection model and copy-mode motions over grid text (SPEC §7.1, §8.2).
 //!
 //! Everything here is pure: it reads rows through [`TextGrid`] (an emulator via
 //! [`EmulatorGrid`], or a [`VecGrid`] in tests) and never touches the emulator's state.
@@ -693,7 +693,7 @@ mod tests {
         GridPoint::new(line, column)
     }
 
-    /// T-01: `w` stops at `:` in `host:22`.
+    /// `w` stops at `:` in `host:22`.
     #[test]
     fn t01_word_motions_honor_separators() {
         let g = VecGrid::from_lines(&["ssh host:22 now"], 20, 1);
@@ -731,7 +731,7 @@ mod tests {
         assert_eq!(word_forward(&g, p(0, 0), small), p(0, 1));
     }
 
-    /// T-02: wrapped lines join without a newline; line-wise trims; block takes columns.
+    /// Wrapped lines join without a newline; line-wise trims; block takes columns.
     #[test]
     fn t02_extraction() {
         // "hello world" wrapped at 6 columns: "hello " + "world".
@@ -769,7 +769,7 @@ mod tests {
         );
     }
 
-    /// T-03: a wide character inside a selection comes out once.
+    /// A wide character inside a selection comes out once.
     #[test]
     fn t03_wide_chars_once() {
         let g = VecGrid::from_lines(&["a漢字b"], 10, 1);

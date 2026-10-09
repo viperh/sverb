@@ -19,7 +19,7 @@ use super::{Config, ConfigError, Validators};
 /// Quiet time before a burst of file events triggers one reload.
 pub const DEBOUNCE: Duration = Duration::from_millis(200);
 
-/// A reload result, sent to the TUI event stream (`UiEvent::Config`, M0-08).
+/// A reload result, sent to the TUI event stream (`UiEvent::Config`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConfigEvent {
     /// The file changed and is valid.

@@ -1,4 +1,4 @@
-//! M6-03: the approval modal (§14.1 step 6): a viewer with the right link key wants
+//! The approval modal (§14.1 step 6): a viewer with the right link key wants
 //! to see a shared pane.
 //!
 //! ```text

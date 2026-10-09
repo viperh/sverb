@@ -1,8 +1,8 @@
-# M1-18: gitleaks / compatible scanners. The OpenSSH e2e fixtures contain TEST-ONLY
+# Gitleaks / compatible scanners. The OpenSSH e2e fixtures contain TEST-ONLY
 # private keys and CAs (tests/fixtures/sshd/README.md); they protect nothing.
 [extend]
 useDefault = true
 
 [allowlist]
 description = "test-only e2e fixture keys"
-paths = ['''^tests/fixtures/sshd/keys/''', '''^tests/fixtures/keys/''']  # M2-03: keychain import fixtures
+paths = ['''^tests/fixtures/sshd/keys/''', '''^tests/fixtures/keys/''']

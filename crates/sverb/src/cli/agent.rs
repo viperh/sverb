@@ -1,4 +1,4 @@
-//! M0-07 / M2-07: `sverb agent [--socket <path>]` and `sverb lock` (SPEC §6.1.6, §16).
+//! `sverb agent [--socket <path>]` and `sverb lock` (SPEC §6.1.6, §16).
 //!
 //! `sverb agent` runs the built-in agent in the foreground so plain `ssh`, `ssh-add`
 //! and `git` can use vault keys:
@@ -17,7 +17,6 @@
 //! **Auto-lock:** after `general.auto_lock_minutes` without agent requests the keys
 //! are dropped; signing is then refused (and logged) until the agent is restarted.
 //!
-//! Windows: a named pipe with an owner-only DACL and a client SID check (M7-05; see
 //! `sverb_conn::agent::pipe_windows`).
 //!
 //! `sverb lock` ([`lock`]) asks a running TUI to lock over its control socket.

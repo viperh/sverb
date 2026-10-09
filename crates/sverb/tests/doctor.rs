@@ -1,4 +1,4 @@
-//! M7-04 T-05: `sverb doctor` without a terminal skips the terminal probes ("not a
+//! `sverb doctor` without a terminal skips the terminal probes ("not a
 //! terminal") and writes no escape sequences. The real binary, with `SVERB_HOME` in a
 //! temp dir, `SVERB_KEYRING=off` and no `SSH_AUTH_SOCK` (the user's agent and
 //! keyring are never touched).
@@ -47,7 +47,6 @@ fn text(bytes: &[u8]) -> String {
     String::from_utf8_lossy(bytes).into_owned()
 }
 
-// T-05
 #[test]
 fn t05_not_a_tty_skips_terminal_probes() {
     let home = home("notty");

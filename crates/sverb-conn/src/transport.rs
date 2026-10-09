@@ -1,6 +1,6 @@
 //! The [`Transport`] trait (SPEC §6): what the session actor reads from and writes to.
 //!
-//! Implementations: SSH (M1-13), local PTY (M1-12), and `MockTransport`
+//! Implementations: SSH, local PTY, and `MockTransport`
 //! (in-memory duplex, `test-util` feature) for tests.
 //!
 //! A [`Connector`] turns a [`SessionSpec`] into a transport, driving
@@ -50,7 +50,7 @@ pub trait Transport: Send {
     /// What this is.
     fn kind(&self) -> TransportKind;
 
-    /// M1-08: the remote process's exit status, asked after the reader hit EOF.
+    /// The remote process's exit status, asked after the reader hit EOF.
     /// `None` means the connection closed without one. Not in SPEC §6's listing;
     /// provided so the default keeps the required methods exactly as specified.
     async fn exit_status(&mut self) -> Option<i32> {
@@ -90,7 +90,6 @@ impl ConnectError {
     }
 }
 
-// M1-13
 /// A transport failure with a specific [`DisconnectReason`] (e.g. `Timeout` when the
 /// SSH keepalive gave up), carried inside the `io::Error` a transport returns from a
 /// read or write. The actor uses `reason` and `report` instead of the generic
@@ -104,7 +103,6 @@ pub struct TransportFailure {
     pub report: ErrorReport,
 }
 
-// M1-13
 impl TransportFailure {
     /// A failure with `reason` and `report`.
     pub fn new(reason: DisconnectReason, report: ErrorReport) -> Self {
@@ -122,7 +120,6 @@ impl TransportFailure {
     }
 }
 
-// M1-13
 /// A `'static` handle to emit [`SessionEvent`]s for one session from a background
 /// task (the SSH latency pinger). Cheap to clone.
 #[derive(Clone)]
@@ -131,7 +128,6 @@ pub struct SessionEmitter {
     sink: Arc<dyn EventSink>,
 }
 
-// M1-13
 impl SessionEmitter {
     /// An emitter for session `id` over `sink`.
     pub fn new(id: SessionId, sink: Arc<dyn EventSink>) -> Self {
@@ -149,7 +145,6 @@ impl SessionEmitter {
     }
 }
 
-// M1-13
 impl std::fmt::Debug for SessionEmitter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("SessionEmitter")
@@ -158,7 +153,6 @@ impl std::fmt::Debug for SessionEmitter {
     }
 }
 
-/// Builds transports for one [`TransportKind`] (M1-12: local PTY, M1-13: SSH).
 #[async_trait]
 pub trait Connector: Send + Sync {
     /// Connect `spec` and return the open transport.
@@ -187,9 +181,8 @@ pub struct ConnectCtx<'a> {
     /// Commands that arrived while waiting for a decision but are meant for the
     /// connected session (input typed ahead, resizes). Replayed after connecting.
     pub(crate) deferred: &'a mut Vec<SessionCmd>,
-    // M1-13: for [`ConnectCtx::emitter`].
+    // For [`ConnectCtx::emitter`].
     pub(crate) owned_sink: Arc<dyn EventSink>,
-    // M2-08
     /// Told about the connection once it is up (port forwards ride on it).
     pub(crate) forwards: Option<Arc<dyn crate::forward::ForwardHook>>,
     /// Standalone tunnel: no shell channel (SSH stops after authentication).
@@ -217,7 +210,6 @@ impl ConnectCtx<'_> {
         self.state
     }
 
-    // M2-08
     /// A tunnel-only (standalone forwards) connection: no shell channel.
     pub fn tunnel_only(&self) -> bool {
         self.tunnel_only
@@ -238,7 +230,6 @@ impl ConnectCtx<'_> {
         }
     }
 
-    // M1-13
     /// A `'static` emitter for this session, for tasks that outlive the connect call
     /// (keepalive latency).
     pub fn emitter(&self) -> SessionEmitter {
@@ -251,7 +242,7 @@ impl ConnectCtx<'_> {
     }
 
     /// The next command relevant while connecting (`HostKeyDecision`, `AuthAnswer`).
-    /// `Input` and `Resize` are deferred until connected (M3-05: so are
+    /// `Input` and `Resize` are deferred until connected (so are
     /// `AttachRecorder` and `StopRecording`), and `Close` (or a dropped sender) returns
     /// `None`.
     pub async fn next_cmd(&mut self) -> Option<SessionCmd> {
@@ -271,7 +262,7 @@ impl ConnectCtx<'_> {
                 cmd @ (SessionCmd::HostKeyDecision(_) | SessionCmd::AuthAnswer(_)) => {
                     return Some(cmd);
                 }
-                // M3-05: a recording started while connecting begins once connected.
+                // A recording started while connecting begins once connected.
                 cmd @ (SessionCmd::AttachRecorder(_) | SessionCmd::StopRecording) => {
                     self.deferred.push(cmd);
                 }

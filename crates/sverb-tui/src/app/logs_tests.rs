@@ -1,4 +1,3 @@
-//! M3-06 reducer tests: the Logs view (T-06, T-07, T-08, T-09) and its wiring.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::PathBuf;
@@ -124,7 +123,7 @@ fn visible_labels(h: &AppHarness) -> Vec<String> {
         .collect()
 }
 
-/// T-06: `r` cycles all → ok → failed; `/` filters by host (fuzzy).
+/// `r` cycles all → ok → failed; `/` filters by host (fuzzy).
 #[test]
 fn t06_filter_by_result_and_host() {
     let mut h = harness(mixed());
@@ -170,7 +169,7 @@ fn t06_filter_by_result_and_host() {
     assert!(!h.effects().iter().any(|e| matches!(e, Effect::Quit { .. })));
 }
 
-/// T-07: reconnect opens a new session for the entry's host.
+/// Reconnect opens a new session for the entry's host.
 #[test]
 fn t07_reconnect_opens_a_session() {
     let mut h = harness(mixed());
@@ -233,7 +232,7 @@ fn targets_parse() {
     assert_eq!(parse_target("h:notaport"), None);
 }
 
-/// T-08: delete asks about the recording; "also delete" passes it on.
+/// Delete asks about the recording; "also delete" passes it on.
 #[test]
 fn t08_delete_with_recording() {
     let mut h = harness(mixed());
@@ -297,7 +296,7 @@ fn clear_older_asks_for_days() {
     );
 }
 
-/// T-09: the Logs view at 160×48 with mixed results.
+/// The Logs view at 160×48 with mixed results.
 #[test]
 fn t09_snapshot_160x48() {
     let mut h = harness(mixed());
@@ -391,7 +390,7 @@ fn details_export_and_replay() {
     assert!(!h.effects().iter().any(|e| matches!(e, Effect::Quit { .. })));
 }
 
-/// The banner's `leader i` (M1-16) lands on the session's entry.
+/// The banner's `leader i` lands on the session's entry.
 #[test]
 fn show_conn_log_selects_the_sessions_entry() {
     let mut h = AppHarness::new(Config::default());

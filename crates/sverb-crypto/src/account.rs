@@ -13,7 +13,7 @@
 //! - **Local KEK**: `Argon2id(password, local_salt)` ([`crate::kdf::argon2id`]),
 //!   which wraps the LMK on this device only.
 //! - **AKEK**: OPAQUE turns the password into `export_key` inside an OPRF
-//!   keyed by the server (`sverb-crypto::opaque`, M4-02), then
+//!   keyed by the server (`sverb-crypto::opaque`), then
 //!   [`derive_akek`] applies HKDF-SHA256 with the `"sverb/akek/v1"` label.
 //!
 //! The constructions, salts and labels differ, so neither output reveals the
@@ -270,7 +270,7 @@ pub(crate) fn open_keys(kek: &Key32, aad: &[u8], bundle: &[u8]) -> Result<Accoun
     AccountKeys::from_cbor(&pt)
 }
 
-/// Fuzz entry point (T-09): feeds arbitrary bytes to the bundle decoders
+/// Fuzz entry point: feeds arbitrary bytes to the bundle decoders
 /// with fixed keys. Must never panic.
 #[doc(hidden)]
 pub fn fuzz_open_bundle(data: &[u8]) {

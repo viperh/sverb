@@ -1,4 +1,4 @@
-//! M0-07 / M1-04: `sverb lock | unlock`, and vault access for headless commands.
+//! `sverb lock | unlock`, and vault access for headless commands.
 //!
 //! [`require_unlocked`] is the one way a headless command gets the vault: keyring
 //! unlock (if enabled) → master-password prompt on the terminal (only when stdin and
@@ -29,7 +29,7 @@ const MAX_ATTEMPTS: u32 = 3;
 
 /// The unlocked vault for a headless command. Dropping it zeroizes the keys.
 #[derive(Debug)]
-#[allow(dead_code)] // M1-07+: vault-backed commands read items through it.
+#[allow(dead_code)]
 pub(crate) struct Unlocked {
     pub(crate) engine: VaultEngine,
     pub(crate) vault: UnlockedVault,
@@ -61,7 +61,7 @@ async fn open_engine(
 }
 
 /// Unlock the vault for a headless command, or fail without blocking.
-#[allow(dead_code)] // M1-07+: called by every vault-backed command.
+#[allow(dead_code)]
 pub(crate) async fn require_unlocked(ctx: &Ctx) -> Result<Unlocked, CliError> {
     let Some(engine) = open_engine(ctx, keyring_from_env()).await? else {
         return Err(vault_error(VaultError::NotInitialized));
@@ -89,7 +89,6 @@ pub(crate) async fn require_unlocked(ctx: &Ctx) -> Result<Unlocked, CliError> {
     Ok(Unlocked { engine, vault })
 }
 
-// M2-08
 /// [`require_unlocked`] that also returns the master password when it was typed (not
 /// when the keyring unlocked), so `sverb forward --detach` can hand it to its
 /// background process over a pipe.
@@ -125,7 +124,6 @@ pub(crate) async fn require_unlocked_with_password(
     Ok((Unlocked { engine, vault }, Some(password)))
 }
 
-// M2-08
 /// Unlock with a password handed over by a parent `sverb` process (keyring first).
 pub(crate) async fn unlock_with_handoff(
     ctx: &Ctx,
@@ -145,7 +143,6 @@ pub(crate) async fn unlock_with_handoff(
     Ok(Unlocked { engine, vault })
 }
 
-// M2-08
 /// [`read_password`] for other headless commands (SSH passwords, passphrases).
 pub(crate) fn read_secret(prompt: &str) -> io::Result<Zeroizing<String>> {
     read_password(prompt)
@@ -224,7 +221,7 @@ fn read_password(prompt: &str) -> io::Result<Zeroizing<String>> {
     result
 }
 
-/// `sverb lock`. M2-07: the running TUI is locked over its control socket
+/// `sverb lock`. The running TUI is locked over its control socket
 /// (`super::agent::lock`); without one there is nothing to lock (exit 0). Headless
 /// commands never keep the vault unlocked.
 pub(crate) async fn lock(ctx: &Ctx) -> Result<u8, CliError> {

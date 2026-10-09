@@ -1,5 +1,4 @@
-//! M0-10 reducer-level tests: modes, leader, which-key, overrides, pass-through (K-01…K-04).
-//! Chord parsing tests (T-01…T-04) live in `chord.rs`.
+//! Chord parsing tests live in `chord.rs`.
 
 use std::sync::Arc;
 
@@ -9,7 +8,6 @@ use crossterm::event::{
 use pretty_assertions::assert_eq;
 use proptest::prelude::*;
 use sverb_core::config::{Config, ConfigEvent, KeyChordSpec, LeaderCheck, Severity};
-// M1-11
 use sverb_term::{
     TermModes,
     modes::input::{EncodeOpts, encode_key},
@@ -59,7 +57,7 @@ fn sent(effects: &[Effect]) -> Vec<SessionInput> {
         .collect()
 }
 
-// M1-11: the real encoder (`sverb_term` input encoding) replaces the legacy oracle.
+// The real encoder (`sverb_term` input encoding) replaces the legacy oracle.
 /// The bytes the session actor sends for `chord` in a pane with default modes (normal
 /// cursor keys, no keypad, modifyOtherKeys or kitty flags) and `backspace = del`.
 fn encoded(chord: &KeyChord) -> Vec<u8> {
@@ -160,7 +158,7 @@ fn t07_leader_dash_splits_without_sending_bytes() {
 
 #[test]
 fn t08_leader_times_out() {
-    // The timeout is suspended while which-key shows (T-09), so test it without the popup
+    // The timeout is suspended while which-key shows, so test it without the popup
     // and with a popup delay longer than the timeout.
     let mut no_popup = Config::default();
     no_popup.ui.show_which_key = false;
@@ -516,7 +514,7 @@ fn t24_k02_must_pass_list() {
         let effects = h.take_effects();
         assert_eq!(sent(&effects), vec![SessionInput::Key(chord)], "{s}");
         assert_eq!(effects.len(), 1, "{s}");
-        // M1-11: byte-exact through the real encoder.
+        // Byte-exact through the real encoder.
         assert_eq!(sent_bytes(&effects), k02_bytes(s), "{s}");
     }
     // Also the legacy report of ctrl-] (`Char('5')+CONTROL`) reaches the session as ctrl-].
@@ -527,8 +525,6 @@ fn t24_k02_must_pass_list() {
     assert_eq!(sent_bytes(&h.take_effects()), vec![0x1D]);
 }
 
-// M1-11
-/// K-02's expected bytes (the M1-11 table, default modes).
 fn k02_bytes(s: &str) -> Vec<u8> {
     if let Some(l) = s.strip_prefix("ctrl-")
         && let [b @ b'a'..=b'z'] = l.as_bytes()
@@ -600,7 +596,6 @@ fn k05_legacy_leader_report_is_the_leader() {
     assert!(matches!(h.app().key_state(), KeyState::Pending(_)));
 }
 
-// K-06 (partial): a pane whose session is gone swallows plain keys; M1-16 adds Enter.
 #[test]
 fn k06_dead_pane_swallows_keys() {
     let mut h = AppHarness::new(Config::default()).with_live_session();
@@ -738,7 +733,7 @@ fn t22_every_action_is_described_and_in_which_key() {
     let groups = whichkey::entries(&Keymap::default());
     for info in registry() {
         assert!(!info.description.trim().is_empty(), "{}", info.name);
-        // M3-01: unbound by default (palette only), so not in which-key.
+        // Unbound by default (palette only), so not in which-key.
         if crate::keymap::action::UNBOUND_BY_DEFAULT.contains(&info.name) {
             assert!(
                 !groups
@@ -769,7 +764,7 @@ fn validator_accepts_none_and_known_actions_only() {
     assert_eq!(v.parse_chord("shift-l"), Ok("L".to_owned()));
     assert_eq!(v.parse_chord("g  g"), Ok("g g".to_owned()));
     assert!(v.parse_chord("ctrl-").is_err());
-    // M3-04: `[keys.copy]` takes copy-mode actions only.
+    // `[keys.copy]` takes copy-mode actions only.
     assert_eq!(
         v.modes(),
         vec![

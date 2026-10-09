@@ -1,5 +1,5 @@
 //! Secret values that can't be printed, logged, cloned or serialized by accident
-//! (M0-04, SPEC §11.5, §17).
+//! (SPEC §11.5, §17).
 //!
 //! [`Secret<T>`] wraps [`secrecy::SecretBox<T>`]:
 //! - `Debug` and `Display` always write `[REDACTED]`, so `tracing` fields recorded with
@@ -50,7 +50,7 @@ impl<T: Zeroize + ?Sized> Secret<T> {
         self.0.expose_secret()
     }
 
-    /// Borrows the secret value for the encrypted item serializer (M1-02).
+    /// Borrows the secret value for the encrypted item serializer.
     ///
     /// This is the same as [`Secret::expose`], under a separate name so the one
     /// legitimate serialization path stays grep-able and reviewable on its own.
@@ -118,7 +118,6 @@ impl From<&[u8]> for SecretBytes {
 mod tests {
     use super::*;
 
-    // T-09
     #[test]
     fn formatting_is_redacted() {
         let s = SecretString::from("CANARY-1b9f");
@@ -135,7 +134,6 @@ mod tests {
         assert_eq!(format!("{k:?}"), "[REDACTED]");
     }
 
-    // T-09
     #[test]
     fn expose_returns_the_inner_value() {
         let s = SecretString::from(String::from("hunter2"));
@@ -147,7 +145,6 @@ mod tests {
         assert_eq!(k.expose(), &[7, 7, 7, 7]);
     }
 
-    // T-09
     #[test]
     fn ct_eq_compares_values() {
         let a = SecretString::from("same");

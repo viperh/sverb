@@ -20,35 +20,32 @@
 
 pub mod dialogs;
 pub mod hosts;
-// M2-02: the Keychain section (Identities sub-tab; M2-03 adds Keys and Certificates).
 pub mod keychain;
-// M0-11
 pub mod shell;
 pub mod sidebar;
-// M1-04: first run, unlock prompt / change password, lock overlay.
+// First run, unlock prompt / change password, lock overlay.
 pub mod first_run;
 pub mod lock_overlay;
-pub mod unlock;
-// M3-05: the recording replay player (M3-06 adds the Logs list around it).
 pub mod logs;
-// M1-17: tabs, panes and the tab bar's geometry.
+pub mod unlock;
+// Tabs, panes and the tab bar's geometry.
 pub mod sessions;
-// M1-15: the Known Hosts section (list, edit, import / export prompts).
+// The Known Hosts section (list, edit, import / export prompts).
 pub mod known_hosts;
-// M2-08: the Forwards section (rules, live status, add / edit form).
+// The Forwards section (rules, live status, add / edit form).
 pub mod forwards;
-// M2-11: the import / export wizard (dry-run preview, target, conflict policy).
+// The import / export wizard (dry-run preview, target, conflict policy).
 pub mod import_wizard;
-// M2-09: the Snippets section, the `leader e` picker, the variable form, the editor
+// The Snippets section, the `leader e` picker, the variable form, the editor
 // and the exec results.
 pub mod snippets;
-// M2-12: the command palette overlay (`leader p`, `ctrl-k`).
+// The command palette overlay (`leader p`, `ctrl-k`).
 pub mod palette;
-// M3-03: the workspaces dialog (list, fuzzy picker, preview, save / rename prompts).
+// The workspaces dialog (list, fuzzy picker, preview, save / rename prompts).
 pub mod workspaces;
-// M5-03: Settings → Team: safety numbers, ✓ verification, key-change warnings.
+// Settings → Team: safety numbers, ✓ verification, key-change warnings.
 pub mod settings;
-// M6-03: terminal sharing (start dialog, approval modal, viewers panel, letterboxing).
+// Terminal sharing (start dialog, approval modal, viewers panel, letterboxing).
 pub mod share;
 
 use std::collections::BTreeMap;
@@ -66,7 +63,6 @@ use crate::{
 
 pub use dialogs::{Dialog, DialogId, DialogKind};
 pub use hosts::HostsView;
-// M0-11
 pub use shell::{MainView, Region, Section, ShellRects, ShellState};
 pub use sidebar::SidebarView;
 
@@ -168,7 +164,6 @@ pub struct RenderCx<'a> {
     pub mode: Mode,
     /// Whether this view has keyboard focus.
     pub focused: bool,
-    // M0-11
     /// The resolved UI theme (styles already account for `NO_COLOR` and color depth).
     pub theme: &'a Theme,
     /// `--debug` is on (the log pane and its binding exist).
@@ -183,9 +178,8 @@ pub trait View {
     /// Draw into `area`. Must not panic for any area size, including 0×0 and 1×1.
     fn render(&self, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>);
 
-    // M1-06
     /// The view is editing text (a list's filter line, a form field). The mode is then
-    /// Insert (M0-10): keys go to the view, Normal-mode bindings (`q`, `?`) do not
+    /// Insert: keys go to the view, Normal-mode bindings (`q`, `?`) do not
     /// fire, and the leader still works.
     fn insert_mode(&self) -> bool {
         false
@@ -197,39 +191,29 @@ pub trait View {
 /// Append new views at the end, one block per task with a `// <task-id>` comment.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Views {
-    // M0-08
-    /// Hosts section (M1-07).
+    /// Hosts section.
     pub hosts: HostsView,
-    // M0-11
     /// The sidebar (section switcher).
     pub sidebar: SidebarView,
-    // M3-06
     /// The Logs section (connection logs, recordings).
     pub logs: logs::LogsView,
-    // M2-02
     /// The Keychain section.
     pub keychain: keychain::KeychainView,
-    // M1-15
     /// The Known Hosts section.
     pub known_hosts: known_hosts::KnownHostsView,
-    // M2-08
     /// The Forwards section.
     pub forwards: forwards::ForwardsView,
-    // M2-09
     /// The Snippets section.
     pub snippets: snippets::SnippetsView,
-    // M4-09
     /// The Settings section (Sync, Devices, Team).
     pub settings: settings::SettingsView,
 }
 
 impl Views {
-    /// The view that has focus. `None` for a session pane (M0-10: its keys are routed
-    /// by the reducer; M1-10 adds the pane widget).
+    /// The view that has focus. `None` for a session pane (its keys are routed
     pub fn focused_mut(&mut self, focus: Focus) -> Option<&mut dyn View> {
         match focus {
             Focus::Hosts => Some(&mut self.hosts),
-            // M0-10
             Focus::Session(_) => None,
         }
     }

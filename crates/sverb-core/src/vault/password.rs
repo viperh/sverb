@@ -1,4 +1,4 @@
-//! M1-04: master-password strength (SPEC §11.2: zxcvbn score ≥ 3, in both modes).
+//! Master-password strength (SPEC §11.2: zxcvbn score ≥ 3, in both modes).
 
 use std::fmt;
 
@@ -111,7 +111,6 @@ pub fn check_strength(
 mod tests {
     use super::*;
 
-    // T-02
     #[test]
     fn weak_password_is_rejected_with_feedback() {
         let err = check_strength("password123", &[]).err();

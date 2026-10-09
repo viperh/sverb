@@ -1,13 +1,11 @@
-//! The runtime: terminal I/O and the event loop around the reducer (M0-09, SPEC §2.1).
+//! The runtime: terminal I/O and the event loop around the reducer (SPEC §2.1).
 //!
-//! [`run`] is the binary's entry point. It enters TUI mode through the M0-05
 //! [`TerminalGuard`], starts the input task, OS signal handlers and the config
 //! watcher, and drives an [`EventLoop`] until an `Effect::Quit`.
 //!
 //! # Event sources, in priority order (`tokio::select! { biased; … }`)
 //! 1. **input**: crossterm events from the input task, bounded ([`input`]),
 //! 2. **sessions**: coalesced `Dirty` notifications, unbounded ([`sessions`]; the
-//!    backpressure contract for M1-08 is documented there),
 //! 3. **effect results / config / sync** (the bounded [`EventSender`] channel),
 //!    **timers** ([`timers::Timers`], driven by `ScheduleTimer`/`CancelTimer`) and
 //!    **signals** ([`signals`]),
@@ -37,12 +35,10 @@ use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::Rect,
 };
-// M0-07
 use sverb_core::config::{ConfigWatcher, Validators};
 use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tracing::warn;
 
-// M0-05
 use self::terminal::{TerminalGuard, TerminalSetup};
 use self::{
     input::InputReceiver,
@@ -50,29 +46,24 @@ use self::{
     signals::{LoopSignal, SignalReceiver},
     timers::Timers,
 };
+use crate::services::clipboard::ClipboardService;
+use crate::services::sessions::{SessionService, to_ui_event};
+use crate::services::vault::{VaultService, keyring_from_env};
 use crate::{
     app::{App, Config, Effect, InputEvent, LaunchIntent, UiEvent},
     keymap::Keymap,
     services::{EventSender, Services},
-    // M0-11:
     theme::ThemeEnv,
 };
-// M1-08
-use crate::services::sessions::{SessionService, to_ui_event};
-// M1-04
-use crate::services::vault::{VaultService, keyring_from_env};
-// M1-11
-use crate::services::clipboard::ClipboardService;
 
-// M7-04: terminal capability detection shared with `sverb doctor`.
+// Terminal capability detection shared with `sverb doctor`.
 pub mod capabilities;
-// M0-09
 pub mod input;
 pub mod sessions;
 pub mod signals;
-// M0-05: mode bookkeeping, `restore_terminal` (panic-safe) and the RAII guard.
+// Mode bookkeeping, `restore_terminal` (panic-safe) and the RAII guard.
 pub mod terminal;
-// M0-05: crash-path hooks for the binary's PTY tests; never in release builds.
+// Crash-path hooks for the binary's PTY tests; never in release builds.
 #[cfg(feature = "test-hooks")]
 mod test_hooks;
 pub mod timers;
@@ -86,22 +77,18 @@ pub const EVENT_CAPACITY: usize = 1024;
 /// Frame budget: at most 60 draws per second (1/60 s).
 pub const FRAME: Duration = Duration::from_micros(16_667);
 
-/// How long `Quit` waits for sessions to close (M1-08's `SessionManager::shutdown`).
 pub const SESSION_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(2);
 
-// M0-07
 /// Everything the binary hands to the TUI besides the [`LaunchIntent`].
 #[derive(Debug)]
 pub struct LaunchCtx {
     /// The config loaded at startup (defaults if the file was rejected).
     pub config: Config,
-    /// The keymap (M0-10 derives it from `config` instead).
     pub keymap: Keymap,
     /// `config.toml` to watch for hot reload; `None` disables the watcher.
     pub config_file: Option<PathBuf>,
     /// Validators for reloaded files (the same ones used at startup).
     pub validators: Validators,
-    // M1-04
     /// Where the database lives. `Some`: the vault service opens the store and the UI
     /// starts locked (first run or unlock). `None`: no vault (UI tests).
     pub paths: Option<sverb_core::paths::Paths>,
@@ -110,15 +97,14 @@ pub struct LaunchCtx {
 impl LaunchCtx {
     /// A context with the built-in keymap, default validators and no hot reload.
     pub fn new(config: Config) -> Self {
-        // M0-10: built-ins merged with `general.leader` and `[keys.*]`.
+        // Built-ins merged with `general.leader` and `[keys.*]`.
         let keymap = Keymap::from_config(&config);
         Self {
             config,
             keymap,
             config_file: None,
-            // M0-10: the real keymap validator.
+            // The real keymap validator.
             validators: crate::keymap::validators(),
-            // M1-04
             paths: None,
         }
     }
@@ -127,7 +113,7 @@ impl LaunchCtx {
 /// Run the UI until an `Effect::Quit`, and return its exit code.
 ///
 /// `intent` is delivered to the reducer as the first event ([`UiEvent::Launch`]).
-/// The caller must check that stdout is a terminal first (M0-07).
+/// The caller must check that stdout is a terminal first.
 pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     let LaunchCtx {
         config,
@@ -137,7 +123,7 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         paths,
     } = ctx;
     let config = Arc::new(config);
-    // M1-04: open the store before touching the terminal, so a database error is
+    // Open the store before touching the terminal, so a database error is
     // printed normally. The keyring is the OS keyring unless `SVERB_KEYRING=off`.
     let vault = match &paths {
         Some(paths) => Some(
@@ -147,7 +133,7 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         ),
         None => None,
     };
-    // M1-10: terminal color schemes (built-ins + `themes/*.toml` next to config.toml).
+    // Terminal color schemes (built-ins + `themes/*.toml` next to config.toml).
     let themes_dir = config_file
         .as_deref()
         .and_then(std::path::Path::parent)
@@ -157,7 +143,7 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     for err in &scheme_errors {
         warn!("color scheme skipped: {err}");
     }
-    // M0-05: tracked modes; the guard's `Drop` (and the panic hook) restore them.
+    // Tracked modes; the guard's `Drop` (and the panic hook) restore them.
     // Bracketed paste and focus events on; mouse capture follows `ui.mouse`.
     let mut guard = TerminalGuard::enter(TerminalSetup {
         mouse: config.ui.mouse,
@@ -165,12 +151,11 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         focus_events: true,
     })?;
     let terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
-    // M0-05
     #[cfg(feature = "test-hooks")]
     if let Some(code) = test_hooks::after_start().await {
         return Ok(code);
     }
-    // M1-11: the kitty keyboard protocol when the terminal supports it (`ctrl-i` ≠ `tab`),
+    // The kitty keyboard protocol when the terminal supports it (`ctrl-i` ≠ `tab`),
     // popped on restore. Queried before the input reader starts, so the reply isn't keys.
     let kitty = guard.enable_kitty_keyboard();
     tracing::debug!(kitty, "kitty keyboard protocol");
@@ -179,15 +164,15 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     let input_task = input::spawn_terminal_input(input_tx);
     let (signal_tx, signal_rx) = signals::channel();
     let signal_tasks = signals::spawn(&signal_tx);
-    // M1-08: the session manager reports on the session channel.
+    // The session manager reports on the session channel.
     let (session_tx, session_rx) = sessions::channel();
     let session_service = SessionService::new(session_tx);
-    // M1-12: `terminal.term` for local shells (applies to new sessions).
+    // `terminal.term` for local shells (applies to new sessions).
     session_service.set_local_options(sverb_conn::LocalOptions {
         term: config.terminal.term.clone(),
         ..sverb_conn::LocalOptions::default()
     });
-    // M1-13: SSH sessions resolve saved hosts through the vault (settings apply to new
+    // SSH sessions resolve saved hosts through the vault (settings apply to new
     // connections).
     session_service.set_ssh_connector(crate::services::ssh::ssh_connector(
         vault.clone(),
@@ -195,14 +180,14 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     ));
     let session_manager = session_service.manager().clone();
     let (ev_tx, ev_rx) = mpsc::channel(EVENT_CAPACITY);
-    // M1-15: the same connector, with the known-hosts store reporting saves ("Added host
+    // The same connector, with the known-hosts store reporting saves ("Added host
     // key for …" toasts) on the event channel.
     session_service.set_ssh_connector(crate::services::ssh::ssh_connector_with_events(
         vault.clone(),
         Arc::clone(&config),
         Some(ev_tx.clone()),
     ));
-    // M2-07: `confirm_on_use` prompts and the control socket (`sverb lock`).
+    // `confirm_on_use` prompts and the control socket (`sverb lock`).
     let mut agent = crate::services::agent::AgentService::start(vault.clone(), ev_tx.clone());
     if let Some(paths) = &paths
         && let Some(path) = sverb_conn::agent::control::control_path(paths)
@@ -212,7 +197,7 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
             Err(err) => warn!(%err, "no runtime directory; `sverb lock` cannot reach this TUI"),
         }
     }
-    // M2-07: forwarded agent channels are served by the built-in / system agent.
+    // Forwarded agent channels are served by the built-in / system agent.
     session_service.set_ssh_connector(
         crate::services::ssh::ssh_connector_with_events(
             vault.clone(),
@@ -221,36 +206,34 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         )
         .with_agent_forwarding(agent.forwarding()),
     );
-    // M0-07: hot reload; kept alive (and stopped on drop) for the whole loop.
+    // Hot reload; kept alive (and stopped on drop) for the whole loop.
     let watcher = config_file.and_then(|file| spawn_watcher(&file, validators, &config, &ev_tx));
 
-    // M1-11
     let clipboard_osc52 = config.clipboard.osc52;
-    // M3-06: every connection attempt becomes a ConnLog entry (written through the vault).
+    // Every connection attempt becomes a ConnLog entry (written through the vault).
     let connlog = crate::services::connlog::ConnLogService::new(
         vault.clone(),
         ev_tx.clone(),
         config.logs.sync,
     );
     session_manager.set_connlog_sink(Arc::new(connlog.clone()));
-    // M7-01: command history (shell integration, the heuristic tier, snippet runs).
+    // Command history (shell integration, the heuristic tier, snippet runs).
     let history = crate::services::history::HistoryService::new(
         vault.clone(),
         ev_tx.clone(),
         crate::app::history::HistoryPolicy::from_config(&config),
     );
-    // M0-11: `NO_COLOR`/`COLORTERM` for the theme, and the `--debug` ring for the log pane.
+    // `NO_COLOR`/`COLORTERM` for the theme, and the `--debug` ring for the log pane.
     let app = App::new(config)
         .with_keymap(keymap)
         .with_theme_env(ThemeEnv::from_process())
-        // M7-07: `ui.ascii = "auto"`.
+        // `ui.ascii = "auto"`.
         .with_ascii_env(crate::runtime::capabilities::TermEnv::from_process().wants_ascii())
         .with_debug_ring(sverb_core::logging::debug_ring())
-        // M1-10
         .with_schemes(schemes)
-        // M3-04: copy mode and mouse selection read the session emulators.
+        // Copy mode and mouse selection read the session emulators.
         .with_terms(Arc::new(session_service.registry()));
-    // M1-04: start locked; the vault service reports first run / keyring / prompt.
+    // Start locked; the vault service reports first run / keyring / prompt.
     let app = match &vault {
         Some(vault) => {
             vault.report_status(&ev_tx);
@@ -265,30 +248,25 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         events_tx: ev_tx,
         signals: signal_rx,
     };
-    // M4-09: the sync engine (started on unlock), devices, the account wizard.
+    // The sync engine (started on unlock), devices, the account wizard.
     #[cfg(feature = "sync")]
     let sync = vault
         .clone()
         .map(|v| crate::services::sync::SyncService::new(v, Arc::clone(app.config())));
     let mut services = Services::new()
-        // M1-04
         .with_vault_opt(vault)
         .with_sessions(session_service)
-        // M1-11
         .with_clipboard(ClipboardService::from_env(clipboard_osc52))
-        // M3-06
         .with_connlog(connlog.clone())
-        // M3-04: confirmed links open in the system browser.
+        // Confirmed links open in the system browser.
         .with_url_opener(Box::new(crate::services::opener::SystemOpener))
-        // M2-07
         .with_agent(agent)
-        // M7-01
         .with_history(history.clone());
     #[cfg(feature = "sync")]
     if let Some(sync) = sync.clone() {
         services = services.with_sync(sync);
     }
-    // M3-05: encrypted recordings in `state_dir/recordings`.
+    // Encrypted recordings in `state_dir/recordings`.
     if let Some(paths) = &paths {
         services = services.with_recordings_dir(paths.recordings_dir());
     }
@@ -304,22 +282,22 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
         task.abort();
     }
     drop(watcher);
-    // M1-08: close every session; abort the ones that don't close in time.
+    // Close every session; abort the ones that don't close in time.
     let report = session_manager.shutdown(SESSION_SHUTDOWN_TIMEOUT).await;
     if report.aborted > 0 {
         warn!(aborted = report.aborted, "sessions aborted on quit");
     }
-    // M3-06: finalize open attempts (`ended_at` = quit time) and flush their writes.
+    // Finalize open attempts (`ended_at` = quit time) and flush their writes.
     connlog.shutdown().await;
-    // M7-01: flush history writes.
+    // Flush history writes.
     history.shutdown().await;
-    // M4-09: stop the sync engine (closes its WebSocket).
+    // Stop the sync engine (closes its WebSocket).
     #[cfg(feature = "sync")]
     if let Some(sync) = &sync {
         sync.stop();
     }
-    // M1-03: flush the store.
-    // M1-10: give the user's cursor shape back (panes pass theirs through with DECSCUSR).
+    // Flush the store.
+    // Give the user's cursor shape back (panes pass theirs through with DECSCUSR).
     if let Err(err) = guard.set_cursor_shape(None) {
         warn!(%err, "cannot reset the cursor shape");
     }
@@ -336,7 +314,6 @@ pub trait TerminalControl {
     /// `ErrorKind::Unsupported` where there is no job control.
     fn suspend(&mut self) -> io::Result<()>;
 
-    // M1-10
     /// DECSCUSR passthrough for the focused pane: `Some((shape, blinking))`, or `None` for
     /// the user's default shape.
     fn set_cursor_shape(
@@ -356,7 +333,6 @@ impl TerminalControl for TerminalGuard {
         TerminalGuard::suspend(self)
     }
 
-    // M1-10
     fn set_cursor_shape(
         &mut self,
         shape: Option<(sverb_term::CursorShape, bool)>,
@@ -374,7 +350,6 @@ impl<T: TerminalControl + ?Sized> TerminalControl for &mut T {
         (**self).suspend()
     }
 
-    // M1-10
     fn set_cursor_shape(
         &mut self,
         shape: Option<(sverb_term::CursorShape, bool)>,
@@ -427,7 +402,6 @@ pub struct EventLoop<B: Backend, C: TerminalControl, O: LoopObserver = ()> {
     ch: LoopChannels,
     /// Clear the screen and repaint everything on the next frame (resume).
     full_repaint: bool,
-    // M1-10
     /// The cursor shape last sent with DECSCUSR (`None`: never sent).
     cursor_shape: Option<(sverb_term::CursorShape, bool)>,
 }
@@ -450,7 +424,6 @@ where
             observer: (),
             ch,
             full_repaint: false,
-            // M1-10
             cursor_shape: None,
         }
     }
@@ -467,7 +440,6 @@ where
             observer,
             ch: self.ch,
             full_repaint: self.full_repaint,
-            // M1-10
             cursor_shape: self.cursor_shape,
         }
     }
@@ -495,7 +467,6 @@ where
         &self.observer
     }
 
-    // M1-08
     /// Replace the effect executor (to give it a session service).
     #[must_use]
     pub fn with_services(mut self, services: Services) -> Self {
@@ -522,14 +493,14 @@ where
                 biased;
                 Some(input) = self.ch.input.recv() => self.apply_input(input)?,
                 Some(notice) = self.ch.sessions.recv() => match notice {
-                    // M1-08: title, bell, state, prompts and errors go to the reducer.
+                    // Title, bell, state, prompts and errors go to the reducer.
                     SessionNotice::Event(id, ev) => match to_ui_event(id, ev) {
                         Some(ev) => self.apply(ev)?,
                         None => None,
                     },
                     notice => {
                         let visible = self.app.visible_sessions();
-                        // M1-17: output in a hidden pane sets its tab's activity marker
+                        // Output in a hidden pane sets its tab's activity marker
                         // (one `Dirty` per hidden period: the flag stays set until shown).
                         let hidden = match &notice {
                             SessionNotice::Dirty(id) if !visible.contains(id) => Some(*id),
@@ -592,7 +563,7 @@ where
                 .map_err(io::Error::other)?;
         }
         let app = &self.app;
-        // M1-10: session content from the registry (the emulator mutex is locked only
+        // Session content from the registry (the emulator mutex is locked only
         // inside this synchronous draw); the focused pane's cursor shape goes out with
         // DECSCUSR when it changes.
         let registry = self.services.sessions().map(SessionService::registry);
@@ -648,7 +619,7 @@ where
     fn apply(&mut self, ev: UiEvent) -> io::Result<Option<i32>> {
         self.observer.on_event(&ev);
         let effects = self.app.handle(ev);
-        // M0-11: the reducer never reads the clock; new notifications get their
+        // The reducer never reads the clock; new notifications get their
         // timestamp here, right after the event that created them.
         if self.app.has_unstamped_notifications() {
             self.app.stamp_notifications(chrono::Local::now());
@@ -670,7 +641,7 @@ where
         Ok(None)
     }
 
-    // M0-05: restore → SIGTSTP → re-enable the recorded modes on SIGCONT; then repaint.
+    // Restore → SIGTSTP → re-enable the recorded modes on SIGCONT; then repaint.
     fn suspend(&mut self) -> io::Result<()> {
         match self.control.suspend() {
             Ok(()) => {
@@ -697,7 +668,7 @@ impl<B: Backend, C: TerminalControl, O: LoopObserver> std::fmt::Debug for EventL
     }
 }
 
-// M0-07: start the `config.toml` watcher (SPEC §15). Its events arrive on a plain
+// Start the `config.toml` watcher (SPEC §15). Its events arrive on a plain
 // thread, so they are forwarded with `blocking_send`. Failing to start only loses
 // hot reload, so it is logged and the UI runs without it.
 fn spawn_watcher(

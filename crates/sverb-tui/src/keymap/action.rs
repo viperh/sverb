@@ -5,9 +5,8 @@
 //! Internal events (`Tick`, `Render`, `Resize`, `ClearScreen`, `Resume`, `Error`) are
 //! **not** actions: they are `UiEvent`s or effects, so a config file can't bind them.
 //!
-//! # Append-only convention (hotspot, see `tasks/01-DEPENDENCIES.md` §3)
+//! # Append-only convention (hotspot)
 //! Add new actions **at the end** of [`ActionName`] and of [`REGISTRY`], in one block
-//! per task introduced by a `// <task-id>` comment. M0-10 owns the full default list.
 //! Every action needs a description and a which-key [`Group`] (test T-22).
 
 use serde::{Deserialize, Deserializer, de};
@@ -31,14 +30,12 @@ use strum::{Display, EnumIter, EnumString, IntoStaticStr};
 #[strum(serialize_all = "snake_case")]
 #[non_exhaustive]
 pub enum ActionName {
-    // M0-08
     /// Quit sverb (asks first when sessions are open and `general.confirm_quit`).
     Quit,
     /// Suspend to shell (Unix job control).
     Suspend,
     /// Show the list of actions.
     Help,
-    // M0-10: the after-leader table of `tasks/03-KEYBINDINGS.md` §4.1.
     /// Send the literal leader chord to the focused session (leader pressed twice).
     SendLeader,
     /// Open a new tab, picking a host.
@@ -142,17 +139,14 @@ pub enum ActionName {
     ToggleLogPane,
     /// Lock the vault.
     LockVault,
-    // M3-01
     /// Reset every split of the current tab to equal sizes (unbound by default).
     EqualizePanes,
-    // M3-03 (unbound by default; in the palette)
     /// Save the open tabs as a workspace.
     SaveWorkspace,
     /// Open a saved workspace (fuzzy picker).
     OpenWorkspace,
     /// List, rename, delete and duplicate workspaces.
     ManageWorkspaces,
-    // M4-09 (unbound by default; in the palette only when sync is set up)
     /// Settings → Sync: status, server, last sync, pending changes, errors.
     SyncStatus,
     /// Run a sync cycle now.
@@ -163,7 +157,7 @@ pub enum ActionName {
     TeamKeys,
 }
 
-/// Which-key popup groups (`tasks/03-KEYBINDINGS.md` §4.5), in display order.
+/// Which-key popup groups, in display order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, EnumIter)]
 pub enum Group {
     /// Sessions and tabs.
@@ -198,14 +192,12 @@ pub struct ActionInfo {
     pub name: ActionName,
     /// Shown by which-key, help and the command palette.
     pub description: &'static str,
-    // M0-10
     /// Which-key group.
     pub group: Group,
 }
 
 /// Every action with its description, in display order.
 pub const REGISTRY: &[ActionInfo] = &[
-    // M0-08
     ActionInfo {
         name: ActionName::Quit,
         description: "Quit sverb",
@@ -221,7 +213,6 @@ pub const REGISTRY: &[ActionInfo] = &[
         description: "Help (all keys)",
         group: Group::Ui,
     },
-    // M0-10
     ActionInfo {
         name: ActionName::SendLeader,
         description: "Send leader key",
@@ -457,13 +448,11 @@ pub const REGISTRY: &[ActionInfo] = &[
         description: "Lock the vault",
         group: Group::App,
     },
-    // M3-01
     ActionInfo {
         name: ActionName::EqualizePanes,
         description: "Equalize pane sizes",
         group: Group::Panes,
     },
-    // M3-03
     ActionInfo {
         name: ActionName::SaveWorkspace,
         description: "Save workspace",
@@ -479,7 +468,6 @@ pub const REGISTRY: &[ActionInfo] = &[
         description: "Manage workspaces",
         group: Group::SessionsTabs,
     },
-    // M4-09
     ActionInfo {
         name: ActionName::SyncStatus,
         description: "Sync status",
@@ -502,15 +490,12 @@ pub const REGISTRY: &[ActionInfo] = &[
     },
 ];
 
-// M3-01
 /// Actions without a default key (reachable from the palette and `[keys.*]`).
 pub const UNBOUND_BY_DEFAULT: &[ActionName] = &[
     ActionName::EqualizePanes,
-    // M3-03
     ActionName::SaveWorkspace,
     ActionName::OpenWorkspace,
     ActionName::ManageWorkspaces,
-    // M4-09
     ActionName::SyncStatus,
     ActionName::SyncNow,
     ActionName::Devices,
@@ -528,7 +513,6 @@ impl ActionName {
         self.info().map_or("", |info| info.description)
     }
 
-    // M0-10
     /// The registry row for this action.
     pub fn info(self) -> Option<&'static ActionInfo> {
         REGISTRY.iter().find(|info| info.name == self)
@@ -550,7 +534,6 @@ impl ActionName {
 }
 
 /// Accepts canonical `snake_case` names. For the template's `config.json`
-/// (until M0-06/M0-10 replace it), the legacy `PascalCase` spelling of a *bindable*
 /// action (`"Quit"`) is accepted too. Internal events such as `"Render"` are errors.
 impl<'de> Deserialize<'de> for ActionName {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
@@ -584,7 +567,6 @@ mod tests {
 
     use super::*;
 
-    // T-10
     #[test]
     fn registry_parses_and_rejects_internal_events() {
         assert_eq!(ActionName::from_str("quit"), Ok(ActionName::Quit));
@@ -607,7 +589,6 @@ mod tests {
         }
     }
 
-    // M0-10
     #[test]
     fn numbered_tabs_use_spec_names() {
         assert_eq!(ActionName::GoToTab1.to_string(), "go_to_tab_1");

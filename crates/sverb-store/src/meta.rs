@@ -10,7 +10,7 @@ use crate::error::Result;
 
 /// Well-known `meta` keys.
 pub mod keys {
-    /// KDF parameters and salt for the password KEK (M1-04).
+    /// KDF parameters and salt for the password KEK.
     pub const KDF: &str = "kdf";
     /// The LMK wrapped under the password KEK.
     pub const LMK_WRAPPED_PW: &str = "lmk_wrapped_pw";
@@ -24,7 +24,6 @@ pub mod keys {
     pub const DEVICE_ID: &str = "device_id";
     /// Last HLC timestamp issued by this device.
     pub const HLC_LAST: &str = "hlc_last";
-    // M1-04
     /// Random id of this database (UUID text), so several `SVERB_HOME`s use distinct
     /// OS-keyring accounts (`lmk-kek:<db_id>`).
     pub const DB_ID: &str = "db_id";

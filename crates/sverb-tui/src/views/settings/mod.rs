@@ -1,6 +1,6 @@
 //! Settings views (synced mode adds Sync and Team pages).
 //!
-//! M4-09: the Settings section. In local-only mode (§1.1) it has one page:
+//! The Settings section. In local-only mode (§1.1) it has one page:
 //!
 //! ```text
 //! ┌ Settings ─────────────────────────────────────────────┐
@@ -16,20 +16,19 @@
 //!   vault, recent errors; `s` sync now, `d` disconnect (asks).
 //! * **Devices**: `GET /v1/devices` (name, platform, created, last seen, this device);
 //!   `x` / `Delete` revokes (asks; revoking this device logs out), `r` reloads.
-//! * **Team**: the M5-03 trust page ([`team_verify`]).
 //!
 //! The view renders a [`SyncPanel`] the reducer hands it ([`SettingsView::set_panel`])
 //! and leaves what the user asked for in [`SettingsView::take_request`].
 
-// M5-03: Settings → Team: safety numbers, ✓ verification, key-change warnings
+// Settings → Team: safety numbers, ✓ verification, key-change warnings
 // (§13.3). Sync builds only (team features need an account).
 #[cfg(feature = "sync")]
 pub mod team_verify;
 
-// M4-09: the account wizard dialog (log in / create an account).
+// The account wizard dialog (log in / create an account).
 pub mod account_wizard;
 
-// M5-02: Settings → Vaults (shared vaults, grants, §13.1–§13.2).
+// Settings → Vaults (shared vaults, grants, §13.1–§13.2).
 pub mod vaults;
 
 use crossterm::event::{KeyCode, KeyModifiers};
@@ -59,10 +58,9 @@ pub enum SettingsPage {
     Sync,
     /// The account's devices.
     Devices,
-    /// Team keys (M5-03).
+    /// Team keys.
     Team,
-    // M5-02
-    /// Shared vaults (M5-02).
+    /// Shared vaults.
     Vaults,
 }
 
@@ -74,7 +72,6 @@ impl SettingsPage {
             Self::Sync => "Sync",
             Self::Devices => "Devices",
             Self::Team => "Team",
-            // M5-02
             Self::Vaults => "Vaults",
         }
     }
@@ -109,7 +106,6 @@ pub enum SettingsRequest {
         /// Accept a changed key (else mark verified).
         accept_new_key: bool,
     },
-    // M5-01
     /// An org request (no confirmation needed).
     Team(TeamOp),
     /// Remove a member or leave (asks first).
@@ -125,7 +121,6 @@ pub enum SettingsRequest {
         /// It is this account (leaving).
         me: bool,
     },
-    // M5-02
     /// A Settings → Vaults request (no confirmation needed).
     Vaults(crate::app::sync_ui::VaultOp),
     /// Revoke a member's vault access or leave (asks first).
@@ -143,7 +138,6 @@ pub enum SettingsRequest {
     },
 }
 
-// M5-01
 /// What the Team page's input line is for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TeamInput {
@@ -176,15 +170,13 @@ pub struct SettingsView {
     pub device_selected: usize,
     /// Times are shown at this UTC offset (seconds east); `None`: local time.
     pub utc_offset_secs: Option<i32>,
-    /// M5-03: the Team page.
+    /// The Team page.
     #[cfg(feature = "sync")]
     pub team: team_verify::TeamVerifyView,
-    // M5-01
     /// Highlighted member on the Team page.
     pub member_selected: usize,
     /// The Team page's input line, while open.
     pub input: Option<(TeamInput, String)>,
-    // M5-02
     /// The Vaults page's cursor and input line.
     pub vaults: vaults::VaultsState,
     request: Option<SettingsRequest>,
@@ -200,18 +192,15 @@ impl SettingsView {
         self.device_selected = self
             .device_selected
             .min(self.panel.devices.rows.len().saturating_sub(1));
-        // M5-01
         self.member_selected = self
             .member_selected
             .min(self.panel.team.members.len().saturating_sub(1));
-        // M5-02
         self.vaults.clamp(&self.panel.vaults);
     }
 
     /// The Team page edits text (Insert mode).
     pub fn wants_text(&self) -> bool {
         (self.page == SettingsPage::Team && self.input.is_some())
-            // M5-02
             || (self.page == SettingsPage::Vaults && self.vaults.input.is_some())
     }
 
@@ -234,7 +223,6 @@ impl SettingsView {
             SettingsPage::Devices => Some(SettingsRequest::RefreshDevices),
             SettingsPage::Team => Some(SettingsRequest::LoadTeam),
             SettingsPage::Sync => None,
-            // M5-02
             SettingsPage::Vaults => Some(SettingsRequest::Vaults(
                 crate::app::sync_ui::VaultOp::Load {
                     vault: self.panel.vaults.current().map(|v| v.id.clone()),
@@ -245,7 +233,7 @@ impl SettingsView {
 
     /// Takes the pending request.
     pub fn take_request(&mut self) -> Option<SettingsRequest> {
-        // M5-03: the Team page's answers.
+        // The Team page's answers.
         #[cfg(feature = "sync")]
         if self.request.is_none()
             && let Some(req) = self.team.take_request()
@@ -409,11 +397,11 @@ impl SettingsView {
         if mods.intersects(KeyModifiers::CONTROL | KeyModifiers::ALT) || !self.panel.available {
             return false;
         }
-        // M5-02: the Vaults page's input line.
+        // The Vaults page's input line.
         if self.page == SettingsPage::Vaults && self.vaults.input.is_some() {
             return self.vaults_input_key(code);
         }
-        // M5-01: the input line takes every key.
+        // The input line takes every key.
         if self.wants_text() {
             return self.input_key(code);
         }
@@ -428,9 +416,7 @@ impl SettingsView {
                 return match self.page {
                     SettingsPage::Sync => self.sync_key(code),
                     SettingsPage::Devices => self.devices_key(code),
-                    // M5-01
                     SettingsPage::Team => self.team_key(code),
-                    // M5-02
                     SettingsPage::Vaults => self.vaults_key(code),
                 };
             }
@@ -453,8 +439,6 @@ impl SettingsView {
         };
         true
     }
-
-    // M5-01 ---------------------------------------------------------------- Team
 
     fn input_key(&mut self, code: KeyCode) -> bool {
         let Some((purpose, text)) = self.input.as_mut() else {
@@ -491,7 +475,6 @@ impl SettingsView {
 
     /// Pastes go to the input line.
     pub fn paste(&mut self, text: &str) -> bool {
-        // M5-02
         if self.page == SettingsPage::Vaults
             && let Some(t) = self.vaults.input.as_mut()
         {
@@ -721,7 +704,7 @@ pub fn level_style(level: SyncLevel, theme: &Theme) -> ratatui::style::Style {
 
 impl View for SettingsView {
     fn handle(&mut self, ev: &ViewEvent, cx: &mut ViewCx<'_>) -> Outcome {
-        // M5-01: a pasted invite link goes to the input line.
+        // A pasted invite link goes to the input line.
         if let ViewEvent::Paste(text) = ev {
             if self.paste(text) {
                 cx.request_redraw();
@@ -732,7 +715,7 @@ impl View for SettingsView {
         let ViewEvent::Key(key) = ev else {
             return Outcome::Ignored;
         };
-        // M5-03: the Team page's safety-number dialogs get keys first.
+        // The Team page's safety-number dialogs get keys first.
         #[cfg(feature = "sync")]
         if self.page == SettingsPage::Team
             && self.team.dialog.is_some()
@@ -748,7 +731,6 @@ impl View for SettingsView {
         }
     }
 
-    // M5-01
     fn insert_mode(&self) -> bool {
         self.wants_text()
     }
@@ -803,7 +785,6 @@ impl View for SettingsView {
         let lines = match self.page {
             SettingsPage::Sync => self.sync_lines(cx),
             SettingsPage::Devices => self.device_lines(cx),
-            // M5-01: orgs and members; M5-03's dialogs on top.
             SettingsPage::Team => {
                 frame.render_widget(
                     Paragraph::new(self.team_lines(cx)).wrap(Wrap { trim: false }),
@@ -813,7 +794,6 @@ impl View for SettingsView {
                 self.team.render_dialog_only(frame, body, cx);
                 return;
             }
-            // M5-02
             SettingsPage::Vaults => self.vault_lines(cx),
         };
         frame.render_widget(Paragraph::new(lines).wrap(Wrap { trim: false }), body);

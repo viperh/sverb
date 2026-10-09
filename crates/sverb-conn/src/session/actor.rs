@@ -12,7 +12,6 @@
 //!
 //! # Connected loop
 //! `select!` (biased) over the cancellation token, `cmd_rx.recv()` and the transport's
-//! reader (keepalive and latency ticks are SSH's: M1-13 adds them to its transport).
 //!
 //! - Output is read into a buffer of [`READ_BUFFER`] bytes and fed to the emulator in
 //!   chunks of at most [`LOCK_CHUNK`] bytes, **one lock per chunk**; the lock is
@@ -22,18 +21,18 @@
 //!   `Dirty` until the UI clears the flag. The read loop never waits on the UI.
 //! - Titles are sanitized (≤ 256 chars) and sent only when they change; at most one
 //!   `Bell` is sent per read.
-//! - M3-05: with a recorder attached ([`SessionCmd::AttachRecorder`]), every read is
+//! - With a recorder attached ([`SessionCmd::AttachRecorder`]), every read is
 //!   also handed to the recording tap (a `try_send` that never blocks; see
 //!   `sverb_term::recording::tap`), as are resizes and, when the tap records input,
 //!   the bytes written for keys, input and pastes.
-//! - M6-03: with a share tap attached ([`SessionCmd::AttachShareTap`]), every chunk
+//! - With a share tap attached ([`SessionCmd::AttachShareTap`]), every chunk
 //!   fed to the emulator and every resize is reported to it **while the emulator is
 //!   locked** (see [`super::share_tap`]); the tap is told `ended` and detached when the
 //!   connection ends.
-//! - M3-06: every connection attempt is reported to the [`ConnLogSink`] (start, then
+//! - Every connection attempt is reported to the [`ConnLogSink`] (start, then
 //!   end with the outcome, the session channel's byte counts and the last error).
 //!
-//! # Reconnect (M1-16, SPEC §6.1.2)
+//! # Reconnect (SPEC §6.1.2)
 //! `Reconnect` while disconnected reuses the **same emulator**, so scrollback is kept.
 //! Before the new connection the actor writes into the emulator (never to the remote):
 //! a mode reset ([`MODE_RESET`]: soft reset, leave the alternate screen, mouse modes,
@@ -53,12 +52,10 @@ use std::{
 
 use sverb_core::error_report::ErrorReport;
 use sverb_term::TermEvent;
-// M3-05
-use sverb_term::recording::RecordingTap;
-// M1-11
 use sverb_term::modes::input::{
     EncodeOpts, MouseRoute, encode_key, encode_paste, needs_confirmation, route_mouse,
 };
+use sverb_term::recording::RecordingTap;
 use tokio::{io::AsyncReadExt, sync::mpsc};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, trace, warn};
@@ -67,11 +64,9 @@ use super::{
     EventSink, SessionCmd, SessionEvent, SessionId, SessionSpec, SessionState, SharedEmulator,
     StateInput, event::sanitize_title, state::DisconnectReason,
 };
-use crate::transport::{ConnectCtx, ConnectError, Connector, Transport, apply_input};
-// M1-13
-use crate::transport::TransportFailure;
-// M3-06
 use crate::connlog::{Attempt, AttemptEnd, AttemptOutcome, ConnLogSink};
+use crate::transport::TransportFailure;
+use crate::transport::{ConnectCtx, ConnectError, Connector, Transport, apply_input};
 use sverb_core::model::UnixMillis;
 
 /// Maximum bytes fed to the emulator per lock acquisition (SPEC §2.1).
@@ -80,11 +75,9 @@ pub const LOCK_CHUNK: usize = 64 * 1024;
 /// Default size of the transport read buffer.
 pub const READ_BUFFER: usize = 64 * 1024;
 
-// M1-16: `sverb_conn::session::actor::backoff` (`session/mod.rs` is held by M1-14).
 #[path = "backoff.rs"]
 pub mod backoff;
 
-// M1-16
 /// Terminal modes reset before a reconnect: DECSTR soft reset, then leave the
 /// alternate screen, and explicitly clear what DECSTR doesn't cover everywhere (mouse
 /// tracking and encodings, focus reporting, bracketed paste, DECCKM, DECKPAM, LNM,
@@ -96,7 +89,6 @@ pub const MODE_RESET: &[u8] = b"\x1b[!p\x1b[?1049l\x1b[?47l\x1b[?1047l\
 \x1b[?1004l\x1b[?2004l\x1b[?1l\x1b>\x1b[20l\x1b[>4m\x1b[<99u\x1b[4l\x1b[?7h\
 \x1b7\x1b[?6l\x1b[r\x1b8\x1b[0m\x1b(B\x0f\x1b[?25h\x1b[0 q";
 
-// M1-16
 /// The dim separator written into the emulator before a reconnect (`verb`:
 /// "reconnected", or "restarted" for a local shell), at local time `hms` (`HH:MM:SS`).
 pub fn reconnect_separator(verb: &str, hms: &str) -> Vec<u8> {
@@ -132,28 +124,22 @@ pub(crate) struct Actor {
     pub(crate) state: SessionState,
     pub(crate) last_title: Option<String>,
     pub(crate) deferred: Vec<SessionCmd>,
-    // M1-11
     /// Key encoding options (the host's `backspace`).
     pub(crate) encode: EncodeOpts,
-    // M3-05
     /// The recording tap, while recording. Kept across reconnects.
     pub(crate) recorder: Option<RecordingTap>,
-    // M3-06
     /// Where connection attempts are reported.
     pub(crate) connlog: Arc<dyn ConnLogSink>,
     /// The current attempt (counters, error), between `attempt_started` and `attempt_ended`.
     pub(crate) attempt: Option<AttemptStats>,
-    // M2-08
     /// Told about each connection (port forwards).
     pub(crate) forwards: Option<Arc<dyn crate::forward::ForwardHook>>,
     /// Standalone tunnel: connect without a shell channel.
     pub(crate) tunnel_only: bool,
-    // M6-03
     /// The share tap, while the session is shared.
     pub(crate) share_tap: Option<super::share_tap::ShareTap>,
 }
 
-// M3-06
 /// What the actor tracks for the current connection attempt.
 #[derive(Debug, Default)]
 pub(crate) struct AttemptStats {
@@ -172,14 +158,14 @@ impl Actor {
     pub(crate) async fn run(mut self) {
         self.emit(SessionEvent::State(self.state.clone()));
         loop {
-            // M3-06: one ConnLog entry per attempt (first connect and every reconnect).
+            // One ConnLog entry per attempt (first connect and every reconnect).
             self.begin_attempt();
             if let Some(transport) = self.connect().await {
                 if let Some(stats) = &mut self.attempt {
                     stats.connected = true;
                 }
                 let ended = self.connected(transport).await;
-                // M6-03: a share ends with the connection.
+                // A share ends with the connection.
                 self.end_share_tap();
                 self.end_attempt();
                 if let Ended::Closed = ended {
@@ -198,7 +184,6 @@ impl Actor {
         self.sink.send(self.id, ev);
     }
 
-    // M3-06
     /// Report the start of a connection attempt.
     fn begin_attempt(&mut self) {
         self.end_attempt();
@@ -207,7 +192,6 @@ impl Actor {
             .attempt_started(self.id, Attempt::from_spec(&self.spec, UnixMillis::now()));
     }
 
-    // M3-06
     /// Report the end of the current attempt (no-op without one), from the state.
     fn end_attempt(&mut self) {
         let Some(stats) = self.attempt.take() else {
@@ -231,7 +215,6 @@ impl Actor {
         );
     }
 
-    // M3-06
     /// Keep `report` as the attempt's error detail.
     fn note_error(&mut self, report: &ErrorReport) {
         if let Some(stats) = &mut self.attempt {
@@ -239,7 +222,6 @@ impl Actor {
         }
     }
 
-    // M3-06
     /// Write to the transport, counting the bytes (`bytes_out`).
     async fn write_out(
         &mut self,
@@ -276,7 +258,6 @@ impl Actor {
                 "{:?} sessions are not available yet",
                 self.spec.kind()
             ));
-            // M3-06
             self.note_error(&report);
             self.emit(SessionEvent::Error(report));
             self.input(StateInput::TransportError(DisconnectReason::Connect));
@@ -291,9 +272,7 @@ impl Actor {
                 cmd_rx: &mut self.cmd_rx,
                 size,
                 deferred: &mut self.deferred,
-                // M1-13
                 owned_sink: Arc::clone(&self.sink),
-                // M2-08
                 forwards: self.forwards.clone(),
                 tunnel_only: self.tunnel_only,
             };
@@ -318,7 +297,7 @@ impl Actor {
                 }
             }
             Err(err) => {
-                // M3-06: the attempt's error detail.
+                // The attempt's error detail.
                 if let Some(report) = &err.report {
                     self.note_error(report);
                 }
@@ -380,7 +359,6 @@ impl Actor {
                         return Ended::Disconnected;
                     }
                     Ok(n) => {
-                        // M3-06
                         if let Some(stats) = &mut self.attempt {
                             stats.bytes_in = stats.bytes_in.saturating_add(n as u64);
                         }
@@ -395,12 +373,11 @@ impl Actor {
     }
 
     fn transport_failed(&mut self, err: &std::io::Error) -> Ended {
-        // M1-13: a transport may name the reason (SSH keepalive timeout → `Timeout`).
+        // A transport may name the reason (SSH keepalive timeout → `Timeout`).
         let (reason, report) = match TransportFailure::from_io(err) {
             Some(failure) => (failure.reason, failure.report.clone()),
             None => (DisconnectReason::Connect, ErrorReport::from_error(err)),
         };
-        // M3-06
         self.note_error(&report);
         self.emit(SessionEvent::Error(report));
         self.input(StateInput::TransportError(reason));
@@ -418,7 +395,7 @@ impl Actor {
     /// Feed one read to the emulator, ≤ [`LOCK_CHUNK`] bytes per lock, and write the
     /// emulator's replies back.
     async fn feed(&mut self, transport: &mut dyn Transport, data: &[u8]) -> std::io::Result<()> {
-        // M3-05: never blocks (a full recorder queue drops and counts).
+        // Never blocks (a full recorder queue drops and counts).
         if let Some(tap) = &self.recorder {
             tap.output(data);
         }
@@ -427,14 +404,14 @@ impl Actor {
             let (responses, events) = {
                 let mut term = self.term.lock();
                 term.feed(chunk);
-                // M6-03: under the lock, so a share snapshot sees a consistent cut.
+                // Under the lock, so a share snapshot sees a consistent cut.
                 if let Some(tap) = &self.share_tap {
                     tap.0.output(chunk);
                 }
                 (term.take_responses(), term.take_events())
             };
             for response in responses {
-                // M3-06: counted (`bytes_out`).
+                // Counted (`bytes_out`).
                 self.write_out(transport, &response).await?;
             }
             for event in events {
@@ -447,11 +424,11 @@ impl Actor {
                         }
                     }
                     TermEvent::Bell => bell = true,
-                    // M1-11: the UI applies `clipboard.allow_remote_write`.
+                    // The UI applies `clipboard.allow_remote_write`.
                     TermEvent::ClipboardWriteRequest { target, text } => {
                         self.emit(SessionEvent::ClipboardWrite { target, text });
                     }
-                    // M7-01: commands captured by shell integration (history).
+                    // Commands captured by shell integration (history).
                     TermEvent::Command(command) => self.emit(SessionEvent::Command(command)),
                     // Prompt marks are consumed by the emulator's tracker; cwd: not routed yet.
                     _ => trace!(session = %self.id, "terminal event not routed"),
@@ -467,7 +444,6 @@ impl Actor {
         Ok(())
     }
 
-    // M3-05
     /// Record input sent to the remote (only when the tap records input).
     fn record_input(&self, bytes: &[u8]) {
         if let Some(tap) = &self.recorder
@@ -477,7 +453,6 @@ impl Actor {
         }
     }
 
-    // M3-05
     /// Attach (replacing any previous recorder) or detach the recording tap.
     fn set_recorder(&mut self, tap: Option<RecordingTap>) {
         if let Some(tap) = &tap {
@@ -488,7 +463,6 @@ impl Actor {
         self.recorder = tap;
     }
 
-    // M6-03
     /// Attach (reporting the current size, under the emulator lock) or detach the share
     /// tap. A replaced tap is told `ended`.
     fn set_share_tap(&mut self, tap: Option<super::share_tap::ShareTap>) {
@@ -506,7 +480,6 @@ impl Actor {
         self.share_tap = tap;
     }
 
-    // M6-03
     /// The connection ended: tell the share tap and detach it.
     fn end_share_tap(&mut self) {
         if let Some(tap) = self.share_tap.take() {
@@ -534,13 +507,11 @@ impl Actor {
                     if cols > 0 && rows > 0 && px_w > 0 && px_h > 0 {
                         term.set_pixel_size(px_w / cols, px_h / rows);
                     }
-                    // M6-03
                     if let Some(tap) = &self.share_tap {
                         let (c, r) = term.size();
                         tap.0.resize(c, r);
                     }
                 }
-                // M3-05
                 if let Some(tap) = &self.recorder {
                     tap.resize(cols, rows);
                 }
@@ -552,13 +523,11 @@ impl Actor {
                 self.close(transport).await;
                 return Flow::Closed;
             }
-            // M3-05
             SessionCmd::StartRecording => {
                 debug!(session = %self.id, "StartRecording without a tap ignored (use AttachRecorder)");
             }
             SessionCmd::StopRecording => self.set_recorder(None),
             SessionCmd::AttachRecorder(tap) => self.set_recorder(Some(tap)),
-            // M6-03
             SessionCmd::AttachShareTap(tap) => self.set_share_tap(Some(tap)),
             SessionCmd::DetachShareTap => self.set_share_tap(None),
             SessionCmd::HostKeyDecision(_) | SessionCmd::AuthAnswer(_) => {
@@ -567,7 +536,7 @@ impl Actor {
             SessionCmd::Reconnect => {
                 debug!(session = %self.id, "reconnect ignored: connected");
             }
-            // M1-11: encoded here, with this pane's modes (per-pane for broadcast, §9.8).
+            // Encoded here, with this pane's modes (per-pane for broadcast, §9.8).
             SessionCmd::Key(key) => {
                 let modes = self.term.lock().modes();
                 match encode_key(key, &modes, &self.encode) {
@@ -611,7 +580,6 @@ impl Actor {
         Flow::Continue
     }
 
-    // M1-16
     /// Reset the modes the old remote left on and write the separator line, into the
     /// emulator only. Replies the emulator might owe are dropped (they were not asked
     /// for by the next remote).
@@ -650,22 +618,21 @@ impl Actor {
                 }
                 Some(SessionCmd::Reconnect) => {
                     if self.input(StateInput::ReconnectRequested) {
-                        // M1-16: same emulator (scrollback kept), modes reset, separator.
+                        // Same emulator (scrollback kept), modes reset, separator.
                         self.mark_reconnect();
                         return true;
                     }
                 }
                 Some(SessionCmd::Resize { cols, rows, .. }) => {
                     self.term.lock().resize(cols, rows);
-                    // M3-05
                     if let Some(tap) = &self.recorder {
                         tap.resize(cols, rows);
                     }
                 }
-                // M3-05: recording can be toggled while disconnected.
+                // Recording can be toggled while disconnected.
                 Some(SessionCmd::AttachRecorder(tap)) => self.set_recorder(Some(tap)),
                 Some(SessionCmd::StopRecording) => self.set_recorder(None),
-                // M6-03: a disconnected session can't be shared.
+                // A disconnected session can't be shared.
                 Some(SessionCmd::AttachShareTap(tap)) => tap.0.ended(),
                 Some(other) => {
                     debug!(session = %self.id, cmd = other.name(), "command ignored while disconnected");

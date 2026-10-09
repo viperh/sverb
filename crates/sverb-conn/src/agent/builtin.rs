@@ -1,4 +1,4 @@
-//! M2-07: the built-in agent (SPEC §6.1.6): answers from vault keys with
+//! The built-in agent (SPEC §6.1.6): answers from vault keys with
 //! `agent_forwardable = true` (the [`KeySource`] only hands those out) and the
 //! certificates attached to them.
 //!

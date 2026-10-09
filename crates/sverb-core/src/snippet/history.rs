@@ -1,6 +1,6 @@
-//! M2-09: the history seam for snippet runs (SPEC §9.7, §9.10, §4.12).
+//! The history seam for snippet runs (SPEC §9.7, §9.10, §4.12).
 //!
-//! History (M7-01) does not exist yet. Runs report what they typed or executed through
+//! History does not exist yet. Runs report what they typed or executed through
 //! [`HistorySink`]; [`record_run`] is the only way snippet code writes to it, and it
 //! renders with [`RenderStyle::History`], so a **secret value never reaches the sink**:
 //! secret variables stay `{{name}}` placeholders. Nothing here logs values.
@@ -22,13 +22,11 @@ pub struct HistoryRecord {
     pub snippet: Option<ItemId>,
 }
 
-/// Where run history goes (M7-01 implements it on the store).
 pub trait HistorySink: Send + Sync {
     /// Save one entry.
     fn record(&self, record: HistoryRecord);
 }
 
-/// Saves nothing (until M7-01).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct NoHistory;
 

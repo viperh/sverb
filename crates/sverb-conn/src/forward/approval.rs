@@ -2,9 +2,8 @@
 //!
 //! - **Which values** ([`risky_values`]): a non-loopback `bind_addr` of a
 //!   Local/Dynamic rule, a non-loopback `dest_host` of a Remote rule. The
-//!   classification is M2-10's (`sverb_core::resolve::approval::forward_actions`).
 //! - **Approval** is an explicit device-local row per `(rule, field, value)`
-//!   (`local_approvals`, M2-10). Values saved through a form on this device get their
+//!   (`local_approvals`). Values saved through a form on this device get their
 //!   row at save time; synced or remotely changed values have none and are asked
 //!   for. The authorship of a stamp is never trusted on its own.
 //!
@@ -32,7 +31,7 @@ pub struct RiskyValue {
     /// The exact value shown to the user (`0.0.0.0:8080`, `10.0.0.5:5432`).
     pub value: String,
     /// The value was not last written by this device (informational: the dialog
-    /// wording). Approval itself depends only on the explicit rows (M2-10).
+    /// wording). Approval itself depends only on the explicit rows.
     pub synced: bool,
 }
 
@@ -88,13 +87,13 @@ pub fn risky_values(rule: &ForwardRule) -> Vec<RiskyValue> {
         .collect()
 }
 
-/// Where confirmations are remembered: [`DeviceApprovals`] (M2-10, `local_approvals`).
+/// Where confirmations are remembered: [`DeviceApprovals`] (`local_approvals`).
 pub trait ApprovalStore: Send + Sync + fmt::Debug {
     /// Whether `value` was confirmed before.
     fn is_approved(&self, value: &RiskyValue) -> bool;
     /// Remember a confirmation.
     fn approve(&self, value: &RiskyValue);
-    /// Remember a denial for this session (M2-10: not persisted).
+    /// Remember a denial for this session (not persisted).
     fn deny(&self, _value: &RiskyValue) {}
     /// Whether `value` was denied in this session: fail without asking again.
     fn is_denied(&self, _value: &RiskyValue) -> bool {
@@ -102,7 +101,7 @@ pub trait ApprovalStore: Send + Sync + fmt::Debug {
     }
 }
 
-// M2-10: the device's approvals.
+// The device's approvals.
 impl ApprovalStore for DeviceApprovals {
     fn is_approved(&self, value: &RiskyValue) -> bool {
         DeviceApprovals::is_approved(self, value.rule, value.field, &value.value)
@@ -185,13 +184,13 @@ mod tests {
         assert!(risky_values(&rule(ForwardKind::Remote, "*", Some("127.0.0.1"), false)).is_empty());
         let v = risky_values(&rule(ForwardKind::Remote, "*", Some("10.0.0.5"), false));
         assert_eq!(v[0].field, "dest_host");
-        // M2-10: typed here or not, only an explicit approval row exempts it.
+        // Typed here or not, only an explicit approval row exempts it.
         let v = risky_values(&rule(ForwardKind::Remote, "*", Some("10.0.0.5"), true));
         assert_eq!(v.len(), 1);
         assert!(!v[0].synced);
     }
 
-    // M2-10: the device store answers like the memory stub, plus session denials.
+    // The device store answers like the memory stub, plus session denials.
     #[test]
     fn device_store_is_per_value_and_denies_for_the_session() {
         let store = DeviceApprovals::new();

@@ -1,17 +1,16 @@
-//! M1-08: session events in the reducer.
+//! Session events in the reducer.
 //!
 //! Errors become error toasts; `State(Closed)` removes the session from the tabs (its
 //! pane loses focus through `focused_session`). Titles, bells, prompts, host keys,
 //! exit codes and the other states are handled by the tasks that draw them
-//! (M1-14…M1-17). M1-13: SSH details and latency are kept in `tabs.ssh`.
 
 use sverb_conn::{SessionEvent, SessionState};
 
 use super::{App, Effect, SessionId};
 
-// M3-05: `leader R`, auto-recording, recording status (`sessions/recording.rs`).
+// `leader R`, auto-recording, recording status (`sessions/recording.rs`).
 mod recording;
-// M1-16: disconnect banner, reconnect, auto-reconnect (`sessions/reconnect.rs`).
+// Disconnect banner, reconnect, auto-reconnect (`sessions/reconnect.rs`).
 mod reconnect;
 
 impl App {
@@ -21,43 +20,39 @@ impl App {
         ev: SessionEvent,
         effects: &mut Vec<Effect>,
     ) {
-        // M1-12: exited panes (overlay, restart).
+        // Exited panes (overlay, restart).
         if let SessionEvent::State(state) = &ev {
             self.on_local_state(id, state);
-            // M1-16: banner, exited footer, auto-reconnect countdown.
+            // Banner, exited footer, auto-reconnect countdown.
             self.reconnect_on_state(id, state, effects);
-            // M1-07: record the connection; offer to save an unsaved target.
+            // Record the connection; offer to save an unsaved target.
             self.hosts_on_session_state(id, state, effects);
-            // M1-15: an answered or abandoned host-key prompt closes.
+            // An answered or abandoned host-key prompt closes.
             self.host_key_on_state(id, state);
         }
-        // M1-14: auth prompts (queued, focused pane first), credentials saved only after
+        // Auth prompts (queued, focused pane first), credentials saved only after
         // the login they were typed for succeeded (`app/auth.rs`).
         self.auth_on_session(id, &ev, effects);
         match ev {
             SessionEvent::Error(report) => {
-                // M1-16: kept for `leader i` on the disconnected pane.
+                // Kept for `leader i` on the disconnected pane.
                 self.reconnect_on_error(id, &report);
                 self.push_error(&report, effects);
             }
             SessionEvent::State(SessionState::Closed) => {
                 self.tabs.sessions.retain(|s| *s != id);
-                // M1-13
                 self.tabs.ssh.remove(&id);
                 self.needs_redraw = true;
-                // M1-11
                 self.forget_remote_io(id);
-                // M3-05
                 self.forget_recording(id);
             }
-            // M1-11: OSC 52 writes and multi-line paste confirmation (`input/remote_io.rs`).
+            // OSC 52 writes and multi-line paste confirmation (`input/remote_io.rs`).
             SessionEvent::ClipboardWrite { text, .. } => {
                 self.on_remote_clipboard(id, text, effects);
             }
             SessionEvent::PasteConfirm(text) => self.on_paste_confirm(id, text),
-            // M3-05
             SessionEvent::Recording(status) => self.on_recording_status(id, status, effects),
-            // M1-13: SSH details and keepalive latency (status bar, session info panel).
+            // SSH details and keepalive latency (status bar, session info panel).
             SessionEvent::SshInfo(info) => {
                 let entry = self.tabs.ssh.entry(id).or_default();
                 entry.info = info;
@@ -75,13 +70,11 @@ impl App {
                     entry.latency = None;
                 }
             }
-            // M1-15: the unknown-key modal / changed-key screen (`app/known_hosts.rs`).
+            // The unknown-key modal / changed-key screen (`app/known_hosts.rs`).
             SessionEvent::HostKey(v) => self.on_host_key(id, v),
-            // M3-04: mouse events the remote didn't capture (or with Shift): selection,
+            // Mouse events the remote didn't capture (or with Shift): selection,
             // word/line clicks, wheel scrollback, link hover and ctrl-click.
             SessionEvent::Mouse(ev) => self.copy_on_mouse(id, ev, effects),
-            // M1-13…M1-17: titles, bells, prompts, banners, status bar (and
-            // `SessionEvent::Mouse` once panes have geometry, M1-17/M3-04).
             _ => {}
         }
     }
@@ -123,7 +116,6 @@ mod tests {
         assert_ne!(app.mode(), Mode::Terminal);
     }
 
-    // M1-13
     #[test]
     #[allow(clippy::unwrap_used)]
     fn ssh_details_and_latency_feed_the_status_bar_and_info_panel() {

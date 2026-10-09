@@ -1,4 +1,4 @@
-//! M2-09: results of a multi-host snippet run (SPEC §9.7, §16) and their exports.
+//! Results of a multi-host snippet run (SPEC §9.7, §16) and their exports.
 //!
 //! - [`to_json`]: `{"version":1,"data":[{host, exit, signal, stdout, stderr, truncated,
 //!   duration_ms}]}`. `stdout`/`stderr` are UTF-8-lossy strings; when a stream is not

@@ -1,4 +1,4 @@
-//! Terminal mode bookkeeping, best-effort restore and the RAII guard (M0-05, SPEC §18).
+//! Terminal mode bookkeeping, best-effort restore and the RAII guard (SPEC §18).
 //!
 //! [`TerminalModes`] is the single source of truth for which terminal modes sverb has
 //! turned on. It is a lock-free bitset, so the panic hook can read it from any thread,
@@ -15,9 +15,7 @@
 //! of going through `std::io::Stdout`'s lock. Each step is best effort.
 //!
 //! [`TerminalGuard`] enters TUI mode through the tracked wrappers and calls
-//! [`restore_terminal`] when dropped. The M0-09 event loop drives it through
 //! `runtime::TerminalControl` (mouse capture live toggle, suspend/resume; kitty flags
-//! from M1-11).
 
 use std::{
     fs::File,
@@ -48,7 +46,7 @@ pub enum Mode {
     Mouse = 1 << 2,
     /// Bracketed paste (`ESC[?2004h`).
     BracketedPaste = 1 << 3,
-    /// Kitty progressive keyboard enhancement flags (pushed, M1-11).
+    /// Kitty progressive keyboard enhancement flags (pushed).
     KittyFlags = 1 << 4,
     /// The cursor is hidden.
     CursorHidden = 1 << 5,
@@ -185,7 +183,6 @@ impl TerminalModes {
         KeyboardEnhancementFlags::from_bits_truncate(self.kitty.load(Ordering::SeqCst))
     }
 
-    /// Push kitty keyboard flags (M1-11 calls this once support is detected).
     pub fn push_kitty_flags(
         &self,
         flags: KeyboardEnhancementFlags,
@@ -198,7 +195,6 @@ impl TerminalModes {
         self.enable(Mode::KittyFlags, out, &mut NoRaw)
     }
 
-    // M1-11
     /// Push [`SVERB_KITTY_FLAGS`] when `probe` says the terminal supports the kitty
     /// keyboard protocol. Returns whether the flags are pushed now; a failed probe or push
     /// degrades to legacy key parsing (where `ctrl-i` == `tab`), never to an error.
@@ -395,7 +391,6 @@ pub fn restore_terminal() -> ModeSet {
     }
 }
 
-// M1-11
 /// The kitty keyboard flags sverb pushes on the outer terminal (SPEC §7.3):
 /// disambiguate escape codes (so `ctrl-i` ≠ `tab`, `ctrl-[` ≠ `esc`) and report alternate
 /// keys. Release events and "all keys as escape codes" stay off: sverb doesn't need them.
@@ -475,18 +470,16 @@ impl TerminalGuard {
         }
     }
 
-    /// Push kitty keyboard flags (hook point for M1-11).
     pub fn push_kitty_flags(&mut self, flags: KeyboardEnhancementFlags) -> io::Result<()> {
         TerminalModes::global().push_kitty_flags(flags, &mut io::stdout())
     }
 
-    // M1-11
     /// Use the kitty keyboard protocol when the outer terminal supports it: query with
     /// `CSI ? u` followed by DA1 and push [`SVERB_KITTY_FLAGS`]; the restore path pops
     /// them. Call it in raw mode, **before** the input reader starts, so the reply isn't
     /// read as keys. Returns whether the protocol is on.
     ///
-    /// M7-06: on unix the reply is awaited for at most [`KITTY_PROBE_TIMEOUT`] (50 ms)
+    /// On unix the reply is awaited for at most [`KITTY_PROBE_TIMEOUT`] (50 ms)
     /// instead of crossterm's 2 s, so a terminal that answers neither query does not
     /// delay the first frame (SPEC §1: < 100 ms to the host list). A late reply is
     /// harmless: crossterm's reader parses both answers as internal events, not keys.
@@ -521,7 +514,7 @@ impl TerminalGuard {
     pub fn suspend(&mut self) -> io::Result<()> {
         let set = self.restore();
         let raised = signal_hook::low_level::raise(signal_hook::consts::signal::SIGTSTP);
-        // Execution resumes here after SIGCONT. M0-09: re-enter TUI mode even if the
+        // Execution resumes here after SIGCONT. Re-enter TUI mode even if the
         // raise failed, so the loop never keeps running on a cooked terminal.
         let reapplied = self.reapply(set);
         raised?;
@@ -591,7 +584,6 @@ mod tests {
         }
     }
 
-    // T-07
     #[test]
     fn restore_with_nothing_enabled_writes_nothing() {
         let modes = TerminalModes::new();
@@ -603,7 +595,6 @@ mod tests {
         assert!(raw.log.is_empty());
     }
 
-    // T-08
     #[test]
     fn restore_undoes_exactly_the_enabled_modes_in_reverse() -> io::Result<()> {
         let modes = TerminalModes::new();
@@ -695,7 +686,7 @@ mod tests {
         assert!(modes.enabled().is_empty());
     }
 
-    // M1-11 T-15: a terminal that answers the kitty query gets `CSI > 5 u` (disambiguate
+    // A terminal that answers the kitty query gets `CSI > 5 u` (disambiguate
     // + alternate keys), popped on restore; one that doesn't gets nothing.
     #[test]
     fn t15_kitty_negotiation() {
@@ -743,11 +734,9 @@ mod tests {
     }
 }
 
-// M7-06
 /// How long startup waits for the terminal to answer the kitty keyboard query.
 pub const KITTY_PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(50);
 
-// M7-06
 /// The kitty keyboard probe with a short timeout (unix).
 #[cfg(unix)]
 pub mod kitty_probe {

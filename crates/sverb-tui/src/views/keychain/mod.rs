@@ -1,22 +1,21 @@
 //! The Keychain section (SPEC §8.5): sub-tabs **Keys | Certificates | Identities**.
 //!
-//! - M2-02: the section view with its sub-tab bar and the [`identities`] sub-tab
+//! - The section view with its sub-tab bar and the [`identities`] sub-tab
 //!   (list, detail, CRUD dialogs in [`identity_form`]).
-//! - M2-03: the [`keys`] and [`certs`] sub-tabs (generate, import, export, passphrase,
+//! - The [`keys`] and [`certs`] sub-tabs (generate, import, export, passphrase,
 //!   certificates; the dialogs are in [`generate_form`] and [`import_dialog`]). Keys is
 //!   the default sub-tab.
 //!
 //! `[` / `]` switch sub-tabs (Normal mode); every other key goes to the active
 //! sub-tab. Requests are taken by the reducer (`app/keychain.rs`).
 
-pub mod identities;
-pub mod identity_form;
-// M2-03
 pub mod certs;
 pub mod generate_form;
+pub mod identities;
+pub mod identity_form;
 pub mod import_dialog;
 pub mod keys;
-// M2-04: install key on host (picker, results).
+// Install key on host (picker, results).
 pub mod install;
 
 #[cfg(test)]
@@ -34,7 +33,6 @@ use ratatui::{
 use sverb_core::search::IndexSnapshot;
 
 use self::identities::{IdentitiesView, IdentityRequest};
-// M2-03
 use self::{
     certs::{CertRequest, CertsView},
     keys::{KeyRequest, KeysView},
@@ -45,11 +43,11 @@ use sverb_core::model::ItemId;
 /// The Keychain sub-tabs, in tab-bar order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum KeychainTab {
-    /// SSH keys (M2-03).
+    /// SSH keys.
     Keys,
-    /// Certificates (M2-03).
+    /// Certificates.
     Certificates,
-    /// Identities (M2-02).
+    /// Identities.
     Identities,
 }
 
@@ -81,7 +79,7 @@ impl KeychainTab {
         }]
     }
 
-    /// Whether the sub-tab exists in this build (M2-03: all of them).
+    /// Whether the sub-tab exists in this build (all of them).
     pub fn available(self) -> bool {
         true
     }
@@ -91,10 +89,8 @@ impl KeychainTab {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum KeychainRequest {
-    // M2-02
     /// An Identities sub-tab request.
     Identity(IdentityRequest),
-    // M2-03
     /// A Keys sub-tab request.
     Key(KeyRequest),
     /// A Certificates sub-tab request.
@@ -106,10 +102,8 @@ pub enum KeychainRequest {
 pub struct KeychainView {
     /// The active sub-tab.
     pub tab: KeychainTab,
-    // M2-02
     /// The Identities sub-tab.
     pub identities: IdentitiesView,
-    // M2-03
     /// The Keys sub-tab.
     pub keys: KeysView,
     /// The Certificates sub-tab.
@@ -120,7 +114,6 @@ pub struct KeychainView {
     pub next_token: u64,
     /// A new key to select once the catalog has it.
     pub pending_select: Option<ItemId>,
-    // M2-04
     /// Session ids of install-run connections still running (their prompt answers go
     /// to the run, not to a session).
     pub install_sessions: std::collections::BTreeSet<crate::app::SessionId>,
@@ -129,7 +122,7 @@ pub struct KeychainView {
 impl Default for KeychainView {
     fn default() -> Self {
         Self {
-            // M2-03: Keys is the first sub-tab.
+            // Keys is the first sub-tab.
             tab: KeychainTab::Keys,
             identities: IdentitiesView::default(),
             keys: KeysView::default(),
@@ -150,7 +143,6 @@ impl KeychainView {
 
     /// A new catalog (identities, hosts, key names).
     pub fn set_catalog(&mut self, catalog: Arc<HostCatalog>) {
-        // M2-03
         self.keys.set_catalog(Arc::clone(&catalog));
         self.certs.set_catalog(Arc::clone(&catalog));
         if let Some(id) = self.pending_select
@@ -164,7 +156,6 @@ impl KeychainView {
     /// Drop all decrypted data (the vault locked).
     pub fn clear(&mut self) {
         self.identities.clear();
-        // M2-03
         self.keys.clear();
         self.certs.clear();
         self.keys_op = None;
@@ -175,7 +166,6 @@ impl KeychainView {
     pub fn insert_mode(&self) -> bool {
         match self.tab {
             KeychainTab::Identities => self.identities.insert_mode(),
-            // M2-03
             KeychainTab::Keys => self.keys.insert_mode(),
             KeychainTab::Certificates => self.certs.insert_mode(),
         }
@@ -186,7 +176,6 @@ impl KeychainView {
         self.identities
             .take_request()
             .map(KeychainRequest::Identity)
-            // M2-03
             .or_else(|| self.keys.take_request().map(KeychainRequest::Key))
             .or_else(|| self.certs.take_request().map(KeychainRequest::Cert))
     }
@@ -195,7 +184,6 @@ impl KeychainView {
     pub fn render_detail(&self, frame: &mut Frame<'_>, area: Rect, cx: &RenderCx<'_>) {
         match self.tab {
             KeychainTab::Identities => self.identities.render_detail(frame, area, cx),
-            // M2-03
             KeychainTab::Keys => self.keys.render_detail(frame, area, cx),
             KeychainTab::Certificates => self.certs.render_detail(frame, area, cx),
         }
@@ -260,7 +248,6 @@ impl View for KeychainView {
         }
         match self.tab {
             KeychainTab::Identities => self.identities.handle(ev, cx),
-            // M2-03
             KeychainTab::Keys => self.keys.handle(ev, cx),
             KeychainTab::Certificates => self.certs.handle(ev, cx),
         }
@@ -281,7 +268,6 @@ impl View for KeychainView {
         };
         match self.tab {
             KeychainTab::Identities => self.identities.render(frame, body, cx),
-            // M2-03
             KeychainTab::Keys => self.keys.render(frame, body, cx),
             KeychainTab::Certificates => self.certs.render(frame, body, cx),
         }

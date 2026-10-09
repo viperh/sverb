@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# M7-05: build the seed corpus of every fuzz target in fuzz/corpus/<target>/ from the
+# Build the seed corpus of every fuzz target in fuzz/corpus/<target>/ from the
 # repository's test fixtures plus a few hand-written inputs. Idempotent; existing
 # corpus entries (found by earlier runs) are kept.
 #

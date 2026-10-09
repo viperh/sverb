@@ -1,7 +1,6 @@
-//! M2-03 integration tests: the keychain executor over a real vault (small Argon2
 //! parameters, in-memory keyring): import (passphrase, agent reference, duplicates,
 //! nothing saved on failure — T-04/T-05/T-06), export (0600, round trip, re-encrypt,
-//! overwrite — T-09), passphrase changes (T-10), certificates (T-07 attach / reject),
+//! overwrite — T-09), passphrase changes, certificates (T-07 attach / reject),
 //! flags and deletes.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -214,8 +213,8 @@ async fn import_steps_and_nothing_saved_on_failure() {
     assert_eq!(count(&ops, ItemKind::Key).await, 4);
 }
 
-/// T-09: export private → 0600, round trip, re-encrypt; overwrite needs confirming.
-/// T-10: change passphrase.
+/// Export private → 0600, round trip, re-encrypt; overwrite needs confirming.
+/// Change passphrase.
 #[tokio::test]
 async fn generate_export_and_change_passphrase() {
     let fx = Fixture::new("export");
@@ -303,7 +302,7 @@ async fn generate_export_and_change_passphrase() {
         &public_key
     ));
 
-    // T-10: the stored passphrase decrypts; the new one is stored.
+    // The stored passphrase decrypts; the new one is stored.
     let out = exec(
         &ops,
         KeychainEffect::ChangePassphrase {

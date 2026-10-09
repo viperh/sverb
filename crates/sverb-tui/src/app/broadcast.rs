@@ -1,4 +1,4 @@
-//! M3-02: broadcast input in the reducer (SPEC §9.8, §7.3, §9.7).
+//! Broadcast input in the reducer (SPEC §9.8, §7.3, §9.7).
 //!
 //! - **Actions**: `leader b` toggles `AllPanes` for the active tab (a custom set turns
 //!   off); `leader B` toggles the focused pane in a custom set

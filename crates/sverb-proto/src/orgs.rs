@@ -1,4 +1,4 @@
-//! M5-01: orgs, members, invites and the audit log (SPEC §10.4 "Orgs and
+//! Orgs, members, invites and the audit log (SPEC §10.4 "Orgs and
 //! members", §13.1, §13.2, §13.5).
 //!
 //! | Endpoint | Request | Response |

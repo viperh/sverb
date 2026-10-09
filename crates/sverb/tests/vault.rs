@@ -1,4 +1,3 @@
-//! M1-04 T-16 (and M0-07 T-08): headless vault access. Without a terminal a locked
 //! vault fails fast with exit 3; with a terminal (PTY) the password is prompted
 //! without echo. The OS keyring is disabled (`SVERB_KEYRING=off`).
 #![cfg(unix)]
@@ -33,7 +32,7 @@ fn pty_unlock(home: &Path) -> Result<PtyRun, Box<dyn std::error::Error>> {
     PtyRun::spawn(cmd)
 }
 
-// T-16: fresh home, no terminal.
+// Fresh home, no terminal.
 #[test]
 fn t16_not_initialized_exits_3() {
     let home = unique_home("m1-04-fresh");
@@ -48,7 +47,6 @@ fn t16_not_initialized_exits_3() {
     let _ = std::fs::remove_dir_all(&home);
 }
 
-// T-16 / M0-07 T-08: initialized, keyring disabled, no terminal: exit 3 at once.
 #[test]
 fn t16_locked_without_a_terminal_exits_3() {
     let home = unique_home("m1-04-notty");
@@ -64,7 +62,7 @@ fn t16_locked_without_a_terminal_exits_3() {
     let _ = std::fs::remove_dir_all(&home);
 }
 
-// T-16: with a terminal: prompt (no echo), then success.
+// With a terminal: prompt (no echo), then success.
 #[test]
 fn t16_terminal_prompt_then_success() -> TestResult {
     let home = unique_home("m1-04-tty");
@@ -84,7 +82,7 @@ fn t16_terminal_prompt_then_success() -> TestResult {
     Ok(())
 }
 
-// T-16: wrong passwords on the terminal: three attempts, then exit 3.
+// Wrong passwords on the terminal: three attempts, then exit 3.
 #[test]
 fn t16_terminal_wrong_password_exits_3() -> TestResult {
     let home = unique_home("m1-04-tty-wrong");

@@ -1,4 +1,4 @@
-//! M5-02: shared vaults (SPEC §10.4 "Vaults and sync", §13.1, §13.2).
+//! Shared vaults (SPEC §10.4 "Vaults and sync", §13.1, §13.2).
 //!
 //! | Endpoint | Request | Response |
 //! |---|---|---|

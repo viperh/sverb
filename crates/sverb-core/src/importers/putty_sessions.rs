@@ -1,4 +1,4 @@
-//! M7-03: PuTTY saved sessions (SPEC §9.13).
+//! PuTTY saved sessions (SPEC §9.13).
 //!
 //! Sources:
 //! - **Linux / macOS**: `~/.putty/sessions/*`, one file per session (the file name is
@@ -6,7 +6,6 @@
 //! - **Windows**: the registry, `HKCU\Software\SimonTatham\PuTTY\Sessions\<encoded name>`
 //!   (values are `REG_SZ` or `REG_DWORD`; `registry::read_sessions`, `cfg(windows)`).
 //!
-//! Both yield [`Session`]s that [`plan`] maps onto the M2-11 [`ImportPlan`] (the same
 //! preview, classification and confirmation as every import):
 //!
 //! | PuTTY | sverb |

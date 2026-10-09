@@ -1,5 +1,4 @@
-//! M3-06 integration tests: connection attempts become ConnLog items in the store
-//! (T-02, T-03, T-04), retention (T-05), deleting with the recording (T-08, service
+//! , retention, deleting with the recording (T-08, service
 //! side). Small Argon2 parameters and an in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -161,7 +160,7 @@ async fn run_attempt(
     id
 }
 
-/// T-02: a successful (local) session → `Ok` with `ended_at` and non-zero bytes.
+/// A successful (local) session → `Ok` with `ended_at` and non-zero bytes.
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t02_successful_session_is_logged_ok() {
@@ -202,7 +201,7 @@ async fn t02_successful_session_is_logged_ok() {
     svc.shutdown().await;
 }
 
-/// T-03: an authentication failure → `AuthFailed` with the error detail (the actor
+/// An authentication failure → `AuthFailed` with the error detail (the actor
 /// side, a connector returning `ConnectError { Auth, report }`, is covered in
 /// `sverb-conn`'s `connlog::actor_tests`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -233,7 +232,7 @@ async fn t03_auth_failure_has_error_detail() {
     svc.shutdown().await;
 }
 
-/// T-04: `logs.sync = false` → no outbox row; `true` → queued.
+/// `logs.sync = false` → no outbox row; `true` → queued.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_outbox_only_with_logs_sync() {
     let fx = fixture("t04").await;
@@ -255,7 +254,7 @@ async fn t04_outbox_only_with_logs_sync() {
     svc.shutdown().await;
 }
 
-/// T-05: retention 90 days tombstones a 100-day-old entry and keeps a 10-day-old one;
+/// Retention 90 days tombstones a 100-day-old entry and keeps a 10-day-old one;
 /// retention 0 keeps everything.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t05_retention() {

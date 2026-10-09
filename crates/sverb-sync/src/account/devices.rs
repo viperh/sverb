@@ -1,4 +1,4 @@
-//! M4-09: the account's devices (Settings → Devices, `sverb devices`; §10.2.7).
+//! The account's devices (Settings → Devices, `sverb devices`; §10.2.7).
 //!
 //! Listing and revoking need the unlocked vault (the tokens are sealed under
 //! the LMK). Revoking **this** device is a logout: the server drops its

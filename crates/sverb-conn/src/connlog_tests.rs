@@ -1,4 +1,4 @@
-//! M3-06: the session actor reports every connection attempt to the [`ConnLogSink`].
+//! The session actor reports every connection attempt to the [`ConnLogSink`].
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{sync::Arc, time::Duration};

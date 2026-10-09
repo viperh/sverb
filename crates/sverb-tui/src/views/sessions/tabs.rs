@@ -1,4 +1,4 @@
-//! M1-17: tab titles, markers and the tab bar's geometry (SPEC §8.1, §8.4).
+//! Tab titles, markers and the tab bar's geometry (SPEC §8.1, §8.4).
 //!
 //! ```text
 //!  1 prod-web-1 ┬ 2 db-primary ● ┬ 3 local ┬ +
@@ -32,9 +32,9 @@ pub struct MarkerSet {
     pub bell: bool,
     /// A pane is disconnected or exited.
     pub disconnected: bool,
-    /// A pane waits for a password / passphrase (M1-14).
+    /// A pane waits for a password / passphrase.
     pub auth: bool,
-    /// A pane is zoomed (M3-01).
+    /// A pane is zoomed.
     pub zoomed: bool,
 }
 

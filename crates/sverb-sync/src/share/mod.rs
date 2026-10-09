@@ -1,6 +1,4 @@
-//! M6-03: the terminal-sharing client (SPEC §14): the host side ([`host`]) and the
-//! viewer side ([`viewer`]) over the blind relay of M6-01, with the per-viewer
-//! channels of M6-02 (`sverb_crypto::share`, `sverb_proto::share_frame`).
+//! The terminal-sharing client (SPEC §14): the host side ([`host`]) and the
 //!
 //! # Host
 //!

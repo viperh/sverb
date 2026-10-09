@@ -77,7 +77,7 @@ pub async fn disable(pool: &PgPool, email: &str) -> Result<Disabled, AdminError>
     .execute(&mut *tx)
     .await?
     .rows_affected();
-    // M4-05: the CLI is another process; NOTIFY (delivered at commit) closes
+    // The CLI is another process; NOTIFY (delivered at commit) closes
     // the user's open sockets on every replica.
     crate::ws::pg_notify::notify_in(&mut tx, &crate::ws::BusEvent::UserDisabled { user_id: id })
         .await?;
@@ -87,7 +87,7 @@ pub async fn disable(pool: &PgPool, email: &str) -> Result<Disabled, AdminError>
     })
 }
 
-/// M4-02: issues a one-time recovery code (24 h) for `email` and returns it.
+/// Issues a one-time recovery code (24 h) for `email` and returns it.
 /// Only its hash is stored; a new code replaces the previous one.
 ///
 /// # Errors

@@ -1,12 +1,11 @@
-//! The session → UI seam and dirty tracking (M0-09, SPEC §2.1).
+//! The session → UI seam and dirty tracking (SPEC §2.1).
 //!
-//! # Backpressure contract (for M1-08)
 //!
-//! **Session → UI** ([`SessionNotice`]; M1-08: the session manager's events arrive as
+//! **Session → UI** ([`SessionNotice`]; The session manager's events arrive as
 //! `SessionNotice::Dirty` and `SessionNotice::Event`, translated by
 //! `services::sessions::NoticeSink`): an **unbounded** `mpsc`, kept small by coalescing.
 //! - Each session owns an `Arc<AtomicBool>` dirty flag, shared with the UI through
-//!   [`SessionNotice::Opened`] (M1-08: the `SessionRegistry`).
+//!   [`SessionNotice::Opened`] (the `SessionRegistry`).
 //! - After feeding output into its emulator, the session does
 //!   `if !dirty.swap(true, AcqRel) { send(Dirty(id)) }`, so there is **at most one
 //!   outstanding `Dirty` per session** until the UI acknowledges it. A flood of
@@ -46,7 +45,7 @@ use tokio::sync::mpsc;
 use crate::app::SessionId;
 
 /// A notification from a session to the UI loop. `Opened`, `Dirty` and `Closed`
-/// drive the [`DirtyTracker`]; `Event` goes to the reducer (M1-08).
+/// drive the [`DirtyTracker`]; `Event` goes to the reducer.
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SessionNotice {
@@ -61,7 +60,6 @@ pub enum SessionNotice {
     Dirty(SessionId),
     /// The session is gone.
     Closed(SessionId),
-    // M1-08
     /// Any other session event (title, bell, state, prompts, errors), for the reducer.
     Event(SessionId, sverb_conn::SessionEvent),
 }
@@ -110,7 +108,7 @@ impl DirtyTracker {
                 self.flags.remove(&id);
                 self.pending.remove(&id);
             }
-            // M1-08: routed to the reducer by the loop, not dirty tracking.
+            // Routed to the reducer by the loop, not dirty tracking.
             SessionNotice::Event(..) => {}
         }
     }

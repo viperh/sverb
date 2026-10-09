@@ -1,4 +1,4 @@
-//! M3-06: connection-attempt hooks for the connection log (`ConnLog`, SPEC §4.12, §9.12).
+//! Connection-attempt hooks for the connection log (`ConnLog`, SPEC §4.12, §9.12).
 //!
 //! Every session actor reports each connection attempt to a [`ConnLogSink`]:
 //! - [`ConnLogSink::attempt_started`] when it starts connecting (the first connect and
@@ -10,10 +10,9 @@
 //! The actor counts the session channel's bytes (`bytes_in`: output read from the
 //! transport, `bytes_out`: input, pastes, mouse reports and terminal replies written to
 //! it) and keeps the last error report of the attempt. Connectors don't need to call
-//! anything: the SSH connector (M1-13) reports failures through
+//! anything: the SSH connector reports failures through
 //! [`ConnectError`](crate::ConnectError) (`reason` + `report`) as it already does, and
 //! the actor turns that into the attempt's end. [`Attempt::from_spec`] takes
-//! [`Attempt::host_id`] from `SshSpec::host_id` (M1-13; multiplexed sessions, M3-07,
 //! go through the same actor path).
 //!
 //! The UI implements the sink (`sverb_tui::services::connlog`), which writes the
@@ -51,7 +50,7 @@ impl Attempt {
     /// Describe an attempt to open `spec`.
     pub fn from_spec(spec: &SessionSpec, started_at: UnixMillis) -> Self {
         let (host_id, label, target) = match spec {
-            // M1-13: the saved host's item id and label (`host` for unsaved targets).
+            // The saved host's item id and label (`host` for unsaved targets).
             SessionSpec::Ssh(ssh) => {
                 let mut target = String::new();
                 if let Some(user) = &ssh.user {
@@ -141,7 +140,7 @@ impl AttemptEnd {
     }
 }
 
-/// `DisconnectReason` → `ConnLog` result (M3-06 §2): name resolution, connect,
+/// `DisconnectReason` → `ConnLog` result: name resolution, connect,
 /// negotiation, timeouts and internal errors are network errors with a short message;
 /// `Auth` is `AuthFailed`, `HostKey` is `HostKeyRejected`, a remote exit or close is `Ok`.
 pub fn conn_result(reason: DisconnectReason) -> ConnResult {
@@ -193,7 +192,7 @@ mod tests {
         }
     }
 
-    /// T-01: `DisconnectReason` → `ConnLog` result.
+    /// `DisconnectReason` → `ConnLog` result.
     #[test]
     fn t01_disconnect_reason_maps_to_result() {
         let net = |r: DisconnectReason| ConnResult::NetworkError(r.message());
@@ -267,7 +266,7 @@ mod tests {
         assert_eq!(a.target.as_deref(), Some("deploy@10.0.0.5:2222"));
         assert_eq!(a.label, "10.0.0.5");
         assert_eq!(a.host_id, None);
-        // M1-13: a saved host reports its item and label.
+        // A saved host reports its item and label.
         let id = sverb_core::model::ItemId::from_bytes([7; 16]);
         let saved = SessionSpec::Ssh(SshSpec {
             host: "10.0.0.5".into(),
@@ -286,7 +285,7 @@ mod tests {
     }
 }
 
-// M3-06: the actor's hooks over mock transports (T-02/T-03 at the session level).
+// The actor's hooks over mock transports (T-02/T-03 at the session level).
 #[cfg(test)]
 #[path = "connlog_tests.rs"]
 mod actor_tests;

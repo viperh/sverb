@@ -1,4 +1,4 @@
-//! M5-01: `/v1/orgs`, `/v1/invites/{token}/accept`, `/v1/users/{id}/public-keys`
+//! `/v1/orgs`, `/v1/invites/{token}/accept`, `/v1/users/{id}/public-keys`
 //! (SPEC §10.4 "Orgs and members", §13.1, §13.2, §13.5; DTOs in
 //! [`sverb_proto::orgs`]).
 //!

@@ -1,4 +1,4 @@
-//! Shared helpers for the binary's PTY integration tests (M0-05, M0-09).
+//! Shared helpers for the binary's PTY integration tests.
 #![allow(dead_code, clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
@@ -16,7 +16,6 @@ pub(crate) type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 pub(crate) const TIMEOUT: Duration = Duration::from_secs(30);
 
-/// The restore sequences shared by M0-05 T-01 (panic) and M0-09 T-09 (quit).
 pub(crate) const RESTORE_SEQUENCES: [(&str, &str); 5] = [
     ("\x1b[?1049l", "leave alt screen"),
     ("\x1b[?25h", "show cursor"),
@@ -45,11 +44,9 @@ pub(crate) fn unique_home(tag: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!("{tag}-{}-{nanos}", std::process::id()))
 }
 
-// M1-04
 /// The master password of [`init_vault`].
 pub(crate) const TEST_PASSWORD: &str = "correct horse battery staple violin";
 
-// M1-04
 /// Initialize the vault in `home` with cheap Argon2 parameters and without the
 /// keyring (tests never touch the OS keyring; run the binary with
 /// `SVERB_KEYRING=off`). The one-time leader notice is marked as seen so it does not
@@ -74,7 +71,6 @@ pub(crate) fn init_vault(home: &std::path::Path) {
     });
 }
 
-// M1-04
 /// Type the master password into the unlock prompt shown after byte offset `from`,
 /// and wait until the unlocked shell is drawn (the Hosts view appears where the lock
 /// overlay was). Returns the offset after the unlocked frame.
@@ -157,7 +153,6 @@ impl PtyRun {
         }
     }
 
-    // M1-17
     /// Resize the PTY (the child gets `SIGWINCH`). Returns the output offset at the
     /// resize, so a caller can look only at what was drawn after it.
     pub(crate) fn resize(
@@ -178,7 +173,6 @@ impl PtyRun {
         Ok(at)
     }
 
-    // M1-17
     /// Collect output for up to `wait`.
     pub(crate) fn poll(&mut self, wait: Duration) {
         if let Ok(chunk) = self.rx.recv_timeout(wait) {
@@ -189,7 +183,6 @@ impl PtyRun {
         }
     }
 
-    // M1-17
     /// The raw output bytes from byte offset `from`.
     pub(crate) fn bytes_from(&self, from: usize) -> &[u8] {
         &self.output[from.min(self.output.len())..]

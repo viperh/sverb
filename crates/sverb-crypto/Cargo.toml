@@ -13,7 +13,7 @@ workspace = true
 
 # Pure crypto: no tokio, no I/O crates, no ratatui, no crossterm, no rusqlite.
 [dependencies]
-# M1-01: primitives, canonical encodings, item envelopes.
+# Primitives, canonical encodings, item envelopes.
 argon2 = { workspace = true, features = ["zeroize"] }
 chacha20poly1305 = { workspace = true, features = ["zeroize"] }
 getrandom = { workspace = true }
@@ -24,23 +24,23 @@ subtle = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
 zstd = { workspace = true }
-# M4-03: account keys, recovery key, vault-key grants (all rand_core 0.10).
+# Account keys, recovery key, vault-key grants (all rand_core 0.10).
 ed25519-dalek = { workspace = true }
 hpke = { workspace = true }
 x25519-dalek = { workspace = true }
-# M4-03: BIP39 recovery phrase; no `rand` feature (entropy comes from our CryptoRng).
+# BIP39 recovery phrase; no `rand` feature (entropy comes from our CryptoRng).
 bip39 = { workspace = true }
-# M4-02: OPAQUE cipher suite (src/opaque.rs). opaque-ke 4 is on the
+# OPAQUE cipher suite (src/opaque.rs). opaque-ke 4 is on the
 # digest 0.10 / rand_core 0.6 generation, so its SHA-512 must come from
 # sha2 0.10 (the workspace pin is 0.11); kept crate-local under an alias.
 opaque-ke = { workspace = true }
 sha2_010 = { package = "sha2", version = "0.10.9", default-features = false }
 
-# M4-02: `SverbKsf::insecure_for_tests()` (cheap Argon2id for test suites).
+# `SverbKsf::insecure_for_tests()` (cheap Argon2id for test suites).
 [features]
 insecure-test-ksf = []
 
-# M1-01: tests, KATs and benches.
+# Tests, KATs and benches.
 [dev-dependencies]
 chacha20 = { workspace = true }
 criterion = { workspace = true }
@@ -48,7 +48,7 @@ hex = { workspace = true }
 proptest = { workspace = true }
 serde_json = { workspace = true }
 
-# M1-01: seal/open of a 1 KiB item.
+# Seal/open of a 1 KiB item.
 [[bench]]
 name = "envelope"
 harness = false

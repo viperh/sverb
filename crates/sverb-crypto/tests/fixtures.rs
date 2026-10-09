@@ -1,4 +1,4 @@
-//! T-14: cross-version fixtures (§19). Every `.bin` under
+//! Cross-version fixtures (§19). Every `.bin` under
 //! `tests/fixtures/envelopes/v1/` was produced by this version and must keep
 //! opening with the keys recorded in `manifest.json` in every future version.
 #![allow(

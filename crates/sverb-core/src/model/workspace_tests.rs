@@ -1,5 +1,3 @@
-//! M3-03 tests: the workspace model and its item encoding.
-
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::collections::BTreeSet;
@@ -275,7 +273,7 @@ fn tab_strategy() -> impl Strategy<Value = WorkspaceTab> {
 }
 
 proptest! {
-    // T-01: layout + leaves serialize to CBOR and back identically.
+    // Layout + leaves serialize to CBOR and back identically.
     #[test]
     fn t01_workspace_cbor_round_trip(
         tabs in prop::collection::vec(tab_strategy(), 1..4),

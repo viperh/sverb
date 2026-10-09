@@ -1,5 +1,4 @@
-//! M4-09 reducer and snapshot tests: local-only vs synced bars and Settings pages
-//! (T-01, T-02), palette gating (T-03), the devices revoke flow (T-05), the
+//! , palette gating, the devices revoke flow, the
 //! lifecycle effects, the clock-skew toast and the account wizard dialog.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -66,7 +65,7 @@ fn settings(h: &mut AppHarness) -> String {
     h.render(100, 30)
 }
 
-// T-01: local-only: no indicator, Settings → Sync says "Not connected · Connect to a
+// Local-only: no indicator, Settings → Sync says "Not connected · Connect to a
 // server", with buttons leading to the wizards.
 #[test]
 fn t01_local_only_hides_sync() {
@@ -97,7 +96,7 @@ fn t01_local_only_hides_sync() {
     );
 }
 
-// T-02: synced mode, each status.
+// Synced mode, each status.
 #[test]
 fn t02_synced_states() {
     let mut h = harness();
@@ -141,7 +140,7 @@ fn t02_synced_states() {
     insta::assert_snapshot!("t02_sync_page", screen);
 }
 
-// T-02: a settled status re-reads the pending counts / last sync.
+// A settled status re-reads the pending counts / last sync.
 #[test]
 fn settled_status_refreshes_the_info() {
     let mut h = harness();
@@ -153,7 +152,7 @@ fn settled_status_refreshes_the_info() {
     assert_eq!(sync_effects(&mut h), [SyncEffect::Refresh]);
 }
 
-// T-03: team, share and sync actions are disabled in local-only mode.
+// Team, share and sync actions are disabled in local-only mode.
 #[test]
 fn t03_team_and_share_actions_need_a_server() {
     let mut h = harness().with_live_session();
@@ -185,7 +184,7 @@ fn device(id: &str, current: bool) -> DeviceRow {
     }
 }
 
-// T-05: Settings → Devices: revoke asks, then sends the effect; revoking this
+// Settings → Devices: revoke asks, then sends the effect; revoking this
 // device logs out (the info refresh shows local-only).
 #[test]
 fn t05_devices_revoke_flow() {
@@ -382,7 +381,7 @@ fn sync_actions() {
     );
 }
 
-// M5-01 T-08: the Team page only exists in synced mode; an invite copies the link
+// The Team page only exists in synced mode; an invite copies the link
 // and says so; the page's keys send the org requests.
 #[test]
 fn t08_team_page() {
@@ -472,7 +471,7 @@ fn t08_team_page() {
     );
 }
 
-// M5-04: the key rotation dialogs in the reducer.
+// The key rotation dialogs in the reducer.
 mod rotation {
     use pretty_assertions::assert_eq;
 

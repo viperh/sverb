@@ -4,8 +4,6 @@
 //! expandable detail chain", SPEC §18), and the CLI prints it as
 //! `error: <short>` followed by `  caused by: …` lines.
 //!
-//! M0-08 introduced the minimal shape so effect results can carry errors back to
-//! the reducer. M0-05 adds the formatting rules:
 //! - `short` is the outermost message; `chain` holds the `source()` messages below it,
 //!   outermost first,
 //! - a cause whose message repeats the previous one (wrappers that print their source
@@ -35,7 +33,7 @@ impl ErrorReport {
 
     /// Build a report by walking `err.source()`.
     pub fn from_error(err: &(dyn std::error::Error + 'static)) -> Self {
-        // M0-05: same rules as `from_chain`.
+        // Same rules as `from_chain`.
         let mut errors = Vec::new();
         let mut cur = Some(err);
         while let Some(e) = cur {
@@ -45,7 +43,7 @@ impl ErrorReport {
         Self::from_chain(errors)
     }
 
-    /// M0-05: build a report from an error chain, outermost first (e.g.
+    /// Build a report from an error chain, outermost first (e.g.
     /// `eyre::Report::chain()`). An empty chain gives the message `"unknown error"`.
     pub fn from_chain<'a, I>(chain: I) -> Self
     where
@@ -54,7 +52,7 @@ impl ErrorReport {
         Self::from_messages(chain.into_iter().map(ToString::to_string))
     }
 
-    /// M0-05: build a report from messages, outermost first, applying the module's
+    /// Build a report from messages, outermost first, applying the module's
     /// formatting rules (blank and repeated messages are dropped).
     pub fn from_messages<I, S>(messages: I) -> Self
     where
@@ -76,12 +74,12 @@ impl ErrorReport {
         }
     }
 
-    /// M0-05: whether there is a detail chain to expand.
+    /// Whether there is a detail chain to expand.
     pub fn has_detail(&self) -> bool {
         !self.chain.is_empty()
     }
 
-    /// M0-05: the CLI rendering as lines: `error: <short>` then `  caused by: …`.
+    /// The CLI rendering as lines: `error: <short>` then `  caused by: …`.
     /// Same text as [`fmt::Display`].
     pub fn cli_lines(&self) -> Vec<String> {
         std::iter::once(format!("error: {}", self.short))
@@ -140,7 +138,7 @@ mod tests {
             .unwrap_or(E("", None))
     }
 
-    // M0-05 T-09: an error with a 3-deep source chain.
+    // An error with a 3-deep source chain.
     #[test]
     fn three_deep_chain_and_cli_snapshot() {
         let err = chain(&[

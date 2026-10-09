@@ -1,4 +1,4 @@
-//! M2-09: snippets (SPEC §4.9, §9.7): the pure template engine and run helpers.
+//! Snippets (SPEC §4.9, §9.7): the pure template engine and run helpers.
 //!
 //! - [`template`]: `{{name}}`, `{{name:default}}`, `{{name|q}}`, built-ins, `\{{`.
 //! - [`vars`]: declared + auto-added variables, values (secrets redacted), built-ins.
@@ -8,13 +8,12 @@
 //!
 //! Run modes (§9.7) on the rendered text:
 //! - *Paste*: [`paste_text`] (no trailing newline); the session brackets it when the
-//!   remote enabled mode 2004 (M1-11 paste encoding, terminator stripping included).
 //! - *Paste & execute*: [`paste_execute_bytes`]: each line followed by `\r`, never
 //!   bracketed, so the shell runs each line. Lines are sent at once, like a paste: an
 //!   interactive prompt in the middle of the script reads the lines after it.
 //! - *Exec on hosts*: the text is the exec command (rendered per host).
 
-// M7-01: snippets shipped with sverb (the shell integration installer).
+// Snippets shipped with sverb (the shell integration installer).
 pub mod builtin;
 pub mod history;
 pub mod results;

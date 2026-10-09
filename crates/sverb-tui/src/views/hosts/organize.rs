@@ -1,4 +1,4 @@
-//! M2-01: organizing hosts (SPEC §4.11, §4.13, §9.2): the group editor, the vault
+//! Organizing hosts (SPEC §4.11, §4.13, §9.2): the group editor, the vault
 //! defaults editor, "move to group", bulk tagging, deleting a group and the tag
 //! manager. They live on the dialog stack as `DialogKind::Organize`.
 //!

@@ -1,4 +1,3 @@
-//! M1-04: the first-run screen (task M1-04 §2.2, SPEC §1.1, §11.2): a welcome
 //! explanation, master password + confirmation, a zxcvbn strength meter, the
 //! no-recovery warning, and "Also unlock with OS keyring" when a keyring works.
 

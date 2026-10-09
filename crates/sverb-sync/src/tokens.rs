@@ -1,4 +1,4 @@
-//! The token manager (§12.5, M4-02 §2.2).
+//! The token manager (§12.5).
 //!
 //! * The access and refresh tokens are stored in `sync_state.tokens_enc`,
 //!   AEAD-wrapped under the LMK (purpose [`WrapPurpose::SyncTokens`]).
@@ -100,7 +100,7 @@ async fn persist(store: &Store, enc: Vec<u8>) -> Result<(), SyncError> {
 }
 
 impl TokenManager {
-    /// Saves a fresh token pair (after login or registration, M4-08) together
+    /// Saves a fresh token pair (after login or registration) together
     /// with the server URL and the server-assigned device id.
     ///
     /// # Errors
@@ -238,7 +238,6 @@ fn to_token_error(e: SyncError) -> TokenError {
     }
 }
 
-// M7-04
 /// The stored access token and its expiry (UNIX ms, device clock), read **without**
 /// refreshing (`sverb doctor` must not rotate the tokens). `Ok(None)` when no tokens
 /// are stored.

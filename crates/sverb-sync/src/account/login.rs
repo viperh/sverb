@@ -1,4 +1,4 @@
-//! Logging in (M4-08 §2.2, §2.3, §2.5).
+//! Logging in (§2.3, §2.5).
 //!
 //! [`start_login`] runs OPAQUE, opens the account keys and the vault grants,
 //! checks whether the account password differs from the local master
@@ -268,7 +268,7 @@ pub async fn start_login(
                     "the personal vault's self-grant does not verify".into(),
                 ));
             }
-            // M5-03: grants from users this device does not trust yet.
+            // Grants from users this device does not trust yet.
             continue;
         }
         if v.view.kind == ProtoVaultKind::Personal && personal.is_none() {
@@ -389,7 +389,7 @@ impl LoginSession {
         GrantKeySource::new(self.session.user_id, self.keys.clone())
     }
 
-    /// Test hook (T-06): panic inside the import transaction after writing
+    /// Test hook: panic inside the import transaction after writing
     /// this many items.
     #[doc(hidden)]
     pub fn set_crash_after(&mut self, n: Option<usize>) {

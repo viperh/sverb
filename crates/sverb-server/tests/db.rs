@@ -27,7 +27,6 @@ struct Register {
     invite_token: Option<String>,
 }
 
-/// Stand-in for M4-02's `register/start` policy step: authorize, then create
 /// the user in the same transaction.
 async fn register(
     State(state): State<AppState>,
@@ -127,7 +126,7 @@ async fn t02_migrations_apply_and_readyz_tracks_them() {
     let db = db_or_skip!(fresh_db());
     assert_eq!(
         db::migration_status(&db.pool).await.unwrap(),
-        MigrationStatus::Pending(vec![1, 2, 3, 4]) // M4-02: 0002_login_states, M4-04: 0003_sync, M6-01: 0004_share
+        MigrationStatus::Pending(vec![1, 2, 3, 4])
     );
     // serve refuses to start with pending migrations...
     let err = prepare_with_pool(config(&[]), db.pool.clone(), false)
@@ -183,11 +182,11 @@ async fn t02_migrations_apply_and_readyz_tracks_them() {
             "invites",
             "items",
             "items_rotation_staging",
-            "login_states", // M4-02
+            "login_states",
             "org_members",
             "orgs",
-            "reauth_tokens",  // M4-02
-            "recovery_codes", // M4-02
+            "reauth_tokens",
+            "recovery_codes",
             "server_secrets",
             "settings",
             "share_sessions",
@@ -218,7 +217,7 @@ async fn t02_migrations_apply_and_readyz_tracks_them() {
 
 #[tokio::test]
 async fn t09_wrong_server_secret_refuses_to_start() {
-    // M4-02: `opaque_server_setup` now holds the real OPAQUE setup (loaded
+    // `opaque_server_setup` now holds the real OPAQUE setup (loaded
     // on start), so this test writes its own row.
     let db = db_or_skip!(TestDb::migrated());
     let state = prepare_with_pool(config(&[]), db.pool.clone(), false)

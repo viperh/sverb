@@ -1,4 +1,4 @@
-//! The sidebar: the section switcher (M0-11, SPEC §8.5).
+//! The sidebar: the section switcher (SPEC §8.5).
 //!
 //! `j`/`k` (or the arrows) move the cursor, `Enter` opens the section under it. The
 //! active section carries the `▸` marker; the cursor row uses the theme's selection

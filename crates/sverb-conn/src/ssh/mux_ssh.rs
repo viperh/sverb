@@ -1,4 +1,4 @@
-//! M3-07: the russh side of connection sharing (SPEC §6.1.3, §6.1.4).
+//! The russh side of connection sharing (SPEC §6.1.3, §6.1.4).
 //!
 //! [`connect`] reaches the target through the pool: every hop of the jump chain and
 //! the target itself is a pooled [`SshConn`] under its [`MuxKey`] (a hop's key holds
@@ -150,7 +150,7 @@ pub(crate) fn key_for(host: &SshTarget, via: Option<&MuxKey>) -> MuxKey {
         ));
     match via {
         Some(prev) => key = key.via(prev),
-        // Behind a chain the host's own proxy is not used (M2-06), so it is not part
+        // Behind a chain the host's own proxy is not used, so it is not part
         // of the key there.
         None => {
             if let Some(proxy) = &host.proxy {
@@ -441,7 +441,7 @@ async fn dial(
     progress.resolved = true;
     let (handle, shared) = establish(conn, target, stream, ctx).await.map_err(label)?;
     progress.dialed = step;
-    // M2-07: the agent server of the session that dialed.
+    // The agent server of the session that dialed.
     *shared.agent.lock() = agent;
     Ok(SshConn {
         handle: Arc::new(handle),

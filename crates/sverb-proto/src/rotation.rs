@@ -1,4 +1,4 @@
-//! M5-04: vault key rotation (SPEC §13.2 steps 1–5, §10.3
+//! Vault key rotation (SPEC §13.2 steps 1–5, §10.3
 //! `items_rotation_staging`, §10.4 `POST /v1/vaults/{id}/rotate`).
 //!
 //! One endpoint, three actions (the `action` tag of [`RotateRequest`]):

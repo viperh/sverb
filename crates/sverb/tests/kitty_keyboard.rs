@@ -1,4 +1,4 @@
-//! M1-11 T-15: the kitty keyboard protocol on the outer terminal, end to end in a PTY.
+//! The kitty keyboard protocol on the outer terminal, end to end in a PTY.
 //!
 //! The test plays the outer terminal: it answers (or doesn't answer) crossterm's
 //! `CSI ? u` query, then checks the push (`CSI > 5 u`: disambiguate + alternate keys)
@@ -22,7 +22,7 @@ fn sverb(home: &Path) -> CommandBuilder {
     let mut cmd = CommandBuilder::new(env!("CARGO_BIN_EXE_sverb"));
     cmd.env("SVERB_HOME", home);
     cmd.env("TERM", "xterm-256color");
-    // M1-04: never the real OS keyring in tests.
+    // Never the real OS keyring in tests.
     cmd.env("SVERB_KEYRING", "off");
     cmd.env_remove("SVERB_TEST_HOOK");
     cmd.env_remove("RUST_BACKTRACE");
@@ -32,7 +32,7 @@ fn sverb(home: &Path) -> CommandBuilder {
 #[test]
 fn kitty_flags_pushed_and_popped_when_supported() -> TestResult {
     let home = unique_home("m1-11-kitty");
-    // M1-04: the TUI starts locked; unlock before typing.
+    // The TUI starts locked; unlock before typing.
     init_vault(&home);
     let mut run = PtyRun::spawn(sverb(&home))?;
     let queried = run.wait_for(QUERY, 0)?;
@@ -55,7 +55,7 @@ fn kitty_flags_pushed_and_popped_when_supported() -> TestResult {
 #[test]
 fn legacy_terminal_gets_no_kitty_flags() -> TestResult {
     let home = unique_home("m1-11-legacy");
-    // M1-04: the TUI starts locked; unlock before typing.
+    // The TUI starts locked; unlock before typing.
     init_vault(&home);
     let mut run = PtyRun::spawn(sverb(&home))?;
     let queried = run.wait_for(QUERY, 0)?;

@@ -22,10 +22,10 @@ parking_lot = { workspace = true }
 ratatui-core = { workspace = true }
 regex = { workspace = true }
 thiserror = { workspace = true }
-# M1-10: color scheme files (sverb format, Alacritty import).
+# Color scheme files (sverb format, Alacritty import).
 serde = { workspace = true }
 toml = { workspace = true }
-# M3-05: encrypted session recording (asciicast v2 in sealed chunks), writer task.
+# Encrypted session recording (asciicast v2 in sealed chunks), writer task.
 serde_json = { workspace = true }
 sverb-crypto = { workspace = true }
 tokio = { workspace = true }
@@ -35,19 +35,18 @@ zeroize = { workspace = true }
 criterion = { workspace = true }
 insta = { workspace = true }
 proptest = { workspace = true }
-# M3-05: paused virtual time for the recording writer tests.
+# Paused virtual time for the recording writer tests.
 tokio = { workspace = true, features = ["test-util"] }
 
 [[bench]]
 name = "emulator_throughput"
 harness = false
 
-# M1-10: T-15, 300×100 render (SPEC §19: < 2 ms).
+# T-15, 300×100 render (SPEC §19: < 2 ms).
 [[bench]]
 name = "render"
 harness = false
 
-# M7-06
 [[bench]]
 name = "key_encode"
 harness = false

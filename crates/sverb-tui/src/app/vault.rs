@@ -1,4 +1,3 @@
-//! M1-04: the vault in the reducer (SPEC §5.3, task M1-04 §2.2–§2.6).
 //!
 //! The reducer only knows [`LockState`] and the prompt forms; the keys live in the
 //! vault service (`services::vault`). Effects go out as [`Effect::Vault`], results
@@ -8,7 +7,7 @@
 //!   service sends [`VaultEvent::Status`]: first-run screen, keyring unlock, or the
 //!   password prompt. The launch intent waits until the vault is unlocked.
 //! - **While locked** every key goes to the prompt; only `leader q` also works
-//!   (`tasks/03-KEYBINDINGS.md` §4.4). Nothing is forwarded to a session; panes are
+//!   . Nothing is forwarded to a session; panes are
 //!   covered by the lock overlay.
 //! - **Lock** (`leader ctrl-l`, idle timer, `sverb lock`, suspend): keys zeroized by
 //!   the service, dialogs (and unsaved forms) discarded, sessions kept behind the
@@ -100,7 +99,6 @@ pub enum VaultEffect {
         /// The new password.
         new: VaultPassword,
     },
-    // M1-07
     /// Item writes and reads (`services::vault::items`).
     Items(super::hosts::ItemEffect),
 }
@@ -163,13 +161,10 @@ pub enum VaultEvent {
     PasswordChangeFailed(String),
     /// Lock now (`sverb lock`, system suspend).
     LockRequested,
-    // M1-07
     /// A fire-and-forget item write (delete, duplicate, pin) failed.
     ItemFailed(sverb_core::error_report::ErrorReport),
-    // M2-03
     /// A keychain result (`ItemEffect::Keychain`).
     Keychain(crate::app::keychain::keys::KeychainEvent),
-    // M5-02
     /// A move / copy / override result (`app/hosts/shared_vaults.rs`).
     Shared(crate::app::hosts::SharedVaultEvent),
 }
@@ -212,7 +207,6 @@ pub struct VaultUi {
     recovering: bool,
     /// The idle timer is scheduled.
     auto_lock_armed: bool,
-    // M1-05
     /// The latest search index snapshot from the vault service (`None` while
     /// locked: dropped on lock so the decrypted entries can be zeroized).
     index: Option<Arc<IndexSnapshot>>,
@@ -230,7 +224,6 @@ impl Default for VaultUi {
             leader_armed: false,
             recovering: false,
             auto_lock_armed: false,
-            // M1-05
             index: None,
         }
     }
@@ -259,14 +252,12 @@ impl App {
         self.vault.lock
     }
 
-    // M1-05
     /// The current search index snapshot; `None` while locked (queries are
     /// unavailable, `LockState::Locked`) or before the first snapshot arrives.
     pub fn index(&self) -> Option<&Arc<IndexSnapshot>> {
         self.vault.index.as_ref()
     }
 
-    // M1-05
     /// `UiEvent::IndexUpdated`: keep the newest snapshot. A snapshot that arrives
     /// after a lock (sent before the service saw it) is dropped.
     pub(crate) fn on_index_updated(&mut self, snapshot: Arc<IndexSnapshot>) {
@@ -446,7 +437,7 @@ impl App {
             return;
         }
         self.vault.lock = LockState::Locked;
-        // M1-05: drop the reducer's index snapshot with the keys.
+        // Drop the reducer's index snapshot with the keys.
         self.vault.index = None;
         self.vault.leader_armed = false;
         self.vault.recovering = false;
@@ -469,7 +460,7 @@ impl App {
             self.vault.discarded_forms = true;
         }
         self.dialogs.clear();
-        // M1-07: decrypted host data goes with the keys.
+        // Decrypted host data goes with the keys.
         self.hosts_on_lock();
         let disconnect = self.config.general.lock_disconnects_sessions;
         if disconnect {
@@ -600,11 +591,8 @@ impl App {
                 }
             }
             VaultEvent::LockRequested => self.lock_vault(effects),
-            // M1-07
             VaultEvent::ItemFailed(report) => self.push_error(&report, effects),
-            // M2-03
             VaultEvent::Keychain(ev) => self.on_keychain_event(ev, effects),
-            // M5-02
             VaultEvent::Shared(ev) => self.on_shared_vault_event(ev, effects),
         }
     }

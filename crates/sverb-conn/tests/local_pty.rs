@@ -1,4 +1,3 @@
-//! M1-12 integration tests: local shells in a real pty, through the session manager.
 #![allow(clippy::unwrap_used, clippy::expect_used, unreachable_pub)]
 
 use std::{
@@ -112,7 +111,6 @@ fn connected(s: &SessionState) -> bool {
     matches!(s, SessionState::Connected { .. })
 }
 
-// T-01
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t01_echo() {
@@ -125,7 +123,6 @@ async fn t01_echo() {
     mgr.shutdown(SHORT).await;
 }
 
-// T-02
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t02_term_default_and_configured() {
@@ -148,7 +145,7 @@ async fn t02_term_default_and_configured() {
     }
 }
 
-// T-03: runs itself in a child test process with `SVERB_HOME` set (setting variables
+// Runs itself in a child test process with `SVERB_HOME` set (setting variables
 // in this process would need `unsafe`).
 #[cfg(unix)]
 #[test]
@@ -188,7 +185,6 @@ async fn t03_inner() {
     mgr.shutdown(SHORT).await;
 }
 
-// T-04
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t04_resize() {
@@ -209,7 +205,6 @@ async fn t04_resize() {
     mgr.shutdown(SHORT).await;
 }
 
-// T-05
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t05_exit_code() {
@@ -248,7 +243,6 @@ fn alive(pid: u32) -> bool {
         .is_ok_and(|s| s.success())
 }
 
-// T-06
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t06_close_kills_the_child() {
@@ -331,7 +325,6 @@ async fn t06_close_escalates_to_kill() {
     assert!(started.elapsed() < Duration::from_secs(3));
 }
 
-// T-07
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t07_cwd() {
@@ -410,7 +403,6 @@ mod counting {
     }
 }
 
-// T-08
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread")]
 async fn t08_large_output_coalesces_dirty() {

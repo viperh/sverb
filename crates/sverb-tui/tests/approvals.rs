@@ -1,6 +1,5 @@
-//! M2-10 integration tests (SPEC §17.1): values typed on this device are approved at
-//! save (T-03); a synced value needs approval, Allow stores it (T-04); a remote change
-//! asks again (T-05). Small Argon2 parameters, in-memory keyring.
+//! save; a synced value needs approval, Allow stores it; a remote change
+//! asks again. Small Argon2 parameters, in-memory keyring.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -132,7 +131,6 @@ async fn apply_from_other_device(
         .unwrap();
 }
 
-// T-03
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t03_typed_on_this_device_is_approved_at_save() {
     let fx = Fixture::new("t03");
@@ -199,7 +197,7 @@ async fn t04_t05_synced_value_needs_approval_and_change_asks_again() {
     }
     assert!(stored, "the approval row was not stored");
 
-    // T-05: changed remotely → asks again.
+    // Changed remotely → asks again.
     let changed = "ssh -W %h:%p evil-bastion";
     apply_from_other_device(service.store(), &ops, id, &host_with(changed), 2).await;
     assert_eq!(check(&service, id, changed, here), Approval::NeedsApproval);

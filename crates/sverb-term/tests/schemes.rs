@@ -1,4 +1,4 @@
-//! M1-10: color scheme import and user scheme loading (T-11, T-12, T-13).
+//! Color scheme import and user scheme loading.
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]
 
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ fn expected_dracula(name: &str) -> ColorScheme {
     }
 }
 
-// T-11: Alacritty TOML and legacy YAML.
+// Alacritty TOML and legacy YAML.
 #[test]
 fn alacritty_import() {
     let toml = std::fs::read_to_string(fixture("alacritty_dracula.toml")).unwrap();
@@ -59,7 +59,7 @@ fn alacritty_import() {
     assert_eq!(builtin.ansi, expected_dracula("x").ansi);
 }
 
-// T-12: Kitty.
+// Kitty.
 #[test]
 fn kitty_import() {
     let conf = std::fs::read_to_string(fixture("kitty_nord.conf")).unwrap();
@@ -99,7 +99,7 @@ fn scratch(name: &str) -> PathBuf {
     dir
 }
 
-// T-13: a broken user scheme names the missing field; the others still load.
+// A broken user scheme names the missing field; the others still load.
 #[test]
 fn invalid_user_scheme() {
     let dir = scratch("themes");

@@ -5,11 +5,9 @@
 //!   `connect.rs` and returns an [`SshTransport`].
 //! - Seams for later tasks: [`HostResolver`] (settings and secrets; the UI resolves
 //!   groups through `sverb_core::resolve`),
-//!   [`HostKeyVerifier`] (known hosts, M1-15: [`KnownHostsVerifier`]), [`Authenticator`] (the auth chain,
-//!   M1-14).
 //! - [`algorithms`]: preferences and the per-host legacy opt-in (§6.1.8);
 //!   [`errors`]: the §6.1.9 mapping; [`tcp`]: DNS and Happy Eyeballs.
-//! - M3-07: connection sharing (§6.1.3). The connector owns a pool of connections
+//! - Connection sharing (§6.1.3). The connector owns a pool of connections
 //!   (`mux.rs`, `mux_ssh.rs`); sessions, exec runs, standalone tunnels and jump hops
 //!   to the same key share one connection with a channel each.
 //!   [`SshConnector::with_multiplex`] turns it on (`ssh.multiplex`; the TUI's connector
@@ -31,7 +29,7 @@ pub mod auth_stub;
 pub mod channel;
 mod connect;
 pub mod errors;
-// M2-06: the first hop's stream (direct TCP or a proxy).
+// The first hop's stream (direct TCP or a proxy).
 pub mod first_hop;
 pub mod handler;
 pub mod keepalive;
@@ -42,10 +40,10 @@ pub mod tcp;
 pub mod testing;
 #[cfg(test)]
 mod tests;
-// M3-07: loopback tests of shared connections (a counting russh server).
+// Loopback tests of shared connections (a counting russh server).
 #[cfg(test)]
 mod mux_loopback;
-// M1-14: the authentication chain, the M1 key-file import, test key fixtures.
+// The authentication chain, the M1 key-file import, test key fixtures.
 pub mod auth;
 #[cfg(test)]
 mod auth_loopback;
@@ -57,6 +55,7 @@ pub mod keyfile;
 #[cfg(any(test, feature = "test-util"))]
 pub mod test_keys;
 
+pub use auth::{ChainAuthenticator, sanitize_server_text};
 pub use auth_stub::{AuthOutcome, AuthSession, Authenticator, StubAuthenticator};
 pub use channel::{SshTransport, pty_modes};
 pub use connect::HOST_KEY_PROMPT_TIMEOUT;
@@ -66,14 +65,12 @@ pub use handler::{
     ServerKey, UnverifiedHostKeys,
 };
 pub use resolved::{AuthMaterial, SshTarget, local_user, resolve, resolve_spec};
-// M1-14
-pub use auth::{ChainAuthenticator, sanitize_server_text};
 pub use resolved::{KeyMaterial, allows_ssh_rsa};
-// M1-15: host-key verification over known hosts.
+// Host-key verification over known hosts.
 pub mod verify;
 #[cfg(test)]
 mod verify_tests;
-// M2-04: non-interactive exec channels and install-key on host (§6.1.7, §9.4).
+// Non-interactive exec channels and install-key on host (§6.1.7, §9.4).
 pub mod exec;
 #[cfg(all(unix, any(test, feature = "test-util")))]
 pub mod exec_testing;
@@ -119,28 +116,25 @@ pub struct SshConnector {
     resolver: Arc<dyn HostResolver>,
     verifier: Arc<dyn HostKeyVerifier>,
     auth: Arc<dyn Authenticator>,
-    // M2-06
     approvals: Arc<dyn crate::proxy::LocalApprovals>,
-    // M2-07: serves forwarded agent channels; `None`: forwarding is never requested.
+    // Serves forwarded agent channels; `None`: forwarding is never requested.
     agent: Option<crate::agent::AgentForwarding>,
-    // M3-07: shared connections (clones of the connector share the pool).
+    // Shared connections (clones of the connector share the pool).
     pool: connect::jump::mux_ssh::SshPool,
 }
 
 impl SshConnector {
     /// A connector resolving hosts with `resolver`. Host keys are rejected
-    /// ([`UnverifiedHostKeys`]) until a verifier is set. M1-14: authentication is the
+    /// ([`UnverifiedHostKeys`]) until a verifier is set. Authentication is the
     /// full chain without the system agent ([`ChainAuthenticator::with_agent`] adds it).
     pub fn new(resolver: Arc<dyn HostResolver>) -> Self {
         Self {
             resolver,
             verifier: Arc::new(UnverifiedHostKeys),
             auth: Arc::new(ChainAuthenticator::new()),
-            // M2-06: the stub until M2-10's store.
             approvals: Arc::new(crate::proxy::StampApprovals),
-            // M2-07
             agent: None,
-            // M3-07: off until `with_multiplex(true)` (the TUI applies `ssh.multiplex`).
+            // Off until `with_multiplex(true)` (the TUI applies `ssh.multiplex`).
             pool: {
                 let pool = connect::jump::mux_ssh::SshPool::default();
                 pool.set_enabled(false);
@@ -149,7 +143,6 @@ impl SshConnector {
         }
     }
 
-    // M3-07
     /// Share connections between sessions, exec runs and tunnels (`ssh.multiplex`).
     #[must_use]
     pub fn with_multiplex(self, enabled: bool) -> Self {
@@ -157,26 +150,22 @@ impl SshConnector {
         self
     }
 
-    // M3-07
     /// Change `ssh.multiplex` for new connects (a config reload); connections already
     /// open stay as they are. Clones of this connector share the setting.
     pub fn set_multiplex(&self, enabled: bool) {
         self.pool.set_enabled(enabled);
     }
 
-    // M3-07
     /// Whether connections are shared.
     pub fn multiplex(&self) -> bool {
         self.pool.is_enabled()
     }
 
-    // M3-07
     /// The connection pool.
     pub(crate) fn pool(&self) -> &connect::jump::mux_ssh::SshPool {
         &self.pool
     }
 
-    // M2-07
     /// Serve forwarded agent channels (hosts with `agent_forwarding`) with `agent`.
     /// Without it, forwarding is never requested.
     #[must_use]
@@ -185,13 +174,11 @@ impl SshConnector {
         self
     }
 
-    // M2-07
     /// The agent-forwarding setup, if any.
     pub fn agent_forwarding(&self) -> Option<&crate::agent::AgentForwarding> {
         self.agent.as_ref()
     }
 
-    // M2-06
     /// Check locally-acting values (a ProxyCommand) with `approvals` (§17.1).
     #[must_use]
     pub fn with_local_approvals(
@@ -202,7 +189,6 @@ impl SshConnector {
         self
     }
 
-    // M2-06
     /// The local-action approval check.
     pub fn local_approvals(&self) -> &dyn crate::proxy::LocalApprovals {
         self.approvals.as_ref()

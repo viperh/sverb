@@ -1,7 +1,6 @@
-//! M0-11 tests: shell snapshots (T-04..T-11), shell behavior (T-12..T-16), toasts,
 //! notification history and the debug log pane. Layout (T-01..T-03) is unit tested in
-//! `views/shell.rs`, the status priorities (T-10) in `widgets/statusbar.rs`, color
-//! downsampling (T-17/T-18) in `sverb_term::color` and `theme`.
+//! `views/shell.rs`, the status priorities in `widgets/statusbar.rs`, color
+//! downsampling in `sverb_term::color` and `theme`.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -105,7 +104,7 @@ fn t05_no_color_is_monochrome_with_reverse_bold_selection() {
     for (w, h) in [(80, 24), (160, 48)] {
         let mut hs = AppHarness::new(Config::default()).with_theme_env(no_color());
         hs.resize(w, h);
-        // M1-07: the Hosts list with hosts (the cursor row is the selection).
+        // The Hosts list with hosts (the cursor row is the selection).
         hs.app_mut().seed_three_hosts();
         let buf = hs.render_buffer(w, h);
         insta::assert_snapshot!(format!("t05_no_color_{w}x{h}"), buffer_to_string(&buf));

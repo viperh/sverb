@@ -1,9 +1,8 @@
-//! M1-15 loopback tests: the known-hosts verifier against the in-process russh server
-//! (no Docker). Unknown → accept & save → no prompt next time (T-14), changed key →
-//! red warning → reject (T-15), several key types with one known (T-16), a host
-//! certificate from a trusted CA (T-17), `accept-new`, `strict`, `@revoked`, and the
-//! 120 s prompt timeout in virtual time (T-12). The Docker variants are at the end,
-//! `#[ignore]`d for the M1-18 harness.
+//! (no Docker). Unknown → accept & save → no prompt next time, changed key →
+//! red warning → reject, several key types with one known, a host
+//! certificate from a trusted CA, `accept-new`, `strict`, `@revoked`, and the
+//! 120 s prompt timeout in virtual time. The Docker variants are at the end,
+//! `#[ignore]`d for the Docker e2e harness.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -405,7 +404,7 @@ async fn accept_new_and_strict_with_unknown_keys() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-12: no decision within 120 s (virtual time) → reject → `Disconnected { HostKey }`.
+/// No decision within 120 s (virtual time) → reject → `Disconnected { HostKey }`.
 #[tokio::test]
 async fn t12_prompt_timeout_rejects() {
     let addr = server(vec![ed25519(42)], vec![]).await;
@@ -443,9 +442,9 @@ async fn t12_prompt_timeout_rejects() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-// ------------------------------------------------------------- Docker (M1-18)
+// ------------------------------------------------------------- Docker
 
-/// T-14…T-17 against OpenSSH in Docker (M1-18 harness): unknown → accept → reconnect
+/// T-14…T-17 against OpenSSH in Docker: unknown → accept → reconnect
 /// without a prompt; regenerate the container host key → red warning, reject →
 /// `HostKey`; ecdsa known and ed25519 + ecdsa offered → no prompt; a host certificate
 /// signed by the test CA with `@cert-authority *.test` → no prompt. Covered on loopback

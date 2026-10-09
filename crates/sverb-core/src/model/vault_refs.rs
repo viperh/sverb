@@ -1,4 +1,4 @@
-//! M5-02: references across vaults (SPEC §4.12, §13.1, §13.4).
+//! References across vaults (SPEC §4.12, §13.1, §13.4).
 //!
 //! Items reference each other by id (16-byte CBOR byte strings: `group_id`,
 //! `identity_id`, `key_id`, `jump_chain`, `port_forwards`, …). An item in a
@@ -387,7 +387,7 @@ mod tests {
         b
     }
 
-    // T-08: a shared host referencing a personal key is refused; an override in
+    // A shared host referencing a personal key is refused; an override in
     // the personal vault referencing a shared host is allowed.
     #[test]
     fn t08_cross_vault_validation() {

@@ -1,4 +1,4 @@
-//! M2-09: running a snippet (SPEC §9.7): the variable form and the host picker.
+//! Running a snippet (SPEC §9.7): the variable form and the host picker.
 //!
 //! [`VarForm`]: one field per variable (defaults prefilled, secret fields masked) and
 //! a **live preview** of the final text (secrets as `••••`). It is shown before every
@@ -6,7 +6,6 @@
 //! `shift-Tab`/`↑` move between fields, `Enter` runs, `Esc` cancels.
 //! [`VarForm::submit`] computes what runs:
 //! - [`RunRequest::Paste`]: the text without a trailing newline (the session brackets
-//!   it when the remote enabled mode 2004, M1-11);
 //! - [`RunRequest::Execute`]: every line followed by `\r`, sent raw (never bracketed);
 //! - [`RunRequest::Exec`]: the exec plan for the picked hosts (built-ins are rendered
 //!   per host by the runner).

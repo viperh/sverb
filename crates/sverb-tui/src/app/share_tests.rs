@@ -1,7 +1,7 @@
-//! M6-03: terminal sharing in the reducer: the start dialog, approvals, the viewers
-//! panel and the `⚠ shared · …` badge (T-11), viewer panes from `sverb join` and the
-//! palette (T-12, reducer side), and letterboxing / clipping of the host's screen
-//! (T-07, drawing side).
+//! Terminal sharing in the reducer: the start dialog, approvals, the viewers
+//! panel and the `⚠ shared · …` badge, viewer panes from `sverb join` and the
+//! palette (reducer side), and letterboxing / clipping of the host's screen
+//! (drawing side).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -174,7 +174,7 @@ fn start_dialog_chooses_mode_expiry_and_options() {
     assert!(share_effects(&mut h).is_empty());
 }
 
-// T-11: the banner on a shared pane, in both modes.
+// The banner on a shared pane, in both modes.
 #[test]
 fn t11_shared_badge() {
     for (mode, name) in [(ShareMode::View, "view"), (ShareMode::Control, "control")] {
@@ -204,7 +204,7 @@ fn t11_shared_badge() {
     }
 }
 
-// T-11: approval modal and the viewers panel's actions.
+// Approval modal and the viewers panel's actions.
 #[test]
 fn t11_approval_and_viewers_panel() {
     let mut h = harness();

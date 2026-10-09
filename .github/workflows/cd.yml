@@ -1,6 +1,5 @@
 name: CD # Continuous Deployment
 
-# M7-07 (SPEC §20, §10.7, §17 reproducible builds). A release is made ONLY by pushing a
 # tag `vX.Y.Z` (e.g. `git tag v1.0.0 && git push origin v1.0.0`); the tag must match
 # `workspace.package.version` in Cargo.toml. The tag builds and publishes:
 #   - sverb-<v>-linux-{x86_64,aarch64}.tar.gz      static musl client
@@ -323,7 +322,7 @@ jobs:
             docker buildx build --platform "linux/$arch" --load \
               --build-arg VERSION="$VERSION" -t sverb-server:local ctx
             docker run --rm --platform "linux/$arch" sverb-server:local --version | grep -F "$VERSION"
-            # The compose stack with this image must report healthy (M4-01 T-13).
+            # The compose stack with this image must report healthy.
             DOCKER_DEFAULT_PLATFORM="linux/$arch" \
               docker compose -f deploy/docker-compose.yml up -d --no-build
             ok=false

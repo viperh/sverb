@@ -1,4 +1,4 @@
-//! The input task (M0-09): terminal events → [`InputEvent`] on a bounded channel.
+//! The input task: terminal events → [`InputEvent`] on a bounded channel.
 //!
 //! The task owns crossterm's `EventStream` (or, in tests, any stream of the same
 //! item type) and pushes converted events into a bounded `mpsc` of capacity
@@ -96,7 +96,6 @@ mod tests {
         }))
     }
 
-    // T-07
     #[tokio::test]
     async fn repeat_keys_accepted_release_ignored() {
         let (tx, mut rx) = channel();

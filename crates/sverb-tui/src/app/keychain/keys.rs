@@ -1,4 +1,4 @@
-//! M2-03: the Keys and Certificates sub-tabs in the reducer (SPEC §4.5, §4.6, §9.4).
+//! The Keys and Certificates sub-tabs in the reducer (SPEC §4.5, §4.6, §9.4).
 //!
 //! The views record requests ([`KeyRequest`], [`CertRequest`]); the keychain dialogs
 //! record answers ([`KeychainAnswer`]); both are taken after every dispatch
@@ -179,7 +179,6 @@ pub enum KeychainEffect {
         /// The typed text.
         prefix: String,
     },
-    // M2-04
     /// Install a key on hosts: run, answer a prompt, cancel.
     Install(super::install::InstallEffect),
 }
@@ -257,7 +256,6 @@ pub enum KeychainOutcome {
     Done,
     /// Failed, with a user-facing message.
     Failed(String),
-    // M2-04
     /// Progress of an install run (token 0).
     Install(super::install::InstallUpdate),
 }
@@ -323,7 +321,6 @@ pub enum ConfirmPurpose {
     DeleteKey(ItemId),
     /// Delete a certificate.
     DeleteCert(ItemId),
-    // M2-04
     /// Install a key on the planned hosts (button `install`).
     InstallKey(Box<crate::views::keychain::install::InstallPlan>),
 }
@@ -361,9 +358,8 @@ pub enum KeychainAnswer {
     },
     /// Copy text (the generated public key).
     Copy(String),
-    /// Install on hosts (M2-04).
+    /// Install on hosts.
     Install(ItemId),
-    // M2-04
     /// The host picker was submitted.
     InstallPick {
         /// The key.
@@ -594,7 +590,6 @@ impl App {
                 let state = if value { "on" } else { "off" };
                 self.push_toast(ToastLevel::Info, format!("{what} {state}"), effects);
             }
-            // M2-04
             KeyRequest::Install(id) => self.open_install_picker(id, effects),
             KeyRequest::Delete(id) => {
                 let label = self.key_label(id);
@@ -738,7 +733,6 @@ impl App {
                 effects.push(Effect::CopyToClipboard(text));
                 self.push_toast(ToastLevel::Success, "Public key copied".to_owned(), effects);
             }
-            // M2-04
             KeychainAnswer::Install(id) => self.open_install_picker(id, effects),
             KeychainAnswer::InstallPick { key, targets } => {
                 self.on_install_pick(key, &targets, effects);
@@ -838,7 +832,6 @@ impl App {
 
     fn on_confirm(&mut self, purpose: ConfirmPurpose, button: &str, effects: &mut Vec<Effect>) {
         match purpose {
-            // M2-04
             ConfirmPurpose::InstallKey(plan) => {
                 if button == "install" {
                     self.start_install(*plan, effects);
@@ -920,7 +913,7 @@ impl App {
     /// A keychain result from the vault service.
     pub(crate) fn on_keychain_event(&mut self, ev: KeychainEvent, effects: &mut Vec<Effect>) {
         self.needs_redraw = true;
-        // M2-04: install runs report outside the operation in flight.
+        // Install runs report outside the operation in flight.
         if let KeychainOutcome::Install(update) = ev.outcome {
             self.on_install_update(update, effects);
             return;

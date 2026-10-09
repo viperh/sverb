@@ -4,7 +4,6 @@
 //! Values are XChaCha20-Poly1305 from `sverb-crypto`, stored as
 //! `nonce (24 bytes) || ciphertext`, with the row name as AAD so rows can't
 //! be swapped. The same key encrypts other server-side secrets (TOTP seeds,
-//! M4-02) through [`ServerSecrets::seal`] with their own AAD.
 //!
 //! On startup [`ServerSecrets::verify_or_init`] writes a canary row (first
 //! start) and then decrypts every row. A failure means the configured secret
@@ -22,7 +21,6 @@ use crate::config::ServerSecret;
 pub const SERVER_SECRET_INFO: &[u8] = b"sverb/server-secret/v1";
 /// Name of the canary row written on first start.
 pub const CANARY_NAME: &str = "secret_check";
-/// Name of the OPAQUE `ServerSetup` row (written by M4-02).
 pub const OPAQUE_SERVER_SETUP: &str = "opaque_server_setup";
 const CANARY_PLAINTEXT: &[u8] = b"sverb server secret check v1";
 

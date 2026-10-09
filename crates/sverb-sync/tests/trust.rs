@@ -1,4 +1,3 @@
-//! M5-03 integration tests: TOFU pinning against the in-process server
 //! (in-memory backend, loopback HTTP). The server's
 //! `GET /v1/users/{id}/public-keys` is the harness hook
 //! (`TestServer::user_keys`), so a test can substitute a user's keys.
@@ -82,7 +81,7 @@ fn bob_manages(bob: Uuid, me: Uuid) -> VaultMembership {
     }
 }
 
-/// T-01: the first fetch pins Bob's key; a second fetch with the same key
+/// The first fetch pins Bob's key; a second fetch with the same key
 /// gives no warning.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t01_first_fetch_pins() {
@@ -130,7 +129,7 @@ async fn t01_first_fetch_pins() {
     );
 }
 
-/// T-02: the server returns a different key for Bob → warning, the grant to
+/// The server returns a different key for Bob → warning, the grant to
 /// Bob is blocked, and Bob's grants to me are not trusted.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t02_key_substitution_blocks_grants() {
@@ -222,7 +221,7 @@ async fn t02_key_substitution_blocks_grants() {
     assert!(source.open_grant(&view, 1).is_none());
 }
 
-/// T-07: pins are never pushed to the server.
+/// Pins are never pushed to the server.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t07_pins_never_pushed() {
     let server = TestServer::start().await;

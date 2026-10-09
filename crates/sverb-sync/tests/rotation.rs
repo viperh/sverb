@@ -1,4 +1,4 @@
-//! M5-04: vault key rotation on revoke (SPEC §13.2 steps 1–5, §19) end to end
+//! Vault key rotation on revoke (SPEC §13.2 steps 1–5, §19) end to end
 //! against the in-process server (memory backend, loopback HTTP + WebSocket).
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::too_many_lines)]
 
@@ -329,7 +329,7 @@ fn uploaded_ids(server: &TestServer) -> Vec<String> {
         .collect()
 }
 
-// T-01: Alice revokes Carol → the rotation completes; Bob decrypts everything
+// Alice revokes Carol → the rotation completes; Bob decrypts everything
 // with VK′; Carol can't pull; key version bumped, old grant rows gone.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t01_revoke_rotates() {
@@ -399,7 +399,7 @@ async fn t01_revoke_rotates() {
     assert!(err.is_status(404) || err.is_status(403), "{err}");
 }
 
-// T-02: a push during the rotation gets 409; after the commit Bob's pending
+// A push during the rotation gets 409; after the commit Bob's pending
 // edit is re-encrypted under VK′ and pushed.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t02_push_during_rotation() {
@@ -471,7 +471,7 @@ async fn t02_push_during_rotation() {
     assert_eq!(Member::text(&b, "label"), "item-0");
 }
 
-// T-03: commit with incomplete staging → 400 naming the missing count; nothing
+// Commit with incomplete staging → 400 naming the missing count; nothing
 // changes.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t03_incomplete_commit_rejected() {
@@ -645,7 +645,7 @@ async fn t04_abandoned_rotation_restarted() {
     assert_eq!(bob.dev.pending().await, 0);
 }
 
-// T-05: the same client crashes and restarts within 15 min → it resumes from
+// The same client crashes and restarts within 15 min → it resumes from
 // its persisted progress (no item uploaded twice) and commits.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t05_resume_after_crash() {
@@ -703,7 +703,7 @@ async fn t05_resume_after_crash() {
     }
 }
 
-// T-06: revisions after the commit are gap-free and above the old head; a
+// Revisions after the commit are gap-free and above the old head; a
 // puller with an old cursor receives every rotated item.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn t06_fresh_gap_free_revisions() {
@@ -750,7 +750,7 @@ async fn t06_fresh_gap_free_revisions() {
     );
 }
 
-// T-07: a remaining member's key changed (unpinned) → the client refuses to
+// A remaining member's key changed (unpinned) → the client refuses to
 // wrap for them and the commit is blocked (DECISION) until the new key is
 // accepted; then the rotation resumes and commits.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

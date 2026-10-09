@@ -1,4 +1,3 @@
-//! `known_hosts` import (§9.5, §9.13), reusing the M1-15 parser: hashed entries stay
 //! hashed, `@cert-authority` / `@revoked` markers are kept, entries already in the
 //! vault (same pattern and key) are duplicates, and repeated lines in the file are
 //! skipped.

@@ -1,4 +1,4 @@
-//! M0-07 / M1-07: `sverb hosts list | add | rm` (SPEC §16).
+//! `sverb hosts list | add | rm` (SPEC §16).
 //!
 //! The vault is unlocked through [`super::vault::require_unlocked`]
 //! (keyring, else the master password on a TTY, else exit 3). Writes go through the
@@ -457,7 +457,6 @@ mod tests {
         (res, String::from_utf8(out).unwrap())
     }
 
-    // T-13
     #[tokio::test]
     async fn t13_add_then_list_json() {
         let (ops, _home) = ops("t13").await;
@@ -493,7 +492,6 @@ mod tests {
         );
     }
 
-    // T-14
     #[tokio::test]
     async fn t14_invalid_address_exits_2() {
         let (ops, _home) = ops("t14").await;
@@ -518,7 +516,6 @@ mod tests {
         );
     }
 
-    // T-15
     #[tokio::test]
     async fn t15_unknown_group_exits_4_unless_created() {
         let (ops, _home) = ops("t15").await;
@@ -538,7 +535,6 @@ mod tests {
         assert_eq!(names(&ops, ItemKind::Group).await.unwrap().len(), 1);
     }
 
-    // T-16
     #[tokio::test]
     async fn t16_rm_ambiguous_then_exact() {
         let (ops, _home) = ops("t16").await;
@@ -577,7 +573,6 @@ mod tests {
         assert!(run(&ops, "hosts list").await.1.contains("db"));
     }
 
-    // T-17
     #[tokio::test]
     async fn t17_list_never_prints_secrets() {
         let (ops, _home) = ops("t17").await;

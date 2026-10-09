@@ -1,4 +1,4 @@
-//! M5-04: `POST /v1/vaults/{id}/rotate` (SPEC §10.4, §13.2). The rules live in
+//! `POST /v1/vaults/{id}/rotate` (SPEC §10.4, §13.2). The rules live in
 //! [`crate::sync::rotation`]; this handler adds, after a commit, the
 //! `vault_changed` hint (the items have fresh revisions), `vault_access
 //! rotated` to every member, and the `vault.rotated` audit row (§13.5).

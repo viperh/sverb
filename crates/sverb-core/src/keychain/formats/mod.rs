@@ -1,4 +1,3 @@
-//! M2-03 §2.3: private key formats, detected by content.
 //!
 //! - [`openssh`]: `-----BEGIN OPENSSH PRIVATE KEY-----` (plain or bcrypt-encrypted).
 //! - [`pem`]: `BEGIN RSA PRIVATE KEY` (PKCS#1) and `BEGIN EC PRIVATE KEY` (SEC1), plain
@@ -13,7 +12,7 @@
 pub mod openssh;
 pub mod pem;
 pub mod pkcs8;
-// M7-03: PuTTY `.ppk` v2 / v3 (registered as the `.ppk` KeyImporter).
+// PuTTY `.ppk` v2 / v3 (registered as the `.ppk` KeyImporter).
 pub mod ppk;
 
 use base64::Engine as _;

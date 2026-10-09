@@ -1,5 +1,5 @@
 #!/bin/bash
-# M1-18: start sshd with the profile named by $SSHD_PROFILE (default: password).
+# Start sshd with the profile named by $SSHD_PROFILE (default: password).
 #
 # - Host keys are generated on the first start only (a `docker restart` keeps them;
 #   `sverb-regen-hostkeys` replaces them on purpose).

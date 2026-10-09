@@ -1,4 +1,4 @@
-//! T-18 (M1-09): arbitrary remote output never panics the emulator.
+//! Arbitrary remote output never panics the emulator.
 //!
 //! The first two bytes pick the grid size, the rest is split into chunks at positions taken
 //! from the input itself, so split escapes and split UTF-8 are exercised too. Also checks the

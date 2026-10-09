@@ -1,5 +1,4 @@
-//! M0-07 tests: parsing (T-01..T-04, T-06), help snapshots (T-05), exit codes (T-11),
-//! stubs (T-12) and the vault/TTY conventions.
+//! stubs and the vault/TTY conventions.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -18,7 +17,7 @@ use super::{
     exit::{self, CliError},
     export::ExportCmd,
     hosts::HostsCmd,
-    // M2-11: OnConflict
+    // OnConflict
     import::{ImportArgs, ImportSource, OnConflict},
     keys::{KeyType, KeysArgs, KeysCmd},
     snippet::SnippetCmd,
@@ -65,13 +64,12 @@ fn run_args(args: &str) -> (Result<u8, CliError>, String) {
     (res, String::from_utf8(out).unwrap())
 }
 
-// T-01
 #[test]
 fn clap_debug_assert() {
     Cli::command().debug_assert();
 }
 
-// T-02: one row per SPEC §16 line (plus the forms named in the task).
+// One row per SPEC §16 line (plus the forms named in the task).
 #[test]
 fn documented_forms_parse() {
     let s = |v: &str| v.to_owned();
@@ -137,7 +135,7 @@ fn documented_forms_parse() {
             Command::Keys(KeysArgs {
                 dump: false,
                 json: false,
-                // M2-03: `--json`.
+                // `--json`.
                 cmd: Some(KeysCmd::List { json: false }),
             }),
         ),
@@ -149,7 +147,6 @@ fn documented_forms_parse() {
                 cmd: Some(KeysCmd::Generate {
                     key_type: KeyType::Ed25519,
                     label: None,
-                    // M2-03
                     comment: None,
                     no_passphrase: false,
                 }),
@@ -163,7 +160,6 @@ fn documented_forms_parse() {
                 cmd: Some(KeysCmd::Generate {
                     key_type: KeyType::Rsa4096,
                     label: Some(s("work")),
-                    // M2-03
                     comment: None,
                     no_passphrase: false,
                 }),
@@ -176,7 +172,6 @@ fn documented_forms_parse() {
                 json: false,
                 cmd: Some(KeysCmd::Import {
                     file: p("id_ed25519"),
-                    // M2-03
                     label: None,
                 }),
             }),
@@ -189,7 +184,6 @@ fn documented_forms_parse() {
                 cmd: Some(KeysCmd::Export {
                     key: s("work"),
                     public: true,
-                    // M2-03
                     output: None,
                 }),
             }),
@@ -214,7 +208,6 @@ fn documented_forms_parse() {
             Command::Forward(forward::ForwardArgs {
                 rule: s("db-tunnel"),
                 detach: true,
-                // M2-08
                 detached_child: false,
             }),
         ),
@@ -224,13 +217,11 @@ fn documented_forms_parse() {
                 snippet: s("s"),
                 on: vec![s("h1"), s("#web")],
                 json: true,
-                // M2-09:
                 vars: vec![],
                 concurrency: None,
                 timeout: None,
             }),
         ),
-        // M2-09:
         (
             "snippet run s --on g --var a=1 --var b=x=y --concurrency 3 --timeout 9",
             Command::Snippet(SnippetCmd::Run {
@@ -246,7 +237,6 @@ fn documented_forms_parse() {
             "import ssh-config",
             Command::Import(ImportArgs {
                 dry_run: false,
-                // M2-11
                 vault: None,
                 group: None,
                 on_conflict: OnConflict::Skip,
@@ -259,7 +249,6 @@ fn documented_forms_parse() {
             "import known-hosts /tmp/kh --dry-run",
             Command::Import(ImportArgs {
                 dry_run: true,
-                // M2-11
                 vault: None,
                 group: None,
                 on_conflict: OnConflict::Skip,
@@ -274,13 +263,11 @@ fn documented_forms_parse() {
             "import putty",
             Command::Import(ImportArgs {
                 dry_run: false,
-                // M2-11
                 vault: None,
                 group: None,
                 on_conflict: OnConflict::Skip,
                 yes: false,
                 identity_files: false,
-                // M7-03
                 source: ImportSource::Putty { path: None },
             }),
         ),
@@ -288,7 +275,6 @@ fn documented_forms_parse() {
             "import csv f.csv --dry-run",
             Command::Import(ImportArgs {
                 dry_run: true,
-                // M2-11
                 vault: None,
                 group: None,
                 on_conflict: OnConflict::Skip,
@@ -301,7 +287,6 @@ fn documented_forms_parse() {
             "import --dry-run backup b.sverb",
             Command::Import(ImportArgs {
                 dry_run: true,
-                // M2-11
                 vault: None,
                 group: None,
                 on_conflict: OnConflict::Skip,
@@ -312,7 +297,7 @@ fn documented_forms_parse() {
         ),
         (
             "export backup b.sverb",
-            // M2-11: --force / --include-shared
+            // --force / --include-shared
             Command::Export(ExportCmd::Backup {
                 file: p("b.sverb"),
                 force: false,
@@ -338,7 +323,6 @@ fn documented_forms_parse() {
             Command::Export(ExportCmd::Recording {
                 id: s("0190a5f2-7c1e-7000-8000-000000000000"),
                 out: p("out.cast"),
-                // M3-05
                 yes: false,
             }),
         ),
@@ -347,20 +331,17 @@ fn documented_forms_parse() {
             Command::Export(ExportCmd::Recording {
                 id: s("abc"),
                 out: p("out.cast"),
-                // M3-05
                 yes: true,
             }),
         ),
         (
             "approve db",
-            // M2-10
             Command::Approve(approve::ApproveArgs {
                 host: s("db"),
                 all: false,
                 yes: false,
             }),
         ),
-        // M2-10
         (
             "approve db --all --yes",
             Command::Approve(approve::ApproveArgs {
@@ -448,7 +429,6 @@ fn sync_forms_parse() {
             "login --server https://sync.example",
             Command::Login(account::LoginArgs {
                 server: Some(s("https://sync.example")),
-                // M4-08
                 email: None,
             }),
         ),
@@ -456,7 +436,6 @@ fn sync_forms_parse() {
             "logout --keep-local",
             Command::Logout(account::LogoutArgs { keep_local: true }),
         ),
-        // M4-08
         (
             "register --server https://sync.example --email a@b.c",
             Command::Register(account::RegisterArgs {
@@ -502,7 +481,6 @@ fn sync_forms_parse() {
     }
 }
 
-// T-03
 #[test]
 fn invalid_forms_are_usage_errors() {
     for args in [
@@ -583,7 +561,6 @@ fn sync_commands_print_the_no_sync_message() {
     assert_eq!(res.unwrap_err().exit_code(), 2);
 }
 
-// T-05
 #[test]
 fn help_snapshots() {
     let mut all = String::new();
@@ -604,7 +581,6 @@ fn help_snapshots() {
     });
 }
 
-// T-06
 #[test]
 fn version_text() {
     let v = version(&paths());
@@ -617,7 +593,6 @@ fn version_text() {
     assert!(err.to_string().contains(&format!("features: {FEATURES}")));
 }
 
-// T-11
 #[test]
 fn errors_map_to_documented_exit_codes() {
     let r = || ErrorReport::msg("x");
@@ -674,28 +649,27 @@ fn errors_map_to_documented_exit_codes() {
     assert!(long_help(&[]).contains(exit::HELP.lines().next().unwrap()));
 }
 
-// T-12: every headless command that is still a stub says so and names a task.
+// Every headless command that is still a stub says so and names a task.
 #[test]
 fn stubs_return_not_implemented() {
     let forms: Vec<&str> = vec![
-        // M1-07: `hosts list | add | rm` are implemented (see `cli/hosts.rs`).
-        // M2-03: `keys list | generate | import | export` are implemented (see
+        // `hosts list | add | rm` are implemented (see `cli/hosts.rs`).
+        // `keys list | generate | import | export` are implemented (see
         // `cli/keys.rs` tests).
-        // M0-10: `keys --dump` / `keymap --dump` are implemented (see `keys_dump`).
-        // M2-08: `forward` is implemented (see `crates/sverb/tests/forward.rs`).
-        // M2-09: `snippet run` is implemented (see `cli/snippet_tests.rs`).
-        // M2-11: `import ssh-config | known-hosts | csv | backup` and `export backup |
+        // `keys --dump` / `keymap --dump` are implemented (see `keys_dump`).
+        // `forward` is implemented (see `crates/sverb/tests/forward.rs`).
+        // `snippet run` is implemented (see `cli/snippet_tests.rs`).
+        // `import ssh-config | known-hosts | csv | backup` and `export backup |
         // ssh-config | csv` are implemented (see `cli/import_tests.rs`).
-        // M7-03: `import putty` is implemented (see `cli/import_tests.rs`).
-        // M3-05: `export recording` is implemented (see `crates/sverb/tests/export_recording.rs`).
-        // M2-10: `approve` is implemented (see `crates/sverb/tests/approve.rs`).
-        // M2-07: `agent` is implemented (see `cli/agent.rs`; it serves until stopped).
-        // M7-04: `doctor` is implemented (see `cli/doctor_tests.rs`, tests/doctor.rs).
+        // `import putty` is implemented (see `cli/import_tests.rs`).
+        // `export recording` is implemented (see `crates/sverb/tests/export_recording.rs`).
+        // `approve` is implemented (see `crates/sverb/tests/approve.rs`).
+        // `agent` is implemented (see `cli/agent.rs`; it serves until stopped).
+        // `doctor` is implemented (see `cli/doctor_tests.rs`, tests/doctor.rs).
     ];
-    // Sync builds: every sync command is implemented now. M4-08: `login`, `logout`,
+    // Sync builds: every sync command is implemented now. `login`, `logout`,
     // `register` (`account_commands_need_a_terminal`, crates/sverb-sync/tests/account.rs);
-    // M4-07: `sync`; M4-09: `devices list | revoke` (`cli/sync_tests.rs`); M5-01: `team
-    // list | invite | create | accept` and M5-03: `team verify` (`cli/team.rs`).
+    // `sync`; `devices list | revoke` (`cli/sync_tests.rs`); `team
     // Guard: every leaf command except the TUI launchers and `config` is listed.
     let leaves: Vec<String> = command_paths()
         .into_iter()
@@ -710,40 +684,33 @@ fn stubs_return_not_implemented() {
     for leaf in &leaves {
         let covered = matches!(
             leaf.as_str(),
-            // M1-04: `lock` / `unlock` are implemented (see `vault_commands`).
+            // `lock` / `unlock` are implemented (see `vault_commands`).
             "connect" | "join" | "config" | "keymap" | "lock" | "unlock"
-            // M1-07
             | "hosts list" | "hosts add" | "hosts rm"
-            // M3-05: `export recording` is implemented (tests/export_recording.rs).
+            // `export recording` is implemented (tests/export_recording.rs).
             | "export recording"
-            // M2-08: `forward` is implemented (tests/forward.rs).
+            // `forward` is implemented (tests/forward.rs).
             | "forward"
-            // M2-07
             | "agent"
-            // M2-10: implemented (tests/approve.rs).
+            // Implemented (tests/approve.rs).
             | "approve"
-            // M2-09: implemented (see `cli/snippet_tests.rs`).
+            // Implemented (see `cli/snippet_tests.rs`).
             | "snippet run"
-            // M2-03: implemented (see the `cli/keys.rs` tests).
+            // Implemented (see the `cli/keys.rs` tests).
             | "keys list" | "keys generate" | "keys import" | "keys export"
-            // M2-11: implemented (see `cli/import_tests.rs`).
+            // Implemented (see `cli/import_tests.rs`).
             | "import ssh-config" | "import known-hosts" | "import csv" | "import backup"
-            // M7-03
             | "import putty"
-            // M4-07: one headless engine cycle / the local sync state.
+            // One headless engine cycle / the local sync state.
             | "sync"
-            // M4-09
             | "devices list" | "devices revoke"
-            // M5-03: implemented (see the `cli/team.rs` tests).
+            // Implemented (see the `cli/team.rs` tests).
             | "team verify"
-            // M5-01
             | "team list" | "team invite" | "team create" | "team accept"
             | "export backup" | "export ssh-config" | "export csv"
-            // M4-08
             | "login" | "logout" | "register"
-            // M7-04
             | "doctor"
-            // M7-07: see `cli/generate.rs` tests.
+            // See `cli/generate.rs` tests.
             | "generate man" | "generate completions"
         ) || forms.iter().any(|f| f.starts_with(leaf.as_str()));
         assert!(covered, "`{leaf}` is not covered by the stub test");
@@ -760,7 +727,7 @@ fn stubs_return_not_implemented() {
     }
 }
 
-// M4-08 T-11: without a terminal, `register` fails at once with exit 2 and
+// Without a terminal, `register` fails at once with exit 2 and
 // prints nothing (the recovery words are only ever shown on a TTY); `login`
 // and a wiping `logout` refuse to run too.
 #[cfg(feature = "sync")]
@@ -790,7 +757,6 @@ fn tui_needs_a_terminal() {
     }
 }
 
-// T-08 / M1-04 T-16 (unit half): an initialized vault, keyring disabled, no terminal:
 // exit 3 at once, never a prompt.
 #[test]
 fn vault_without_a_terminal_fails_fast() {
@@ -831,7 +797,7 @@ fn vault_without_a_terminal_fails_fast() {
     let _ = std::fs::remove_dir_all(&home);
 }
 
-// M1-04: `lock` / `unlock` without a vault and without a terminal.
+// `lock` / `unlock` without a vault and without a terminal.
 #[test]
 fn vault_commands() {
     let (res, out) = run_args("lock");
@@ -901,7 +867,6 @@ fn config_located_errors() {
     assert!(line.starts_with("/c/config.toml:2:"), "{line}");
 }
 
-// M0-10 (T-20, CLI half): `sverb keys --dump` prints the effective keymap.
 #[test]
 fn keys_dump() {
     for args in ["keys --dump", "keymap --dump"] {

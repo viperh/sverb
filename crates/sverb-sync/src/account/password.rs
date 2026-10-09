@@ -1,4 +1,4 @@
-//! Online password change (§11.2.1, M4-08 §2.4).
+//! Online password change (§11.2.1).
 //!
 //! 1. OPAQUE login with the old password (`purpose: reauth`) proves
 //!    knowledge (the account keys come from the device's copy under the
@@ -14,7 +14,6 @@
 //! anything happens. For a crash between 2 and 3, see the recovery path in
 //! the [module docs](super).
 //!
-//! In local-only mode only the LMK is re-wrapped (M1-04
 //! `VaultEngine::change_password`); the UI routes here when sync is set up.
 
 use sverb_crypto::Key32;
@@ -34,7 +33,7 @@ use super::{AccountConfig, AccountError, require_strong};
 use crate::error::SyncError;
 use crate::tokens::TokenManager;
 
-/// The message for an offline attempt (T-08).
+/// The message for an offline attempt.
 pub const NEEDS_SERVER: &str =
     "changing the password of a synced account needs the server; connect and try again";
 

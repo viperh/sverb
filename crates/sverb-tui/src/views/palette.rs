@@ -1,4 +1,4 @@
-//! M2-12: the command palette overlay (SPEC §8.3, §8.2, §14.1).
+//! The command palette overlay (SPEC §8.3, §8.2, §14.1).
 //!
 //! `leader p` (every mode) and `ctrl-k` (Normal mode) open it. It is a centered box (60%
 //! of the width, up to [`MAX_ROWS`] result rows) with an input line and results grouped
@@ -100,9 +100,9 @@ pub enum PaletteTarget {
     Pane(SessionId),
     /// Open a section view.
     Section(Section),
-    /// Quick connect to `user@host[:port]` (M1-07).
+    /// Quick connect to `user@host[:port]`.
     QuickConnect(String),
-    /// Join a shared terminal from a pasted link (M6-03).
+    /// Join a shared terminal from a pasted link.
     Join(String),
 }
 
@@ -560,7 +560,7 @@ fn render_menu(menu: &HostMenu, frame: &mut Frame<'_>, over: Rect, cx: &RenderCx
     frame.render_widget(Paragraph::new(lines).style(theme.base).block(block), rect);
 }
 
-/// `sverb://join/…` or `https://<server>/s/<id>#<key>`: a share link (M6-03).
+/// `sverb://join/…` or `https://<server>/s/<id>#<key>`: a share link.
 pub fn share_link(input: &str) -> Option<&str> {
     let s = input.trim();
     if s.contains(char::is_whitespace) {

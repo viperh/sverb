@@ -1,4 +1,3 @@
-//! M2-05 loopback tests: chains of in-process russh servers joined by `direct-tcpip`
 //! (no Docker). T-05…T-08 of the task run here; the Docker `JumpNet` variants are in
 //! `crates/sverb-e2e` (`#[ignore]`d).
 //!
@@ -81,7 +80,7 @@ impl HostResolver for Hosts {
     }
 }
 
-/// Accepts every key and records which hop asked under which name (T-04).
+/// Accepts every key and records which hop asked under which name.
 #[derive(Debug, Default)]
 struct Recording(Mutex<Vec<HostKeyTarget>>);
 
@@ -248,7 +247,7 @@ fn assert_progress(states: &[SessionState], of: usize) {
     }
 }
 
-/// T-04: each hop's host key is checked under its own address:port (as the previous
+/// Each hop's host key is checked under its own address:port (as the previous
 /// hop reaches it); non-22 ports give `[addr]:port` lookup keys.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn t04_host_key_lookup_per_hop() {

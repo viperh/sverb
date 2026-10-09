@@ -1,4 +1,4 @@
-//! M7-01: suggestion sources and ranking for the autocomplete overlay (SPEC §9.10).
+//! Suggestion sources and ranking for the autocomplete overlay (SPEC §9.10).
 //!
 //! Sources, in this order:
 //! 1. **H** per-host history (entries of the pane's host; local panes and unsaved

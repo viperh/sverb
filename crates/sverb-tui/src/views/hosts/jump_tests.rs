@@ -1,4 +1,4 @@
-//! M2-05 T-09: the host form's jump chain editor (ordering, effective-route preview,
+//! The host form's jump chain editor (ordering, effective-route preview,
 //! inline cycle check) and copy-as-command from the effective chain.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -91,7 +91,7 @@ fn focus_chain(d: &mut HostFormDialog) {
     panic!("the jump chain field is not reachable");
 }
 
-/// T-09: the list keeps its order, `K`/`J` reorder it, the preview follows the
+/// The list keeps its order, `K`/`J` reorder it, the preview follows the
 /// recursive expansion, and the saved chain is the list in order.
 #[test]
 fn t09_form_ordering_and_effective_route() {

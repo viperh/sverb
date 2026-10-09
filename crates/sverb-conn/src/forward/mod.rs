@@ -8,7 +8,6 @@
 //! - [`ForwardManager`]: rules, their live status, the connections that carry them,
 //!   auto-start on connect and reconnect, and stopping on connection loss.
 //! - [`approval`]: which rule values act locally (§17.1) and the first-time
-//!   confirmation of non-loopback binds (§9.6); M2-10 replaces the in-memory store.
 //! - `ssh_glue`: the only russh-facing part ([`Tunnel`] over a russh client handle,
 //!   `forwarded-tcpip` routing, the tunnel-only transport). The hooks into
 //!   `ssh/connect.rs` and `ssh/handler.rs` are a few lines that call into it.
@@ -92,7 +91,6 @@ pub struct ForwardRule {
     pub dest_port: Option<u16>,
     /// Start when the host connects.
     pub auto_start: bool,
-    /// The values that act locally were last written by this device. M2-10:
     /// informational only (dialog wording); approval is an explicit
     /// `local_approvals` row, created when the rule is saved on this device.
     pub typed_here: bool,

@@ -8,7 +8,7 @@
 //! * Presenting a refresh token that was already used revokes the whole
 //!   family (reuse detection). There is deliberately **no grace window**
 //!   (strict spec reading): clients must persist the new pair atomically
-//!   before using it (M4-07).
+//!   before using it.
 //! * Reauth tokens (5 minutes, single use) prove a fresh password login
 //!   for password change and account deletion.
 

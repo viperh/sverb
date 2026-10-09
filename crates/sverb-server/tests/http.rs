@@ -51,7 +51,6 @@ fn test_app(state: AppState) -> Router {
             "/test/ip",
             get(|Extension(ClientIp(ip)): Extension<ClientIp>| async move { ip.to_string() }),
         )
-        // What M4-02's login/start does before running OPAQUE (M4-02: moved off
         // the real `/v1/auth/login/start`, which now exists in the router).
         .route(
             "/test/login/start",
@@ -389,7 +388,7 @@ async fn healthz_ok_and_readyz_503_without_database() {
 #[tokio::test]
 async fn t14_body_limit_maps_to_invalid_too_large() {
     let app = test_app(lazy_state(config(&[])));
-    // M4-04: follows the limit (12 MiB since the push batch needs it).
+    // Follows the limit (12 MiB since the push batch needs it).
     let big = vec![b'x'; app::BODY_LIMIT + 1024 * 1024];
 
     // With Content-Length: rejected up front.

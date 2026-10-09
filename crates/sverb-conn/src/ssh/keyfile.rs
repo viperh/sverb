@@ -1,4 +1,3 @@
-//! M1-14 §2.6 → M2-03: the host form's key-file import now goes through the keychain
 //! (`sverb_core::keychain::import`): every format it reads (OpenSSH, PEM PKCS#1 / SEC1,
 //! PKCS#8, a `.pub` agent reference, plugins) is accepted. This module stays as a thin
 //! compatibility layer for callers of the M1 API; new code uses the keychain directly.

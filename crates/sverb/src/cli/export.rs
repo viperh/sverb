@@ -1,7 +1,6 @@
-//! M0-07: `sverb export …`. M2-11 implements backup, ssh-config and csv; M3-05
 //! implements `recording`.
 //!
-//! M2-11: files are written with mode 0600 and an existing file is replaced only with
+//! Files are written with mode 0600 and an existing file is replaced only with
 //! `--force`. `ssh-config` and `csv` print the secrets warning first. The backup's
 //! export password (zxcvbn score ≥ 3) is asked twice on a terminal, or read from
 //! `SVERB_EXPORT_PASSWORD`.
@@ -14,7 +13,6 @@ use sverb_core::error_report::ErrorReport;
 use sverb_tui::services::recording::{export_recording, recording_key, resolve_recording};
 
 use super::{CliError, Ctx, write_out};
-// M2-11
 use std::sync::Arc;
 use sverb_tui::services::import::{BackupKdf, ImportService};
 use zeroize::Zeroizing;
@@ -26,7 +24,6 @@ pub(crate) enum ExportCmd {
     Backup {
         /// Output file
         file: PathBuf,
-        // M2-11
         /// Replace an existing file
         #[arg(long)]
         force: bool,
@@ -38,7 +35,6 @@ pub(crate) enum ExportCmd {
     SshConfig {
         /// Output file
         file: PathBuf,
-        // M2-11
         /// Replace an existing file
         #[arg(long)]
         force: bool,
@@ -47,7 +43,6 @@ pub(crate) enum ExportCmd {
     Csv {
         /// Output file
         file: PathBuf,
-        // M2-11
         /// Replace an existing file
         #[arg(long)]
         force: bool,
@@ -58,7 +53,6 @@ pub(crate) enum ExportCmd {
         id: String,
         /// Output `.cast` file
         out: PathBuf,
-        // M3-05
         /// Skip the plain-text confirmation (required without a terminal)
         #[arg(long)]
         yes: bool,
@@ -67,7 +61,6 @@ pub(crate) enum ExportCmd {
 
 pub(crate) async fn run(cmd: ExportCmd, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, CliError> {
     match cmd {
-        // M2-11
         ExportCmd::Backup {
             file,
             force,
@@ -75,12 +68,10 @@ pub(crate) async fn run(cmd: ExportCmd, ctx: &Ctx, out: &mut dyn Write) -> Resul
         } => backup(&file, force, include_shared, ctx, out).await,
         ExportCmd::SshConfig { file, force } => plain(&file, force, false, ctx, out).await,
         ExportCmd::Csv { file, force } => plain(&file, force, true, ctx, out).await,
-        // M3-05
         ExportCmd::Recording { id, out: file, yes } => recording(&id, &file, yes, ctx, out).await,
     }
 }
 
-// M2-11
 async fn service(ctx: &Ctx) -> Result<ImportService, CliError> {
     let unlocked = super::vault::require_unlocked(ctx).await?;
     Ok(ImportService::new(
@@ -89,7 +80,6 @@ async fn service(ctx: &Ctx) -> Result<ImportService, CliError> {
     ))
 }
 
-// M2-11
 fn refuse_existing(file: &Path, force: bool) -> Result<(), CliError> {
     if !force && file.exists() {
         return Err(CliError::Usage(format!(
@@ -100,7 +90,6 @@ fn refuse_existing(file: &Path, force: bool) -> Result<(), CliError> {
     Ok(())
 }
 
-// M2-11
 /// `sverb export ssh-config|csv <file> [--force]`
 async fn plain(
     file: &Path,
@@ -122,7 +111,6 @@ async fn plain(
     Ok(super::exit::OK)
 }
 
-// M2-11
 /// `sverb export backup <file> [--force] [--include-shared]`
 async fn backup(
     file: &Path,
@@ -169,12 +157,10 @@ async fn backup(
     Ok(super::exit::OK)
 }
 
-// M3-05
 /// The confirmation shown before writing a recording in plain text.
 pub(crate) const PLAIN_TEXT_WARNING: &str = "This writes the terminal output in plain text. \
 Recordings can contain secrets (anything that was displayed).";
 
-// M3-05
 /// `sverb export recording <id> <out.cast> [--yes]`: decrypt a recording into plain
 /// asciicast v2 (for `asciinema play`). Without `--yes` it asks on the terminal, and
 /// refuses when there is none.

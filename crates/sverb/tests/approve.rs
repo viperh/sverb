@@ -1,4 +1,3 @@
-//! M2-10 T-06 / T-07 (SPEC §17.1, §16): values that arrived from another device (via
 //! `apply_remote`) are not acted on by headless commands (exit 5 with the exact
 //! message), and `sverb approve <host>` lists and approves them on a PTY.
 //!
@@ -182,7 +181,7 @@ fn unlocked(home: &Path, args: &[&str]) -> Result<(PtyRun, usize), Box<dyn std::
     Ok((run, at))
 }
 
-/// T-06: the headless forward fails with exit 5 and the exact §17.1 message.
+/// The headless forward fails with exit 5 and the exact §17.1 message.
 #[test]
 fn t06_headless_forward_with_unapproved_values_exits_5() -> TestResult {
     let (home, _) = setup("m2-10-t06");
@@ -213,7 +212,7 @@ fn t06_headless_forward_with_unapproved_values_exits_5() -> TestResult {
     Ok(())
 }
 
-/// T-07: `sverb approve db` lists the values with their status and approves on `y`.
+/// `sverb approve db` lists the values with their status and approves on `y`.
 #[test]
 fn t07_approve_lists_and_approves_interactively() -> TestResult {
     let (home, db) = setup("m2-10-t07");

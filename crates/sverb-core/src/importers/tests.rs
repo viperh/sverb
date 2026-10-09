@@ -1,5 +1,3 @@
-//! M2-11 importer tests (T-01 … T-09, T-12, T-13 and the backup round-trip in core).
-
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -615,7 +613,7 @@ fn t17_proxy_command_approval_notes() {
     assert_eq!(target.jump_chain, [bastion.id, inner.id]);
 }
 
-// ------------------------------------------------------------------ backups (T-11 core, T-12)
+// ------------------------------------------------------------------ backups (T-11 core)
 
 const PW: &str = "correct horse battery staple 42";
 const M_KIB: u32 = sverb_crypto::kdf::Argon2Params::MIN_M_KIB;
@@ -897,7 +895,7 @@ proptest::proptest! {
     }
 }
 
-// M7-05: the `backup_decrypt` fuzz target's body (`bk::fuzz_backup_decrypt`), on a real
+// The `backup_decrypt` fuzz target's body (`bk::fuzz_backup_decrypt`), on a real
 // backup file, on a real authenticated plaintext (zstd + CBOR), and on random bytes.
 #[test]
 fn backup_decrypt_fuzz_body_seeds() {

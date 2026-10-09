@@ -60,7 +60,7 @@ pub fn encode_plaintext(body: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
 /// invalid zstd data or output above the cap.
 pub fn decode_plaintext(padded: &[u8]) -> Result<Zeroizing<Vec<u8>>> {
     let compressed = unpad256(padded)?;
-    // M7-06: our frames declare their size, so they decompress in one pass with a
+    // Our frames declare their size, so they decompress in one pass with a
     // reused per-thread context (a fresh streaming decoder per item allocated its
     // window every time: most of the 10k-item unlock was spent there). One-pass
     // decompression writes straight into `out`; the context keeps no plaintext window.
@@ -223,7 +223,7 @@ where
     decode_plaintext(&padded)
 }
 
-/// Fuzz entry point (T-16): feeds arbitrary bytes to [`open_item`] with a
+/// Fuzz entry point: feeds arbitrary bytes to [`open_item`] with a
 /// fixed key for every version. Must never panic.
 #[doc(hidden)]
 pub fn fuzz_open_item(data: &[u8]) {

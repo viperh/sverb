@@ -1,4 +1,4 @@
-//! M2-09: `sverb snippet run` with a fake executor: T-11, T-12 and errors.
+//! `sverb snippet run` with a fake executor: T-11, T-12 and errors.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -123,7 +123,6 @@ async fn run(ops: &ItemOps, a: RunArgs, ask: Option<AskVar<'_>>) -> (Result<u8, 
     (res, String::from_utf8(out).unwrap())
 }
 
-// T-11
 #[tokio::test]
 async fn t11_run_on_tag_json_then_partial() {
     let (ops, _home) = ops("t11").await;
@@ -160,7 +159,6 @@ async fn t11_run_on_tag_json_then_partial() {
     assert_eq!(res, Ok(exit::FAILURE));
 }
 
-// T-12
 #[tokio::test]
 async fn t12_missing_vars_without_tty_exit_2() {
     let (ops, _home) = ops("t12").await;

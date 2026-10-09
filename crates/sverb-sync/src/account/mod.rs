@@ -1,4 +1,3 @@
-//! Account flows (§11.2, §11.2.1, §1.1; task M4-08): connect a local vault
 //! to a sync account and manage it.
 //!
 //! | Flow | Module | Entry points |
@@ -9,9 +8,9 @@
 //! | Online password change (2.4) | [`password`] | [`change_password`] |
 //! | Forgotten password with the recovery key (2.7) | [`recovery`] | [`recover_account`] |
 //! | Disconnect (2.8) | [`mod@logout`] | [`logout()`](logout::logout) |
-//! | Devices (M4-09) | [`devices`] | [`list_devices`], [`revoke_device`] |
-//! | Orgs, invites, audit (M5-01) | [`teams`] | [`teams::list_orgs`], [`teams::invite`], … |
-//! | Shared vaults (M5-02) | [`vaults`] | [`vaults::VaultAdmin`], [`vaults::apply_transfer`] |
+//! | Devices | [`devices`] | [`list_devices`], [`revoke_device`] |
+//! | Orgs, invites, audit | [`teams`] | [`teams::list_orgs`], [`teams::invite`], … |
+//! | Shared vaults | [`vaults`] | [`vaults::VaultAdmin`], [`vaults::apply_transfer`] |
 //! | Wizard state machines for the UI | [`wizard`] | [`RecoveryConfirm`], [`RegisterWizard`] |
 //!
 //! # One password (§11.2.1)
@@ -23,7 +22,6 @@
 //!
 //! # Local state
 //! * `sync_state`: server URL, server-assigned device id, tokens (under the
-//!   LMK, M4-07).
 //! * `meta.account`: `{user_id, email, key_version}` (JSON, not secret).
 //! * `meta.account_keys_enc`: the account X25519/Ed25519 keys, sealed like a
 //!   `private_bundle` under `HKDF(LMK, "sverb/local-account-keys/v1")`, so an
@@ -50,7 +48,7 @@ use sverb_proto::auth::DeviceInfo;
 use crate::error::SyncError;
 use crate::http::{ApiClient, HTTP_TIMEOUT};
 
-// M4-09: list / revoke devices.
+// List / revoke devices.
 pub mod devices;
 pub mod grants;
 pub mod local;
@@ -60,9 +58,9 @@ pub mod merge_local;
 pub mod password;
 pub mod recovery;
 pub mod register;
-// M5-01: orgs, members, invites, the audit log.
+// Orgs, members, invites, the audit log.
 pub mod teams;
-// M5-02: shared vaults (create, grant, revoke, admin reconcile, move/copy apply).
+// Shared vaults (create, grant, revoke, admin reconcile, move/copy apply).
 pub mod vaults;
 pub mod wizard;
 

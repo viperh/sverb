@@ -1,11 +1,11 @@
-//! M1-17: tabs and panes in the reducer (SPEC §8.1, §8.3, §8.4).
+//! Tabs and panes in the reducer (SPEC §8.1, §8.3, §8.4).
 //!
 //! - **Model**: [`Tabs::list`] holds the tabs (`views::sessions::Tab`, a layout tree of
 //!   panes each). Every session in [`Tabs::sessions`] has exactly one pane:
 //!   [`App::sync_tabs`] places new sessions (a new tab, or the split requested through
 //!   [`Tabs::placement`]) and moves the active tab to the focused session. It runs
 //!   after every event (and right after a split opens a session).
-//! - **Actions** (`03-KEYBINDINGS.md` §4.1): `leader c` (host picker: quick connect's
+//! - **Actions**: `leader c` (host picker: quick connect's
 //!   fuzzy host list) and `leader o` open a new tab; `leader t` a local tab;
 //!   `leader 1..9`, `n`/`N` switch tabs (wrapping); `leader -`/`|` split the focused pane
 //!   with **the same kind of session** (same saved host, same unsaved target, or a
@@ -27,7 +27,6 @@
 //! - **Mouse**: a click on a tab switches to it, on `‹`/`›` scrolls, on `+` opens the host
 //!   picker; a click on an unfocused pane focuses it; other events inside the focused
 //!   live pane go to its session with pane-relative coordinates (`SessionCmd::Mouse`,
-//!   routed by the session, M1-11).
 //!
 //! [`Tabs::list`]: super::Tabs::list
 //! [`Tabs::sessions`]: super::Tabs::sessions
@@ -182,7 +181,7 @@ impl App {
         self.tabs.exited.remove(&id);
         self.tabs.sent_sizes.remove(&id);
         self.tabs.wanted_sizes.remove(&id);
-        // M1-10: the pane's state goes with it.
+        // The pane's state goes with it.
         self.panes.remove(&id);
         if let Some(i) = self.tab_index_of(id) {
             if !self.tabs.list[i].remove(pane_of(id)) {
@@ -223,7 +222,7 @@ impl App {
             self.remove_session_pane(id);
         }
         self.sync_tabs();
-        // M3-03: release queued workspace session opens (bounded concurrency).
+        // Release queued workspace session opens (bounded concurrency).
         self.workspaces_pump(effects);
         let wanted = self.wanted_sizes();
         let mut local_labels = Vec::new();
@@ -373,7 +372,7 @@ impl App {
         action: ActionName,
         effects: &mut Vec<Effect>,
     ) -> bool {
-        // M3-03: save / open / manage workspaces.
+        // Save / open / manage workspaces.
         if self.apply_workspace_action(action, effects) {
             return true;
         }
@@ -447,7 +446,7 @@ impl App {
         let Some(tab) = self.tabs.list.get_mut(self.tabs.active) else {
             return;
         };
-        // M3-01: moving focus while zoomed unzooms first.
+        // Moving focus while zoomed unzooms first.
         tab.zoomed = None;
         let rects: Vec<_> = pane_rects(&tab.layout, None, main)
             .into_iter()
@@ -501,7 +500,7 @@ impl App {
         }
     }
 
-    // M3-03: also used by workspaces (missing hosts become placeholders).
+    // Also used by workspaces (missing hosts become placeholders).
     pub(crate) fn host_known(&self, item: ItemId) -> bool {
         self.views
             .hosts
@@ -540,11 +539,10 @@ impl App {
         });
         self.focus_session(id);
         self.set_pane_label(id, label);
-        // M3-05: the global flag (a saved host's own setting goes through `connect_host`).
+        // The global flag (a saved host's own setting goes through `connect_host`).
         self.auto_record(id, self.config.recording.enabled, effects);
     }
 
-    /// M1-07 `ctrl-enter`/`v` in the Hosts view: each host in a split of the current tab
     /// (side by side); the first one opens a tab when there is none.
     pub(crate) fn connect_split(&mut self, items: Vec<ItemId>, effects: &mut Vec<Effect>) {
         for item in items {
@@ -579,7 +577,7 @@ impl App {
                 effects,
             );
         } else {
-            // M1-16: stop an auto-reconnect countdown first.
+            // Stop an auto-reconnect countdown first.
             self.before_close_dead_pane(s, effects);
             effects.push(Effect::CloseSession(s));
         }
@@ -595,7 +593,7 @@ impl App {
         let sessions = tab.sessions();
         let closes: Vec<Effect> = sessions.iter().copied().map(Effect::CloseSession).collect();
         if alive == 0 {
-            // M1-16: stop auto-reconnect countdowns first.
+            // Stop auto-reconnect countdowns first.
             for s in sessions {
                 self.before_close_dead_pane(s, effects);
             }
@@ -691,7 +689,7 @@ impl App {
             && let Some(id) = session
             && let Some(ev) = mouse_input(mouse, col - inner.x, row - inner.y)
         {
-            // M3-04: in copy mode the mouse belongs to sverb (never sent to the remote).
+            // In copy mode the mouse belongs to sverb (never sent to the remote).
             self.copy_on_mouse(id, ev, effects);
         }
         true
@@ -739,7 +737,7 @@ impl App {
                 TabItem {
                     label,
                     active: i == self.tabs.active && self.sessions_shown(),
-                    // M3-02: `≋` while the tab broadcasts.
+                    // `≋` while the tab broadcasts.
                     markers: markers.text(false) + &Self::broadcast_tab_marker(tab),
                 }
             })

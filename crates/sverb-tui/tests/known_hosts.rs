@@ -1,4 +1,3 @@
-//! M1-15 integration tests: known hosts in the vault. The verifier's store saves,
 //! replaces and reloads KnownHost items (T-13 with `hash_known_hosts`); the Known
 //! Hosts view's import and export. Small Argon2 parameters, in-memory keyring, files
 //! in the target's temp dir (never the user's `~/.ssh`).
@@ -159,7 +158,7 @@ async fn verifier_saves_replaces_and_reloads() {
     }
 }
 
-/// T-13: with `ssh.hash_known_hosts = true` the saved entry is hashed and matches on
+/// With `ssh.hash_known_hosts = true` the saved entry is hashed and matches on
 /// lookup.
 #[tokio::test]
 async fn t13_hashed_saves() {

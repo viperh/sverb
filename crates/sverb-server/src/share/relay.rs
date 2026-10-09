@@ -1,6 +1,5 @@
 //! The per-replica relay: one [`Relay`] per live share with its host and
 //! viewer sockets (SPEC §14.1 steps 4–6, §14.2 relay framing, §14.3; task
-//! M6-01).
 //!
 //! ```text
 //!   host socket ──reader──► Relay::host_frame ──try_send──► viewer queue ──writer──► viewer socket

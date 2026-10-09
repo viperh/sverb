@@ -1,4 +1,3 @@
-//! M7-01 reducer tests: T-06 (the `leader Space` overlay anchored at the cursor, `Enter`
 //! / `Tab`), T-10 (purging a host), capture through both tiers, ghost text.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]

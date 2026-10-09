@@ -1,4 +1,3 @@
-//! M1-15 known_hosts tests (T-01…T-09, T-13).
 //!
 //! Fixtures in `testdata/` were generated with OpenSSH 10.5p1's `ssh-keygen` (never
 //! from a real `~/.ssh/known_hosts`):
@@ -61,7 +60,7 @@ fn key(line: &str) -> PresentedKey {
     PresentedKey::from_openssh(line.trim()).unwrap()
 }
 
-/// T-01: the lookup key.
+/// The lookup key.
 #[test]
 fn t01_lookup_key() {
     for (host, port, want) in [
@@ -74,7 +73,7 @@ fn t01_lookup_key() {
     }
 }
 
-/// T-02: a line hashed by `ssh-keygen -H` matches `example.com` only.
+/// A line hashed by `ssh-keygen -H` matches `example.com` only.
 #[test]
 fn t02_hashed_match() {
     let (entries, warnings) = parse_known_hosts(HASHED);
@@ -91,7 +90,7 @@ fn t02_hashed_match() {
     assert!(!hashed::matches("|1|", "example.com"));
 }
 
-/// T-03: globs, negation and comma lists.
+/// Globs, negation and comma lists.
 #[test]
 fn t03_pattern_globbing() {
     let list = "*.example.com,!bad.example.com";
@@ -111,7 +110,7 @@ fn t03_pattern_globbing() {
     assert!(glob("*", ""));
 }
 
-/// T-04: revoked > CA cert valid > exact match > changed > unknown, under each policy.
+/// Revoked > CA cert valid > exact match > changed > unknown, under each policy.
 #[test]
 fn t04_decision_table() {
     use HostKeyPolicy::{AcceptNew, Ask, Strict};
@@ -194,7 +193,7 @@ fn t04_decision_table() {
     ));
 }
 
-/// T-05: a CA-signed cert whose host key is also `@revoked` is rejected; so is a cert
+/// A CA-signed cert whose host key is also `@revoked` is rejected; so is a cert
 /// from a revoked CA.
 #[test]
 fn t05_revoked_beats_ca() {
@@ -236,7 +235,7 @@ fn t05_revoked_beats_ca() {
     );
 }
 
-/// T-06: expired, principal mismatch and user certs are not accepted; a valid one is.
+/// Expired, principal mismatch and user certs are not accepted; a valid one is.
 #[test]
 fn t06_ca_checks() {
     let ca = entry("*.test", CA, KnownHostMarker::CertAuthority);
@@ -305,7 +304,7 @@ fn t06_ca_checks() {
     assert!(n.contains("signature does not verify"), "{n}");
 }
 
-/// T-07: the SHA256 fingerprint equals `ssh-keygen -lf`.
+/// The SHA256 fingerprint equals `ssh-keygen -lf`.
 #[test]
 fn t07_fingerprint() {
     let recorded = include_str!("testdata/ed25519.randomart.txt");
@@ -319,7 +318,7 @@ fn t07_fingerprint() {
     assert_eq!(entry_fingerprint(&plain("h", ED25519)), want);
 }
 
-/// T-08: randomart equals `ssh-keygen -lv` for ed25519, ecdsa and rsa.
+/// Randomart equals `ssh-keygen -lv` for ed25519, ecdsa and rsa.
 #[test]
 fn t08_randomart() {
     for (pub_line, recorded) in [
@@ -343,7 +342,7 @@ fn t08_randomart() {
     assert!(art.starts_with("+-[ECDSA-SK-CERT]-+"), "{art}");
 }
 
-/// T-09: comments, markers, hashed lines, certs, sk keys and one malformed line.
+/// Comments, markers, hashed lines, certs, sk keys and one malformed line.
 #[test]
 fn t09_parser() {
     let (entries, warnings) = parse_known_hosts(FIXTURE);
@@ -504,7 +503,7 @@ fn multiple_keys_per_host() {
     ));
 }
 
-/// T-13: with `hash_known_hosts`, new entries are hashed and match on lookup.
+/// With `hash_known_hosts`, new entries are hashed and match on lookup.
 #[test]
 fn t13_hash_known_hosts() {
     let info = key(ED25519).info();

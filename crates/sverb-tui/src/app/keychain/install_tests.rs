@@ -1,4 +1,3 @@
-//! M2-04 reducer tests: install key on host — picker → confirm → run → results
 //! (T-10: statuses rendered, `r` re-runs failed hosts only), prompts attributed to the
 //! run and answered to it, `esc` cancels.
 
@@ -115,7 +114,7 @@ fn start(h: &mut AppHarness) -> (u64, Vec<(usize, String, SessionId)>) {
     )
 }
 
-/// T-10: statuses render; `r` re-runs the failed hosts only.
+/// Statuses render; `r` re-runs the failed hosts only.
 #[test]
 fn t10_results_and_rerun_failed() {
     let mut h = keychain();

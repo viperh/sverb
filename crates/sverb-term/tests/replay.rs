@@ -1,4 +1,4 @@
-//! T-01 (M1-09): replay recorded byte streams at 80×24 and snapshot the final grid.
+//! Replay recorded byte streams at 80×24 and snapshot the final grid.
 //!
 //! Fixtures live in `tests/streams/*.bin`; re-record them with `tests/streams/record.sh`.
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]

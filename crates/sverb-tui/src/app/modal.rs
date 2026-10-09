@@ -1,4 +1,4 @@
-//! M1-06: generic modal dialogs on the app's stack (`DialogKind::Modal`).
+//! Generic modal dialogs on the app's stack (`DialogKind::Modal`).
 //!
 //! Keys reach the top dialog through the normal dispatch (dialog first, modal). This
 //! module adds time: a dialog with a timeout or a spinner gets a 1 s
@@ -15,7 +15,6 @@ pub(crate) const DIALOG_TICK: Duration = Duration::from_secs(1);
 
 impl App {
     /// Push a generic modal on top of the stack (scheduling its tick if it has a
-    /// timeout or a spinner). Public so specialized dialogs (M1-15 host key, …) and
     /// tests can open one; the effects it adds must be executed like any others.
     pub fn push_modal(&mut self, dialog: ModalDialog, effects: &mut Vec<Effect>) -> DialogId {
         let ticks = dialog.modal.ticks();
@@ -31,7 +30,7 @@ impl App {
 
     /// A dialog tick fired. Stale ticks (the dialog was answered) are ignored.
     pub(crate) fn on_dialog_tick(&mut self, id: DialogId, effects: &mut Vec<Effect>) {
-        // M1-16: auto-reconnect countdowns tick with ids allocated from the dialog ids.
+        // Auto-reconnect countdowns tick with ids allocated from the dialog ids.
         if self.on_reconnect_tick(id, effects) {
             return;
         }

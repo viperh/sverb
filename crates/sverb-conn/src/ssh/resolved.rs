@@ -1,7 +1,6 @@
 //! [`SshTarget`]: a host with every setting resolved **and** its secrets, ready to
-//! connect (M1-13 task §2.1).
 //!
-//! `sverb_core::resolve::ResolvedHost` (M2-01) is the domain resolution: group chain,
+//! `sverb_core::resolve::ResolvedHost` is the domain resolution: group chain,
 //! vault defaults, provenance, and *no secret values* (it says where the password is
 //! stored). The UI's [`HostResolver`](super::HostResolver) turns it into an
 //! [`SshTarget`] by reading the secrets from the vault. [`resolve`] and
@@ -18,11 +17,9 @@ use sverb_core::{
     secret::SecretString,
 };
 
-use crate::session::SshSpec;
-// M2-06
 use crate::proxy::{ProxyConfig, ValueOrigin};
+use crate::session::SshSpec;
 
-/// Credentials and references for the authentication step (M1-14 uses the refs).
 #[derive(Debug)]
 pub struct AuthMaterial {
     /// The stored password (inline, else the identity's).
@@ -31,7 +28,6 @@ pub struct AuthMaterial {
     pub key_id: Option<ItemId>,
     /// The identity the credentials came from.
     pub identity_id: Option<ItemId>,
-    // M1-14
     /// The configured key's material, read from the vault by the resolver. `None` with
     /// `key_id` set means the key item could not be read: no key is offered, and the
     /// system agent stays off too (IdentitiesOnly follows the configuration).
@@ -47,7 +43,6 @@ pub struct AuthMaterial {
     pub allow_ssh_rsa: bool,
 }
 
-// M1-14
 impl Default for AuthMaterial {
     fn default() -> Self {
         let ssh = sverb_core::config::SshConfig::default();
@@ -63,7 +58,6 @@ impl Default for AuthMaterial {
     }
 }
 
-// M1-14
 /// A configured private key with what belongs to it.
 #[derive(Debug)]
 pub struct KeyMaterial {
@@ -79,7 +73,6 @@ pub struct KeyMaterial {
     pub certificates: Vec<String>,
 }
 
-// M1-14
 /// Whether `overrides` opts into `ssh-rsa` signatures (SHA-1).
 pub fn allows_ssh_rsa(overrides: &AlgoOverrides) -> bool {
     overrides
@@ -103,11 +96,10 @@ pub struct SshTarget {
     pub username: String,
     /// Credentials.
     pub auth: AuthMaterial,
-    /// Jump hosts (M2-05). Not supported yet: a non-empty chain fails the connection.
+    /// Jump hosts. Not supported yet: a non-empty chain fails the connection.
     pub jump_chain: Vec<ItemId>,
     /// A proxy is configured (`proxy.is_some()`; kept for callers that only ask).
     pub proxy_configured: bool,
-    // M2-06
     /// How the first hop is reached (§6.1.5), with the proxy password; `None`: direct.
     pub proxy: Option<ProxyConfig>,
     /// Environment sent with `env` requests.
@@ -122,18 +114,16 @@ pub struct SshTarget {
     pub color_scheme: Option<String>,
     /// Legacy algorithm opt-ins.
     pub algorithms: AlgoOverrides,
-    /// Agent forwarding (M2-07).
+    /// Agent forwarding.
     pub agent_forwarding: bool,
-    /// Which agent answers (M2-07).
+    /// Which agent answers.
     pub agent_source: AgentSource,
-    // M2-07
     /// Where the agent settings came from (§17.1: forwarding the system agent for a
     /// synced host needs approval).
     pub agent_origin: crate::proxy::ValueOrigin,
-    /// Snippet run after the shell opens (M2-09).
+    /// Snippet run after the shell opens.
     pub startup_snippet_id: Option<ItemId>,
     /// What to type once the shell is up (the startup snippet's text; a stub until
-    /// M2-09 adds variables and run modes).
     pub startup_input: Option<String>,
     /// Request a PTY for exec runs.
     pub request_pty_for_exec: bool,
@@ -208,7 +198,6 @@ pub fn resolve(
             password,
             key_id: host.key_id.or_else(|| identity.and_then(|i| i.key_id)),
             identity_id: host.identity_id,
-            // M1-14
             key: None,
             max_attempts: config.ssh.max_auth_attempts,
             use_system_agent: config.ssh.use_system_agent,
@@ -216,7 +205,7 @@ pub fn resolve(
         },
         jump_chain: host.jump_chain.clone(),
         proxy_configured: host.proxy.is_some(),
-        // M2-06: an unsaved host's ProxyCommand counts as typed here (no stamp).
+        // An unsaved host's ProxyCommand counts as typed here (no stamp).
         proxy: host
             .proxy
             .as_ref()
@@ -229,7 +218,7 @@ pub fn resolve(
         algorithms: host.algorithms.clone().unwrap_or_default(),
         agent_forwarding: host.agent_forwarding.unwrap_or(false),
         agent_source: host.agent_source.unwrap_or(AgentSource::Builtin),
-        // M2-07: an unsaved / test host: typed here.
+        // An unsaved / test host: typed here.
         agent_origin: crate::proxy::ValueOrigin::default(),
         startup_snippet_id: host.startup_snippet_id,
         startup_input: None,

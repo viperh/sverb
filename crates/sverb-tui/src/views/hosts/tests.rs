@@ -1,5 +1,4 @@
-//! M1-07 view tests: ordering and Recent (T-03), the Hosts view (T-11) and the host
-//! form (T-12) snapshots.
+//! form snapshots.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -100,7 +99,6 @@ fn host(label: &str, address: &str) -> Host {
     }
 }
 
-// T-03
 #[test]
 fn t03_pinned_then_frecency_then_alpha_and_recent_last_10() {
     let mut hosts = vec![
@@ -195,7 +193,6 @@ fn draw_view(v: &HostsView, w: u16, h: u16) -> String {
     }))
 }
 
-// T-11
 #[test]
 fn t11_hosts_view_snapshots() {
     let fx = twenty();
@@ -216,7 +213,6 @@ fn t11_hosts_view_snapshots() {
     assert!(draw_view(&v, 80, 24).contains("Connected"));
 }
 
-// T-12
 #[test]
 fn t12_host_form_all_sections() {
     let fx = twenty();
@@ -256,7 +252,7 @@ fn t12_host_form_all_sections() {
         super::form::HOST_FORM_FEATURES,
     );
     let screen = text(&crate::widgets::test_util::draw(&form, 160, 48, true));
-    // M2-05: the jump chain is on; snippets are still hidden.
+    // The jump chain is on; snippets are still hidden.
     assert!(screen.contains("Jump hosts"));
     assert!(!screen.contains("Startup snippet"));
     assert!(!screen.contains("Forwards"));
@@ -276,8 +272,6 @@ fn row_targets_and_tags() {
         ["web"]
     );
 }
-
-// ---------------------------------------------------------------------- M2-01
 
 mod m2_01 {
     use std::sync::Arc;
@@ -345,7 +339,6 @@ mod m2_01 {
         }
     }
 
-    // M2-01 T-08
     #[test]
     fn t08_group_detail_counts_inheriting_hosts() {
         let mut c = HostCatalog::default();
@@ -433,7 +426,6 @@ mod m2_01 {
         assert!(screen.contains("prod / sub"), "{screen}");
     }
 
-    // M2-01 T-11
     #[test]
     fn t11_host_form_shows_inherited_placeholders() {
         let mut c = HostCatalog::default();
@@ -496,8 +488,6 @@ mod m2_01 {
         );
     }
 }
-
-// ---------------------------------------------------------------------- M2-06
 
 mod m2_06 {
     use sverb_core::model::{Host, Proxy, ProxyAuth};

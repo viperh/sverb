@@ -1,10 +1,9 @@
-//! M5-02: shared vaults on the client (SPEC §13.1, §13.2, §13.3, §11.3).
+//! Shared vaults on the client (SPEC §13.1, §13.2, §13.3, §11.3).
 //!
 //! * **Create** ([`VaultAdmin::create`]): a fresh vault key (VK), the name
 //!   sealed under it, the creator's `manage` self-grant; the VK is kept locally
 //!   wrapped under the LMK (§5.3). The server never sees the VK.
 //! * **Grant** ([`VaultAdmin::grant`]): the member's public keys are fetched and
-//!   checked against the device's pins (M5-03 [`Trust::keys_for_grant`]: pinned
 //!   on first sight, **refused** while a key change is pending), the VK is
 //!   HPKE-wrapped to the member and the wrap signed with our Ed25519 key.
 //! * **Receive**: the sync engine adopts vaults it sees for the first time
@@ -269,7 +268,7 @@ pub async fn apply_transfer(
 /// Shared-vault management for the signed-in account on this device.
 #[derive(Clone)]
 pub struct VaultAdmin {
-    // M5-04: `pub(crate)` for the rotation orchestrator (`crate::rotation`).
+    // `pub(crate)` for the rotation orchestrator (`crate::rotation`).
     pub(crate) store: Store,
     pub(crate) lmk: Key32,
     pub(crate) tokens: Arc<TokenManager>,
@@ -458,7 +457,6 @@ impl VaultAdmin {
     }
 
     /// Revokes `user`'s access (or leaves, for our own id). The key rotation that
-    /// must follow a revocation is [`VaultAdmin::revoke_and_rotate`] (M5-04,
     /// `crate::rotation`).
     ///
     /// # Errors
@@ -516,7 +514,7 @@ impl VaultAdmin {
                 }
             };
             if row.key_version != members.key_version {
-                continue; // a rotation is pending (M5-04)
+                continue; // a rotation is pending
             }
             let i_manage = members
                 .members

@@ -1,4 +1,4 @@
-//! M1-06: the `MultiSelect` field (tags, …): a checklist popup.
+//! The `MultiSelect` field (tags, …): a checklist popup.
 //!
 //! `Enter`/`Space` opens the checklist; there `↑/↓` move, `Space` toggles, and
 //! `Enter`/`Esc` close it.

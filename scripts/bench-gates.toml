@@ -1,4 +1,4 @@
-# M7-06: hard gates for the spec's performance targets, read by
+# Hard gates for the spec's performance targets, read by
 # `scripts/bench-gate.py gate`. `bench` is criterion's `group/function` directory.
 # The spec value is for the reference machine (`--local`); CI runners get 2x
 # (half the throughput, twice the time). Informational benches (envelope_seal_open_1k,
@@ -29,7 +29,7 @@ bench = "index_build_10k/decrypt_and_index"
 max_ms = 75
 ci_max_ms = 150
 
-# M1-05: a query over 10k items in < 5 ms.
+# A query over 10k items in < 5 ms.
 [[gate]]
 bench = "search_query_10k/5char"
 max_ms = 5

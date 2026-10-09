@@ -1,4 +1,4 @@
-//! M3-04: opening links (`Effect::OpenUrl`, SPEC §17).
+//! Opening links (`Effect::OpenUrl`, SPEC §17).
 //!
 //! The reducer only issues `OpenUrl` after the user confirmed a dialog that shows the URL.
 //! This is the second gate: only `http`, `https`, `ftp` and `mailto` links are handed to the

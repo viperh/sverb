@@ -1,9 +1,9 @@
-//! M2-07: peer credentials of local-socket clients (SPEC §6.1.6): connections from
+//! Peer credentials of local-socket clients (SPEC §6.1.6): connections from
 //! another uid are refused.
 //!
 //! [`OsPeerCred`] uses tokio's `UnixStream::peer_cred` (`SO_PEERCRED` on Linux,
 //! `getpeereid` + `LOCAL_PEERPID` on macOS/BSD), so no `unsafe` code is needed here.
-//! [`PeerCredProvider`] is injectable so tests can simulate another uid (T-08).
+//! [`PeerCredProvider`] is injectable so tests can simulate another uid.
 
 use std::{fmt, io};
 

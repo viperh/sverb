@@ -1,4 +1,4 @@
-//! M7-03: `.ppk` parser tests (T-01 … T-04, the T-07 property test).
+//! `.ppk` parser tests (the T-07 property test).
 //!
 //! The fixtures (`tests/fixtures/putty/keys/`) are written by
 //! `tests/fixtures/putty/gen_ppk.py` from plain OpenSSH keys (`src_*`); the expected
@@ -91,7 +91,7 @@ fn tamper_private(text: &str) -> String {
 
 // ------------------------------------------------------------------ T-01
 
-/// T-01: each fixture (v2 / v3 × Ed25519 / ECDSA P-256 / RSA 2048, plain and encrypted)
+/// Each fixture (v2 / v3 × Ed25519 / ECDSA P-256 / RSA 2048, plain and encrypted)
 /// decodes to the source key; the fingerprint is the recorded one.
 #[test]
 fn t01_fixtures_decode_with_expected_fingerprint() {
@@ -156,7 +156,7 @@ fn t01_keychain_import() {
 
 // ------------------------------------------------------------------ T-02
 
-/// T-02: a wrong passphrase is a MAC mismatch → "wrong passphrase"; a missing one asks.
+/// A wrong passphrase is a MAC mismatch → "wrong passphrase"; a missing one asks.
 #[test]
 fn t02_wrong_passphrase() {
     for name in ["v2_ed25519_enc", "v3_ed25519_enc", "v2_rsa2048_enc"] {
@@ -177,7 +177,7 @@ fn is_mac_error(e: &KeychainError) -> bool {
     matches!(e, KeychainError::Invalid(m) if m.contains("MAC"))
 }
 
-/// T-02: a tampered private blob, MAC line or comment fails the MAC check.
+/// A tampered private blob, MAC line or comment fails the MAC check.
 #[test]
 fn t02_tampered_files() {
     for name in ["v2_ed25519", "v3_ed25519", "v2_rsa2048", "v3_ecdsa256"] {
@@ -218,7 +218,7 @@ fn t02_tampered_files() {
 
 // ------------------------------------------------------------------ T-03
 
-/// T-03: DSA and v1 files are refused; truncated files are errors, never panics.
+/// DSA and v1 files are refused; truncated files are errors, never panics.
 #[test]
 fn t03_unsupported_and_truncated() {
     let dss = ppk("v2_ed25519").replace("ssh-ed25519", "ssh-dss");
@@ -298,7 +298,7 @@ fn t03_mismatched_parts() {
 
 // ------------------------------------------------------------------ T-04
 
-/// T-04: v3 Argon2 parameters out of sane bounds are refused before any derivation.
+/// V3 Argon2 parameters out of sane bounds are refused before any derivation.
 #[test]
 fn t04_argon2_bounds() {
     let text = ppk("v3_ed25519_enc");
@@ -365,7 +365,7 @@ proptest! {
         let _ = decode(&text, Some(PASS));
     }
 
-    /// T-07: single-line mutations of real (cheap: no Argon2) fixtures never panic.
+    /// Single-line mutations of real (cheap: no Argon2) fixtures never panic.
     #[test]
     fn t07_mutated_fixture_never_panics(
         which in 0usize..4,

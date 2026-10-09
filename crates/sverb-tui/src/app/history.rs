@@ -1,4 +1,4 @@
-//! M7-01: command history and autocomplete in the reducer (SPEC §9.10).
+//! Command history and autocomplete in the reducer (SPEC §9.10).
 //!
 //! - **Tier 1 (shell integration).** The emulator captures commands between the OSC 133
 //!   `B` and `C` marks (`sverb_term::osc133`); the session reports them as
@@ -17,7 +17,6 @@
 //!   and `\r`, `Tab` only the remainder; a snippet row starts the snippet's run flow.
 //! - **Ghost text** (`history.ghost_text`, off by default, tier 1 only): the best history
 //!   command extending the command line is drawn dim after the cursor and accepted with
-//!   `leader Tab` only. No unprefixed key is intercepted (`tasks/03-KEYBINDINGS.md` A7).
 //! - **Purge.** "Clear history" on a host (`H` in the Hosts view) asks, then tombstones
 //!   every entry of that host.
 
@@ -471,7 +470,7 @@ impl App {
                     bytes.push(b'\r');
                 }
                 if !bytes.is_empty() {
-                    // Like typing: every broadcast member gets it (M3-02).
+                    // Like typing: every broadcast member gets it.
                     self.broadcast_send(session, SessionInput::Raw(bytes), effects);
                 }
             }

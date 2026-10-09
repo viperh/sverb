@@ -1,6 +1,5 @@
-//! M1-04: the persisted unlock backoff (SPEC §5.3).
+//! The persisted unlock backoff (SPEC §5.3).
 //!
-//! **Interpretation** (task M1-04 §2.3, raised with the spec owner): failures 1–4
 //! have no delay. From the 5th consecutive failure on, the delays are 1 s, 2 s, 4 s,
 //! 8 s, 16 s, then 30 s (cap). Success resets the counter. The counter and the
 //! earliest next attempt are stored in `meta` (`unlock_failures`,
@@ -95,7 +94,6 @@ impl BackoffState {
 mod tests {
     use super::*;
 
-    // T-05
     #[test]
     fn backoff_schedule() {
         let table = [

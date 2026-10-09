@@ -1,4 +1,3 @@
-//! Unit tests for the config model, parser and validation (M0-06 T-01..T-14, T-20, T-23).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -26,7 +25,7 @@ fn only_error(src: &str) -> ConfigError {
     errs.into_iter().next().unwrap()
 }
 
-/// T-01: every default in SPEC §15, one row per key (checked against the serialized default).
+/// Every default in SPEC §15, one row per key (checked against the serialized default).
 #[test]
 fn t01_defaults_table() {
     let rows: &[(&str, toml::Value)] = &[
@@ -42,7 +41,6 @@ fn t01_defaults_table() {
         ("ui.show_which_key", true.into()),
         ("ui.which_key_delay_ms", 400.into()),
         ("ui.date_format", "%Y-%m-%d %H:%M".into()),
-        // M7-07 (spec addition)
         ("ui.ascii", "auto".into()),
         ("ui.reduce_motion", false.into()),
         ("terminal.term", "xterm-256color".into()),
@@ -63,16 +61,13 @@ fn t01_defaults_table() {
         ("ssh.exec_timeout_secs", 60.into()),
         ("ssh.max_auth_attempts", 5.into()),
         ("ssh.connect_timeout_secs", 15.into()),
-        // M1-16 (spec addition)
         ("ssh.auto_reconnect", false.into()),
         ("recording.enabled", false.into()),
         ("recording.include_input", false.into()),
-        // M3-06 (spec addition)
         ("recording.retention_days", 0.into()),
         ("history.enabled", true.into()),
         ("history.sync", false.into()),
         ("history.max_entries_per_host", 5000.into()),
-        // M7-01 (spec addition)
         ("history.ghost_text", false.into()),
         ("sync.push_debounce_ms", 2000.into()),
         ("sync.poll_fallback_secs", 300.into()),
@@ -112,7 +107,7 @@ fn t01_defaults_table() {
     assert_eq!(normal.len(), 1);
 }
 
-/// T-02: the embedded default file parses to `Config::default()` without warnings.
+/// The embedded default file parses to `Config::default()` without warnings.
 #[test]
 fn t02_default_file_round_trips() {
     let out = parse(DEFAULT_CONFIG_TOML);
@@ -130,7 +125,7 @@ fn t02_default_file_round_trips() {
     }
 }
 
-/// T-03: empty text and a missing file give the defaults, no errors.
+/// Empty text and a missing file give the defaults, no errors.
 #[test]
 fn t03_empty_and_missing() {
     let out = parse("");
@@ -148,7 +143,7 @@ fn t03_empty_and_missing() {
     assert_eq!(out.source, ConfigSource::Defaults);
 }
 
-/// T-04: a partial override changes that field only.
+/// A partial override changes that field only.
 #[test]
 fn t04_partial_override() {
     let out = parse("[ssh]\nkeepalive_secs = 10");
@@ -158,7 +153,7 @@ fn t04_partial_override() {
     assert_eq!(out.config, expected);
 }
 
-/// T-05: unknown key with a suggestion and an exact position.
+/// Unknown key with a suggestion and an exact position.
 #[test]
 fn t05_unknown_key_suggestion() {
     let e = only_error("[ssh]\nkeepalive_sec = 1");
@@ -174,7 +169,7 @@ fn t05_unknown_key_suggestion() {
     );
 }
 
-/// T-06: unknown table; a hint only when a table is within distance 2.
+/// Unknown table; a hint only when a table is within distance 2.
 #[test]
 fn t06_unknown_table() {
     let e = only_error("[colours]\nx = 1");
@@ -184,7 +179,7 @@ fn t06_unknown_table() {
     assert_eq!(e.hint.as_deref(), Some("did you mean `ssh`?"));
 }
 
-/// T-07: type error at the right path, naming the expected type.
+/// Type error at the right path, naming the expected type.
 #[test]
 fn t07_type_error() {
     let e = only_error("[terminal]\nscrollback = \"lots\"");
@@ -193,7 +188,7 @@ fn t07_type_error() {
     assert!(e.message.contains("u32"), "{e:?}");
 }
 
-/// T-08: enum error lists the variants.
+/// Enum error lists the variants.
 #[test]
 fn t08_enum_error() {
     let e = only_error("[ssh]\nhost_key_policy = \"yolo\"");
@@ -203,7 +198,7 @@ fn t08_enum_error() {
     }
 }
 
-/// T-09: three independent semantic errors → exactly three errors.
+/// Three independent semantic errors → exactly three errors.
 #[test]
 fn t09_aggregation() {
     let errs = errors(
@@ -226,7 +221,7 @@ fn t09_aggregation() {
     assert_eq!(errs.len(), 3, "{errs:#?}");
 }
 
-/// T-10: leader validation with the stub validator (03-KEYBINDINGS.md §5.2).
+/// Leader validation with the stub validator.
 #[test]
 fn t10_leader() {
     let leader = |l: &str| parse(&format!("[general]\nleader = {}", toml::Value::from(l)));
@@ -271,7 +266,7 @@ fn out_leader(o: &LoadOutcome) -> &str {
     o.config.general.leader.as_str()
 }
 
-/// T-11: keymap action names, modes and chords.
+/// Keymap action names, modes and chords.
 #[test]
 fn t11_keymap_actions() {
     let e = only_error("[keys.normal]\nx = \"nope\"");
@@ -286,7 +281,7 @@ fn t11_keymap_actions() {
         "merged over defaults"
     );
 
-    // M3-04: `[keys.copy]` exists and takes copy-mode actions only.
+    // `[keys.copy]` exists and takes copy-mode actions only.
     assert_eq!(
         only_error("[keys.visual]\ny = \"quit\"").path,
         "keys.visual"
@@ -318,7 +313,7 @@ fn t11_keymap_actions() {
     );
 }
 
-/// T-12: no secrets or server URLs in config.toml.
+/// No secrets or server URLs in config.toml.
 #[test]
 fn t12_secrets_rejected() {
     let e = only_error("[sync]\nserver_url = \"https://x\"");
@@ -328,7 +323,7 @@ fn t12_secrets_rejected() {
     assert!(e.hint.as_deref().unwrap().contains("sverb login"), "{e:?}");
 }
 
-/// T-13: ranges.
+/// Ranges.
 #[test]
 fn t13_ranges() {
     assert_eq!(
@@ -384,7 +379,7 @@ fn t13_ranges() {
     assert_eq!(out.warnings.len(), 1);
 }
 
-/// T-14: one valid change plus one error → nothing applied.
+/// One valid change plus one error → nothing applied.
 #[test]
 fn t14_all_or_nothing() {
     let out = parse("[ui]\nmouse = false\n[ssh]\nmax_auth_attempts = 0\n");
@@ -418,7 +413,7 @@ fn syntax_error_position() {
     assert_eq!(e.line, 1);
 }
 
-/// T-20: changing `terminal.term` and `ui.theme` applies the theme and asks for the
+/// Changing `terminal.term` and `ui.theme` applies the theme and asks for the
 /// "new sessions" toast.
 #[test]
 fn t20_diff_classification() {
@@ -568,7 +563,7 @@ proptest! {
     }
 }
 
-// M7-07: accepted keys that this version doesn't act on yet warn instead of failing.
+// Accepted keys that this version doesn't act on yet warn instead of failing.
 #[test]
 fn not_yet_effective_keys_warn() {
     let out = parse("[ssh]\nread_ssh_config = true\n[terminal]\nbell = \"none\"\n");

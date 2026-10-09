@@ -11,7 +11,6 @@
 //! advances the local clock to `physical + MAX_SKEW`, and [`HlcClock::observe`] returns
 //! [`ClockSkew`] so the UI can warn. The remote stamp itself is **not** rewritten: the
 //! value stored in the item keeps its original stamp, so every replica still converges
-//! (decision of M1-02, see `docs/data-model.md`).
 
 use std::fmt;
 use std::sync::Arc;
@@ -261,7 +260,6 @@ mod tests {
         DeviceId::from_bytes([9; 16])
     }
 
-    // T-02
     #[test]
     fn now_is_strictly_increasing_with_frozen_clock() {
         let mut clock = HlcClock::new(ManualClock::new(T0));
@@ -289,7 +287,6 @@ mod tests {
         assert_eq!(c.physical().as_secs(), T0.as_secs() + 1);
     }
 
-    // T-03
     #[test]
     fn observe_moves_clock_past_remote() {
         let mut clock = HlcClock::new(ManualClock::new(T0));
@@ -298,7 +295,6 @@ mod tests {
         assert!(clock.now() > remote);
     }
 
-    // T-04
     #[test]
     fn skew_is_clamped_and_reported() {
         let mut clock = HlcClock::new(ManualClock::new(T0));

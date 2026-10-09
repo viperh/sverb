@@ -1,5 +1,4 @@
-//! M1-17 reducer tests: tabs, splits, focus, close, markers, titles, resize debounce
-//! (T-06…T-13) and the session-area snapshots (T-14).
+//!  and the session-area snapshots.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -72,7 +71,6 @@ fn local_tab(h: &mut AppHarness) -> SessionId {
     focused(h)
 }
 
-// T-06
 #[test]
 fn t06_leader_c_picks_a_host_into_a_new_tab() {
     let mut h = harness(160, 48);
@@ -110,7 +108,6 @@ fn t06_leader_c_picks_a_host_into_a_new_tab() {
     assert_eq!((cols, rows), (main.width - 2, main.height - 2));
 }
 
-// T-07
 #[test]
 fn t07_split_opens_the_same_target_and_focuses_it() {
     let mut h = harness(160, 48);
@@ -160,7 +157,6 @@ fn split_of_a_saved_host_connects_to_that_host() {
     assert_eq!(h.app().pane(open[0].0).label, "alpha");
 }
 
-// M1-07 `v`: connect in split from the Hosts view.
 #[test]
 fn hosts_connect_in_split_splits_the_current_tab() {
     let mut h = harness(160, 48);
@@ -186,7 +182,6 @@ fn hosts_connect_in_split_splits_the_current_tab() {
     );
 }
 
-// T-08
 #[test]
 fn t08_focus_moves_by_geometry() {
     let mut h = harness(160, 48);
@@ -216,7 +211,6 @@ fn t08_focus_moves_by_geometry() {
     assert_eq!(h.app().mode(), Mode::Terminal);
 }
 
-// T-09
 #[test]
 fn t09_close_pane_confirms_while_alive_and_collapses() {
     let mut h = harness(160, 48);
@@ -301,7 +295,6 @@ fn close_tab_confirms_and_closes_every_pane() {
     assert_eq!(focused(&h), a);
 }
 
-// T-10
 #[test]
 fn t10_tab_numbers_and_wrapping() {
     let mut h = harness(160, 48);
@@ -321,7 +314,6 @@ fn t10_tab_numbers_and_wrapping() {
     assert_eq!(h.app().tabs().active, 1);
 }
 
-// T-11
 #[test]
 fn t11_activity_and_bell_markers() {
     let mut h = harness(160, 48);
@@ -356,7 +348,6 @@ fn t11_activity_and_bell_markers() {
     assert!(h.app().tab_items()[0].markers.contains('●'));
 }
 
-// T-12
 #[test]
 fn t12_osc_title_in_the_tab_bar() {
     let mut config = Config::default();
@@ -382,7 +373,6 @@ fn t12_osc_title_in_the_tab_bar() {
     assert_eq!(h.app().tab_items()[0].label, "local");
 }
 
-// T-13
 #[test]
 fn t13_resize_is_debounced_per_pane() {
     let mut h = harness(160, 48);
@@ -502,7 +492,6 @@ fn render_panes(h: &AppHarness, w: u16, hgt: u16) -> String {
     crate::testing::buffer_to_string(terminal.backend().buffer())
 }
 
-// T-14
 fn three_tabs(w: u16, hgt: u16) -> AppHarness {
     let mut h = harness(w, hgt);
     // Tab 1: 2×2.

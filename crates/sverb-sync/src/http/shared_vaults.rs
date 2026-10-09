@@ -1,4 +1,4 @@
-//! M5-02: the shared vault endpoints of [`ApiClient`] (SPEC §10.4, §13.2; DTOs
+//! The shared vault endpoints of [`ApiClient`] (SPEC §10.4, §13.2; DTOs
 //! in [`sverb_proto::vaults`]).
 
 use sverb_proto::sync::VaultView;

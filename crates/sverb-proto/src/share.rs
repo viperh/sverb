@@ -1,5 +1,4 @@
 //! Terminal-share relay wire types (SPEC §10.4 "Sharing", §14.1, §14.2; task
-//! M6-01).
 //!
 //! # HTTP
 //!
@@ -49,7 +48,6 @@
 //! `4401` when the share requires an account) or
 //! `{"type":"auth","token","name"?}`. Then `4429` when the share is full,
 //! otherwise `{"type":"joined","viewer_id","mode"}` (the `viewer_id` both
-//! sides bind into the frame AAD, M6-02), and the host gets `viewer_joined`.
 //!
 //! # Heartbeat and ending
 //!

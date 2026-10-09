@@ -4,7 +4,7 @@
 //! **Plaintext guarantee:** the store only ever receives envelopes (bytes sealed by
 //! `sverb_crypto::envelope::seal_item`). Every write checks that the bytes look like
 //! an envelope ([`check_envelope`]), so a plaintext body handed over by mistake is
-//! refused instead of reaching disk. Encryption is the vault service's job (M1-04).
+//! refused instead of reaching disk. Encryption is the vault service's job.
 
 use rusqlite::{OptionalExtension, Row, params};
 use sverb_core::model::{ItemId, VaultId};
@@ -35,7 +35,7 @@ pub struct ItemRow {
     pub updated_at: i64,
 }
 
-/// One item of a pulled page, as the sync engine (M4-07) wants it stored.
+/// One item of a pulled page, as the sync engine wants it stored.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RemoteItem {
     /// Item id.
@@ -287,7 +287,6 @@ impl WriteTx<'_> {
         }
     }
 
-    // M4-07
     /// Replaces the envelope of `id` with the same body re-sealed under another
     /// vault key version (key rotation, §12.3 / §13.2). Leaves `revision`, `dirty`,
     /// the outbox row and `updated_at` alone, and ignores read-only marks (the body
@@ -307,7 +306,6 @@ impl WriteTx<'_> {
         Ok(())
     }
 
-    // M4-08
     /// Marks every item of `vault` as never synced (§11.2.1 registration, §1.1
     /// `logout --keep-local`): `revision = 0`, dirty, queued with
     /// `base_revision = 0` (existing outbox rows are rebased to 0), and the

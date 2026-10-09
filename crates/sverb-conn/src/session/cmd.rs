@@ -3,11 +3,10 @@
 //!
 //! # Append-only convention
 //! Later tasks add variants **at the end**, one block per task with a `// <task-id>`
-//! comment (M1-11: `Key(KeyInput)`, encoded by the session with its own modes).
+//! comment (`Key(KeyInput)`, encoded by the session with its own modes).
 
 use bytes::Bytes;
 use sverb_core::secret::SecretString;
-// M1-11
 use sverb_term::modes::input::{KeyInput, MouseInput};
 
 /// Capacity of a session's command channel (SPEC §2.1).
@@ -17,7 +16,6 @@ pub const CMD_CAPACITY: usize = 256;
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum SessionCmd {
-    // M1-08
     /// Bytes for the remote (already encoded keys, pastes).
     Input(Bytes),
     /// The pane was resized (the 50 ms debounce lives in the UI; the actor applies
@@ -34,18 +32,17 @@ pub enum SessionCmd {
     },
     /// Close gracefully; the actor ends in `Closed`.
     Close,
-    /// Start recording (M3-05). Unused: the recording service sends
+    /// Start recording. Unused: the recording service sends
     /// [`SessionCmd::AttachRecorder`] with the writer's tap instead.
     StartRecording,
-    /// Stop recording (M3-05): drop the tap; the writer seals the final chunk.
+    /// Stop recording: drop the tap; the writer seals the final chunk.
     StopRecording,
-    /// The user's answer to a host-key prompt (M1-15).
+    /// The user's answer to a host-key prompt.
     HostKeyDecision(Decision),
-    /// The user's answer to an auth prompt (M1-14).
+    /// The user's answer to an auth prompt.
     AuthAnswer(AuthAnswer),
-    /// Reconnect a disconnected session (M1-16).
+    /// Reconnect a disconnected session.
     Reconnect,
-    // M1-11
     /// A key press, encoded by the actor with **its own** emulator's modes (DECCKM,
     /// DECKPAM, modifyOtherKeys, remote kitty flags) and the session's
     /// [`EncodeOpts`](sverb_term::modes::input::EncodeOpts) (SPEC §7.3, §9.8).
@@ -65,13 +62,11 @@ pub enum SessionCmd {
     /// alternate-scroll arrows go to the remote; what the remote didn't ask for comes back
     /// as `SessionEvent::Mouse` for sverb (focus, scrollback, selection).
     Mouse(MouseInput),
-    // M3-05
     /// Start recording into this tap (`sverb_term::recording`). The actor reports its
     /// current size to the tap, then feeds it every output read, resizes, and input when
     /// the tap records input. Never blocks the session. A previous tap is dropped
     /// (closing that recording); `StopRecording` drops this one.
     AttachRecorder(sverb_term::recording::RecordingTap),
-    // M6-03
     /// Attach a share tap (`super::share_tap`): the actor reports its size to it, then
     /// every output chunk and resize, with the emulator locked, until the connection
     /// ends. Replaces a previous tap (which gets `ended`).
@@ -92,20 +87,16 @@ impl SessionCmd {
             Self::HostKeyDecision(_) => "HostKeyDecision",
             Self::AuthAnswer(_) => "AuthAnswer",
             Self::Reconnect => "Reconnect",
-            // M1-11
             Self::Key(_) => "Key",
             Self::Paste { .. } => "Paste",
             Self::Mouse(_) => "Mouse",
-            // M3-05
             Self::AttachRecorder(_) => "AttachRecorder",
-            // M6-03
             Self::AttachShareTap(_) => "AttachShareTap",
             Self::DetachShareTap => "DetachShareTap",
         }
     }
 }
 
-/// Host-key decision (SPEC §9.5). M1-15 may refine it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Decision {

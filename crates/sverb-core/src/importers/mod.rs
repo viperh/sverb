@@ -1,4 +1,4 @@
-//! M2-11: imports (SPEC §9.13): `~/.ssh/config`, `known_hosts`, CSV and sverb backups.
+//! Imports (SPEC §9.13): `~/.ssh/config`, `known_hosts`, CSV and sverb backups.
 //!
 //! Every import is a **dry run first**. An importer turns its source into an
 //! [`ImportPlan`]: the planned items (hosts, groups, tags, forwards, known hosts, backup
@@ -13,13 +13,13 @@
 //! 3. show the preview ([`ImportPlan::counts`], [`ImportPlan::render_table`]), let the
 //!    user pick the target vault and group and the [`ConflictPolicy`];
 //! 4. [`preview::materialize`] builds the stamped bodies to write (one transaction, in
-//!    the caller), plus the locally-acting values the confirmation approves (M2-10 §2.2).
+//!    the caller), plus the locally-acting values the confirmation approves.
 //!
 //! Duplicate detection: hosts by `(address, port, user)`, keys by public key, known
 //! hosts by `(pattern, key)`, tags by name, groups by name and parent, backup items by
 //! id.
 //!
-//! The PuTTY importer (M7-03) is [`putty_sessions`], producing the same
+//! The PuTTY importer is [`putty_sessions`], producing the same
 //! [`ImportPlan`] of [`HostDraft`]s ([`ImportSource::Putty`]).
 
 use std::collections::BTreeMap;
@@ -32,7 +32,7 @@ pub mod csv;
 pub mod known_hosts;
 pub mod preview;
 pub mod ssh_config;
-// M7-03: PuTTY sessions → HostDrafts, same pipeline.
+// PuTTY sessions → HostDrafts, same pipeline.
 pub mod putty_sessions;
 
 pub use preview::{ApplyOptions, ApprovalNote, ConflictPolicy, Existing, WriteSet};
@@ -48,7 +48,7 @@ pub enum ImportSource {
     Csv,
     /// An encrypted `.sverb-backup`.
     Backup,
-    /// PuTTY sessions (M7-03).
+    /// PuTTY sessions.
     Putty,
 }
 
@@ -97,7 +97,6 @@ pub struct HostDraft {
     pub no_jump: bool,
     /// `ProxyCommand`.
     pub proxy_command: Option<String>,
-    // M7-03
     /// A SOCKS5 / HTTP proxy (PuTTY `ProxyMethod`).
     pub proxy: Option<ProxyDraft>,
     /// `ForwardAgent`.
@@ -110,7 +109,6 @@ pub struct HostDraft {
     pub forwards: Vec<PlanRef>,
 }
 
-// M7-03
 /// The kind of a [`ProxyDraft`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProxyDraftKind {
@@ -120,7 +118,6 @@ pub enum ProxyDraftKind {
     Http,
 }
 
-// M7-03
 /// A network proxy to import. A password is never imported (it is asked for later).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ProxyDraft {

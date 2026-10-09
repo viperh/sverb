@@ -1,4 +1,4 @@
-//! M5-04: the key rotation dialogs (SPEC §13.2): the progress of a running
+//! The key rotation dialogs (SPEC §13.2): the progress of a running
 //! rotation, the prompt to restart an abandoned one, and the revoke
 //! confirmation text (a revocation starts a rotation; the revoked member keeps
 //! what they already synced).

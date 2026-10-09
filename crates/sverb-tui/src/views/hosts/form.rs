@@ -1,4 +1,4 @@
-//! M1-07: the host form (SPEC §4.2, §8.6) on the shared form framework (M1-06).
+//! The host form (SPEC §4.2, §8.6) on the shared form framework.
 //!
 //! Sections: General, Credentials, Connection, Terminal, Forwards, Notes. Field keys
 //! are the model's field names, so [`FieldChanges`] map one-to-one onto the [`Host`]
@@ -14,13 +14,11 @@ use sverb_core::model::{
     AgentSource, Backspace, Group, Host, ItemId, ItemKind, ValidationError, VaultId, WireEnum,
     validate::{validate_address, validate_host},
 };
-// M2-01
 use sverb_core::resolve::{GlobalDefaults, ResolvedHost, SettingKey, Settings, Source};
 use sverb_core::search::IndexSnapshot;
 
-use super::catalog::{HostCatalog, HostRecord, HostSummary};
-// M2-06
 use super::catalog::ProxySummary;
+use super::catalog::{HostCatalog, HostRecord, HostSummary};
 use crate::widgets::form::{
     Field, FieldChanges, FieldValue, FieldValues, FieldWidget, Form, FormValidator, Inherited,
     KeyCheck, ReadOnly, RefValue, SecretValue, SelectOption, Validator,
@@ -30,17 +28,17 @@ use crate::widgets::form::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct HostFormFeatures {
-    /// Jump chain (M2-05).
+    /// Jump chain.
     pub jump_chain: bool,
-    /// Proxy (M2-06).
+    /// Proxy.
     pub proxy: bool,
-    /// Agent forwarding and agent source (M2-07).
+    /// Agent forwarding and agent source.
     pub agent: bool,
-    /// Port forwards (M2-08).
+    /// Port forwards.
     pub forwards: bool,
-    /// Startup snippet (M2-09).
+    /// Startup snippet.
     pub snippets: bool,
-    /// Per-host algorithm overrides (M1-13 §2.6).
+    /// Per-host algorithm overrides.
     pub algorithms: bool,
 }
 
@@ -58,9 +56,7 @@ impl HostFormFeatures {
 
 /// The feature registry for this build.
 pub const HOST_FORM_FEATURES: HostFormFeatures = HostFormFeatures {
-    // M2-05
     jump_chain: true,
-    // M2-06
     proxy: true,
     agent: false,
     forwards: false,
@@ -213,7 +209,7 @@ pub fn host_form(
         .collect();
     let tag_values: Vec<String> = h.tags.iter().map(ToString::to_string).collect();
     let has_identity = h.identity_id.is_some();
-    // M2-02: identities are picked within the host's vault (§13.4).
+    // Identities are picked within the host's vault (§13.4).
     let host_vault = init.item.map(|_| h.vault).or(cat.personal_vault);
 
     let general = vec![
@@ -230,7 +226,7 @@ pub fn host_form(
         Field::multiselect("tags", "Tags", tag_options, &tag_values),
         Field::toggle("pinned", "Pinned", h.pinned),
     ];
-    // M2-02: "Use identity" vs "Inline" (§9.3); `sync_identity` shows the fields of
+    // "Use identity" vs "Inline" (§9.3); `sync_identity` shows the fields of
     // the chosen mode.
     let mut identity = reference(
         "identity_id",
@@ -271,7 +267,7 @@ pub fn host_form(
         reference("key_id", "Key", ItemKind::Key, h.key_id, |id| {
             cat.keys.get(&id).cloned()
         }),
-        // M1-14: the minimal key import until the keychain (M2-03).
+        // The minimal key import until the keychain.
         Field::text(crate::services::ssh::KEY_FILE_FIELD, "Key file", "")
             .help("Path to an OpenSSH private key, imported as a Key on save"),
     ];
@@ -281,7 +277,7 @@ pub fn host_form(
         SelectOption::new("http", "HTTP CONNECT"),
         SelectOption::new("command", "ProxyCommand"),
     ]);
-    // M2-06: the proxy section's prefill (the password is never shown).
+    // The proxy section's prefill (the password is never shown).
     let (proxy_kind, proxy_addr, proxy_user, proxy_command) = match &h.proxy {
         None => (INHERIT, "", "", ""),
         Some(ProxySummary::Socks5 { addr, user }) => (
@@ -298,7 +294,7 @@ pub fn host_form(
         ),
         Some(ProxySummary::Command(c)) => ("command", "", "", c.as_str()),
     };
-    // M2-05: the ordered chain; `sync_jump_chain` adds the effective route.
+    // The ordered chain; `sync_jump_chain` adds the effective route.
     let jump_rows = h
         .jump_chain
         .iter()
@@ -314,7 +310,7 @@ pub fn host_form(
         Field::select("proxy.kind", "Proxy", proxy_options, Some(proxy_kind))
             .hidden(!features.proxy)
             .help("←/→ direct, SOCKS5, HTTP CONNECT or a local ProxyCommand (first hop only)"),
-        // M2-06: the fields of the chosen kind (`sync_proxy` shows them).
+        // The fields of the chosen kind (`sync_proxy` shows them).
         Field::text(PROXY_ADDR, "Proxy address", proxy_addr)
             .validate(Validator::new("proxy-addr", proxy_addr_check))
             .hidden(true)
@@ -366,7 +362,6 @@ pub fn host_form(
             Some(tri(h.request_pty_for_exec)),
         )
         .help("Needed for sudo prompts in snippets"),
-        // M1-16
         Field::select(
             "auto_reconnect",
             "Reconnect",
@@ -447,18 +442,16 @@ pub fn host_form(
     if h.read_only {
         form = form.read_only(ReadOnly::NewerSchema);
     } else if init.item.is_some() && cat.is_read_only_vault(h.vault) {
-        // M5-02: a `read` member sees shared hosts read-only (§13.2).
+        // A `read` member sees shared hosts read-only (§13.2).
         form = form.read_only(ReadOnly::Vault);
     }
     if let Some(index) = index {
         form.set_index(index);
     }
-    // M2-02
     sync_identity(&mut form);
     form
 }
 
-// M2-02
 /// The host form's credentials mode field (not stored).
 pub const CREDENTIALS_MODE: &str = "credentials";
 /// "Use identity".
@@ -466,7 +459,6 @@ pub const CREDENTIALS_IDENTITY: &str = "identity";
 /// "Inline".
 pub const CREDENTIALS_INLINE: &str = "inline";
 
-// M2-02
 /// The credentials mode of a host form (`None`: a form without the choice).
 pub fn credentials_mode(form: &Form) -> Option<String> {
     match form.field(CREDENTIALS_MODE).map(Field::value) {
@@ -475,7 +467,6 @@ pub fn credentials_mode(form: &Form) -> Option<String> {
     }
 }
 
-// M2-06
 /// `proxy.addr`
 pub const PROXY_ADDR: &str = "proxy.addr";
 /// `proxy.auth.user`
@@ -485,17 +476,14 @@ pub const PROXY_PASSWORD: &str = "proxy.auth.password";
 /// `proxy.command`
 pub const PROXY_COMMAND: &str = "proxy.command";
 
-// M2-06
 fn proxy_addr_check(v: &FieldValue) -> Result<(), String> {
     sverb_conn::proxy::validate_proxy_addr(v.as_text().unwrap_or_default())
 }
 
-// M2-06
 fn proxy_command_check(v: &FieldValue) -> Result<(), String> {
     sverb_conn::proxy::validate_command(v.as_text().unwrap_or_default()).map_err(|e| e.to_string())
 }
 
-// M2-06
 /// Show the proxy fields of the chosen kind: address, user and password for SOCKS5
 /// and HTTP, the command for ProxyCommand. Values of hidden fields are kept while
 /// editing. Called by [`sync_identity`] (after every key).
@@ -516,12 +504,11 @@ pub fn sync_proxy(form: &mut Form) {
     }
 }
 
-/// M2-02: show the fields of the credentials mode (§9.3). "Use identity": the
+/// Show the fields of the credentials mode (§9.3). "Use identity": the
 /// identity picker and an optional username override (§4.2: inline overrides the
 /// identity); "Inline": username, password and key. Values of hidden fields are kept
 /// while editing, so switching back loses nothing. Call after every key.
 pub fn sync_identity(form: &mut Form) {
-    // M2-06
     sync_proxy(form);
     let use_identity = match credentials_mode(form) {
         Some(mode) => mode == CREDENTIALS_IDENTITY,
@@ -560,7 +547,6 @@ pub fn sync_identity(form: &mut Form) {
     }
 }
 
-// M2-02
 /// What a save writes for the credentials: when the user switched modes, the other
 /// mode's stored values are cleared ("Inline" drops the identity; "Use identity"
 /// drops the inline password and key; the username is kept as the override).
@@ -643,7 +629,7 @@ pub fn apply_changes(host: &mut Host, changes: &FieldChanges) -> Result<(), Vec<
             ("identity_id", FieldValue::Reference(r)) => host.identity_id = *r,
             ("key_id", FieldValue::Reference(r)) => host.key_id = *r,
             ("startup_snippet_id", FieldValue::Reference(r)) => host.startup_snippet_id = *r,
-            // M2-05: the ordered list (empty: inherit).
+            // The ordered list (empty: inherit).
             ("jump_chain", FieldValue::References(ids)) => {
                 host.jump_chain.clone_from(ids);
                 host.explicit_empty.jump_chain = false;
@@ -665,7 +651,6 @@ pub fn apply_changes(host: &mut Host, changes: &FieldChanges) -> Result<(), Vec<
             }
             ("agent_forwarding", v) => host.agent_forwarding = tri_value(v),
             ("request_pty_for_exec", v) => host.request_pty_for_exec = tri_value(v),
-            // M1-16
             ("auto_reconnect", v) => host.auto_reconnect = tri_value(v),
             ("agent_source", v) => match choice(v) {
                 None => host.agent_source = None,
@@ -685,7 +670,7 @@ pub fn apply_changes(host: &mut Host, changes: &FieldChanges) -> Result<(), Vec<
             ("color_scheme", v) => host.color_scheme = choice(v),
             ("env", FieldValue::Pairs(pairs)) => {
                 host.env = pairs.clone();
-                // M2-01: an empty list in the form means "inherit".
+                // An empty list in the form means "inherit".
                 host.explicit_empty.env = false;
             }
             ("notes", v) => {
@@ -698,7 +683,6 @@ pub fn apply_changes(host: &mut Host, changes: &FieldChanges) -> Result<(), Vec<
             _ => {}
         }
     }
-    // M2-06
     apply_proxy(host, changes, &mut errors);
     if errors.is_empty() {
         Ok(())
@@ -707,7 +691,6 @@ pub fn apply_changes(host: &mut Host, changes: &FieldChanges) -> Result<(), Vec<
     }
 }
 
-// M2-06
 /// Apply the `proxy.*` changes: the stored proxy with the changed parts replaced
 /// (a kind switch keeps the address and credentials it can use; an unchanged
 /// password field keeps the stored password).
@@ -786,7 +769,6 @@ pub struct HostFormDialog {
     pub item: Option<ItemId>,
     /// The form.
     pub form: Form,
-    // M2-01
     /// What the placeholders resolve against (`None`: global defaults only).
     pub inherit: Option<Box<InheritCx>>,
 }
@@ -816,10 +798,8 @@ impl HostFormDialog {
     }
 }
 
-// ---------------------------------------------------------------------- M2-01
-
 /// What inherited placeholders resolve against: the catalog (groups, identities,
-/// vault defaults) and the global defaults (M2-01, SPEC §4.3, §8.6).
+/// vault defaults) and the global defaults (SPEC §4.3, §8.6).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InheritCx {
     /// The catalog the form was opened with.
@@ -878,9 +858,7 @@ const INHERITABLE_FIELDS: [(&str, SettingKey); 16] = [
     ("startup_snippet_id", SettingKey::StartupSnippetId),
     ("jump_chain", SettingKey::JumpChain),
     ("record_sessions", SettingKey::RecordSessions),
-    // M1-16
     ("auto_reconnect", SettingKey::AutoReconnect),
-    // M2-06
     ("proxy.kind", SettingKey::Proxy),
 ];
 
@@ -932,13 +910,10 @@ impl HostFormDialog {
     pub fn sync_inherited(&mut self) {
         if let Some(cx) = &self.inherit {
             sync_inherited(&mut self.form, cx, "group_id");
-            // M2-05
             sync_jump_chain(&mut self.form, cx, self.item);
         }
     }
 }
-
-// ---------------------------------------------------------------------- M2-05
 
 /// The host form's jump chain field.
 pub const JUMP_CHAIN: &str = "jump_chain";
@@ -1144,7 +1119,6 @@ pub fn group_form(
             tri_options("no"),
             Some(tri(d.record_sessions)),
         ),
-        // M1-16
         Field::select(
             "auto_reconnect",
             "Reconnect",
@@ -1243,7 +1217,6 @@ pub fn apply_group_changes(
             ("agent_forwarding", v) => d.agent_forwarding = tri_value(v),
             ("request_pty_for_exec", v) => d.request_pty_for_exec = tri_value(v),
             ("record_sessions", v) => d.record_sessions = tri_value(v),
-            // M1-16
             ("auto_reconnect", v) => d.auto_reconnect = tri_value(v),
             ("backspace", v) => match choice(v) {
                 None => d.backspace = None,
@@ -1267,7 +1240,6 @@ pub fn apply_group_changes(
     }
 }
 
-// M2-05
 #[cfg(test)]
 #[path = "jump_tests.rs"]
 mod jump_tests;

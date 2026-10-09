@@ -1,7 +1,6 @@
-//! M3-07 T-05…T-08 against OpenSSH in Docker: connection sharing seen from the server.
 //! The server's TCP connections are counted inside the container (established sockets
 //! on port 22 in `/proc/net/tcp`; the image has no `ss`), its shells as the `test`
-//! user's `bash` processes. The loopback versions (and T-02, T-04, T-09) run without
+//! user's `bash` processes. The loopback versions (and T-02) run without
 //! Docker in `sverb-conn` (`ssh::mux_loopback`, `ssh::connect::jump::mux::tests`).
 //!
 //! `#[ignore]`d: `SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_mux -- --ignored`.
@@ -176,7 +175,7 @@ async fn max_sessions(sshd: &Sshd, n: usize) {
 
 const HOST: u8 = 1;
 
-/// T-05: two tabs to the same host → one TCP connection, two shell channels.
+/// Two tabs to the same host → one TCP connection, two shell channels.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t05_two_tabs_one_tcp_connection() {
@@ -191,7 +190,7 @@ async fn t05_two_tabs_one_tcp_connection() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-06: `MaxSessions 2`, three tabs → the third uses a new connection; all three work.
+/// `MaxSessions 2`, three tabs → the third uses a new connection; all three work.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t06_max_sessions_fallback() {
@@ -209,9 +208,7 @@ async fn t06_max_sessions_fallback() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-07: a standalone forward (tunnel-only session) and an exec run reuse the tab's
-/// connection. The exec half needs the M3-07 `exec.rs` (merged from
-/// `.merge/agent-M3-07`).
+/// A standalone forward (tunnel-only session) and an exec run reuse the tab's
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t07_forward_and_exec_reuse_the_tab() {
@@ -233,7 +230,7 @@ async fn t07_forward_and_exec_reuse_the_tab() {
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 
-/// T-08: two targets (two users on the inner host) behind the same bastion share the
+/// Two targets (two users on the inner host) behind the same bastion share the
 /// bastion connection.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]

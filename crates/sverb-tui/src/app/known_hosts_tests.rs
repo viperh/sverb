@@ -1,4 +1,3 @@
-//! M1-15 reducer tests: the unknown-key modal (T-10), the changed-key screen (T-11),
 //! prompts closing with the session, and the Known Hosts view (list, delete, edit,
 //! import / export prompts, lock).
 
@@ -75,7 +74,7 @@ fn host_key_open(h: &AppHarness) -> bool {
         .any(|d| matches!(d.kind, DialogKind::HostKey(_)))
 }
 
-/// T-10: `a` → accept & save (the verifier's store saves the item), `o` → accept for
+/// `a` → accept & save (the verifier's store saves the item), `o` → accept for
 /// this connection only, `r` / `Esc` → reject. Each closes the modal.
 #[test]
 fn t10_unknown_key_modal() {
@@ -117,7 +116,7 @@ fn t10_unknown_modal_shows_fingerprint_and_randomart() {
     );
 }
 
-/// T-11: only reject acts; `R` opens the prompt; a wrong host name stays blocked; the
+/// Only reject acts; `R` opens the prompt; a wrong host name stays blocked; the
 /// exact host name replaces (accept & save).
 #[test]
 fn t11_changed_key_screen() {
@@ -336,7 +335,7 @@ fn view_delete_edit_import_export() {
                 path: "~/sverb_known_hosts".into()
             }))
     );
-    // M2-11: import opens the import wizard (known_hosts source); Enter runs the dry run.
+    // Import opens the import wizard (known_hosts source); Enter runs the dry run.
     h.keys("I enter");
     assert!(h.take_effects().iter().any(|e| matches!(
         e,

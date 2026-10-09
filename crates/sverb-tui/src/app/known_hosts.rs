@@ -1,4 +1,4 @@
-//! M1-15: known hosts in the reducer (SPEC §9.5, §8.5).
+//! Known hosts in the reducer (SPEC §9.5, §8.5).
 //!
 //! - **Host-key prompts:** `SessionEvent::HostKey` opens the unknown-key modal or the
 //!   changed-key screen (`views/dialogs/host_key.rs`) for that session; its answer is
@@ -232,7 +232,7 @@ impl App {
                 let dialog = KnownHostsDialog::edit(id, row.entry.clone());
                 self.push_dialog(DialogKind::KnownHosts(dialog));
             }
-            // M2-11: the import pipeline (dry-run preview, target, duplicates).
+            // The import pipeline (dry-run preview, target, duplicates).
             KnownHostsRequest::Import => {
                 self.push_dialog(DialogKind::ImportWizard(Box::new(
                     crate::views::import_wizard::ImportWizard::import(

@@ -1,4 +1,4 @@
-//! M7-01: command history and autocomplete (SPEC §9.10, §4.12 `HistoryEntry`, §15
+//! Command history and autocomplete (SPEC §9.10, §4.12 `HistoryEntry`, §15
 //! `[history]`). UI-agnostic pieces:
 //!
 //! - [`prompt_learn`]: learning the prompt prefix for the heuristic tier,

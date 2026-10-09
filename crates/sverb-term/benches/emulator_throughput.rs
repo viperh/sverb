@@ -1,6 +1,6 @@
-//! T-19 (M1-09): emulator parse throughput on a mixed text + SGR stream (SPEC §19: ≥ 100 MB/s).
+//! Emulator parse throughput on a mixed text + SGR stream (SPEC §19: ≥ 100 MB/s).
 //!
-//! `cargo bench -p sverb-term --bench emulator_throughput`. M7-06: `emulator_parse`,
+//! `cargo bench -p sverb-term --bench emulator_throughput`. `emulator_parse`,
 //! gated by `scripts/bench-gate.py` (≥ 100 MB/s locally, ≥ 50 MB/s on CI). Each
 //! iteration feeds 1 MiB; criterion runs enough iterations to cover well over 100 MB.
 #![allow(missing_docs, clippy::unwrap_used)]

@@ -1,4 +1,4 @@
-//! M2-07: the `confirm_on_use` modal (SPEC §6.1.6): "**`<host>`** requests a signature
+//! The `confirm_on_use` modal (SPEC §6.1.6): "**`<host>`** requests a signature
 //! with key **`<key>`**" — `[a]llow once` / `[d]eny`. Esc denies; after the prompt's
 //! timeout (60 s) it denies. Each answer becomes `Effect::AgentConfirm`. Prompts come
 //! one at a time from the agent's queue, so concurrent requests wait their turn.

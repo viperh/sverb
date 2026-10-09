@@ -2,7 +2,7 @@
 //!
 //! [`KeyChord`] is sverb's own key type. Crossterm events are converted with
 //! [`KeyChord::from_key_event`], which normalizes terminal quirks so lookups never
-//! depend on how a terminal encodes a key (M0-10, `tasks/03-KEYBINDINGS.md`):
+//! depend on how a terminal encodes a key:
 //!
 //! - a shifted ASCII letter is stored as the uppercase letter **without** SHIFT
 //!   (`L` means shift-l; terminals differ in whether they report SHIFT),
@@ -30,7 +30,6 @@
 use std::{fmt, ops::BitOr, str::FromStr};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
-// M1-11
 use sverb_term::modes::input::{Key, KeyInput, KeyMods};
 
 /// Key modifiers sverb distinguishes. Other crossterm modifiers (hyper, meta) are dropped.
@@ -326,7 +325,6 @@ fn normalize_char(c: char, mut mods: Mods) -> (KeyCode, Mods) {
     (KeyCode::Char(c), mods)
 }
 
-// M1-11
 impl KeyChord {
     /// The key encoder's view of this chord (`sverb-term` never sees crossterm types).
     /// `None` for keys that have no byte encoding (media keys, lone modifiers, caps lock).
@@ -497,7 +495,7 @@ mod tests {
         s.parse().unwrap_or_else(|e| panic!("{s}: {e}"))
     }
 
-    // T-01: parse + canonical display round-trip (≥ 40 chords).
+    // Parse + canonical display round-trip (≥ 40 chords).
     #[test]
     fn t01_parse_display_table() {
         for (input, canonical) in [
@@ -572,7 +570,7 @@ mod tests {
         }
     }
 
-    // T-03: invalid chords are errors with messages.
+    // Invalid chords are errors with messages.
     #[test]
     fn t03_invalid() {
         for (bad, why) in [
@@ -673,7 +671,7 @@ mod tests {
     }
 
     proptest! {
-        // T-02: parse(display(c)) == c for every chord in the grammar.
+        // Parse(display(c)) == c for every chord in the grammar.
         #[test]
         fn t02_display_parse_round_trip(code in any_code(), bits in 0u8..16) {
             let chord = KeyChord::new(code, Mods::from_bits(bits));

@@ -1,4 +1,4 @@
-//! M2-09: the snippet editor (SPEC §4.9, §8.5).
+//! The snippet editor (SPEC §4.9, §8.5).
 //!
 //! Fields: name, description, tags, run mode, script (multi-line), variables (a
 //! key/value list `name = default`; an empty default means "ask") and the secret

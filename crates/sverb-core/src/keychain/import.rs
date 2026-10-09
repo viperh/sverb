@@ -1,11 +1,9 @@
-//! M2-03 §2.3: key import (SPEC §9.4).
 //!
 //! - **Sources**: a file ([`read_key_file`], `~` expanded, with [`complete_path`] for
 //!   the TUI's tab completion) or pasted text.
 //! - **Formats** detected by content ([`detect`]): OpenSSH, PEM PKCS#1 / SEC1, PKCS#8
 //!   (plain / encrypted), an OpenSSH public key line (→ an **agent reference** key with
 //!   no private part, §9.4), and whatever a registered [`KeyImporter`] claims (PuTTY
-//!   `.ppk`, [`formats::ppk::PpkImporter`], registered by default since M7-03).
 //! - **Passphrases**: [`import_with_prompt`] asks up to [`PASSPHRASE_TRIES`] times, then
 //!   aborts with [`KeychainError::TooManyTries`] (nothing is created).
 //! - **Stored form**: OpenSSH. By default an encrypted key stays encrypted with the same
@@ -32,7 +30,6 @@ use crate::{
 
 // ---------------------------------------------------------------- importer hook
 
-/// A pluggable key format (M7-03 registers PuTTY `.ppk` here).
 pub trait KeyImporter: Send + Sync {
     /// A short, unique name (`"PuTTY"`); registering the same name replaces it.
     fn name(&self) -> &'static str;
@@ -48,7 +45,6 @@ pub trait KeyImporter: Send + Sync {
     fn decode(&self, text: &str, passphrase: Option<&str>) -> Result<PrivateKey, KeychainError>;
 }
 
-/// The `.ppk` slot before M7-03 (no longer registered; kept for tests and API stability).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct PpkPlaceholder;
 
@@ -81,7 +77,7 @@ type Registry = RwLock<Vec<Arc<dyn KeyImporter>>>;
 
 fn registry() -> &'static Registry {
     static REG: OnceLock<Registry> = OnceLock::new();
-    // M7-03: the real `.ppk` parser replaces the placeholder.
+    // The real `.ppk` parser replaces the placeholder.
     REG.get_or_init(|| {
         RwLock::new(vec![
             Arc::new(formats::ppk::PpkImporter) as Arc<dyn KeyImporter>

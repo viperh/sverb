@@ -1,4 +1,4 @@
-//! M1-10: per-pane state in the reducer (color scheme, title, overlay) and drawing the
+//! Per-pane state in the reducer (color scheme, title, overlay) and drawing the
 //! focused session's [`TerminalPane`].
 //!
 //! The scheme of a pane is its host's `color_scheme` ([`PaneInfo::scheme`], set when the
@@ -77,7 +77,6 @@ impl App {
         self.update_pane(id, |p| p.osc_title = title);
     }
 
-    /// The pane-state overlay (M1-04, M1-12, M1-16 drive it).
     pub fn set_pane_overlay(&mut self, id: SessionId, overlay: PaneOverlay) {
         self.update_pane(id, |p| p.overlay = overlay);
     }
@@ -128,16 +127,15 @@ impl App {
         id: SessionId,
         panes: &dyn PaneSource,
     ) -> Option<PaneCursor> {
-        // M6-03: a viewer pane draws the host-sized screen letterboxed.
+        // A viewer pane draws the host-sized screen letterboxed.
         if let Some(cursor) = self.render_share_viewer(frame, area, id, panes) {
             return cursor;
         }
         let emulator = panes.emulator(id);
         let mut info = self.pane(id);
-        // M3-02: broadcast members get the broadcast border.
+        // Broadcast members get the broadcast border.
         info.broadcast = self.broadcast_highlight(id);
         if emulator.is_none() && info.overlay == PaneOverlay::None {
-            // No emulator (reducer tests, a session that is gone): the M0-10 placeholder.
             self.render_session_placeholder(frame, area, id);
             return None;
         }
@@ -150,16 +148,16 @@ impl App {
             use_osc_title: self.config.terminal.use_osc_title,
             leader: self.keymap.leader().hint(),
         };
-        // M3-04: copy mode, mouse selection and link overlays.
+        // Copy mode, mouse selection and link overlays.
         let cursor = pane.render_with(area, frame.buffer_mut(), emulator.as_ref(), &|emu, view| {
             self.pane_decor(id, emu, view)
         });
         if let Some(c) = cursor {
             frame.set_cursor_position(c.position);
         }
-        // M6-03: `⚠ shared · view|control` on a pane this device shares.
+        // `⚠ shared · view|control` on a pane this device shares.
         self.render_share_badge(frame, area, id);
-        // M7-01: the ghost-text suggestion after the cursor (`history.ghost_text`).
+        // The ghost-text suggestion after the cursor (`history.ghost_text`).
         self.render_ghost_text(frame, area, id, emulator.as_ref(), cursor.as_ref());
         cursor
     }
@@ -253,7 +251,7 @@ mod tests {
         assert_eq!(app.pane_depth(), ColorDepth::Mono);
     }
 
-    // T-14: changing a host's scheme re-renders that pane only.
+    // Changing a host's scheme re-renders that pane only.
     #[test]
     fn host_scheme_change_redraws_only_visible_panes() {
         let mut app = app_with("terminal");

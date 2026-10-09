@@ -1,4 +1,4 @@
-# M7-07: release-plz (SPEC §20). https://release-plz.dev/docs/config
+# Release-plz (SPEC §20). https://release-plz.dev/docs/config
 #
 # Used only to PREPARE releases: every push to `master` (re)opens a release PR that bumps
 # the version of every crate together (they share `workspace.package.version`) and adds

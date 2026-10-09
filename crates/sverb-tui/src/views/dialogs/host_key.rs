@@ -1,4 +1,4 @@
-//! M1-15: the host-key dialogs (SPEC §9.5, §6.1.1 step 3).
+//! The host-key dialogs (SPEC §9.5, §6.1.1 step 3).
 //!
 //! **Unknown key:** a centered modal with the host (and the jump hop), key type,
 //! `SHA256:` fingerprint and randomart. `a` accept & save, `o` accept once (this

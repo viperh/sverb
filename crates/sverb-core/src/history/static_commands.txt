@@ -1,4 +1,4 @@
-# M7-01: the static completion set (SPEC §9.10 "common commands").
+# The static completion set (SPEC §9.10 "common commands").
 # One command per line; blank lines and lines starting with `#` are ignored.
 # coreutils and friends
 ls

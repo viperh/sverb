@@ -1,4 +1,4 @@
-//! M7-03: PuTTY sessions importer tests (T-05 snapshot, the mapping, T-06 on Windows).
+//! PuTTY sessions importer tests (T-05 snapshot, the mapping, T-06 on Windows).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -30,7 +30,7 @@ fn skipped_with(plan: &ImportPlan, needle: &str) -> bool {
     plan.skipped.iter().any(|s| s.reason.contains(needle))
 }
 
-/// T-05: the sessions fixture directory → the preview (skipped telnet / serial /
+/// The sessions fixture directory → the preview (skipped telnet / serial /
 /// SOCKS4 / Default Settings sessions, URL-decoded labels, proxies, forwards).
 #[test]
 fn t05_sessions_snapshot() {
@@ -174,7 +174,6 @@ fn missing_dir_is_a_read_error() {
     assert!(matches!(e, ImportError::Read { .. }));
 }
 
-/// The plan goes through the M2-11 pipeline: classification and materialization (the
 /// proxy is written without a password; forwards point at the host).
 #[test]
 fn materialize_putty_plan() {
@@ -246,7 +245,7 @@ fn materialize_putty_plan() {
     assert_eq!(again.counts().new, 0, "{}", again.render_table());
 }
 
-/// T-06: the registry reader, against a temporary key under `HKCU\Software\sverb-test`.
+/// The registry reader, against a temporary key under `HKCU\Software\sverb-test`.
 #[cfg(windows)]
 #[test]
 fn t06_registry_reader() {

@@ -1,4 +1,4 @@
-//! M5-03: public-key trust (SPEC §13.3, §11.3, §17 "server compromise").
+//! Public-key trust (SPEC §13.3, §11.3, §17 "server compromise").
 //!
 //! A malicious server could substitute public keys. The client therefore:
 //!
@@ -384,7 +384,7 @@ impl VaultKeySource for TrustedKeySource {
         }
     }
 
-    // M5-02: shared-vault adoption by the engine.
+    // Shared-vault adoption by the engine.
     fn account(&self) -> Option<Uuid> {
         Some(self.me)
     }
@@ -405,7 +405,6 @@ impl VaultKeySource for TrustedKeySource {
     }
 }
 
-// M5-02
 /// The [`VaultMembership`] of a `GET /v1/vaults/{id}/members` answer.
 #[must_use]
 pub fn membership_from_view(v: &sverb_proto::vaults::VaultMembersView) -> VaultMembership {
@@ -452,7 +451,7 @@ pub struct ApiDirectory {
     pub token: String,
 }
 
-// M7-05: the access token never reaches `Debug` output.
+// The access token never reaches `Debug` output.
 impl std::fmt::Debug for ApiDirectory {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ApiDirectory")
@@ -523,7 +522,7 @@ impl Trust {
         self.me
     }
 
-    /// Pins this account's own keys (at login/registration, M4-08). Safety
+    /// Pins this account's own keys (at login/registration). Safety
     /// numbers need them.
     ///
     /// # Errors
@@ -814,7 +813,7 @@ mod tests {
         }
     }
 
-    // T-03: the safety number Alice sees for Bob equals the one Bob sees for Alice.
+    // The safety number Alice sees for Bob equals the one Bob sees for Alice.
     #[test]
     fn t03_safety_number_symmetric() {
         let (alice, bob) = (user(), user());
@@ -841,7 +840,7 @@ mod tests {
         assert_ne!(pin_safety_number(&a_self, &pin_of(&carol)), on_alice);
     }
 
-    // T-05: grant verification.
+    // Grant verification.
     #[test]
     fn t05_grant_verification() {
         let (me, bob, mallory) = (user(), user(), user());

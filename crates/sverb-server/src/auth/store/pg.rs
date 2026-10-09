@@ -325,7 +325,6 @@ pub(super) async fn lookup_access(
     Ok(Some(AccessCtx { user_id, device_id }))
 }
 
-// M4-05
 pub(super) async fn access_expires_at(
     pool: &PgPool,
     hash: &TokenHash,

@@ -1,4 +1,4 @@
-//! M1-06: the `Multiline` field (notes, snippet scripts), backed by
+//! The `Multiline` field (notes, snippet scripts), backed by
 //! `ratatui-textarea` (the ratatui-0.30 successor of `tui-textarea`).
 //!
 //! Every key except the form's own (`Tab`/`Shift-Tab`, `ctrl-s`, `Esc`) goes to the

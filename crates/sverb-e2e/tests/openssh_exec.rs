@@ -1,4 +1,3 @@
-//! M2-04 T-01 (property) and T-02…T-09 against OpenSSH in Docker (the M1-18 harness).
 //! The loopback versions run without Docker in `sverb-conn`'s `ssh::exec_tests`.
 //!
 //! `#[ignore]`d: `SVERB_E2E=1 cargo test -p sverb-e2e --test openssh_exec -- --ignored`.
@@ -84,7 +83,7 @@ async fn t01_quote_roundtrip_in_container() {
     conn.close().await;
 }
 
-/// T-02…T-05: basic exec, output cap, timeout, PTY merge.
+/// Basic exec, output cap, timeout, PTY merge.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t02_t05_exec() {
@@ -127,7 +126,7 @@ async fn t02_t05_exec() {
     conn.close().await;
 }
 
-/// T-06, T-07, T-09: installed, already present, key auth works; a quote in the
+/// Installed, already present, key auth works; a quote in the
 /// comment; `~/.ssh` 700 and `authorized_keys` 600.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
@@ -169,7 +168,7 @@ async fn t06_t07_t09_install() {
     );
 }
 
-/// T-08: the Windows-like profile is reported as unsupported.
+/// The Windows-like profile is reported as unsupported.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "needs Docker (SVERB_E2E=1)"]
 async fn t08_windows_like() {

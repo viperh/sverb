@@ -1,4 +1,4 @@
-//! M7-05: unix process hardening: `setrlimit(RLIMIT_CORE)`, Linux
+//! Unix process hardening: `setrlimit(RLIMIT_CORE)`, Linux
 //! `prctl(PR_SET_DUMPABLE)`, `mlock`/`munlock` and `sysconf(_SC_PAGESIZE)`.
 //!
 //! One of the two documented `unsafe` exceptions (SPEC §17; `scripts/check-unsafe.py`).
