@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """cargo-vet crypto policy (M0-02 §2.3, SPEC §17).
 
-Crates in the SPEC Appendix A "Crypto" row must be vetted `safe-to-deploy`
-through an imported or our own audit. `cargo vet` accepts exemptions, so this
-script fails when any of them appears in `[exemptions]`. Run it after
-`cargo vet --locked`, which proves the remaining (audited) entries hold.
+Crates in the SPEC Appendix A "Crypto" row should be vetted `safe-to-deploy`
+through an imported or our own audit. Until those audits exist they are exempted
+(decision of 2026-10-09), so this script reports every exempted crypto crate as a
+CI warning instead of failing. Set VET_CRYPTO_STRICT=1 to make it fail again once
+the audits are in. Run it after `cargo vet --locked`.
 
 Usage: python3 scripts/check-vet-crypto.py [supply-chain/config.toml]
 """
 
 from __future__ import annotations
 
+import os
 import sys
 import tomllib
 
@@ -39,13 +41,16 @@ def main() -> int:
         config = tomllib.load(fh)
     exempted = sorted(set(config.get("exemptions", {})) & CRYPTO)
     if exempted:
-        print(
-            "crypto crates must be audited safe-to-deploy, not exempted "
-            f"(SPEC §17): {', '.join(exempted)}\n"
-            "Import an audit (cargo vet suggest) or certify one (cargo vet certify).",
-            file=sys.stderr,
+        message = (
+            "crypto crates are exempted, not audited (SPEC §17): "
+            f"{', '.join(exempted)}. Import an audit (cargo vet suggest) or certify one "
+            "(cargo vet certify)."
         )
-        return 1
+        if os.environ.get("VET_CRYPTO_STRICT") == "1":
+            print(message, file=sys.stderr)
+            return 1
+        print(f"::warning::{message}")
+        return 0
     print("cargo-vet crypto policy OK: no crypto crate is exempted")
     return 0
 

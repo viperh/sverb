@@ -98,7 +98,8 @@ Things the 1.0 release candidate could not finish or verify offline.
 - PostgreSQL: the PostgreSQL-backed server tests (sync, rotation, sharing) only run in CI.
 - Docker: the end-to-end suite against OpenSSH containers (`sverb-e2e`), including the M1-15
   host-key cases that are still `unimplemented!` placeholders.
-- Supply chain: fix the cargo-vet store and add the pending exemptions; run cargo-deny.
+- Supply chain: audit the crypto crates for cargo-vet (they are exempted for now; set
+  `VET_CRYPTO_STRICT=1` in the `vet` job once the audits are in).
 - Fuzzing: a nightly cargo-fuzz run with sanitizers.
 - Features still open from earlier tasks: account recovery has no UI or command; the TUI connect
   approval dialog and "needs approval" badges (M2-10); `terminal.bell` modes other than visual;

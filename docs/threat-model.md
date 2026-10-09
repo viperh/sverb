@@ -46,7 +46,7 @@ the residual risks we accept.
 | Agent-forwarding abuse | Per-key `agent_forwardable` (off by default), `confirm_on_use`, refusal when locked; local socket `0600` with a peer-uid check; Windows pipe with an owner-only protected DACL and a client SID check | M2-07, **M7-05** | `sverb-conn` `agent/tests.rs` (`t01_…`, `t03_locked_refuses_and_lists_nothing`, …); Windows DACL: not run (see residual risks) |
 | Shared-terminal hijack | Key only in the URL fragment, host approval of each viewer, view-only by default, AEAD with sequence numbers | M6-01..M6-03 | `sverb-crypto` `tests/share.rs`; `sverb-server` `tests/share.rs`; fuzz target `share_frame_decode` |
 | Hostile input files | Parsers of untrusted files and wire data are fuzzed (below) and property-tested | M1-15, M2-06, M2-08, M2-11, M7-03, **M7-05** | 13 cargo-fuzz targets; each body is also a property test in its crate |
-| Supply chain | `cargo-deny` (licenses, advisories, bans, sources), `cargo-vet` with real audits for crypto crates, `Cargo.lock` pinned (`--locked` in CI), reproducible release builds; `unsafe` confined (below) | M0-02, **M7-05** | CI jobs `deny`, `vet` (+ `scripts/check-vet-crypto.py`), `unsafe-check` |
+| Supply chain | `cargo-deny` (licenses, advisories, bans, sources), `cargo-vet` (crypto crates exempted for now, flagged as a CI warning until audited), `Cargo.lock` pinned (`--locked` in CI), reproducible release builds; `unsafe` confined (below) | M0-02, **M7-05** | CI jobs `deny`, `vet` (+ `scripts/check-vet-crypto.py`), `unsafe-check` |
 
 ## `unsafe` policy
 

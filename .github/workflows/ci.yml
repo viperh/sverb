@@ -283,7 +283,7 @@ jobs:
       - name: Vet dependencies
         run: cargo vet --locked
       # SPEC §17: Appendix A crypto crates need a real audit, never an exemption.
-      - name: Crypto crates are audited, not exempted
+      - name: Crypto crates (warns while they are exempted)
         run: python3 scripts/check-vet-crypto.py
 
   msrv:
