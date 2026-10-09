@@ -322,9 +322,10 @@ jobs:
             docker buildx build --platform "linux/$arch" --load \
               --build-arg VERSION="$VERSION" -t sverb-server:local ctx
             docker run --rm --platform "linux/$arch" sverb-server:local --version | grep -F "$VERSION"
-            # The compose stack with this image must report healthy.
-            DOCKER_DEFAULT_PLATFORM="linux/$arch" \
-              docker compose -f deploy/docker-compose.yml up -d --no-build
+            # The compose stack with this image must report healthy. Only sverb-server runs
+            # as $arch (emulated for arm64); PostgreSQL stays native.
+            printf 'services:\n  sverb-server:\n    platform: linux/%s\n' "$arch" > "$RUNNER_TEMP/platform.yml"
+            docker compose -f deploy/docker-compose.yml -f "$RUNNER_TEMP/platform.yml" up -d --no-build
             ok=false
             for i in $(seq 1 120); do
               status="$(docker inspect --format '{{.State.Health.Status}}' "$(docker compose -f deploy/docker-compose.yml ps -q sverb-server)")"
