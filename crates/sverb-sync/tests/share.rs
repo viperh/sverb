@@ -434,18 +434,22 @@ impl Viewer {
     }
 }
 
+/// A line of command output is on screen: alone, or right after a prompt. Input typed
+/// before the shell is ready to read it (before the first prompt, or while an earlier
+/// command still runs) is echoed by the tty at once, and its output then follows the
+/// next prompt on the same line (`$ READY_21`).
 fn line_is(screen: &str, line: &str) -> bool {
-    screen.lines().any(|l| l.trim_end() == line)
-}
-
-/// The readiness probe's output (`READY_21`) is on screen. When the command is typed
-/// before the shell prints its first prompt, the tty echoes it at once and the output
-/// then follows the prompt on the same line (`$ READY_21`).
-fn shell_ready(screen: &str) -> bool {
     screen.lines().any(|l| {
         let l = l.trim_end();
-        l == "READY_21" || l.ends_with("$ READY_21")
+        l == line
+            || l.strip_suffix(line)
+                .is_some_and(|head| head.ends_with("$ "))
     })
+}
+
+/// The readiness probe's output (`READY_21`) is on screen.
+fn shell_ready(screen: &str) -> bool {
+    line_is(screen, "READY_21")
 }
 
 /// Viewer and host show the same screen, cursor and modes.

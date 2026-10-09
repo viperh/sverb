@@ -7,6 +7,23 @@ the sync protocol is versioned separately (`/v1`, `Sverb-Proto: 1`).
 
 Each release adds a section here before its tag is pushed (`docs/release.md`).
 
+## [1.0.2] - 2026-10-09
+
+### Fixed
+
+- **macOS:** sverb could hang at startup when the terminal didn't answer the keyboard
+  protocol probe (`poll()` doesn't work on `/dev/tty` on macOS); the probe now reads the
+  reply from stdin and never blocks.
+- **Snippets:** a new or edited snippet now shows up at once in the Snippets view, the
+  `leader e` picker and the command palette (it used to need a restart).
+
+### Changed
+
+- Releases are made only by pushing a `vX.Y.Z` tag; release-plz was removed.
+- CI: the full test suite runs in the Canary job (Linux); the per-OS test matrix was
+  dropped. cargo-deny, cargo-vet, fuzzing, E2E and the docker compose checks pass.
+- Source comments no longer refer to the internal planning tasks.
+
 ## [1.0.1] - 2026-10-09
 
 The first release candidate for 1.0: everything below is new. SPEC.md (v0.4) describes the
