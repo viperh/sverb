@@ -17,6 +17,8 @@ truecolor = "auto"              # auto | on | off
 show_which_key = true
 which_key_delay_ms = 400
 date_format = "%Y-%m-%d %H:%M"
+ascii = "auto"                  # auto | on | off: ASCII glyphs (auto: non-UTF-8 locale or TERM=linux)
+reduce_motion = false           # no animated spinners
 
 [terminal]
 term = "xterm-256color"

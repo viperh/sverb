@@ -1,0 +1,128 @@
+# M7-05: cargo-fuzz targets (SPEC §19 "Fuzzing"). Its own workspace (excluded from the
+# root one): it needs nightly and libFuzzer, and must not touch the root Cargo.lock.
+#
+#   cargo +nightly fuzz list
+#   fuzz/seed-corpus.sh                       # copy the fixtures into fuzz/corpus/
+#   cargo +nightly fuzz run emulator_feed fuzz/corpus/emulator_feed -- -max_total_time=30
+#
+# CI: `.github/workflows/ci.yml` (job `fuzz`, 30 s per target on every PR) and
+# `.github/workflows/fuzz.yml` (nightly, 10 min per target, crashes uploaded).
+# Every target calls a `fuzz_*` function (or public parser) that a property test in its
+# crate also runs, so the bodies are compiled and exercised by `cargo test`.
+[package]
+name = "sverb-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4.13"
+sverb-conn = { path = "../crates/sverb-conn" }
+sverb-core = { path = "../crates/sverb-core" }
+sverb-crypto = { path = "../crates/sverb-crypto" }
+sverb-proto = { path = "../crates/sverb-proto" }
+sverb-term = { path = "../crates/sverb-term" }
+
+# Not part of the root workspace.
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+# libFuzzer reports panics as crashes only when they abort.
+panic = "abort"
+
+[[bin]]
+name = "ssh_config_parse"
+path = "fuzz_targets/ssh_config_parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ppk_parse"
+path = "fuzz_targets/ppk_parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "known_hosts_parse"
+path = "fuzz_targets/known_hosts_parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "socks5_request"
+path = "fuzz_targets/socks5_request.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "share_frame_decode"
+path = "fuzz_targets/share_frame_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "envelope_open"
+path = "fuzz_targets/envelope_open.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "key_event_encode"
+path = "fuzz_targets/key_event_encode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "emulator_feed"
+path = "fuzz_targets/emulator_feed.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "backup_decrypt"
+path = "fuzz_targets/backup_decrypt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "http_connect_response"
+path = "fuzz_targets/http_connect_response.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "osc133_scan"
+path = "fuzz_targets/osc133_scan.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "bundle_open"
+path = "fuzz_targets/bundle_open.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "grant_open"
+path = "fuzz_targets/grant_open.rs"
+test = false
+doc = false
+bench = false

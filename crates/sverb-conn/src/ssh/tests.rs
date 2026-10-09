@@ -543,11 +543,9 @@ async fn unsupported_routes_fail() {
         is_state(e, |s| matches!(s, SessionState::Disconnected { .. }))
     })
     .await;
-    assert!(
-        before
-            .iter()
-            .any(|e| matches!(e, SessionEvent::Error(r) if r.short == "Jump chain cycle: test → test"))
-    );
+    assert!(before.iter().any(
+        |e| matches!(e, SessionEvent::Error(r) if r.short == "Jump chain cycle: test → test")
+    ));
     mgr.shutdown(Duration::from_secs(2)).await;
 }
 

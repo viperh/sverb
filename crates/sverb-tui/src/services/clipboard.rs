@@ -166,8 +166,8 @@ impl ClipboardService {
     /// The real service: OSC 52 to stdout, the platform's clipboard tool, and SSH
     /// detection from `SSH_CONNECTION` / `SSH_TTY`.
     pub fn from_env(osc52: bool) -> Self {
-        let over_ssh =
-            std::env::var_os("SSH_CONNECTION").is_some() || std::env::var_os("SSH_TTY").is_some();
+        // M7-04: the shared detection (`runtime::capabilities`, also used by `sverb doctor`).
+        let over_ssh = crate::runtime::capabilities::TermEnv::from_process().over_ssh();
         let local = if over_ssh {
             None
         } else {

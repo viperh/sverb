@@ -8,9 +8,10 @@
 //! | Duplicate preview and id-remapping import (2.2) | [`merge_local`] | [`ImportPreview`] |
 //! | Online password change (2.4) | [`password`] | [`change_password`] |
 //! | Forgotten password with the recovery key (2.7) | [`recovery`] | [`recover_account`] |
-//! | Disconnect (2.8) | [`logout`] | [`logout()`](logout::logout) |
+//! | Disconnect (2.8) | [`mod@logout`] | [`logout()`](logout::logout) |
 //! | Devices (M4-09) | [`devices`] | [`list_devices`], [`revoke_device`] |
 //! | Orgs, invites, audit (M5-01) | [`teams`] | [`teams::list_orgs`], [`teams::invite`], … |
+//! | Shared vaults (M5-02) | [`vaults`] | [`vaults::VaultAdmin`], [`vaults::apply_transfer`] |
 //! | Wizard state machines for the UI | [`wizard`] | [`RecoveryConfirm`], [`RegisterWizard`] |
 //!
 //! # One password (§11.2.1)
@@ -61,6 +62,8 @@ pub mod recovery;
 pub mod register;
 // M5-01: orgs, members, invites, the audit log.
 pub mod teams;
+// M5-02: shared vaults (create, grant, revoke, admin reconcile, move/copy apply).
+pub mod vaults;
 pub mod wizard;
 
 pub use devices::{Revoked, list_devices, revoke_device};

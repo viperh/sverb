@@ -1,6 +1,10 @@
 [package]
 name = "sverb"
-description = "SSH TUI"
+description = "A terminal-native SSH client and server manager with an encrypted vault and optional self-hosted, end-to-end-encrypted sync"
+# M7-07: crates.io metadata (`cargo install sverb`).
+readme = "../../README.md"
+keywords = ["ssh", "tui", "terminal", "ratatui", "cli"]
+categories = ["command-line-utilities", "network-programming"]
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

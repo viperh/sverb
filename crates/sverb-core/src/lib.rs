@@ -23,6 +23,10 @@ pub use host_arg::resolve_host_arg;
 // M0-04: secret types that are redacted when formatted (SPEC §11.5, §17).
 pub mod secret;
 
+// M7-05: core dumps off, same-user ptrace blocked, mlocked key material (SPEC §17). The
+// only module (with the Windows agent DACL) allowed `unsafe`.
+pub mod hardening;
+
 // M0-04: file logging with daily rotation, SVERB_LOG, crash/debug rings (SPEC §18).
 pub mod logging;
 

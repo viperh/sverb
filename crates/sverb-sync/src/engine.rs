@@ -178,6 +178,11 @@ pub(crate) struct Ctx {
     // M4-09: one warning per device (the TUI also dedups per session).
     pub(crate) skew_warned: HashSet<sverb_core::model::DeviceId>,
     pub(crate) needs_login: bool,
+    // M5-02: shared vaults whose grant was refused (vault → reason), so the
+    // error is shown once and the status says so.
+    pub(crate) rejected_grants: HashMap<VaultId, String>,
+    // M5-04: abandoned rotations already reported (one prompt per engine).
+    pub(crate) abandoned_reported: HashSet<VaultId>,
 }
 
 impl std::fmt::Debug for Ctx {
@@ -301,8 +306,14 @@ impl Ctx {
                 continue;
             };
             self.unknown_vaults.remove(&vault);
+            // M5-02: the UI shows "Read-only vault" from this.
+            if view.kind == sverb_proto::sync::VaultKind::Shared {
+                crate::account::vaults::note_permission(&self.store, vault, view.permission).await;
+            }
             if view.rotation.is_some() {
                 self.rotating.insert(vault);
+                // M5-04: an abandoned rotation is restarted by a `manage` client.
+                self.note_abandoned(view);
             } else if self.rotating.remove(&vault) {
                 tracing::info!(%vault, "key rotation finished; resuming pushes");
             }
@@ -311,14 +322,26 @@ impl Ctx {
                 (k.current_version(vault).unwrap_or(0), k.kind(vault))
             };
             if view.key_version > current && view.rotation.is_none() {
+                // M5-04: the new grant of a rotated shared vault is checked
+                // against a fresh membership list and pinned granters.
+                if kind == Some(sverb_store::VaultKind::Shared) {
+                    self.prepare_rotated_grant(view).await;
+                }
                 match self.key_source.open_grant(view, view.key_version) {
                     Some(key) => {
                         let kind = kind.unwrap_or(sverb_store::VaultKind::Personal);
                         self.keys.write().insert(vault, kind, view.key_version, key);
+                        // M5-04: re-seal local items still under an old key
+                        // version before the old key leaves the store.
+                        self.reseal_local(vault).await?;
                         let (kv, wrapped) = self.keys.read().wrap_current(vault, &self.lmk)?;
                         self.store.update_wrapped_key(vault, kv, wrapped).await?;
                         self.missing_key.remove(&vault);
                         tracing::info!(%vault, key_version = kv, "vault key updated");
+                        self.emit(SyncEvent::KeyRotated {
+                            vault,
+                            key_version: kv,
+                        });
                     }
                     None => {
                         if self.missing_key.insert(vault) {
@@ -330,6 +353,8 @@ impl Ctx {
                 self.missing_key.remove(&vault);
             }
         }
+        // M5-02: shared vaults granted since (`account::vaults`).
+        self.adopt_new_vaults(&views).await?;
         Ok(())
     }
 
@@ -401,6 +426,14 @@ impl Ctx {
             issues.push(format!(
                 "{read_only} {} not uploaded (read-only access)",
                 plural(read_only)
+            ));
+        }
+        // M5-02
+        if !self.rejected_grants.is_empty() {
+            let n = self.rejected_grants.len();
+            issues.push(format!(
+                "access to {n} shared vault{} could not be verified",
+                if n == 1 { "" } else { "s" }
             ));
         }
         if !self.missing_key.is_empty() {
@@ -488,6 +521,8 @@ impl SyncEngine {
                 undecryptable: HashSet::new(),
                 skew_warned: HashSet::new(),
                 needs_login: false,
+                rejected_grants: HashMap::new(),
+                abandoned_reported: HashSet::new(),
             },
         })
     }

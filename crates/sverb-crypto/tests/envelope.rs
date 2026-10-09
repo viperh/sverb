@@ -67,13 +67,22 @@ fn tamper_aad_other_item_vault_or_key_version() {
     let any_kv = |_: u32| Some(&vk);
 
     // Moved to another item in the same vault.
-    assert_eq!(open_item(any_kv, &VAULT_A, &ITEM_B, &env).unwrap_err(), CryptoError::Auth);
+    assert_eq!(
+        open_item(any_kv, &VAULT_A, &ITEM_B, &env).unwrap_err(),
+        CryptoError::Auth
+    );
     // Moved to another vault.
-    assert_eq!(open_item(any_kv, &VAULT_B, &ITEM_A, &env).unwrap_err(), CryptoError::Auth);
+    assert_eq!(
+        open_item(any_kv, &VAULT_B, &ITEM_A, &env).unwrap_err(),
+        CryptoError::Auth
+    );
     // key_version rewritten in the header, the matching VK supplied.
     let mut forged = env.clone();
     forged[1..5].copy_from_slice(&6u32.to_be_bytes());
-    assert_eq!(open_item(any_kv, &VAULT_A, &ITEM_A, &forged).unwrap_err(), CryptoError::Auth);
+    assert_eq!(
+        open_item(any_kv, &VAULT_A, &ITEM_A, &forged).unwrap_err(),
+        CryptoError::Auth
+    );
     // Sanity: the original opens.
     assert!(open_item(any_kv, &VAULT_A, &ITEM_A, &env).is_ok());
 }
@@ -89,9 +98,15 @@ fn tamper_every_byte() {
             t[pos] ^= flip;
             let err = open_item(|k| (k == 1).then_some(&vk), &VAULT_A, &ITEM_A, &t).unwrap_err();
             match pos {
-                0 => assert!(matches!(err, CryptoError::UnsupportedVersion(_)), "pos {pos}: {err:?}"),
+                0 => assert!(
+                    matches!(err, CryptoError::UnsupportedVersion(_)),
+                    "pos {pos}: {err:?}"
+                ),
                 // key_version bytes: no VK for the mutated version.
-                1..=4 => assert!(matches!(err, CryptoError::Malformed(_)), "pos {pos}: {err:?}"),
+                1..=4 => assert!(
+                    matches!(err, CryptoError::Malformed(_)),
+                    "pos {pos}: {err:?}"
+                ),
                 _ => assert_eq!(err, CryptoError::Auth, "pos {pos}"),
             }
         }
@@ -119,7 +134,10 @@ fn unsupported_version() {
         open_item(|_| Some(&vk), &VAULT_A, &ITEM_A, &env).unwrap_err(),
         CryptoError::UnsupportedVersion(2)
     );
-    assert_eq!(parse_header(&[0x02]).unwrap_err(), CryptoError::UnsupportedVersion(2));
+    assert_eq!(
+        parse_header(&[0x02]).unwrap_err(),
+        CryptoError::UnsupportedVersion(2)
+    );
 }
 
 // T-08
@@ -163,7 +181,11 @@ fn zip_bomb_is_rejected() {
     // A correctly authenticated envelope whose zstd payload expands past 16 MiB,
     // built from the public primitives exactly like seal_item does.
     let bomb = zstd::bulk::compress(&vec![0u8; MAX_DECOMPRESSED + 4096], 19).unwrap();
-    assert!(bomb.len() < 64 * 1024, "bomb should be small: {}", bomb.len());
+    assert!(
+        bomb.len() < 64 * 1024,
+        "bomb should be small: {}",
+        bomb.len()
+    );
     let vk = vk();
     let kv = 1u32;
     let nonce = random_nonce24(&mut rng());

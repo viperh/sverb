@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/app/share_tests.rs
+expression: "h.render(80, 24)"
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ 1 web-1 ┬ +                                                                    
+┌ session 1 ───────────────────────────────────────────────────────────────────┐
+│Session pane (the terminal view arrives with M1-10).                          │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│   ┌ Shared · control ────────────────────────────────────────────────────┐   │
+│   │Link: sverb://join/sync.example.test/07070707-0707-0707-0707-07070707…│   │
+│   │Expires 14:32 · 2 viewers                                             │   │
+│   │                                                                      │   │
+│   │› bob                 control  198.51.100.0/24                        │   │
+│   │  anonymous           view                                            │   │
+│   │                                                                      │   │
+│   └ c control · k kick · y copy link · s stop · Esc close ───────────────┘   │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ NORMAL                                                      ^\ ? help · q quit

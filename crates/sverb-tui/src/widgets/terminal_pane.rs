@@ -41,9 +41,6 @@ use sverb_term::{ColorDepth, CursorShape, OverlayStyle, ViewState};
 
 use crate::{app::SessionId, theme::Theme};
 
-/// Spinner frames for the connecting overlay.
-const SPINNER: [char; 10] = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-
 /// Where the renderer finds a session's emulator.
 pub trait PaneSource {
     /// The emulator of a live session.
@@ -384,7 +381,8 @@ impl TerminalPane<'_> {
                 centered(inner, buf, vec![Line::styled("Session ended.", theme.dim)]);
             }
             PaneOverlay::Connecting { frame, detail } => {
-                let spin = SPINNER[frame % SPINNER.len()];
+                // M7-07: frames from `theme::glyphs` (static with `ui.reduce_motion`).
+                let spin = theme.spinner(*frame);
                 let mut lines = vec![Line::styled(format!("{spin} connecting…"), theme.accent)];
                 if !detail.is_empty() {
                     lines.push(Line::styled(detail.clone(), theme.dim));

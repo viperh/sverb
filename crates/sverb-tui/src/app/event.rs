@@ -97,6 +97,9 @@ pub enum UiEvent {
     /// From the sync service: local state, devices, the account wizard, team pins.
     #[cfg(feature = "sync")]
     SyncUi(super::sync::SyncUiEvent),
+    // M6-03
+    /// From the share service: shares started / ended, viewers, viewer panes.
+    Share(super::share::ShareEvent),
 }
 
 // M0-07

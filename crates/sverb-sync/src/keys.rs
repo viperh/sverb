@@ -174,6 +174,29 @@ pub trait VaultKeySource: Send + Sync + fmt::Debug {
     /// `None` when it can't be opened (no account keys loaded, bad
     /// signature).
     fn open_grant(&self, view: &VaultView, version: u32) -> Option<Key32>;
+
+    // M5-02: adopting shared vaults (`engine.rs`). Defaults suit sources that
+    // can't check memberships (they open nothing new anyway).
+    /// The account whose grants this source opens.
+    fn account(&self) -> Option<uuid::Uuid> {
+        None
+    }
+
+    /// The device's pins changed (a granter was pinned on first sight).
+    fn update_pins(&self, _pins: crate::trust::PinSet) {}
+
+    /// The server's (untrusted) membership list of a shared vault, for the
+    /// "granter has `manage`" check (§13.3).
+    fn observe_vault_members(&self, _members: &sverb_proto::vaults::VaultMembersView) {}
+
+    /// [`Self::open_grant`] with the reason it was refused.
+    ///
+    /// # Errors
+    /// Why the grant can't be used.
+    fn check_grant(&self, view: &VaultView, version: u32) -> Result<Key32, String> {
+        self.open_grant(view, version)
+            .ok_or_else(|| "the vault key grant could not be opened".to_owned())
+    }
 }
 
 /// A [`VaultKeySource`] that can't open anything: rotations then surface as

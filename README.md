@@ -2,226 +2,186 @@
 
 [![CI](https://github.com/viperh/sverb/workflows/CI/badge.svg)](https://github.com/viperh/sverb/actions)
 
-sverb is a terminal SSH client with a [ratatui](https://ratatui.rs) user interface:
-an encrypted local vault of hosts, identities, keys and snippets, tabs and split
-panes with a built-in terminal emulator, port forwarding, and optional end-to-end
-encrypted sync through a self-hostable server. The full product specification is
-in [SPEC.md](SPEC.md).
+sverb is a terminal-native SSH client and server manager with a
+[ratatui](https://ratatui.rs) interface. It keeps hosts, identities, keys, port
+forwards and snippets in an encrypted local vault, and it has tabs and split panes
+with a built-in terminal emulator. Sync between devices, team vaults and terminal
+sharing go through an optional self-hosted server with end-to-end encryption.
+Everything else works offline, with no account. The product specification is
+[SPEC.md](SPEC.md).
 
-> Status: early development. The UI runs on the reducer architecture described in
-> [docs/architecture.md](docs/architecture.md) (with a placeholder Hosts screen) while
-> the crates below are filled in milestone by milestone (see `tasks/`).
-
-## Crate map
-
-```
-Cargo.toml              workspace manifest: dependency versions, lints, release profile
-SPEC.md                 product specification
-crates/
-  sverb/                client binary (clap CLI -> TUI or subcommands)
-  sverb-tui/            ratatui app: views, widgets, keymap, theme
-  sverb-core/           domain model, vault, settings resolution, importers (no UI)
-  sverb-crypto/         key hierarchy, envelopes, HPKE, OPAQUE wrappers (no I/O)
-  sverb-proto/          API DTOs, sync/share wire types (serde), versioned
-  sverb-store/          SQLite persistence for the client (rusqlite + migrations)
-  sverb-conn/           transports: ssh, local pty; forwarding; agent
-  sverb-term/           terminal emulator wrapper, key/mouse encoding, recording
-  sverb-sync/           client sync engine (HTTP + WS), optional
-  sverb-server/         axum sync backend (lib + bin `sverb-server`)
-  sverb-e2e/            docker-based integration tests and workspace checks (not published)
-migrations/{client,server}/   SQLite and PostgreSQL migrations
-deploy/                 server deployment files
-docs/                   architecture, keybindings, threat model, self-hosting
-tests/fixtures/         sample ssh configs, keys, known_hosts
-```
-
-Dependency direction is enforced by `crates/sverb-e2e/tests/workspace_metadata.rs`:
-business logic (`sverb-core`, `sverb-proto`, `sverb-crypto`) never depends on
-ratatui or crossterm, `sverb-crypto` does no I/O, and `sverb-server` shares only
-`sverb-proto` and `sverb-crypto` with the client. Every crate inherits the
-workspace lints, including `unsafe_code = "forbid"`.
-
-## Local-only vs synced builds
-
-Sync is a cargo feature of the binary, on by default:
-
-```sh
-cargo build -p sverb                          # with sync (default)
-cargo build -p sverb --no-default-features    # local-only: no sync code linked in
-```
-
-The local-only build (SPEC §1.1) contains no `sverb-sync` code at all;
-`cargo tree -p sverb --no-default-features -e normal` shows no `sverb-sync`.
-
-## Running
-
-```sh
-cargo run -p sverb
-cargo run -p sverb -- --version    # vergen-stamped version and resolved directories
-```
-
-`q`, `Ctrl-c` and `Ctrl-d` quit; `Ctrl-z` suspends.
-
-### Command line
-
-<!-- M0-07 -->
-`sverb` with no subcommand launches the TUI (it needs a terminal on stdout). The full
-tree (SPEC §16) is in `sverb --help`; commands marked `[sync]` exist only in builds
-with the `sync` feature.
+> Status: **1.0 release candidate.** [CHANGELOG.md](CHANGELOG.md) lists what is in it.
+> [docs/release.md](docs/release.md) lists what still has to happen before 1.0.
 
 ```text
-sverb [--debug] [--workspace <name>]        launch the TUI
-sverb connect <host|user@host:port>         TUI with a session open
-sverb hosts list [--json] [--tag t]... [--group g] | add <address> … | rm <host>
-sverb keys list | generate [--type ed25519] | import <file> | export <key> [--public]
-sverb keys --dump                           effective keymap
-sverb forward <rule> [--detach]
-sverb snippet run <snippet> --on <host|#tag|group>... [--json]
-sverb import ssh-config|known-hosts|putty|csv|backup … [--dry-run]
-sverb export backup|ssh-config|csv <file> | recording <id> <out.cast>
-sverb approve <host>    sverb agent [--socket <path>]    sverb lock | unlock
-sverb join | login | logout | register | sync | devices | team     [sync]
-sverb config --check | --print-default | --path
-sverb doctor [--algos]
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ no sessions · ^\ o quick connect · ^\ v views/sessions
+┌ Hosts ───────────────────────────────────────────────────────────────────────┐
+│›   alpha  10.0.0.1                                                           │
+│    bravo  10.0.0.2                                                           │
+│    charlie  10.0.0.3                                                         │
+│                                                                              │
+└───────────────────────────────────────────────────────────────────────── 3/3 ┘
+ NORMAL                                                      ^\ ? help · q quit
 ```
 
-Headless commands never touch terminal modes and never wait on a non-terminal
-stdin. Exit codes: 0 ok, 1 failure, 2 usage, 3 vault locked, 4 not found or
-ambiguous host, 5 approval required (`sverb approve <host>`), 6 network/server,
-7 partial failure. `--json` output is described in [`docs/cli-json.md`](docs/cli-json.md).
-Subcommands that are not implemented yet say which task implements them.
+## Features
 
-### Managing hosts
+- **Hosts:** groups with inherited settings, tags, identities, pinned and frecent
+  hosts, fuzzy filter, and quick connect (`user@host:port`).
+- **SSH:** connects through `russh` with password, key, agent, keyboard-interactive and
+  certificate auth. It has strict known-hosts with TOFU, jump-host chains, SOCKS5, HTTP
+  CONNECT and ProxyCommand proxies, connection sharing, and auto-reconnect.
+- **Keychain:** generate, import and export keys (OpenSSH, PEM, PKCS#8, PuTTY `.ppk`) and
+  certificates. Install a key on a host. A built-in agent can forward vault keys.
+- **Terminal:** tabs, splits, resize, zoom, broadcast input, workspaces, copy mode with
+  search, OSC 52 clipboard, encrypted session recording, and asciicast export.
+- **Port forwarding:** local, remote and dynamic (SOCKS) forwards, in the TUI or headless
+  with `sverb forward`.
+- **Snippets:** variables, run modes, and runs on many hosts (`sverb snippet run --on
+  #tag`).
+- **Shell history and autocomplete:** OSC 133 shell integration, with a heuristic
+  fallback.
+- **Import and export:** `~/.ssh/config`, `known_hosts`, CSV, PuTTY sessions, and
+  encrypted `.sverb-backup` files.
+- **Sync (optional):** end-to-end encrypted with OPAQUE login. You get devices, a recovery
+  key, team vaults with safety numbers and key rotation, and terminal sharing.
+- **Command palette:** `Ctrl-k` (or `leader p`). Every action is reachable from the
+  keyboard.
+- **Accessibility:** works in monochrome (`NO_COLOR`) and has an ASCII glyph mode
+  (`ui.ascii`) and reduced motion. See [docs/accessibility.md](docs/accessibility.md).
+- **Diagnostics:** `sverb doctor` checks the terminal, the agent, the keyring and sync.
 
-<!-- M1-07 -->
-In the TUI the **Hosts** section lists your hosts: pinned first, then the ones you
-use most (frecency, kept on this device only), then alphabetically, with a
-collapsible **Recent** group of the last 10 connections on top. `/` filters
-(`#tag`, `@vault` and fuzzy text); `Space` marks hosts for bulk actions.
+## Install
 
-| Key | Action |
+| Channel | Command |
 |---|---|
-| `Enter` | connect (every marked host opens in its own tab) |
-| `a` / `e` / `y` / `d` | add / edit / duplicate / delete (asks "Delete N hosts?") |
-| `p` | pin or unpin |
-| `c` | copy the equivalent `ssh …` command line |
-| `i` | full-screen details (the detail pane shows at ≥ 100 columns) |
-| `leader o` | quick connect: `user@host:port`, `[v6addr]:port`, `ssh://user@host:port`, or a saved host |
+| Cargo | `cargo install sverb` (Rust 1.95+; add `--no-default-features` for a local-only build without sync) |
+| Prebuilt | [GitHub releases](https://github.com/viperh/sverb/releases): static Linux x86_64/aarch64 (musl), universal macOS, and Windows x86_64. Each archive includes the man page and shell completions. Check them against `SHA256SUMS`. |
+| Arch Linux (AUR) | `paru -S sverb` (built from source) or `paru -S sverb-bin` (prebuilt) |
+| Homebrew | `brew install viperh/sverb/sverb` |
+| Nix | `nix run github:viperh/sverb` or `nix profile install github:viperh/sverb` |
+| Scoop | `scoop bucket add sverb https://github.com/viperh/scoop-sverb` then `scoop install sverb` |
 
-After a quick connection to an unsaved target succeeds, sverb offers to save it
-(`s` opens the host form prefilled). Every change is encrypted with the vault key
-and queued for sync, also in local-only builds.
+The sync server is published as the image `ghcr.io/viperh/sverb-server` (amd64 and
+arm64) and as static Linux binaries. See [docs/self-hosting.md](docs/self-hosting.md).
 
-From the command line (the vault is unlocked with the keyring, or the master
-password on a terminal):
+macOS binaries that aren't notarized need one extra step:
+[docs/faq.md](docs/faq.md#macos-gatekeeper-says-the-binary-cant-be-opened).
+
+## Quick start (local only)
 
 ```sh
-sverb hosts add 10.0.0.1 --label web-1 --user deploy --port 2222 --tag web
-sverb hosts add db.internal --group prod --create-group   # unknown groups exit 4 without it
-sverb hosts list [--json] [--tag web] [--group prod]      # never prints secrets
-sverb hosts rm web-1 [--yes]                               # --yes is required without a terminal
-sverb connect web-1          # a saved host (label, address or unique fuzzy match)…
-sverb connect root@10.0.0.9:2200                           # …or any user@host:port
+sverb                      # first run: choose a master password (or store it in the OS keyring)
 ```
 
-Missing tags are created by `hosts add`. Invalid addresses (`root@x`, `host:22`,
-spaces) exit with code 2; an ambiguous `<host>` exits with 4 and lists the matches.
+1. Press `a` in **Hosts** to add a host, or `I` to import `~/.ssh/config`.
+2. Press `Enter` to connect. `Ctrl-\` is the **leader**: use `leader -` / `leader |` to
+   split, `leader t` for a local shell, `leader [` for copy mode and `leader ?` for every
+   binding.
+3. Press `Ctrl-k` to open the command palette for anything else.
 
-### `.envrc`
+From scripts:
 
-<!-- M0-03 -->
-The repository ships a [direnv](https://direnv.net) `.envrc` that keeps config,
-data, logs and the agent socket inside the checkout while developing: it sets
-`SVERB_HOME=$PWD/.sverb-home` (git-ignored) and `SVERB_LOG=debug`. Run
-`direnv allow` once.
+```sh
+sverb hosts add 10.0.0.1 --label web-1 --user deploy --tag web
+sverb connect web-1
+sverb snippet run uptime --on '#web' --json
+sverb forward db-tunnel --detach
+sverb doctor
+```
 
-### Logging
+Headless commands unlock the vault with the OS keyring, or ask for the master password
+on the terminal. Without a terminal they exit with code 3. The exit codes and `--json`
+output are stable ([docs/cli-json.md](docs/cli-json.md), `man sverb`).
 
-<!-- M0-04 -->
-Logs go to one file per day in the state directory (`sverb.YYYY-MM-DD.log`, 7 days
-kept), never to the terminal. `SVERB_LOG` sets the filter (`info` by default; e.g.
-`SVERB_LOG=debug` or `SVERB_LOG=sverb_conn=trace`); `RUST_LOG` is ignored.
-`sverb --debug` logs at `debug` and keeps recent lines for the in-TUI log pane;
-debug logs may contain hostnames. See [`docs/logging.md`](docs/logging.md) for the
-policy on what may be logged.
+## Enabling sync
+
+Sync needs a server you run yourself. There is no hosted service and no default URL.
+
+```sh
+sverb register --server https://sync.example.com   # first account: use the setup token from the server log
+sverb login --server https://sync.example.com      # on each other device
+sverb sync --status
+```
+
+Your master password is also the account password. It never leaves the device: login
+uses OPAQUE. Keep the recovery key that registration shows you. Teams (`sverb team
+create`, `sverb team invite <email>`), shared vaults and terminal sharing (`leader S`,
+`sverb join <link>`) need sync.
+
+## Security model in short
+
+- The vault is encrypted at rest (XChaCha20-Poly1305 under an Argon2id-derived key, or
+  the OS keyring). Locking clears decrypted caches. Auto-lock is on by default.
+- The server only stores ciphertext and OPAQUE records. Public keys of team members are
+  pinned on first sight and can be checked with safety numbers. Revoking a member
+  rotates the vault key.
+- Host keys are checked strictly, and a changed key is blocked.
+- Synced settings that would run something locally (ProxyCommand, non-loopback
+  forwards, agent forwarding) need approval on each device (`sverb approve`).
+- Secrets are redacted from logs by type, and CI greps for planted canary secrets.
+- No `unsafe` code outside two documented, audited modules.
+
+The full analysis is in [docs/threat-model.md](docs/threat-model.md).
+
+## Documentation
+
+| Topic | File |
+|---|---|
+| Keybindings (generated) | [docs/keybindings.md](docs/keybindings.md) |
+| Configuration reference (generated) | [docs/config.md](docs/config.md), schema [docs/config.schema.json](docs/config.schema.json) |
+| FAQ and troubleshooting | [docs/faq.md](docs/faq.md) |
+| Accessibility | [docs/accessibility.md](docs/accessibility.md) |
+| Self-hosting the server | [docs/self-hosting.md](docs/self-hosting.md) |
+| Threat model | [docs/threat-model.md](docs/threat-model.md) |
+| CLI JSON output | [docs/cli-json.md](docs/cli-json.md) |
+| Themes and color schemes | [docs/themes.md](docs/themes.md) |
+| Terminal emulator | [docs/emulator.md](docs/emulator.md) |
+| Logging policy | [docs/logging.md](docs/logging.md) |
+| Performance targets | [docs/performance.md](docs/performance.md) |
+| Architecture, data model | [docs/architecture.md](docs/architecture.md), [docs/data-model.md](docs/data-model.md) |
+| Releasing | [docs/release.md](docs/release.md) |
 
 ### Files and directories
 
-<!-- M0-03 -->
-sverb resolves its directories once at startup (`sverb_core::paths`, SPEC §5.1);
-`sverb --version` prints them.
-
 | Purpose | Linux | macOS | Windows |
 |---|---|---|---|
-| Config (`config.toml`, `themes/`) | `$XDG_CONFIG_HOME/sverb` or `~/.config/sverb` | `~/Library/Application Support/sverb` | `%APPDATA%\sverb` |
-| Data (`sverb.db`) | `$XDG_DATA_HOME/sverb` or `~/.local/share/sverb` | `~/Library/Application Support/sverb` | `%LOCALAPPDATA%\sverb` |
-| State (logs, recordings, crash reports) | `$XDG_STATE_HOME/sverb` or `~/.local/state/sverb` | `~/Library/Logs/sverb` | `%LOCALAPPDATA%\sverb\state` |
-| Runtime (agent socket) | `$XDG_RUNTIME_DIR/sverb` | `$TMPDIR/sverb` | named pipe `\\.\pipe\sverb-agent` |
+| Config (`config.toml`, `themes/`) | `~/.config/sverb` | `~/Library/Application Support/sverb` | `%APPDATA%\sverb` |
+| Data (`sverb.db`) | `~/.local/share/sverb` | `~/Library/Application Support/sverb` | `%LOCALAPPDATA%\sverb` |
+| State (logs, recordings, crash reports) | `~/.local/state/sverb` | `~/Library/Logs/sverb` | `%LOCALAPPDATA%\sverb\state` |
 
-Set `SVERB_HOME=<dir>` to relocate everything to `<dir>/config`, `<dir>/data`,
-`<dir>/state` and `<dir>/run` (useful for tests and portable installs). Without a
-home directory and without `SVERB_HOME`, sverb exits with an error instead of
-writing into the working directory. Directories are created with mode `0700` on
-Unix, and a runtime directory that is group/world-accessible or owned by another
-user is refused. If `XDG_RUNTIME_DIR` is unset on Linux, the runtime directory
-falls back to `$TMPDIR/sverb-<uid>` (or `/tmp/sverb-<uid>`) with a logged warning.
+The XDG variables are honoured. `SVERB_HOME=<dir>` moves everything under `<dir>`, and
+`sverb --version` prints the resolved paths. Logs never go to the terminal: `SVERB_LOG`
+sets the filter and `--debug` turns on the in-TUI log pane.
 
-<!-- M1-12 -->
-Local shells (`leader t`) start in your home directory with sverb's environment,
-minus every `SVERB_*` variable, plus `TERM` (`terminal.term`), `COLORTERM=truecolor`
-and `SVERB_PANE=<session id>`, so scripts can tell which sverb pane they run in.
+## Building from source
 
-### Configuration
-
-<!-- M0-06 -->
-sverb reads one file, `config.toml` in the config directory above (SPEC §15). Every
-key is optional; the commented defaults are in
-[`crates/sverb-core/src/config/default_config.toml`](crates/sverb-core/src/config/default_config.toml).
-For example:
-
-```toml
-[general]
-leader = "ctrl-g"        # default "ctrl-\\"; ctrl-g suits layouts where \ needs AltGr
-
-[ssh]
-keepalive_secs = 10
-
-[keys.terminal]          # bindings after the leader
-"|" = "split_vertical"
+```sh
+cargo build -p sverb                          # client with sync (default)
+cargo build -p sverb --no-default-features    # local-only client: no sync code linked in
+cargo build -p sverb-server                   # sync server
 ```
 
-- Unknown keys, wrong types and out-of-range values are reported with
-  `key:line:col` and a hint (e.g. "did you mean `keepalive_secs`?"). A file with
-  any error is never partially applied: at startup the defaults are used, and on a
-  live reload the last good config stays in effect.
-- Changes are picked up while sverb runs. Keys that only affect new sessions or
-  connections (e.g. `terminal.term`, `ssh.*`) say so in a toast.
-- Server URLs and tokens never go in this file; they are set with `sverb login`
-  and stored encrypted in the database. AI keys are read from the environment
-  variable named by `ai.api_key_env`.
-- A JSON schema for editor completion is in
-  [`docs/config.schema.json`](docs/config.schema.json).
-
-## Toolchain
-
-- Development uses the latest stable Rust (`rust-toolchain.toml`, with `rustfmt` and `clippy`).
-- **MSRV: Rust 1.95** (`rust-version` in `Cargo.toml`). It is the highest
-  `rust-version` declared by the pinned dependency set (`rusqlite_migration`
-  2.6, `vergen-gix` 10.0.1).
-
-## Checks
+The workspace has one binary crate (`crates/sverb`), the server (`crates/sverb-server`)
+and libraries: `sverb-core` (domain, no UI), `sverb-crypto` (no I/O), `sverb-proto`,
+`sverb-store`, `sverb-conn`, `sverb-term`, `sverb-sync` and `sverb-tui`. The layering
+rules are enforced in CI ([docs/architecture.md](docs/architecture.md)).
 
 The gates CI runs:
 
 ```sh
-cargo test --locked --all-features --workspace
 cargo fmt --all --check
-cargo clippy --all-targets --all-features --workspace -- -D warnings
-RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --all-features --workspace
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+SVERB_KEYRING=off cargo test --workspace
+cargo test -p sverb --no-default-features
+RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+python3 scripts/check-layering.py && python3 scripts/check-unsafe.py && scripts/canary-scan.sh --self-test
 ```
 
-`Cargo.lock` is committed on purpose — CI builds with `--locked`.
+The MSRV is Rust 1.95. `Cargo.lock` is committed and CI builds with `--locked`. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

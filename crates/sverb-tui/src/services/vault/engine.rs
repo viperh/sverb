@@ -18,6 +18,7 @@ use sverb_core::model::{
     DeviceId, Hlc, HlcClock, ItemBody, ItemId, VaultId, migrate::is_read_only,
 };
 // M1-05: the in-memory search index built during the unlock decrypt pass.
+use sverb_core::hardening::Locked;
 use sverb_core::search::ItemIndex;
 use sverb_core::vault::{
     Argon2Cost, BackoffState, KdfParams, KeyringStore, VaultError, check_strength, keyring_account,
@@ -56,8 +57,11 @@ pub struct VaultStatus {
 }
 
 /// A key counted in the engine's live-key counter.
+///
+/// M7-05: the key lives in `mlock`ed pages where the OS allows it (best effort,
+/// SPEC §17 "Memory scraping"); it is zeroized before they are unlocked.
 struct TrackedKey {
-    key: Key32,
+    key: Locked<Key32>,
     live: Arc<AtomicUsize>,
 }
 
@@ -65,7 +69,7 @@ impl TrackedKey {
     fn new(key: Key32, live: &Arc<AtomicUsize>) -> Self {
         live.fetch_add(1, Ordering::SeqCst);
         Self {
-            key,
+            key: Locked::new(key),
             live: Arc::clone(live),
         }
     }
@@ -73,7 +77,7 @@ impl TrackedKey {
 
 impl Drop for TrackedKey {
     fn drop(&mut self) {
-        // `Key32` zeroizes itself when it is dropped right after this.
+        // `Locked<Key32>` zeroizes the key when it is dropped right after this.
         self.live.fetch_sub(1, Ordering::SeqCst);
     }
 }
@@ -88,7 +92,9 @@ struct VaultKeyEntry {
 /// service (never by `App`); dropping it zeroizes the keys.
 pub struct UnlockedVault {
     lmk: TrackedKey,
-    vaults: BTreeMap<VaultId, VaultKeyEntry>,
+    // M5-02: behind a lock so a shared vault granted while unlocked can be added
+    // ([`UnlockedVault::add_vault`]).
+    vaults: std::sync::RwLock<BTreeMap<VaultId, VaultKeyEntry>>,
     device_id: DeviceId,
     hlc_last: Hlc,
     method: UnlockMethod,
@@ -103,7 +109,7 @@ pub struct UnlockedVault {
 impl fmt::Debug for UnlockedVault {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("UnlockedVault")
-            .field("vaults", &self.vaults.keys().collect::<Vec<_>>())
+            .field("vaults", &self.map().keys().collect::<Vec<_>>())
             .field("device_id", &self.device_id)
             .field("method", &self.method)
             .field("items", &self.items)
@@ -112,6 +118,98 @@ impl fmt::Debug for UnlockedVault {
 }
 
 impl UnlockedVault {
+    // M5-02
+    fn map(&self) -> std::sync::RwLockReadGuard<'_, BTreeMap<VaultId, VaultKeyEntry>> {
+        self.vaults
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+    }
+
+    // M5-02
+    /// Loads the key of a vault added to the store while unlocked (a shared vault
+    /// the sync engine adopted after verifying its grant; its key is wrapped under
+    /// the LMK). `Ok(false)` when it was loaded already.
+    ///
+    /// # Errors
+    /// The key does not unwrap with the LMK.
+    pub fn add_vault(&self, row: &sverb_store::VaultRow) -> Result<bool, VaultError> {
+        if self.map().contains_key(&row.id) {
+            return Ok(false);
+        }
+        let vk = unwrap_key32(
+            &self.lmk.key,
+            &WrapPurpose::VaultKey(*row.id.as_bytes()),
+            &row.wrapped_key,
+        )
+        .map_err(|e| VaultError::from_crypto(e, "vault key"))?;
+        let entry = VaultKeyEntry {
+            kind: row.kind,
+            key_version: row.key_version,
+            key: TrackedKey::new(vk, &self.lmk.live),
+        };
+        self.vaults
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(row.id, entry);
+        Ok(true)
+    }
+
+    // M5-04
+    /// Replaces the key of a loaded vault whose stored key version moved on (a
+    /// key rotation the sync engine applied; the local items were re-sealed
+    /// under it). `Ok(false)` when nothing changed or the vault is not loaded.
+    ///
+    /// # Errors
+    /// The key does not unwrap with the LMK.
+    pub fn update_vault_key(&self, row: &sverb_store::VaultRow) -> Result<bool, VaultError> {
+        if self
+            .map()
+            .get(&row.id)
+            .is_none_or(|e| e.key_version >= row.key_version)
+        {
+            return Ok(false);
+        }
+        let vk = unwrap_key32(
+            &self.lmk.key,
+            &WrapPurpose::VaultKey(*row.id.as_bytes()),
+            &row.wrapped_key,
+        )
+        .map_err(|e| VaultError::from_crypto(e, "vault key"))?;
+        let entry = VaultKeyEntry {
+            kind: row.kind,
+            key_version: row.key_version,
+            key: TrackedKey::new(vk, &self.lmk.live),
+        };
+        self.vaults
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(row.id, entry);
+        Ok(true)
+    }
+
+    // M5-02
+    /// Opens a vault name sealed under the vault's key (`name_enc`: sealed like an
+    /// item envelope with the vault id as item id, §4.13). `None` when the vault is
+    /// not loaded or the name does not open.
+    pub fn open_vault_name(&self, vault: VaultId, name_enc: &[u8]) -> Option<String> {
+        let map = self.map();
+        let entry = map.get(&vault)?;
+        let plain = open_item(
+            |_| Some(&entry.key.key),
+            vault.as_bytes(),
+            vault.as_bytes(),
+            name_enc,
+        )
+        .ok()?;
+        String::from_utf8(plain.to_vec()).ok()
+    }
+
+    // M5-02
+    /// The kind of a loaded vault.
+    pub fn vault_kind(&self, vault: VaultId) -> Option<VaultKind> {
+        self.map().get(&vault).map(|e| e.kind)
+    }
+
     /// How it was unlocked.
     pub fn method(&self) -> UnlockMethod {
         self.method
@@ -129,12 +227,12 @@ impl UnlockedVault {
 
     /// The vaults whose keys are loaded.
     pub fn vault_ids(&self) -> Vec<VaultId> {
-        self.vaults.keys().copied().collect()
+        self.map().keys().copied().collect()
     }
 
     /// The personal vault.
     pub fn personal_vault(&self) -> Option<VaultId> {
-        self.vaults
+        self.map()
             .iter()
             .find(|(_, v)| v.kind == VaultKind::Personal)
             .map(|(id, _)| *id)
@@ -172,7 +270,8 @@ impl UnlockedVault {
         item: ItemId,
         body: &ItemBody,
     ) -> Result<(u32, Vec<u8>), VaultError> {
-        let entry = self.vaults.get(&vault).ok_or(VaultError::Locked)?;
+        let map = self.map();
+        let entry = map.get(&vault).ok_or(VaultError::Locked)?;
         let cbor = body
             .to_cbor()
             .map_err(|e| VaultError::Corrupt(format!("item body: {e}")))?;
@@ -194,8 +293,9 @@ impl UnlockedVault {
     /// [`VaultError::Locked`] for an unknown vault, [`VaultError::Corrupt`] if the
     /// envelope does not open or the body does not decode.
     pub fn open(&self, row: &ItemRow) -> Result<ItemBody, VaultError> {
-        let entry = self.vaults.get(&row.vault_id).ok_or(VaultError::Locked)?;
-        let lookup = |v: u32| (v == entry.key_version).then_some(&entry.key.key);
+        let map = self.map();
+        let entry = map.get(&row.vault_id).ok_or(VaultError::Locked)?;
+        let lookup = |v: u32| (v == entry.key_version).then_some(&*entry.key.key);
         let plain = open_item(
             lookup,
             row.vault_id.as_bytes(),
@@ -465,7 +565,7 @@ impl VaultEngine {
         Ok(Initialized {
             vault: UnlockedVault {
                 lmk: self.track(lmk),
-                vaults,
+                vaults: std::sync::RwLock::new(vaults),
                 device_id,
                 hlc_last,
                 method: UnlockMethod::Created,
@@ -640,7 +740,7 @@ impl VaultEngine {
             .map_or(Hlc::ZERO, |b| Hlc::from_u64(u64::from_be_bytes(b)));
         let mut unlocked = UnlockedVault {
             lmk,
-            vaults,
+            vaults: std::sync::RwLock::new(vaults),
             device_id,
             hlc_last,
             method,
@@ -667,11 +767,8 @@ impl VaultEngine {
             }
         }
         // M1-05
-        let kinds: Vec<(VaultId, VaultKind)> = unlocked
-            .vaults
-            .iter()
-            .map(|(id, v)| (*id, v.kind))
-            .collect();
+        let kinds: Vec<(VaultId, VaultKind)> =
+            unlocked.map().iter().map(|(id, v)| (*id, v.kind)).collect();
         unlocked.index = Some(new_index(kinds, bodies, &locals, self.store.now()));
         Ok(unlocked)
     }
@@ -696,7 +793,7 @@ impl VaultEngine {
         match current {
             Some(pw) => {
                 let lmk = self.try_password(pw).await?;
-                if lmk != unlocked.lmk.key {
+                if lmk != *unlocked.lmk.key {
                     return Err(VaultError::Corrupt(
                         "the password unlocks a different LMK".into(),
                     ));

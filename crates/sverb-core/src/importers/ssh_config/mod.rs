@@ -1,4 +1,4 @@
-//! `~/.ssh/config` import (§9.13): lexer ([`lexer`]), `Include` ([`include`]), blocks
+//! `~/.ssh/config` import (§9.13): lexer ([`lexer`]), `Include` ([`mod@include`]), blocks
 //! ([`parser`]) and the mapping to hosts, groups and forwards ([`map`]).
 //!
 //! The parser is pure and reusable (a future live read-only mode, `ssh.read_ssh_config`,

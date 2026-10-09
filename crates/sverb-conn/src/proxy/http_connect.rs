@@ -294,3 +294,135 @@ impl<S: AsyncWrite + Unpin> AsyncWrite for PrefixedStream<S> {
         Pin::new(&mut self.get_mut().inner).poll_shutdown(cx)
     }
 }
+
+// M7-05
+/// A scripted proxy for the fuzz target: reads return `data` in `chunk`-sized pieces,
+/// then end of stream; writes are swallowed.
+struct FuzzProxy {
+    data: Vec<u8>,
+    pos: usize,
+    chunk: usize,
+}
+
+impl AsyncRead for FuzzProxy {
+    fn poll_read(
+        mut self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        let end = (self.pos + self.chunk)
+            .min(self.data.len())
+            .min(self.pos + buf.remaining());
+        let piece = self.data[self.pos..end].to_vec();
+        buf.put_slice(&piece);
+        self.pos = end;
+        Poll::Ready(Ok(()))
+    }
+}
+
+impl AsyncWrite for FuzzProxy {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<io::Result<usize>> {
+        Poll::Ready(Ok(buf.len()))
+    }
+
+    fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Poll::Ready(Ok(()))
+    }
+
+    fn poll_shutdown(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Poll::Ready(Ok(()))
+    }
+}
+
+/// M7-05: the `http_connect_response` fuzz target
+/// (`fuzz/fuzz_targets/http_connect_response.rs`). The first byte picks the read size
+/// (1..=32 bytes, so the `\r\n\r\n` search is split at every boundary) and the header
+/// limit; the rest is what the proxy answers to CONNECT. [`connect`] must never panic,
+/// and on success the bytes after the headers must come back first, unchanged.
+#[doc(hidden)]
+pub fn fuzz_http_connect_response(data: &[u8]) {
+    let Some((&first, response)) = data.split_first() else {
+        return;
+    };
+    let Ok(runtime) = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
+        .build()
+    else {
+        return;
+    };
+    let proxy = FuzzProxy {
+        data: response.to_vec(),
+        pos: 0,
+        chunk: usize::from(first % 32) + 1,
+    };
+    let limits = Limits {
+        max_header: if first & 0x80 != 0 {
+            64
+        } else {
+            MAX_HEADER_BYTES
+        },
+        timeout: Duration::from_secs(5),
+    };
+    runtime.block_on(async {
+        if let Ok(mut stream) = connect(proxy, "host.example", 22, None, limits).await {
+            let end = response
+                .windows(4)
+                .position(|w| w == b"\r\n\r\n")
+                .map_or(response.len(), |p| p + 4);
+            let mut rest = Vec::new();
+            let _ = stream.read_to_end(&mut rest).await;
+            assert_eq!(
+                rest,
+                response[end..],
+                "bytes after the headers were changed"
+            );
+        }
+    });
+}
+
+#[cfg(test)]
+mod fuzz_tests {
+    use proptest::prelude::*;
+
+    use super::fuzz_http_connect_response;
+
+    #[test]
+    fn seeds() {
+        for seed in [
+            &b"\x00HTTP/1.1 200 Connection established\r\n\r\nSSH-2.0-x\r\n"[..],
+            b"\x05HTTP/1.0 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic\r\n\r\n",
+            b"\x1fHTTP/1.1 503 \x1b[31mno\r\n\r\n",
+            b"\x80HTTP/1.1 200 OK\r\nX: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\r\n\r\n",
+            b"\x00HTTP/1.1 99999 x\r\n\r\n",
+            b"\x00\r\n\r\n",
+            b"",
+        ] {
+            fuzz_http_connect_response(seed);
+        }
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig { cases: 256, ..ProptestConfig::default() })]
+
+        #[test]
+        fn never_panics(data in proptest::collection::vec(any::<u8>(), 0..512)) {
+            fuzz_http_connect_response(&data);
+        }
+
+        #[test]
+        fn never_panics_on_http_like_input(
+            first in any::<u8>(),
+            text in "(HTTP/1\\.[01] |[0-9]{1,5}| |OK|\r\n|\r|\n|:|[a-z]){0,40}",
+            tail in proptest::collection::vec(any::<u8>(), 0..32),
+        ) {
+            let mut data = vec![first];
+            data.extend_from_slice(text.as_bytes());
+            data.extend_from_slice(&tail);
+            fuzz_http_connect_response(&data);
+        }
+    }
+}

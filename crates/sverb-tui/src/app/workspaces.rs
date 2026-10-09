@@ -13,7 +13,7 @@
 //!   `Effect::OpenSession`s (with their recording effects) go into a queue that is
 //!   released [`OPEN_CONCURRENCY`] at a time: a session holds its slot while its pane
 //!   is `Connecting` and frees it once connected, waiting for the user (auth prompts
-//!   queue normally, M1-14), disconnected or closed ([`App::workspaces_pump`], run
+//!   queue normally, M1-14), disconnected or closed (`App::workspaces_pump`, run
 //!   after every event). A deleted host opens as a "Host missing" placeholder pane
 //!   (`leader x` closes it). Opening waits for the host catalog after an unlock.
 //! - **Manage** (`workspaces`): rename, delete, duplicate, with an ASCII preview.

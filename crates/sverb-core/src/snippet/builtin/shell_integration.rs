@@ -26,9 +26,9 @@ pub const INSTALL_NAME: &str = "Install sverb shell integration";
 /// Name of the uninstall snippet.
 pub const UNINSTALL_NAME: &str = "Uninstall sverb shell integration";
 
-const BASH: &str = include_str!("../../../../../assets/shell-integration/bash");
-const ZSH: &str = include_str!("../../../../../assets/shell-integration/zsh");
-const FISH: &str = include_str!("../../../../../assets/shell-integration/fish");
+const BASH: &str = include_str!("../../../assets/shell-integration/bash");
+const ZSH: &str = include_str!("../../../assets/shell-integration/zsh");
+const FISH: &str = include_str!("../../../assets/shell-integration/fish");
 
 /// A supported shell.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

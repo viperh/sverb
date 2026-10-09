@@ -3,8 +3,8 @@
 //! M4-01 covers expired tokens, expired unaccepted invites and finished
 //! share sessions; M4-04 adds tombstones older than
 //! `SVERB_TOMBSTONE_HORIZON_DAYS`, raising `vaults.gc_floor_revision`
-//! ([`crate::sync::gc`]). Hook for later tasks:
-//! * M5-04: abandoned key rotations older than 15 minutes.
+//! ([`crate::sync::gc`]); M5-04 clears abandoned key rotations (older than
+//! 15 minutes) and their staging ([`crate::sync::rotation`]).
 
 use sqlx_postgres::PgPool;
 
@@ -24,6 +24,8 @@ pub struct GcReport {
     pub purged_tombstones: u64,
     /// M4-04: vaults whose GC floor was raised.
     pub gc_floor_vaults: u64,
+    /// M5-04: abandoned key rotations discarded.
+    pub abandoned_rotations: u64,
 }
 
 /// Runs every GC step, each in its own statement.
@@ -51,7 +53,10 @@ pub async fn run(pool: &PgPool, config: &Config) -> Result<GcReport, AdminError>
     // M4-04: tombstones (one transaction per vault).
     let cutoff = crate::sync::gc::cutoff(chrono::Utc::now(), config.limits.tombstone_horizon_days);
     let tombstones = crate::sync::gc::pg_purge_tombstones(pool, cutoff).await?;
+    // M5-04: abandoned key rotations (§13.2 step 5).
+    let abandoned = crate::sync::rotation::pg_discard_abandoned(pool, chrono::Utc::now()).await?;
     Ok(GcReport {
+        abandoned_rotations: abandoned.len() as u64,
         expired_tokens,
         expired_invites,
         finished_shares,

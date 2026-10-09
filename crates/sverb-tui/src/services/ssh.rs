@@ -100,6 +100,12 @@ fn password_at(
             .filter_map(|i| Group::try_from(&i.body).ok())
             .find(|g| g.is_vault_defaults)
             .and_then(|g| g.defaults.password.as_ref().map(copy)),
+        // M5-02: the inline password of the user's credential override.
+        Source::Override { item } => sverb_core::model::CredentialOverride::try_from(body(*item)?)
+            .ok()?
+            .password
+            .as_ref()
+            .map(copy),
         _ => None,
     }
 }
@@ -185,6 +191,8 @@ impl HostResolver for VaultHostResolver {
                 // M1-14
                 ItemKind::Key,
                 ItemKind::Certificate,
+                // M5-02
+                ItemKind::CredentialOverride,
             ])
             .await
             .map_err(|e| SshError::Settings(e.to_string()))?;
@@ -210,12 +218,20 @@ impl HostResolver for VaultHostResolver {
                 _ => {}
             }
         }
-        let resolved = sverb_core::resolve::resolve(
+        let mut resolved = sverb_core::resolve::resolve(
             &host,
             &lookup,
             lookup.defaults_of(host_item.vault),
             &self.config,
         );
+        // M5-02: this user's own credentials for a shared host (§13.4).
+        if let Some(layer) = crate::services::vault::shared::override_for(
+            host_id,
+            &items,
+            ops.vault().personal_vault(),
+        ) {
+            sverb_core::resolve::overrides::apply_override(&mut resolved, &layer, &lookup);
+        }
         let password = resolved
             .password
             .as_ref()

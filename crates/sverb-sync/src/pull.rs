@@ -135,6 +135,17 @@ impl Ctx {
                 }
                 other => other?,
             };
+            // M5-04: items under a key version this engine doesn't hold yet (a
+            // rotation committed and `vault_changed` overtook `vault_access
+            // rotated`): fetch the new key first; without it, stop here so the
+            // cursor never moves past items that can't be opened.
+            if self.needs_newer_key(vault, &page.items) {
+                self.refresh_vaults().await?;
+                if self.needs_newer_key(vault, &page.items) {
+                    tracing::info!(%vault, "items under a newer vault key; pull paused until the key is available");
+                    return Ok(());
+                }
+            }
             let more = page.more && !page.items.is_empty();
             let new_cursor = if more {
                 page.items.last().map_or(page.head_revision, |i| i.revision)
@@ -147,6 +158,14 @@ impl Ctx {
                 return Ok(());
             }
         }
+    }
+
+    // M5-04
+    /// Whether `items` include a key version newer than the loaded ones.
+    fn needs_newer_key(&self, vault: VaultId, items: &[WireItem]) -> bool {
+        let k = self.keys.read();
+        let current = k.current_version(vault).unwrap_or(0);
+        items.iter().any(|i| i.key_version > current)
     }
 
     async fn apply_page(

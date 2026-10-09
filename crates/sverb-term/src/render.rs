@@ -10,7 +10,7 @@
 //! - **Wide chars**: the char goes into the first cell; the spacer cell is `reset()` (ratatui's
 //!   own convention for cells hidden by a wide grapheme).
 //! - **Combining chars** are appended to the cell's symbol.
-//! - **Colors** ([`Palette`]): with the `terminal` scheme (`view.scheme == None`) named and
+//! - **Colors** (`Palette`): with the `terminal` scheme (`view.scheme == None`) named and
 //!   indexed colors stay `Indexed(n)` and the defaults stay `Reset`, so the outer terminal's own
 //!   palette is used; only RGB is downsampled. With a named scheme every color is resolved to RGB
 //!   through the scheme and then downsampled to the color depth. Colors the remote set with
@@ -188,8 +188,18 @@ pub fn cursor_position(cursor: &CursorInfo, area: Rect, view: &ViewState) -> Opt
     (x < area.width && y < area.height).then(|| Position::new(area.x + x, area.y + y))
 }
 
+/// The character drawn for a grid cell holding `c`. The grid may hold control characters:
+/// alacritty stores a literal `\t` where a tab starts, so copied text keeps its tabs. Drawing
+/// one would put a raw control byte into the outer terminal's output (and trips ratatui's
+/// `cell_width` assertion in debug builds), so every control character (C0, DEL, C1) is drawn
+/// as a blank. The grid itself is untouched; selection and copy still see the real character.
+#[must_use]
+pub fn display_char(c: char) -> char {
+    if c.is_control() { ' ' } else { c }
+}
+
 fn write_cell(out: &mut Cell, symbol: char, fg: Color, bg: Color, modifier: Modifier) {
-    out.set_char(symbol);
+    out.set_char(display_char(symbol));
     out.fg = fg;
     out.bg = bg;
     out.modifier = modifier;
@@ -258,7 +268,7 @@ pub(crate) fn render_term<T: EventListener>(
             write_cell(out, c, fg, bg, modifiers(flags));
             if let Some(zw) = cell.zerowidth() {
                 symbol.clear();
-                symbol.push(c);
+                symbol.push(display_char(c));
                 symbol.extend(zw.iter());
                 out.set_symbol(&symbol);
             }

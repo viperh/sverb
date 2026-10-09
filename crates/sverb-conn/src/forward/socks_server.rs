@@ -1,5 +1,5 @@
 //! The SOCKS server handshake (§9.6, RFC 1928): drives the pure parsers in
-//! [`socks`](super::socks) over a client stream and opens the `direct-tcpip` channel.
+//! [`super::socks`] over a client stream and opens the `direct-tcpip` channel.
 //!
 //! - Methods: only no-auth (`0x00`); otherwise `05 FF` and close.
 //! - Commands: CONNECT only; BIND and UDP ASSOCIATE → `0x07` and close.

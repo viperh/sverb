@@ -25,6 +25,4 @@ tokio = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
-# tempfile is not in [workspace.dependencies] (the root Cargo.toml is shared);
-# switch to `workspace = true` when it is added there.
-tempfile = "3.27.0"
+tempfile = { workspace = true }

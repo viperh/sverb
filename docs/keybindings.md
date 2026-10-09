@@ -174,6 +174,63 @@ No session receives keys in Normal mode. These are the global bindings (`[keys.n
 | `q` | `quit` | Quit sverb |
 | `ctrl-z` | `suspend` | Suspend to shell |
 
+## View keys
+
+Keys handled by one view, in Normal mode only. They are fixed (not in `[keys.*]`).
+
+### Hosts view
+
+On a host row (or the marked rows). Marks (`space`) apply the key to every marked host.
+
+| Keys | Does |
+|---|---|
+| `enter` | connect (a new tab per host) |
+| `ctrl-enter` `v` | connect in a split |
+| `a` | add a host |
+| `e` | edit the host |
+| `y` | duplicate |
+| `d` | delete (asks first) |
+| `p` | pin / unpin |
+| `m` | move to a group |
+| `t` | tag |
+| `c` | copy the `ssh` command |
+| `A` | new group |
+| `T` | manage tags |
+| `D` | vault defaults (inherited settings) |
+| `I` | import (ssh_config, known_hosts, CSV, PuTTY, backup) |
+| `X` | export |
+| `H` | clear the host's command history |
+| `V` | next vault (personal, then each shared vault; the top bar shows it) |
+| `M` | move to another vault (re-encrypts under its key) |
+| `C` | copy to another vault |
+| `O` | your credential override for a host in a shared vault |
+
+### Hosts view, on a group row
+
+Without marks.
+
+| Keys | Does |
+|---|---|
+| `e` | edit the group |
+| `d` | delete the group |
+| `a` | add a host in the group |
+| `A` | new subgroup |
+
+### Settings → Vaults (sync builds, connected)
+
+Shared vaults on the left, the selected vault's members on the right.
+
+| Keys | Does |
+|---|---|
+| `j` `k` `↓` `↑` | move in the focused list |
+| `tab` | switch between vaults and members |
+| `n` | new shared vault (org owners and admins) |
+| `u` | reload |
+| `g` | grant `manage` to org admins who have no key yet |
+| `R` | rotate the vault key, or resume an interrupted rotation (`manage`) |
+| `r` `w` `m` | members: grant read / write / manage (`manage`) |
+| `x` `delete` | members: revoke (asks; the key is rotated), or leave the vault |
+
 ## Copy mode (`leader [`)
 
 Vim-style motions over the screen and the scrollback; output keeps flowing but the view stays frozen (the pane border counts the new lines). A count before a motion repeats it (`5j`, `3w`). `/` and `?` take a Rust regex (an invalid one is searched literally). `o` on a link asks before opening it. Bind keys with `[keys.copy]`.

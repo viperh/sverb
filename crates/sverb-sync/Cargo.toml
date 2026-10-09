@@ -29,19 +29,16 @@ tokio-util = { workspace = true }
 tracing = { workspace = true }
 webpki-roots = { workspace = true }
 # M4-07: the engine (HTTP client, tokens, push/pull, status).
-# reqwest is not in [workspace.dependencies] (the root Cargo.toml is shared);
-# switch to `workspace = true` when it is added there. rustls with our own
-# `ring` ClientConfig (no aws-lc, no native-tls).
-reqwest = { version = "0.12.28", default-features = false, features = [
-    "json",
-    "rustls-tls-webpki-roots-no-provider",
-] }
+# rustls with our own `ring` ClientConfig (no aws-lc, no native-tls).
+reqwest = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true }
 zeroize = { workspace = true }
 parking_lot = { workspace = true }
 # M4-08: id remapping of imported item bodies (account::merge_local).
 ciborium = { workspace = true }
+# M6-03: the share's expiry (`CreateShareResponse::expires_at`).
+chrono = { workspace = true }
 
 # M4-05: paused time for the backoff sequence test.
 [dev-dependencies]
@@ -52,8 +49,11 @@ axum = { workspace = true }
 chrono = { workspace = true }
 serde_json = { workspace = true }
 sverb-server = { workspace = true }
-tempfile = "3.27.0"
+tempfile = { workspace = true }
 sverb-crypto = { workspace = true, features = ["insecure-test-ksf"] }
 tower = { workspace = true }
-hyper = { version = "1.12.0", features = ["server", "http1"] }
-hyper-util = { version = "0.1.21", features = ["tokio", "service"] }
+hyper = { workspace = true }
+hyper-util = { workspace = true }
+# M6-03: the share tests run real sessions (local pty / mock) and viewer emulators.
+sverb-conn = { workspace = true, features = ["test-util"] }
+sverb-term = { workspace = true }

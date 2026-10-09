@@ -4,7 +4,7 @@
 //! advertises (kept on every rejection, as OpenSSH does), `server-sig-algs` (RFC 8308;
 //! russh advertises its host-key preference list) and `MaxAuthTries`.
 //!
-//! Sessions behave like [`TestServer`](super::testing::TestServer)'s (the channel
+//! Sessions behave like [`super::testing::TestServer`]'s (the channel
 //! handlers delegate to it), so a successful login gets the same shell.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, missing_docs)]

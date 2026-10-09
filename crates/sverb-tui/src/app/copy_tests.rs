@@ -406,3 +406,39 @@ fn t10_snapshot_selection_and_search() {
     );
     insta::assert_snapshot!("m3_04_t10_copy_mode_80x24", snap);
 }
+
+/// Regression (crash 2026-10-09, "control character passed to cell_width without
+/// filtering"): remote output with tabs left a literal `\t` in the emulator grid, and the
+/// pane copied it into the frame; ratatui's flush then panicked. Drawing through a real
+/// `Terminal` (draw → flush → diff) must not panic, the tab must show as blanks, and later
+/// frames (diffed against the previous one) must stay clean too.
+#[test]
+fn tab_output_draws_without_control_cells() {
+    let emu = new_emulator(40, 5, b"$ ls\r\nCargo.toml\tsrc\ttarget\r\n$ ");
+    let h = harness(&emu);
+    let e = Arc::clone(&emu);
+    let source = move |id: SessionId| (id == S).then(|| Arc::clone(&e));
+    let mut terminal = Terminal::new(TestBackend::new(80, 24)).unwrap();
+    terminal
+        .draw(|f| {
+            h.app().render_with_panes(f, &source);
+        })
+        .unwrap();
+    feed(&emu, b"printf 'a\\tb'\r\na\tb\r\n\t\tdeep\r\n$ ");
+    terminal
+        .draw(|f| {
+            h.app().render_with_panes(f, &source);
+        })
+        .unwrap();
+    let buf = terminal.backend().buffer().clone();
+    for cell in buf.content() {
+        assert!(
+            !cell.symbol().chars().any(char::is_control),
+            "control character {:?} in a rendered cell",
+            cell.symbol()
+        );
+    }
+    let text = buffer_to_string(&buf);
+    assert!(text.contains("Cargo.toml      src     target"), "{text}");
+    assert!(text.contains("a       b"), "{text}");
+}

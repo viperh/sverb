@@ -17,7 +17,7 @@
 //! **Auto-lock:** after `general.auto_lock_minutes` without agent requests the keys
 //! are dropped; signing is then refused (and logged) until the agent is restarted.
 //!
-//! Windows: a named pipe (skeleton without the owner-only DACL; see
+//! Windows: a named pipe with an owner-only DACL and a client SID check (M7-05; see
 //! `sverb_conn::agent::pipe_windows`).
 //!
 //! `sverb lock` ([`lock`]) asks a running TUI to lock over its control socket.

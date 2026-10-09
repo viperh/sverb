@@ -453,7 +453,13 @@ fn t07_pasted_share_link_offers_join_first() {
     );
     key(&mut h, KeyCode::Enter, KeyModifiers::NONE);
     assert!(palette(&h).is_none());
-    assert!(h.app().toasts().iter().any(|t| t.message.contains("M6-03")));
+    // M6-03: the pick joins; this link has no valid share id, so it is refused.
+    assert!(
+        h.app()
+            .toasts()
+            .iter()
+            .any(|t| t.message.contains("Not a usable share link"))
+    );
     let app = h.app();
     let https = app.palette_entries("https://share.example.com/s/x1#k", false);
     assert_eq!(https[0].title, "Join shared terminal");

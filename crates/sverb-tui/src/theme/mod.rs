@@ -14,6 +14,8 @@
 
 pub mod builtin;
 pub mod color;
+// M7-07
+pub mod glyphs;
 
 use std::ffi::OsStr;
 
@@ -85,10 +87,17 @@ impl ThemeEnv {
 
     /// The process environment.
     pub fn from_process() -> Self {
-        Self::from_vars(
-            std::env::var_os("NO_COLOR").as_deref(),
-            std::env::var_os("COLORTERM").as_deref(),
-        )
+        // M7-04: the shared detection (`runtime::capabilities`, also used by `sverb doctor`).
+        Self::from_term_env(&crate::runtime::capabilities::TermEnv::from_process())
+    }
+
+    // M7-04
+    /// From the shared terminal environment.
+    pub fn from_term_env(env: &crate::runtime::capabilities::TermEnv) -> Self {
+        Self {
+            no_color: env.no_color,
+            colorterm_truecolor: env.truecolor(),
+        }
     }
 
     /// The color depth for a `ui.truecolor` setting.
@@ -138,6 +147,11 @@ pub struct Theme {
     pub broadcast_border: Style,
     /// Toast body.
     pub toast: Style,
+    // M7-07 (spec additions `ui.ascii`, `ui.reduce_motion`)
+    /// Draw ASCII instead of box-drawing and symbol glyphs ([`glyphs::asciify`]).
+    pub ascii: bool,
+    /// No animated glyphs ([`glyphs::spinner`]).
+    pub reduce_motion: bool,
 }
 
 impl Default for Theme {
@@ -189,6 +203,8 @@ impl Theme {
             info: fg(ui.info),
             broadcast_border: fg(ui.broadcast_border),
             toast: Style::new().fg(c(ui.fg)).bg(c(ui.toast_bg)),
+            ascii: false,
+            reduce_motion: false,
         }
     }
 
@@ -218,7 +234,23 @@ impl Theme {
             info: plain,
             broadcast_border: bold,
             toast: plain,
+            ascii: false,
+            reduce_motion: false,
         }
+    }
+
+    // M7-07
+    /// With the glyph settings: ASCII output and reduced motion.
+    #[must_use]
+    pub fn with_glyphs(mut self, ascii: bool, reduce_motion: bool) -> Self {
+        self.ascii = ascii;
+        self.reduce_motion = reduce_motion;
+        self
+    }
+
+    /// The spinner glyph for `frame` (static with `ui.reduce_motion`).
+    pub fn spinner(&self, frame: usize) -> char {
+        glyphs::spinner(frame, self.reduce_motion)
     }
 
     /// Border style for a region.

@@ -31,6 +31,9 @@ pub mod tag;
 pub mod identity;
 // M3-03: the typed form of a saved workspace (tabs, layout leaves, broadcast sets).
 pub mod workspace;
+// M5-02: per-user credential overrides and cross-vault reference rules (§13.4).
+mod credential_override;
+pub mod vault_refs;
 
 #[cfg(test)]
 mod tests;
@@ -55,6 +58,8 @@ pub use items::{
     VarDef, Workspace,
 };
 pub use kinds::ItemKind;
+// M5-02
+pub use credential_override::CredentialOverride;
 pub use merge::{MergeOutcome, SchemaOutcome, merge, merge_all};
 pub use migrate::{CURRENT_SCHEMA, MigrateOutcome, current_schema, migrate};
 pub use validate::ValidationError;

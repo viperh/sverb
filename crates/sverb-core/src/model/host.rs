@@ -295,8 +295,11 @@ impl Host {
         w.opt("color_scheme", self.color_scheme.clone());
         w.opt_ids(
             "port_forwards",
-            set(self.port_forwards.is_empty(), self.explicit_empty.port_forwards)
-                .then_some(self.port_forwards.as_slice()),
+            set(
+                self.port_forwards.is_empty(),
+                self.explicit_empty.port_forwards,
+            )
+            .then_some(self.port_forwards.as_slice()),
         );
         w.opt("notes", self.notes.clone());
         w.flag("pinned", self.pinned);

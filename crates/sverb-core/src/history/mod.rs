@@ -3,9 +3,9 @@
 //!
 //! - [`prompt_learn`]: learning the prompt prefix for the heuristic tier,
 //! - [`capture`]: the heuristic (tier 2) capture and its secret-prompt guard,
-//! - [`suggest`]: suggestion sources (host / global history, snippets, common commands)
+//! - [`mod@suggest`]: suggestion sources (host / global history, snippets, common commands)
 //!   and ranking,
-//! - [`static_commands`]: the shipped set of common commands,
+//! - [`mod@static_commands`]: the shipped set of common commands,
 //! - [`trim_to_cap`]: the per-host cap (`history.max_entries_per_host`, oldest first).
 //!
 //! Tier 1 (OSC 133 shell integration) lives in `sverb_term::osc133`; the shell hooks and

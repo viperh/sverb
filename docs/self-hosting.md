@@ -46,6 +46,22 @@ Registration starts as `invite-only`. Afterwards, new users need an invite
 (`sverb-server admin invite <email>` or an org invite), unless you switch to
 `open`.
 
+### Using the published image
+
+Releases publish `ghcr.io/viperh/sverb-server:<version>` and `:latest`. Both are
+multi-arch (linux/amd64 and linux/arm64), distroless, run as non-root, and are built from
+the same static binaries as the release archives (`deploy/Dockerfile.server.release`). To
+use the image instead of building locally, replace the `build:` block of the
+`sverb-server` service in `deploy/docker-compose.yml` with
+
+```yaml
+    image: ghcr.io/viperh/sverb-server:1.0.0   # pin a version; :latest follows releases
+```
+
+and start the stack with `docker compose -f deploy/docker-compose.yml up -d` (no
+`--build`). Release archives `sverb-server-<version>-linux-{x86_64,aarch64}.tar.gz` hold the
+same static binary for running without Docker. Check them against `SHA256SUMS`.
+
 ## 2. Running the binary directly
 
 ```sh
@@ -56,7 +72,7 @@ sverb-server serve          # refuses to start while migrations are pending
 ```
 
 `serve --migrate` applies pending migrations at startup instead of refusing.
-The binary is static (musl, rustls), so it runs on any x86_64 Linux.
+The binary is static (musl, rustls), so it runs on any x86_64 or aarch64 Linux.
 
 ## 3. Configuration
 

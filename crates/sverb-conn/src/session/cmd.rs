@@ -71,6 +71,13 @@ pub enum SessionCmd {
     /// the tap records input. Never blocks the session. A previous tap is dropped
     /// (closing that recording); `StopRecording` drops this one.
     AttachRecorder(sverb_term::recording::RecordingTap),
+    // M6-03
+    /// Attach a share tap (`super::share_tap`): the actor reports its size to it, then
+    /// every output chunk and resize, with the emulator locked, until the connection
+    /// ends. Replaces a previous tap (which gets `ended`).
+    AttachShareTap(super::share_tap::ShareTap),
+    /// Detach the share tap (sharing stopped). Its `ended` is not called.
+    DetachShareTap,
 }
 
 impl SessionCmd {
@@ -91,6 +98,9 @@ impl SessionCmd {
             Self::Mouse(_) => "Mouse",
             // M3-05
             Self::AttachRecorder(_) => "AttachRecorder",
+            // M6-03
+            Self::AttachShareTap(_) => "AttachShareTap",
+            Self::DetachShareTap => "DetachShareTap",
         }
     }
 }

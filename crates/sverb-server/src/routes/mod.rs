@@ -10,6 +10,10 @@ pub mod ops;
 pub mod vaults;
 // M5-01: orgs, members, invites, the audit log, user public keys.
 pub mod orgs;
+// M5-02: shared vault members and org vault listings.
+pub mod shared_vaults;
+// M5-04: vault key rotation.
+pub mod rotate;
 
 use axum::Router;
 
@@ -33,4 +37,8 @@ pub fn api_v1() -> Router<AppState> {
         .merge(crate::share::router())
         // M5-01
         .merge(orgs::router())
+        // M5-02
+        .merge(shared_vaults::router())
+        // M5-04
+        .merge(rotate::router())
 }

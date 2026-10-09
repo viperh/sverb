@@ -1,0 +1,45 @@
+---
+source: crates/sverb/src/cli/doctor_tests.rs
+expression: "render_text(&ok, true)"
+---
+Environment
+  · version           sverb 0.1.0-test (2026-10-08) (features: sync)
+  · platform          linux x86_64
+  · SVERB_HOME        not set
+  ✓ config dir        /home/u/.config/sverb (0700)
+  ✓ data dir          /home/u/.local/share/sverb (0700)
+  ✓ state dir         /home/u/.local/state/sverb (0700)
+  ✓ runtime dir       /run/user/1000/sverb (0700)
+  ✓ database file     /home/u/.local/share/sverb/sverb.db (0600)
+  ✓ config            config.toml is valid
+  ✓ database          schema 7, integrity ok
+  ✓ logs              the log directory is writable
+
+Terminal
+  ✓ TERM              xterm-kitty
+  ✓ colors            truecolor (COLORTERM=truecolor)
+  ✓ kitty keyboard    supported (ctrl-i and tab are told apart)
+  · mouse             captured by sverb (ui.mouse = true); support can't be detected
+  · bracketed paste   enabled by sverb; support can't be detected
+  ✓ OSC 52 clipboard  likely supported by kitty (a guess: it can't be detected)
+  ✓ unicode width     wide characters take 2 columns, as expected
+  · over SSH          no
+  · multiplexer       none
+
+Agent
+  ✓ system agent      /run/user/1000/ssh-agent.socket: 2 identities
+  ✓ built-in agent    running at /run/user/1000/sverb/agent.sock: 1 key(s)
+
+Keyring
+  ✓ OS keyring        available
+  · keyring unlock    enabled
+
+Sync
+  ✓ server            https://sync.example.test is reachable
+  ✓ protocol          protocol version 1 (this client speaks 1)
+  ✓ readiness         the server is ready
+  ✓ clock             offset to the server +0 s
+  ✓ token             the access token is accepted
+  ✓ websocket         live updates connect and authenticate
+
+No problems found.

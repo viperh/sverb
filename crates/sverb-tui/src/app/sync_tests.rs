@@ -471,3 +471,105 @@ fn t08_team_page() {
         h.app().toasts()
     );
 }
+
+// M5-04: the key rotation dialogs in the reducer.
+mod rotation {
+    use pretty_assertions::assert_eq;
+
+    use super::{
+        AppHarness, DialogKind, SyncEffect, SyncEvent, SyncUiEvent, UiEvent, VaultId, harness,
+        sync_effects,
+    };
+    use crate::app::sync::VaultsResult;
+    use crate::app::sync_ui::VaultOp;
+
+    fn modal_body(h: &AppHarness) -> Option<String> {
+        h.app().dialogs.last().and_then(|d| match &d.kind {
+            DialogKind::Modal(m) => Some(m.modal.body.clone()),
+            _ => None,
+        })
+    }
+
+    fn progress(vault: &str, phase: &str, done: usize, total: usize) -> UiEvent {
+        UiEvent::SyncUi(SyncUiEvent::Vaults(VaultsResult::Rotation {
+            vault: vault.into(),
+            phase: phase.into(),
+            done,
+            total,
+        }))
+    }
+
+    #[test]
+    fn progress_dialog_follows_the_rotation() {
+        let mut h = harness();
+        let vault = "0190a0b0-0000-7000-8000-000000000001";
+        h.send(progress(vault, "Starting", 0, 0));
+        assert_eq!(h.app().dialogs.len(), 1);
+        h.send(progress(vault, "Uploading", 250, 600));
+        assert_eq!(h.app().dialogs.len(), 1, "updated in place");
+        let body = modal_body(&h).unwrap();
+        assert!(body.contains("Uploading 250/600"), "{body}");
+        assert!(body.contains("shared vault 0190a0b0"), "{body}");
+        h.take_effects();
+        h.send(UiEvent::SyncUi(SyncUiEvent::Vaults(
+            VaultsResult::RotationDone {
+                message: "vault key rotated".into(),
+                vault: vault.into(),
+            },
+        )));
+        assert!(h.app().dialogs.is_empty(), "closed when done");
+        assert!(
+            sync_effects(&mut h).contains(&SyncEffect::Vaults(VaultOp::Load {
+                vault: Some(vault.into())
+            }))
+        );
+
+        // Hidden by the user: later updates don't reopen it; a failure toasts.
+        h.send(progress(vault, "Starting", 0, 0));
+        h.keys("esc");
+        assert!(h.app().dialogs.is_empty());
+        h.send(progress(vault, "Uploading", 1, 2));
+        assert!(h.app().dialogs.is_empty());
+        h.send(UiEvent::SyncUi(SyncUiEvent::Vaults(
+            VaultsResult::RotationFailed("the key rotation is blocked".into()),
+        )));
+        assert_eq!(
+            h.app().sync.model.vaults.error.as_deref(),
+            Some("the key rotation is blocked")
+        );
+    }
+
+    #[test]
+    fn abandoned_rotation_prompts_a_restart() {
+        let mut h = harness();
+        let vault = VaultId::from_bytes([7; 16]);
+        h.send(UiEvent::Sync(SyncEvent::RotationAbandoned { vault }));
+        let body = modal_body(&h).unwrap();
+        assert!(body.contains("15 minutes"), "{body}");
+        h.take_effects();
+        h.keys("r");
+        assert_eq!(
+            sync_effects(&mut h),
+            vec![SyncEffect::Vaults(VaultOp::Rotate {
+                vault: vault.uuid().to_string()
+            })]
+        );
+    }
+
+    #[test]
+    fn revoke_confirmation_mentions_the_rotation() {
+        let mut h = harness();
+        let mut effects = Vec::new();
+        h.app_mut().confirm_vault_revoke(
+            "v1".into(),
+            "Ops",
+            "u-carol".into(),
+            "carol@example.test",
+            false,
+            &mut effects,
+        );
+        let body = modal_body(&h).unwrap();
+        assert!(body.contains("rotated right away"), "{body}");
+        assert!(body.contains("already synced"), "{body}");
+    }
+}

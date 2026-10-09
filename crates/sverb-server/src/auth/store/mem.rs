@@ -277,6 +277,10 @@ pub struct MemData {
     /// Failure injection: the personal-vault insert of the next
     /// registrations fails.
     pub fail_vault_insert: bool,
+    // M5-04
+    /// `items_rotation_staging` by `(vault_id, item_id)`: `(key_version,
+    /// envelope)`.
+    pub rotation_staging: BTreeMap<(Uuid, Uuid), (i32, Vec<u8>)>,
 }
 
 impl Default for MemData {
@@ -300,6 +304,7 @@ impl Default for MemData {
             orgs: BTreeMap::new(),
             org_members: BTreeMap::new(),
             fail_vault_insert: false,
+            rotation_staging: BTreeMap::new(),
         }
     }
 }
@@ -1002,6 +1007,8 @@ impl MemStore {
             .map(|(id, _)| *id)
             .collect();
         d.items.retain(|(v, _), _| !personal.contains(v));
+        // M5-04
+        d.rotation_staging.retain(|(v, _), _| !personal.contains(v));
         d.vault_members
             .retain(|m| !personal.contains(&m.vault_id) && m.user_id != user_id);
         d.vaults.retain(|id, _| !personal.contains(id));

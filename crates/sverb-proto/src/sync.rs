@@ -147,6 +147,17 @@ pub struct RotationView {
     /// The key version the rotation will commit, when known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub new_key_version: Option<u32>,
+    // M5-04
+    /// The user running the rotation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub by: Option<Uuid>,
+    /// When it began (Unix seconds).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub started_at: Option<i64>,
+    /// Older than 15 minutes (§13.2): the next `manage` client should restart
+    /// it ([`crate::rotation`]).
+    #[serde(default)]
+    pub abandoned: bool,
 }
 
 /// An element of `GET /v1/vaults`.

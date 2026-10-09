@@ -51,25 +51,22 @@ tracing = { workspace = true }
 # M1-11: OSC 52 clipboard payloads.
 base64 = { workspace = true }
 # M1-04: vault service (LMK/VK zeroization, the OS keyring for keyring unlock).
-# keyring is not in [workspace.dependencies] yet (the root Cargo.toml is shared);
-# switch to `workspace = true` when it is added there.
-keyring = "4.2.0"
+keyring = { workspace = true }
 zeroize = { workspace = true }
 # M1-06: list filter (same fuzzy matcher as the search index) and the multiline
 # field. `ratatui-textarea` is the ratatui-0.30 successor of `tui-textarea` (which
 # only supports ratatui ≤ 0.29); keys are converted by hand, so no crossterm feature.
 nucleo-matcher = { workspace = true }
-ratatui-textarea = { version = "0.9.2", default-features = false }
-# M3-04: opening confirmed links (`services::opener`). Not in [workspace.dependencies]
-# yet (the root Cargo.toml is shared); switch to `workspace = true` when it is added.
-open = "5.4.3"
+ratatui-textarea = { workspace = true }
+# M3-04: opening confirmed links (`services::opener`).
+open = { workspace = true }
 
 # M0-08: suspend raises SIGTSTP, which only exists on unix.
 [target.'cfg(unix)'.dependencies]
 signal-hook = { workspace = true }
 # M7-06: the startup kitty-keyboard probe polls the tty with a 50 ms budget (safe
 # `poll`; crossterm's own probe waits up to 2 s). Same major as crossterm's rustix.
-rustix = { version = "1.1.4", features = ["event"] }
+rustix = { workspace = true }
 
 # M0-08: reducer property tests and TestBackend snapshots.
 [dev-dependencies]

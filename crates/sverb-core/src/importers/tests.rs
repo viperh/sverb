@@ -896,3 +896,26 @@ proptest::proptest! {
         let _ = csv::parse(&text);
     }
 }
+
+// M7-05: the `backup_decrypt` fuzz target's body (`bk::fuzz_backup_decrypt`), on a real
+// backup file, on a real authenticated plaintext (zstd + CBOR), and on random bytes.
+#[test]
+fn backup_decrypt_fuzz_body_seeds() {
+    let payload = sample_payload();
+    bk::fuzz_backup_decrypt(encrypt(&payload).as_bytes());
+    let mut cbor = Vec::new();
+    ciborium::into_writer(&payload, &mut cbor).unwrap_or_else(|e| panic!("{e}"));
+    let compressed = zstd::encode_all(cbor.as_slice(), 3).unwrap_or_else(|e| panic!("{e}"));
+    bk::fuzz_backup_decrypt(&compressed);
+    // Truncations of both never panic either.
+    for cut in [0, 1, 7, compressed.len() / 2, compressed.len() - 1] {
+        bk::fuzz_backup_decrypt(&compressed[..cut]);
+    }
+}
+
+proptest::proptest! {
+    #[test]
+    fn backup_decrypt_fuzz_body_never_panics(data in proptest::collection::vec(proptest::prelude::any::<u8>(), 0..1024)) {
+        bk::fuzz_backup_decrypt(&data);
+    }
+}

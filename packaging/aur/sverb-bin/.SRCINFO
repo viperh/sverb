@@ -1,0 +1,20 @@
+pkgbase = sverb-bin
+	pkgdesc = Terminal-native SSH client and server manager with an encrypted vault and optional self-hosted sync (prebuilt)
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/viperh/sverb
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	optdepends = wl-clipboard: clipboard on Wayland without OSC 52
+	optdepends = xclip: clipboard on X11 without OSC 52
+	provides = sverb
+	conflicts = sverb
+	options = !strip
+	options = !debug
+	source_x86_64 = https://github.com/viperh/sverb/releases/download/v0.1.0/sverb-0.1.0-linux-x86_64.tar.gz
+	sha256sums_x86_64 = 0000000000000000000000000000000000000000000000000000000000000000
+	source_aarch64 = https://github.com/viperh/sverb/releases/download/v0.1.0/sverb-0.1.0-linux-aarch64.tar.gz
+	sha256sums_aarch64 = 0000000000000000000000000000000000000000000000000000000000000000
+
+pkgname = sverb-bin

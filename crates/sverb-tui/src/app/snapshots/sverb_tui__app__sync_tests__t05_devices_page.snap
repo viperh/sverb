@@ -5,7 +5,7 @@ expression: screen
  sverb ─ Personal ▾ ────────────────────────────────────────────────────────────────────── ⟳ synced 
 ┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                             
 │  Hosts       │┌ Settings ────────────────────────────────────────────────────────────────────────┐
-│  Keychain    ││Sync · Devices · Team                                                             │
+│  Keychain    ││Sync · Devices · Team · Vaults                                                    │
 │  Forwards    ││                                                                                  │
 │  Snippets    ││› laptop              linux     created 2026-10-08 12:00  seen -  this device     │
 │  Known       ││  phone               linux     created 2026-10-08 12:00  seen -                  │

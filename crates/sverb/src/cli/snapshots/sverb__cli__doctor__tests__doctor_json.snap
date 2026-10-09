@@ -1,0 +1,201 @@
+---
+source: crates/sverb/src/cli/doctor_tests.rs
+expression: pretty
+---
+{
+  "data": {
+    "ok": false,
+    "problems": 2,
+    "sections": [
+      {
+        "checks": [
+          {
+            "detail": "sverb 0.1.0-test (2026-10-08) (features: sync)",
+            "id": "env.version",
+            "label": "version",
+            "status": "info"
+          },
+          {
+            "detail": "linux x86_64",
+            "id": "env.platform",
+            "label": "platform",
+            "status": "info"
+          },
+          {
+            "detail": "not set",
+            "id": "env.sverb_home",
+            "label": "SVERB_HOME",
+            "status": "info"
+          },
+          {
+            "detail": "/home/u/.config/sverb (0700)",
+            "id": "env.path.config_dir",
+            "label": "config dir",
+            "status": "ok"
+          },
+          {
+            "detail": "/home/u/.local/share/sverb is 0755 (expected 0700)",
+            "hint": "chmod 700 /home/u/.local/share/sverb",
+            "id": "env.path.data_dir",
+            "label": "data dir",
+            "status": "warn"
+          },
+          {
+            "detail": "/home/u/.local/state/sverb (0700)",
+            "id": "env.path.state_dir",
+            "label": "state dir",
+            "status": "ok"
+          },
+          {
+            "detail": "/run/user/1000/sverb (0700)",
+            "id": "env.path.runtime_dir",
+            "label": "runtime dir",
+            "status": "ok"
+          },
+          {
+            "detail": "/home/u/.local/share/sverb/sverb.db (0600)",
+            "id": "env.path.database_file",
+            "label": "database file",
+            "status": "ok"
+          },
+          {
+            "detail": "config.toml has 1 error(s); the defaults are in effect: /home/u/.config/sverb/config.toml:3:1: ui.theme: unknown theme",
+            "hint": "see `sverb config --check`",
+            "id": "env.config",
+            "label": "config",
+            "status": "fail"
+          },
+          {
+            "detail": "schema 6 (migrates to 7 on the next start), integrity ok",
+            "id": "env.database",
+            "label": "database",
+            "status": "info"
+          },
+          {
+            "detail": "the log directory is writable",
+            "id": "env.logs",
+            "label": "logs",
+            "status": "ok"
+          }
+        ],
+        "id": "environment",
+        "title": "Environment"
+      },
+      {
+        "checks": [
+          {
+            "detail": "tmux-256color",
+            "id": "term.term",
+            "label": "TERM",
+            "status": "ok"
+          },
+          {
+            "detail": "256 colors (COLORTERM=unset); RGB colors are downsampled",
+            "hint": "if the terminal supports 24-bit color, set COLORTERM=truecolor or ui.truecolor = \"on\"",
+            "id": "term.colors",
+            "label": "colors",
+            "status": "warn"
+          },
+          {
+            "detail": "skipped: not a terminal",
+            "id": "term.kitty",
+            "label": "kitty keyboard",
+            "status": "info"
+          },
+          {
+            "detail": "not captured (ui.mouse = false)",
+            "id": "term.mouse",
+            "label": "mouse",
+            "status": "info"
+          },
+          {
+            "detail": "enabled by sverb; support can't be detected",
+            "id": "term.paste",
+            "label": "bracketed paste",
+            "status": "info"
+          },
+          {
+            "detail": "unknown for tmux (it can't be detected)",
+            "id": "term.osc52",
+            "label": "OSC 52 clipboard",
+            "status": "info"
+          },
+          {
+            "detail": "skipped: not a terminal",
+            "id": "term.width",
+            "label": "unicode width",
+            "status": "info"
+          },
+          {
+            "detail": "yes: copies go through OSC 52 only",
+            "id": "term.ssh",
+            "label": "over SSH",
+            "status": "info"
+          },
+          {
+            "detail": "tmux: OSC 52 and passthrough sequences need tmux settings",
+            "hint": "in tmux.conf: `set -g set-clipboard on` and `set -g allow-passthrough on`",
+            "id": "term.multiplexer",
+            "label": "multiplexer",
+            "status": "warn"
+          }
+        ],
+        "id": "terminal",
+        "title": "Terminal"
+      },
+      {
+        "checks": [
+          {
+            "detail": "SSH_AUTH_SOCK is not set; agent authentication is skipped",
+            "hint": "start ssh-agent, or use keys from the vault",
+            "id": "agent.system",
+            "label": "system agent",
+            "status": "info"
+          },
+          {
+            "detail": "not running (`sverb agent` starts it)",
+            "id": "agent.builtin",
+            "label": "built-in agent",
+            "status": "info"
+          }
+        ],
+        "id": "agent",
+        "title": "Agent"
+      },
+      {
+        "checks": [
+          {
+            "detail": "not available: keyring unlock can't be used",
+            "hint": "on Linux, run a Secret Service provider (gnome-keyring, KeePassXC)",
+            "id": "keyring.available",
+            "label": "OS keyring",
+            "status": "warn"
+          },
+          {
+            "detail": "disabled (the master password is asked at every start)",
+            "id": "keyring.unlock",
+            "label": "keyring unlock",
+            "status": "info"
+          }
+        ],
+        "id": "keyring",
+        "title": "Keyring"
+      },
+      {
+        "checks": [
+          {
+            "detail": "https://sync.example.test is unreachable: connection refused",
+            "hint": "check the server URL and the network; local changes stay queued",
+            "id": "sync.server",
+            "label": "server",
+            "status": "fail"
+          }
+        ],
+        "id": "sync",
+        "title": "Sync"
+      }
+    ],
+    "warnings": 4
+  },
+  "version": 1
+}

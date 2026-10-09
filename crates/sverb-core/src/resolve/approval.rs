@@ -267,6 +267,8 @@ impl HostItems<'_> {
             Source::Group { id, .. } => Some(*id),
             Source::VaultDefaults => self.vault_defaults,
             Source::GlobalConfig | Source::BuiltinDefault => None,
+            // M5-02: the user's own override item (personal vault).
+            Source::Override { item } => Some(*item),
         }
     }
 }

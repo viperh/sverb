@@ -1,0 +1,29 @@
+{
+    "version": "0.1.0",
+    "description": "Terminal-native SSH client and server manager with an encrypted vault and optional self-hosted sync",
+    "homepage": "https://github.com/viperh/sverb",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/viperh/sverb/releases/download/v0.1.0/sverb-0.1.0-windows-x86_64.zip",
+            "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "extract_dir": "sverb-0.1.0-windows-x86_64"
+        }
+    },
+    "bin": "sverb.exe",
+    "notes": "PowerShell completions: add `. \"$dir\\completions\\_sverb.ps1\"` to your $PROFILE.",
+    "checkver": {
+        "github": "https://github.com/viperh/sverb"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/viperh/sverb/releases/download/v$version/sverb-$version-windows-x86_64.zip",
+                "extract_dir": "sverb-$version-windows-x86_64"
+            }
+        },
+        "hash": {
+            "url": "$url.sha256"
+        }
+    }
+}

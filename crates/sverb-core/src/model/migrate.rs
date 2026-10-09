@@ -9,7 +9,7 @@ use super::body::ItemBody;
 use super::kinds::ItemKind;
 
 /// The schema version this build writes, per kind. All kinds start at 1.
-pub const CURRENT_SCHEMA: [(ItemKind, u16); 12] = [
+pub const CURRENT_SCHEMA: [(ItemKind, u16); 13] = [
     (ItemKind::Host, 1),
     (ItemKind::Group, 1),
     (ItemKind::Identity, 1),
@@ -22,6 +22,8 @@ pub const CURRENT_SCHEMA: [(ItemKind, u16); 12] = [
     (ItemKind::Tag, 1),
     (ItemKind::HistoryEntry, 1),
     (ItemKind::ConnLog, 1),
+    // M5-02
+    (ItemKind::CredentialOverride, 1),
 ];
 
 /// The schema version this build understands for `kind`.

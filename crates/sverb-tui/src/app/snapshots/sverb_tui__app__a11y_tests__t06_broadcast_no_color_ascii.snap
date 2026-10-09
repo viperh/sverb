@@ -1,0 +1,34 @@
+---
+source: crates/sverb-tui/src/app/a11y_tests.rs
+expression: screen
+---
+ sverb - Personal v ----------------------------------------------------------------------------------------------------
++--------------+ 1 local ~ + +                                                                                          
+|> Hosts       |+ session 1 ---------------------++ session 2 ---------------------++ session 3 -----------------------+
+|  Keychain    ||Session pane (the terminal view ||Session pane (the terminal view ||Session pane (the terminal view   |
+|  Forwards    ||arrives with M1-10).            ||arrives with M1-10).            ||arrives with M1-10).              |
+|  Snippets    ||                                ||                                ||                                  |
+|  Known       ||                                ||                                ||                                  |
+|  Logs        ||                                ||                                ||                                  |
+|  Settings    ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
+|              ||                                ||                                ||                                  |
++--------------++--------------------------------++--------------------------------++----------------------------------+
+ TERMINAL  | BROADCAST x3                                                                                     ^\ ? help

@@ -8,7 +8,7 @@
 //!   percent-decoded (`ssh://u%40corp@h` is user `u@corp`).
 //!
 //! Hostnames are checked with the host model's address rules
-//! ([`validate_address`](crate::model::validate::validate_address)); IPv6 literals
+//! ([`crate::model::validate::validate_address`]); IPv6 literals
 //! (optionally with a zone id) are checked here. Ports must be 1–65535.
 
 use std::fmt;

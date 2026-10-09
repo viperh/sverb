@@ -11,7 +11,7 @@
 //! Both §9.6 (first non-loopback bind) and §17.1 are answered by the same
 //! confirmation ("This forward listens on 0.0.0.0:8080. Allow?"). The store is an
 //! [`ApprovalStore`]; sverb uses the store-backed
-//! [`DeviceApprovals`](sverb_core::resolve::approval::DeviceApprovals), and
+//! [`sverb_core::resolve::approval::DeviceApprovals`], and
 //! [`MemoryApprovals`] remains for tests.
 
 use std::{collections::HashSet, fmt};

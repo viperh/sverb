@@ -169,6 +169,16 @@ No key appears twice in this table (enforced by test K-03).
 `?` help · `q` quit · `Ctrl-z` suspend.
 (View-specific keys are defined in each view's task file. All of them live only in Normal mode.)
 
+**View keys added after this plan (M7-07 records them; `docs/keybindings.md` "View keys" is generated from
+`crates/sverb-tui/src/keymap/dump.rs`):**
+- **Hosts view:** `A` new group · `T` manage tags · `D` vault defaults (M2-01) · `I` import · `X` export (M2-11) ·
+  `H` clear the host's history (M7-01) · `V` next vault · `M` move to vault · `C` copy to vault · `O` credential
+  override on a shared-vault host (M5-02). On a group row: `e` edit · `d` delete · `a` add host in group · `A` subgroup.
+- **Settings → Vaults** (M5-02/M5-04): `j`/`k` move · `Tab` vaults ↔ members · `n` new shared vault · `u` reload ·
+  `g` grant `manage` to keyless org admins · `R` rotate/resume the key · `r`/`w`/`m` grant read/write/manage ·
+  `x`/`Delete` revoke (or leave).
+None of these is reachable while a session has focus, so the pass-through guarantee (§1.2) is unaffected.
+
 ### 4.3 Copy, Insert, dialogs (no session receives keys)
 - **Copy mode** (M3-04): vim motions, `v`/`V`/`Ctrl-v`, `y`/`Y`, `/`/`?`/`n`/`N`, `o` open link (confirm), and `q`/`Esc`/`Ctrl-c` exit.
 - **Insert mode** (form fields, M1-06): text editing, `Tab`/`Shift-Tab` fields, `Ctrl-s` save, `Esc` cancel, `Ctrl-r` reveal secret.

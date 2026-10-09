@@ -1,0 +1,24 @@
+# >>> sverb shell integration >>>
+# Emits OSC 133 prompt marks (A prompt start, B command start, C output start,
+# D;<exit> command finished) so sverb can record exact commands and exit codes.
+# Remove this file (or run the sverb uninstall snippet) to turn it off.
+if status is-interactive; and not set -q __sverb_si; and test "$TERM" != dumb
+    set -g __sverb_si 1
+    function __sverb_prompt_start --on-event fish_prompt
+        printf '\e]133;A\a'
+    end
+    function __sverb_preexec --on-event fish_preexec
+        printf '\e]133;C\a'
+    end
+    function __sverb_postexec --on-event fish_postexec
+        printf '\e]133;D;%s\a' $status
+    end
+    if functions -q fish_prompt; and not functions -q __sverb_orig_prompt
+        functions -c fish_prompt __sverb_orig_prompt
+        function fish_prompt
+            __sverb_orig_prompt
+            printf '\e]133;B\a'
+        end
+    end
+end
+# <<< sverb shell integration <<<

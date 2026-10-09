@@ -17,7 +17,7 @@ use crate::registration::{generate_token, hash_token, normalize_email};
 pub const INVITE_TTL_DAYS: i64 = 7;
 
 /// A freshly created invite. `token` is shown once and never stored.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct CreatedInvite {
     /// Row id.
     pub id: Uuid,
@@ -29,6 +29,18 @@ pub struct CreatedInvite {
     pub link: String,
     /// Expiry.
     pub expires_at: DateTime<Utc>,
+}
+
+// M7-05: the token (and the link that embeds it) never reach `Debug` output.
+impl std::fmt::Debug for CreatedInvite {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CreatedInvite")
+            .field("id", &self.id)
+            .field("email", &self.email)
+            .field("token", &"[REDACTED]")
+            .field("link", &"[REDACTED]")
+            .finish_non_exhaustive()
+    }
 }
 
 /// The invite link for `token`.

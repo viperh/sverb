@@ -4,7 +4,11 @@
 //! They were generated once with
 //! `cargo test -p sverb-crypto --test kat -- --ignored generate_kats`
 //! and must not be regenerated unless the format version is bumped.
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::cast_possible_truncation)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::cast_possible_truncation
+)]
 
 use std::path::PathBuf;
 
@@ -66,9 +70,13 @@ fn kat_hkdf() {
         let got = match s(&v, "kind") {
             "raw" => {
                 let salt = v["salt"].as_str().map(|s| hex::decode(s).unwrap());
-                let okm =
-                    hkdf_sha256(&h(&v, "ikm"), salt.as_deref(), &h(&v, "info"), n(&v, "len") as usize)
-                        .unwrap();
+                let okm = hkdf_sha256(
+                    &h(&v, "ikm"),
+                    salt.as_deref(),
+                    &h(&v, "info"),
+                    n(&v, "len") as usize,
+                )
+                .unwrap();
                 hex::encode(&*okm)
             }
             "item_key" => hex::encode(item_key(&key(&v, "vk"), &id(&v, "item_id")).expose_secret()),
@@ -83,9 +91,11 @@ fn kat_hkdf() {
 fn kat_canon() {
     for v in load("canon.json") {
         let out = match s(&v, "kind") {
-            "aad_item" => {
-                canon::aad_item(&id(&v, "vault_id"), &id(&v, "item_id"), n(&v, "key_version") as u32)
-            }
+            "aad_item" => canon::aad_item(
+                &id(&v, "vault_id"),
+                &id(&v, "item_id"),
+                n(&v, "key_version") as u32,
+            ),
             "info_item_key" => canon::info_item_key(),
             "info_recording_key" => canon::info_recording_key(),
             "info_vk" => canon::info_vk(&id(&v, "vault_id"), n(&v, "key_version") as u32),
@@ -122,7 +132,10 @@ fn kat_envelope() {
         assert_eq!(*opened, body);
         // The same nonce drawn through the deterministic RNG gives the same bytes.
         let mut rng = ChaCha20Rng::from_seed(h(&v, "rng_seed").try_into().unwrap());
-        assert_eq!(seal_item(&vk, &vault, &item, kv, &body, &mut rng).unwrap(), env);
+        assert_eq!(
+            seal_item(&vk, &vault, &item, kv, &body, &mut rng).unwrap(),
+            env
+        );
     }
 }
 
@@ -220,7 +233,11 @@ fn generate_kats() {
     let lmk = bytes(&mut rng, 32);
     let rk = recording_key(&k32(&lmk));
     hkdf.push(json!({"kind": "recording_key", "lmk": x(&lmk), "okm": x(rk.expose_secret())}));
-    write("hkdf.json", "HKDF-SHA256: RFC 5869 vectors, item-key and recording-key derivation", hkdf);
+    write(
+        "hkdf.json",
+        "HKDF-SHA256: RFC 5869 vectors, item-key and recording-key derivation",
+        hkdf,
+    );
 
     // Canonical builders.
     let vault = id16(&mut rng);
@@ -257,11 +274,18 @@ fn generate_kats() {
             json!({"input": x(&input), "output": x(pad256(&input))})
         })
         .collect();
-    write("pad.json", "pad256 (ISO/IEC 7816-4 to a multiple of 256)", pad_v);
+    write(
+        "pad.json",
+        "pad256 (ISO/IEC 7816-4 to a multiple of 256)",
+        pad_v,
+    );
 
     // Envelopes: nonce drawn from a seeded ChaCha20Rng (seed recorded).
     let mut env_v = Vec::new();
-    for (i, (len, kv)) in [(0usize, 1u32), (17, 1), (1024, 42), (5000, 0xffff_ffff)].into_iter().enumerate() {
+    for (i, (len, kv)) in [(0usize, 1u32), (17, 1), (1024, 42), (5000, 0xffff_ffff)]
+        .into_iter()
+        .enumerate()
+    {
         let vk = bytes(&mut rng, 32);
         let vault = id16(&mut rng);
         let item = id16(&mut rng);
@@ -269,13 +293,26 @@ fn generate_kats() {
         let mut nonce_rng = ChaCha20Rng::from_seed(seed);
         let nonce_b: [u8; 24] = bytes(&mut nonce_rng, 24).try_into().unwrap();
         // Compressible but non-trivial bodies.
-        let body: Vec<u8> = (0..len).map(|j| b"sverb item body "[j % 16] ^ (j / 97) as u8).collect();
-        let env = seal_item_with_nonce(&k32(&vk), &vault, &item, kv, &body, &Nonce24::from_bytes(nonce_b))
-            .unwrap();
+        let body: Vec<u8> = (0..len)
+            .map(|j| b"sverb item body "[j % 16] ^ (j / 97) as u8)
+            .collect();
+        let env = seal_item_with_nonce(
+            &k32(&vk),
+            &vault,
+            &item,
+            kv,
+            &body,
+            &Nonce24::from_bytes(nonce_b),
+        )
+        .unwrap();
         env_v.push(json!({"vk": x(&vk), "vault_id": x(vault), "item_id": x(item), "key_version": kv,
                           "rng_seed": x(seed), "nonce": x(nonce_b), "body": x(&body), "envelope": x(&env)}));
     }
-    write("envelope.json", "Item envelopes v1 (zstd level 3, pad256, XChaCha20-Poly1305)", env_v);
+    write(
+        "envelope.json",
+        "Item envelopes v1 (zstd level 3, pad256, XChaCha20-Poly1305)",
+        env_v,
+    );
 
     // Wrap.
     let mut wrap_v = Vec::new();
@@ -284,15 +321,26 @@ fn generate_kats() {
         let pid = id16(&mut rng);
         let nonce_b: [u8; 24] = bytes(&mut rng, 24).try_into().unwrap();
         let secret = bytes(&mut rng, if p == "sync-tokens" { 70 } else { 32 });
-        let mut v = json!({"kek": x(&kek), "purpose": p, "nonce": x(nonce_b), "secret": x(&secret)});
+        let mut v =
+            json!({"kek": x(&kek), "purpose": p, "nonce": x(nonce_b), "secret": x(&secret)});
         if p == "vault-key" {
             v["purpose_vault_id"] = json!(x(pid));
         }
-        let w = wrap_key_with_nonce(&k32(&kek), &purpose(&v), &secret, &Nonce24::from_bytes(nonce_b)).unwrap();
+        let w = wrap_key_with_nonce(
+            &k32(&kek),
+            &purpose(&v),
+            &secret,
+            &Nonce24::from_bytes(nonce_b),
+        )
+        .unwrap();
         v["wrapped"] = json!(x(&w));
         wrap_v.push(v);
     }
-    write("wrap.json", "Key wrapping (aad = sverb-lmk-wrap-v1 || purpose)", wrap_v);
+    write(
+        "wrap.json",
+        "Key wrapping (aad = sverb-lmk-wrap-v1 || purpose)",
+        wrap_v,
+    );
 
     // Recording chunks.
     let mut rec_v = Vec::new();
@@ -302,20 +350,38 @@ fn generate_kats() {
         let nonce_b: [u8; 24] = bytes(&mut rng, 24).try_into().unwrap();
         let pt = bytes(&mut rng, len);
         let k = recording_key(&k32(&lmk));
-        let c = seal_chunk_with_nonce(&k, &conn, idx, last, &pt, &Nonce24::from_bytes(nonce_b)).unwrap();
-        rec_v.push(json!({"lmk": x(&lmk), "conn_id": x(conn), "chunk_index": idx, "is_last": last,
-                          "nonce": x(nonce_b), "plaintext": x(&pt), "chunk": x(&c)}));
+        let c = seal_chunk_with_nonce(&k, &conn, idx, last, &pt, &Nonce24::from_bytes(nonce_b))
+            .unwrap();
+        rec_v.push(
+            json!({"lmk": x(&lmk), "conn_id": x(conn), "chunk_index": idx, "is_last": last,
+                          "nonce": x(nonce_b), "plaintext": x(&pt), "chunk": x(&c)}),
+        );
     }
-    write("recording.json", "Recording chunk sealing (sverb/recording/v1)", rec_v);
+    write(
+        "recording.json",
+        "Recording chunk sealing (sverb/recording/v1)",
+        rec_v,
+    );
 
     // Argon2id with small params.
     let mut a2 = Vec::new();
     for pw in [&b"correct horse battery staple"[..], b""] {
         let salt: [u8; 16] = bytes(&mut rng, 16).try_into().unwrap();
-        let params = Argon2Params { m_kib: 19_456, t: 2, p: 1, salt };
+        let params = Argon2Params {
+            m_kib: 19_456,
+            t: 2,
+            p: 1,
+            salt,
+        };
         let k = argon2id(pw, &params).unwrap();
-        a2.push(json!({"password": x(pw), "m_kib": 19_456, "t": 2, "p": 1, "salt": x(salt),
-                       "params_encoded": x(params.to_bytes()), "key": x(k.expose_secret())}));
+        a2.push(
+            json!({"password": x(pw), "m_kib": 19_456, "t": 2, "p": 1, "salt": x(salt),
+                       "params_encoded": x(params.to_bytes()), "key": x(k.expose_secret())}),
+        );
     }
-    write("argon2id.json", "Argon2id v0x13, 32-byte output, m=19456 t=2 p=1", a2);
+    write(
+        "argon2id.json",
+        "Argon2id v0x13, 32-byte output, m=19456 t=2 p=1",
+        a2,
+    );
 }

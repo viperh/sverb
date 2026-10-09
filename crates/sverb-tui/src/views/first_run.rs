@@ -63,7 +63,10 @@ impl NewPassword {
         if self.strength.score < MIN_SCORE {
             let feedback = self.strength.feedback();
             return Err(if feedback.is_empty() {
-                format!("Too weak ({}); use a longer passphrase", self.strength.label())
+                format!(
+                    "Too weak ({}); use a longer passphrase",
+                    self.strength.label()
+                )
             } else {
                 format!("Too weak ({}): {feedback}", self.strength.label())
             });
@@ -220,7 +223,10 @@ impl FirstRunForm {
         lines.push(Line::styled(NO_RECOVERY_WARNING, theme.warn));
         lines.push(Line::raw(""));
         if self.busy {
-            lines.push(Line::styled(format!("{spinner} Creating your vault…"), theme.info));
+            lines.push(Line::styled(
+                format!("{spinner} Creating your vault…"),
+                theme.info,
+            ));
         } else if let Some(err) = &self.error {
             lines.push(Line::styled(err.clone(), theme.error));
         } else {
@@ -276,7 +282,11 @@ mod tests {
         form.handle_key(&key(KeyCode::Enter));
         type_str(&mut form, "password123");
         assert_eq!(form.handle_key(&key(KeyCode::Enter)), FormAction::Changed);
-        assert!(form.error.as_deref().is_some_and(|e| e.starts_with("Too weak")));
+        assert!(
+            form.error
+                .as_deref()
+                .is_some_and(|e| e.starts_with("Too weak"))
+        );
 
         let mut form = FirstRunForm::new(true);
         type_str(&mut form, "correct horse battery staple violin");

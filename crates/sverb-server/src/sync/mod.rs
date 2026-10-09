@@ -44,6 +44,10 @@ pub mod mem;
 pub mod pull;
 pub mod push;
 pub mod quota;
+// M5-04: vault key rotation (begin, upload, commit, abandonment).
+pub mod rotation;
+// M5-02: shared vaults (create, grants, revoke, membership listings).
+pub mod shared;
 pub mod vaults;
 
 use std::sync::{Arc, RwLock};

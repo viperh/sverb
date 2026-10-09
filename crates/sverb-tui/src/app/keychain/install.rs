@@ -7,9 +7,9 @@
 //!   shows the results table.
 //! - The service reports [`InstallUpdate`]s: row states, and the session events of
 //!   each host's dedicated connection under its own [`SessionId`] (host-key and auth
-//!   prompts). Prompts open the usual dialogs, titled "Authenticating to <host> for:
+//!   prompts). Prompts open the usual dialogs, titled "Authenticating to `<host>` for:
 //!   Install key"; their answers (`Effect::AuthAnswer` / `Effect::HostKeyDecision`
-//!   for those ids) are rerouted to the run ([`App::reroute_install_answers`]).
+//!   for those ids) are rerouted to the run (`App::reroute_install_answers`).
 //! - `r` re-runs the failed hosts only; `esc` closes the table and cancels what still
 //!   runs.
 

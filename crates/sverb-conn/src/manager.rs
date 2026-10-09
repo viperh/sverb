@@ -283,6 +283,8 @@ impl SessionManager {
             // M2-08
             forwards: self.inner.forwards.lock().clone(),
             tunnel_only: opts.tunnel_only,
+            // M6-03
+            share_tap: None,
         };
         let task = rt.spawn(Contained::new(actor.run()));
         let abort = task.abort_handle();

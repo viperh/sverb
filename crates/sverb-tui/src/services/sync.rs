@@ -43,6 +43,9 @@ use crate::app::sync_ui::{
     WizardScreen,
 };
 
+// M5-02: Settings → Vaults, the admin reconcile, adopting granted vaults.
+mod vaults;
+
 /// Owns the running engine (if any) and the account wizard. Cheap to clone.
 #[derive(Clone)]
 pub struct SyncService {
@@ -51,6 +54,8 @@ pub struct SyncService {
     config: Arc<Config>,
     account: AccountConfig,
     wizard: Arc<tokio::sync::Mutex<Option<Flow>>>,
+    // M5-02: when the background admin reconcile last ran.
+    reconciled: Arc<Mutex<Option<std::time::Instant>>>,
 }
 
 impl std::fmt::Debug for SyncService {
@@ -84,6 +89,7 @@ impl SyncService {
             config,
             account,
             wizard: Arc::new(tokio::sync::Mutex::new(None)),
+            reconciled: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -117,6 +123,8 @@ impl SyncService {
             } => self.team(Some((user, accept_new_key)), tx),
             // M5-01
             SyncEffect::Team(op) => self.team_op(op, tx),
+            // M5-02
+            SyncEffect::Vaults(op) => self.vault_op(op, tx),
         }
     }
 
@@ -126,9 +134,21 @@ impl SyncService {
         let this = self.clone();
         let tx = tx.clone();
         tokio::spawn(async move {
+            // M5-04: removing a member rotates every vault they had (§13.2); the
+            // list is taken before the removal deletes their grants.
+            let rotate = match &op {
+                TeamOp::Remove { org, user } => this.vaults_to_rotate(&lmk, org, user).await,
+                _ => Vec::new(),
+            };
             let res = this.run_team_op(op, &lmk).await;
+            let removed = res.is_ok();
             let res = res.unwrap_or_else(|e| TeamResult::Failed(e.to_string()));
             let _ = tx.send(UiEvent::SyncUi(SyncUiEvent::Team(res))).await;
+            if removed {
+                for vault in rotate {
+                    this.vault_op(crate::app::sync_ui::VaultOp::Rotate { vault }, &tx);
+                }
+            }
         });
     }
 
@@ -243,7 +263,7 @@ impl SyncService {
                     *this.slot() = Some(handle);
                     let _ = tx.send(UiEvent::Sync(SyncEvent::Status(first))).await;
                     tokio::spawn(local_changes(this.clone(), store));
-                    forward(ev_rx, this.vault.clone(), tx).await;
+                    forward(ev_rx, this.clone(), tx).await;
                 }
                 Err(e) => {
                     let status = match e {
@@ -434,8 +454,8 @@ impl SyncService {
                 }
                 WizardCmd::Start(flow) => {
                     *slot = Some(match flow {
-                        WizardFlow::Login => Flow::Login(LoginFlow::default()),
-                        WizardFlow::Register => Flow::Register(RegisterFlow::default()),
+                        WizardFlow::Login => Flow::Login(Box::default()),
+                        WizardFlow::Register => Flow::Register(Box::default()),
                     });
                 }
                 cmd => {
@@ -506,10 +526,24 @@ async fn local_changes(service: SyncService, store: Store) {
 }
 
 /// Forwards engine events; folds applied remote changes into the index.
-async fn forward(mut rx: mpsc::UnboundedReceiver<SyncEvent>, vault: VaultService, tx: EventSender) {
+async fn forward(mut rx: mpsc::UnboundedReceiver<SyncEvent>, sync: SyncService, tx: EventSender) {
+    let vault = sync.vault.clone();
     while let Some(ev) = rx.recv().await {
         if let SyncEvent::Applied { items, .. } = &ev {
             reindex(&vault, items, &tx).await;
+        }
+        // M5-02: load a granted vault's key before its items are indexed; after a
+        // successful cycle, grant `manage` to org admins without a key (throttled).
+        match &ev {
+            SyncEvent::VaultAdded { .. } => {
+                vault.adopt_new_vaults().await;
+            }
+            // M5-04: the engine stored the rotated key; the item service switches.
+            SyncEvent::KeyRotated { .. } => {
+                vault.refresh_vault_keys().await;
+            }
+            SyncEvent::Status(SyncStatus::Synced) => sync.maybe_reconcile(),
+            _ => {}
         }
         if tx.send(UiEvent::Sync(ev)).await.is_err() {
             return;
@@ -535,9 +569,10 @@ async fn reindex(vault: &VaultService, items: &[sverb_core::model::ItemId], tx: 
 
 // ---------------------------------------------------------------- flows
 
+// M5-04: both boxed (clippy large_enum_variant; the flows are large).
 enum Flow {
-    Register(RegisterFlow),
-    Login(LoginFlow),
+    Register(Box<RegisterFlow>),
+    Login(Box<LoginFlow>),
 }
 
 impl Flow {

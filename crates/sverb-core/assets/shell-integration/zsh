@@ -1,0 +1,19 @@
+# >>> sverb shell integration >>>
+# Emits OSC 133 prompt marks (A prompt start, B command start, C output start,
+# D;<exit> command finished) so sverb can record exact commands and exit codes.
+# Remove this block (or run the sverb uninstall snippet) to turn it off.
+if [[ -o interactive && -z "${__sverb_si:-}" && "${TERM:-}" != dumb ]]; then
+  __sverb_si=1
+  __sverb_precmd() {
+    local s=$?
+    printf '\033]133;D;%s\007\033]133;A\007' "$s"
+  }
+  __sverb_preexec() {
+    printf '\033]133;C\007'
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd __sverb_precmd
+  add-zsh-hook preexec __sverb_preexec
+  PS1="${PS1}%{"$'\033]133;B\007'"%}"
+fi
+# <<< sverb shell integration <<<

@@ -5,7 +5,7 @@
 //! connected_port)` (falling back to the port alone when exactly one route uses it,
 //! since servers normalise the address differently) and handed to that rule's task;
 //! unmatched channels are rejected. The rule's task connects to `dest_host:dest_port`
-//! locally and splices. Dropping the [`RemoteListener`](super::RemoteListener) sends
+//! locally and splices. Dropping the [`super::RemoteListener`] sends
 //! `cancel-tcpip-forward`.
 
 use std::{collections::HashMap, sync::Arc};

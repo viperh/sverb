@@ -420,7 +420,11 @@ fn documented_forms_parse() {
         ),
         (
             "doctor --algos",
-            Command::Doctor(doctor::DoctorArgs { algos: true }),
+            Command::Doctor(doctor::DoctorArgs {
+                algos: true,
+                json: false,
+                ascii: false,
+            }),
         ),
     ];
     for (args, expected) in rows {
@@ -673,7 +677,7 @@ fn errors_map_to_documented_exit_codes() {
 // T-12: every headless command that is still a stub says so and names a task.
 #[test]
 fn stubs_return_not_implemented() {
-    let forms = vec![
+    let forms: Vec<&str> = vec![
         // M1-07: `hosts list | add | rm` are implemented (see `cli/hosts.rs`).
         // M2-03: `keys list | generate | import | export` are implemented (see
         // `cli/keys.rs` tests).
@@ -686,7 +690,7 @@ fn stubs_return_not_implemented() {
         // M3-05: `export recording` is implemented (see `crates/sverb/tests/export_recording.rs`).
         // M2-10: `approve` is implemented (see `crates/sverb/tests/approve.rs`).
         // M2-07: `agent` is implemented (see `cli/agent.rs`; it serves until stopped).
-        "doctor",
+        // M7-04: `doctor` is implemented (see `cli/doctor_tests.rs`, tests/doctor.rs).
     ];
     // Sync builds: every sync command is implemented now. M4-08: `login`, `logout`,
     // `register` (`account_commands_need_a_terminal`, crates/sverb-sync/tests/account.rs);
@@ -737,6 +741,10 @@ fn stubs_return_not_implemented() {
             | "export backup" | "export ssh-config" | "export csv"
             // M4-08
             | "login" | "logout" | "register"
+            // M7-04
+            | "doctor"
+            // M7-07: see `cli/generate.rs` tests.
+            | "generate man" | "generate completions"
         ) || forms.iter().any(|f| f.starts_with(leaf.as_str()));
         assert!(covered, "`{leaf}` is not covered by the stub test");
     }

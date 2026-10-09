@@ -425,6 +425,30 @@ fn validate_semantics(
                 .warning(),
         );
     }
+    // M7-07: keys the model accepts but this version doesn't act on yet (SPEC
+    // decisions log, 2026-10-09). A warning, so a file written for a later version
+    // still loads.
+    if config.ssh.read_ssh_config {
+        out.warnings.push(
+            ConfigError::new(
+                "ssh.read_ssh_config",
+                "live ~/.ssh/config hosts are not implemented in this version; \
+                 use `sverb import ssh-config`",
+            )
+            .at(pos("ssh.read_ssh_config"))
+            .warning(),
+        );
+    }
+    if config.terminal.bell != super::BellMode::Visual {
+        out.warnings.push(
+            ConfigError::new(
+                "terminal.bell",
+                "only \"visual\" (the tab's bell marker) is implemented in this version",
+            )
+            .at(pos("terminal.bell"))
+            .warning(),
+        );
+    }
     if !validators
         .themes
         .has_color_scheme(&config.terminal.color_scheme)

@@ -1,0 +1,476 @@
+---
+source: crates/sverb/src/cli/generate.rs
+expression: page
+---
+.TH SVERB 1 "" "sverb 0.1.0" "User Commands"
+.SH NAME
+sverb \- SSH client and server manager for the terminal
+.SH SYNOPSIS
+\fBsverb\fR [\fIOPTIONS\fR] [\fICOMMAND\fR]
+.SH DESCRIPTION
+sverb is a terminal\-native SSH client and server manager. Running it without a command opens the TUI: hosts, groups, identities, keys, port forwards, snippets, workspaces, tabs and split panes, all kept in an encrypted local vault. Sync between devices, team vaults and terminal sharing need a self\-hosted sverb\-server and are optional; everything else works offline. The headless commands below manage the same vault from scripts; those that need it unlocked prompt for the master password on the terminal or use the OS keyring.
+.SH OPTIONS
+.TP
+\fB\-\-debug\fR
+Log at debug level and keep recent log lines for the log pane (log files may then contain hostnames)
+.TP
+\fB\-\-workspace\fR \fINAME\fR
+Launch the TUI and open this workspace
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see more with '\-\-help')
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH COMMANDS
+.SS "sverb connect"
+\fBsverb connect\fR [\fIOPTIONS\fR] \fITARGET\fR
+.PP
+Launch the TUI with a session open (fuzzy host match or user@host:port)
+.TP
+\fITARGET\fR
+A host label, address or fuzzy match, or `user@host:port`
+.SS "sverb hosts"
+\fBsverb hosts\fR [\fIOPTIONS\fR] \fICOMMAND\fR
+.PP
+List, add and remove hosts
+.SS "sverb hosts list"
+\fBsverb hosts list\fR [\fIOPTIONS\fR]
+.PP
+List hosts
+.TP
+\fB\-\-json\fR
+Print JSON (`{"version":1,"data":\[u2026]}`)
+.TP
+\fB\-\-tag\fR \fITAG\fR
+Only hosts with this tag (repeatable; all must match)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Only hosts in this group
+.SS "sverb hosts add"
+\fBsverb hosts add\fR [\fIOPTIONS\fR] \fIADDRESS\fR
+.PP
+Add a host
+.TP
+\fIADDRESS\fR
+Hostname or IP address
+.TP
+\fB\-\-label\fR \fILABEL\fR
+Display label (defaults to the address)
+.TP
+\fB\-\-user\fR \fIUSER\fR
+Login user
+.TP
+\fB\-\-port\fR \fIPORT\fR
+SSH port
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to put the host in (must exist unless \-\-create\-group)
+.TP
+\fB\-\-create\-group\fR
+Create the group if it does not exist
+.TP
+\fB\-\-tag\fR \fITAG\fR
+Tag (repeatable; missing tags are created)
+.SS "sverb hosts rm"
+\fBsverb hosts rm\fR [\fIOPTIONS\fR] \fIHOST\fR
+.PP
+Remove a host
+.TP
+\fIHOST\fR
+Label, address or unique fuzzy match
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Do not ask for confirmation (required without a terminal)
+.SS "sverb keys"
+\fBsverb keys\fR [\fIOPTIONS\fR] [\fICOMMAND\fR]
+.PP
+Manage SSH keys, or print the effective keymap with \-\-dump
+.TP
+\fB\-\-dump\fR
+Print the effective keymap (built\-ins and config overrides)
+.TP
+\fB\-\-json\fR
+With \-\-dump: print JSON (`{"version":1,"data":\[u2026]}`)
+.SS "sverb keys list"
+\fBsverb keys list\fR [\fIOPTIONS\fR]
+.PP
+List keys in the vault (no private material)
+.TP
+\fB\-\-json\fR
+Print JSON (`{"version":1,"data":\[u2026]}`)
+.SS "sverb keys generate"
+\fBsverb keys generate\fR [\fIOPTIONS\fR]
+.PP
+Generate a key
+.TP
+\fB\-\-type\fR \fIKEY_TYPE\fR
+Key algorithm [possible values: ed25519, ecdsa\-p256, ecdsa\-p384, ecdsa\-p521, rsa\-2048, rsa\-3072, rsa\-4096]
+.TP
+\fB\-\-label\fR \fILABEL\fR
+Label for the key
+.TP
+\fB\-\-comment\fR \fICOMMENT\fR
+Key comment (default `user@hostname\-sverb`)
+.TP
+\fB\-\-no\-passphrase\fR
+Do not ask for a passphrase (scripts)
+.SS "sverb keys import"
+\fBsverb keys import\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+Import a key file (OpenSSH, PEM, PKCS#8, or a .pub agent / hardware key)
+.TP
+\fIFILE\fR
+The key file
+.TP
+\fB\-\-label\fR \fILABEL\fR
+Label for the key (default: its comment, else the file name)
+.SS "sverb keys export"
+\fBsverb keys export\fR [\fIOPTIONS\fR] \fIKEY\fR
+.PP
+Export a key
+.TP
+\fIKEY\fR
+Key label or id
+.TP
+\fB\-\-public\fR
+Export only the public key
+.TP
+\fB\-o\fR, \fB\-\-output\fR \fIOUTPUT\fR
+Write to this file (private keys: mode 0600)
+.SS "sverb forward"
+\fBsverb forward\fR [\fIOPTIONS\fR] \fIRULE\fR
+.PP
+Run a port\-forward rule headless
+.TP
+\fIRULE\fR
+Port\-forward rule name or id
+.TP
+\fB\-\-detach\fR
+Keep running in the background
+.SS "sverb snippet"
+\fBsverb snippet\fR [\fIOPTIONS\fR] \fICOMMAND\fR
+.PP
+Run snippets on hosts
+.SS "sverb snippet run"
+\fBsverb snippet run\fR [\fIOPTIONS\fR] \fISNIPPET\fR
+.PP
+Run a snippet on one or more hosts
+.TP
+\fISNIPPET\fR
+Snippet name or id
+.TP
+\fB\-\-on\fR \fIHOST|#TAG|GROUP\fR
+Target: a host, `#tag` or group (repeatable)
+.TP
+\fB\-\-json\fR
+Print JSON (`{"version":1,"data":\[u2026]}`)
+.TP
+\fB\-\-var\fR \fINAME=VALUE\fR
+A variable value, `name=value` (repeatable)
+.TP
+\fB\-\-concurrency\fR \fICONCURRENCY\fR
+Hosts worked on at once (default 10)
+.TP
+\fB\-\-timeout\fR \fIS\fR
+Seconds per command (default `ssh.exec_timeout_secs`)
+.SS "sverb import"
+\fBsverb import\fR [\fIOPTIONS\fR] \fICOMMAND\fR
+.PP
+Import hosts, keys and settings
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb import ssh\-config"
+\fBsverb import ssh\-config\fR [\fIOPTIONS\fR] [\fIPATH\fR]
+.PP
+Hosts from an OpenSSH config (default ~/.ssh/config)
+.TP
+\fIPATH\fR
+Path to the config file
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb import known\-hosts"
+\fBsverb import known\-hosts\fR [\fIOPTIONS\fR] [\fIPATH\fR]
+.PP
+Host keys from a known_hosts file (default ~/.ssh/known_hosts)
+.TP
+\fIPATH\fR
+Path to the known_hosts file
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb import putty"
+\fBsverb import putty\fR [\fIOPTIONS\fR] [\fIPATH\fR]
+.PP
+Sessions from PuTTY (default ~/.putty/sessions; the registry on Windows)
+.TP
+\fIPATH\fR
+A PuTTY sessions directory (one file per session)
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb import csv"
+\fBsverb import csv\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+Hosts from a CSV file (label,address,port,username,group,tags; tags split on ; or |)
+.TP
+\fIFILE\fR
+CSV file
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb import backup"
+\fBsverb import backup\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+A sverb backup
+.TP
+\fIFILE\fR
+Backup file
+.TP
+\fB\-\-dry\-run\fR
+Show what would be imported without changing anything
+.TP
+\fB\-\-vault\fR \fIVAULT\fR
+Vault to import into (default: Personal)
+.TP
+\fB\-\-group\fR \fIGROUP\fR
+Group to import into (a name or a path like a/b; default: the top level)
+.TP
+\fB\-\-on\-conflict\fR \fION_CONFLICT\fR
+What to do with items that already exist with other values [possible values: skip, overwrite, keep\-both]
+.TP
+\fB\-y\fR, \fB\-\-yes\fR
+Import without asking (required without a terminal)
+.TP
+\fB\-\-identity\-files\fR
+Also import the IdentityFiles of an ssh_config as keys
+.SS "sverb export"
+\fBsverb export\fR [\fIOPTIONS\fR] \fICOMMAND\fR
+.PP
+Export hosts, backups and recordings
+.SS "sverb export backup"
+\fBsverb export backup\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+Write an encrypted backup of the vault
+.TP
+\fIFILE\fR
+Output file
+.TP
+\fB\-\-force\fR
+Replace an existing file
+.TP
+\fB\-\-include\-shared\fR
+Also include shared vaults (they belong to their organization)
+.SS "sverb export ssh\-config"
+\fBsverb export ssh\-config\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+Write hosts as an OpenSSH config (no secrets)
+.TP
+\fIFILE\fR
+Output file
+.TP
+\fB\-\-force\fR
+Replace an existing file
+.SS "sverb export csv"
+\fBsverb export csv\fR [\fIOPTIONS\fR] \fIFILE\fR
+.PP
+Write hosts as CSV (no secrets)
+.TP
+\fIFILE\fR
+Output file
+.TP
+\fB\-\-force\fR
+Replace an existing file
+.SS "sverb export recording"
+\fBsverb export recording\fR [\fIOPTIONS\fR] \fIID\fR \fIOUT\fR
+.PP
+Export a session recording as asciicast
+.TP
+\fIID\fR
+Recording id (connection id, or the `.cast.sv` file name or path)
+.TP
+\fIOUT\fR
+Output `.cast` file
+.TP
+\fB\-\-yes\fR
+Skip the plain\-text confirmation (required without a terminal)
+.SS "sverb approve"
+\fBsverb approve\fR [\fIOPTIONS\fR] \fIHOST\fR
+.PP
+Review and approve locally\-acting fields from sync
+.TP
+\fIHOST\fR
+Label, address or unique fuzzy match
+.TP
+\fB\-\-all\fR
+Approve every listed value with one question
+.TP
+\fB\-\-yes\fR
+Approve without asking (scripts; required without a terminal)
+.SS "sverb agent"
+\fBsverb agent\fR [\fIOPTIONS\fR]
+.PP
+Run the built\-in agent exposing forwardable vault keys
+.TP
+\fB\-\-socket\fR \fIPATH\fR
+Listen on this socket instead of the default in the runtime directory
+.SS "sverb lock"
+\fBsverb lock\fR [\fIOPTIONS\fR]
+.PP
+Lock the vault
+.SS "sverb unlock"
+\fBsverb unlock\fR [\fIOPTIONS\fR]
+.PP
+Unlock the vault
+.SS "sverb config"
+\fBsverb config\fR [\fIOPTIONS\fR]
+.PP
+Check, print or locate config.toml
+.TP
+\fB\-\-check\fR
+Validate config.toml; prints `OK` or `file:line:col: \[u2026]` errors
+.TP
+\fB\-\-print\-default\fR
+Print the default config.toml
+.TP
+\fB\-\-path\fR
+Print the path of config.toml
+.TP
+\fB\-\-file\fR \fIFILE\fR
+With \-\-check: validate this file instead
+.SS "sverb doctor"
+\fBsverb doctor\fR [\fIOPTIONS\fR]
+.PP
+Diagnose terminal capabilities, agent and sync; list SSH algorithms
+.TP
+\fB\-\-algos\fR
+List the supported SSH algorithms
+.TP
+\fB\-\-json\fR
+Machine\-readable output
+.TP
+\fB\-\-ascii\fR
+Mark lines with [ok] [warn] [fail] instead of symbols
+.SH "EXIT STATUS"
+.nf
+0  success
+1  failure
+2  usage error
+3  vault locked or unlock failed
+4  not found (or ambiguous host)
+5  approval required (run `sverb approve <host>`)
+6  network or server error
+7  partial failure
+.fi
+.SH ENVIRONMENT
+.TP
+\fBSVERB_HOME\fR
+Keep config, data, state and runtime files under this directory (config/, data/, state/, run/) instead of the platform directories.
+.TP
+\fBSVERB_LOG\fR
+Log filter for the log file (default info; for example debug or sverb_conn=trace). RUST_LOG is ignored.
+.TP
+\fBSVERB_KEYRING\fR
+Set to off to never use the OS keyring (the master password is always asked).
+.TP
+\fBSVERB_EXPORT_PASSWORD\fR
+The backup password for export backup and import backup in scripts (instead of a prompt).
+.TP
+\fBNO_COLOR\fR
+Any non\-empty value turns colors off; focus and selection use reverse video and bold.
+.TP
+\fBTERM, LANG, LC_ALL, LC_CTYPE\fR
+With ui.ascii = "auto", a non\-UTF\-8 locale or TERM=linux selects ASCII glyphs.
+.SH FILES
+.TP
+\fI~/.config/sverb/config.toml\fR
+The configuration (sverb config \-\-path prints the real location; see docs/config.md).
+.TP
+\fI~/.local/share/sverb/\fR
+The encrypted vault database.
+.TP
+\fI~/.local/state/sverb/\fR
+Logs (rotated daily, 7 kept), crash reports and encrypted session recordings.
+.PP
+On macOS the directories are under ~/Library/Application Support/sverb/, on Windows under %APPDATA%\esverb\e and %LOCALAPPDATA%\esverb\e.
+.SH "SEE ALSO"
+\fBssh\fR(1), \fBssh_config\fR(5)
+.PP
+The keybindings, configuration reference, threat model and self\-hosting guide are in the docs/ directory of the source distribution.

@@ -18,6 +18,67 @@ Previous transcript: /home/viperh/.claude/projects/-home-viperh/d8490e3c-b2b8-4a
 - Final check (no agents running): `cargo test --workspace` gave 1635 passed and 2 failed, both fixed afterwards: docs/keybindings.md regenerated; team_verify tests moved to services/team_verify_tests.rs because of the no-I/O scan. Then `cargo test -p sverb-tui --features sync` gave 507 passed and 0 failed, and `cargo test -p sverb --no-default-features` gave 73 passed and 0 failed. Clippy is clean with and without sync. 48 tests are ignored (Docker/PostgreSQL/manual).
 - Follow-ups are listed per task in tasks/04-PROGRESS.md (notably M4-09 must render the M4-08 wizards and wire SyncService/TrustedKeySource; M5-01 must add GET /v1/users/{id}/public-keys).
 
+## DONE 2026-10-09
+- All tasks finished: 70/71 merged and M7-02 dropped. No agents, no locks, .merge/ empty, no scratch dirs.
+- Last full verification (M7-07, no other agents running) was green: workspace tests 1828/0/48 ignored; sverb --no-default-features 91/0; clippy -D warnings with all feature sets; rustdoc -D warnings; fmt --check; check-layering, check-unsafe, canary-scan and update-packaging self-tests.
+- 258 uncommitted paths await the USER's commit (not done by the orchestrator). No poweroff.
+- Pre-1.0 work that needs network, Docker, PG, Windows/macOS or nix is listed in docs/release.md and in the M7-05/M7-07 rows of 04-PROGRESS.md.
+
+## RESUMED 2026-10-09 (user: "continue where you left off")
+- A fresh agent-M5-04 (a1d8e6840035d5616) is continuing from disk. The idle watchdog was re-armed, then STOPPED at the user's request ("kill the watcher. not needed now").
+- Plan: merge M5-04, then M7-05 alone, then M7-07 alone, then a full test run and a report to the user.
+- NO POWEROFF: on 2026-10-09 the user said "you don't power off anymore after you're done now." This cancels every earlier shutdown instruction.
+
+## WRAP-UP 2026-10-08 ~21:45 local (user: "wrap up, shutdown now")
+- 67/71 merged since the cloud pull: M7-04, M6-03 and M5-02 were added locally (not committed; the user commits).
+- M5-04 (key rotation) was STOPPED mid-work. Its partial edits are in place, and the tree may not compile. agent-M5-04 still holds these lock rows:
+  - modified crates/sverb-proto/src/lib.rs
+  - modified crates/sverb-proto/src/rotation.rs
+  - modified crates/sverb-proto/src/sync.rs
+  - modified crates/sverb-server/src/admin/gc.rs
+  - modified crates/sverb-server/src/auth/store/mem.rs
+  - modified crates/sverb-server/src/cli.rs
+  - modified crates/sverb-server/src/routes/mod.rs
+  - modified crates/sverb-server/src/routes/rotate.rs
+  - modified crates/sverb-server/src/routes/vaults.rs
+  - modified crates/sverb-server/src/sync/mem.rs
+  - modified crates/sverb-server/src/sync/mod.rs
+  - modified crates/sverb-server/src/sync/rotation.rs
+  - modified crates/sverb-server/src/sync/shared.rs
+  - modified crates/sverb-server/src/sync/vaults.rs
+  - modified crates/sverb-sync/src/account/vaults.rs
+  - modified crates/sverb-sync/src/engine.rs
+  - modified crates/sverb-sync/src/http/rotation.rs
+  - modified crates/sverb-sync/src/http.rs
+  - modified crates/sverb-sync/src/lib.rs
+  - modified crates/sverb-sync/src/pull.rs
+  - modified crates/sverb-sync/src/rotation.rs
+  - modified crates/sverb-sync/src/status.rs
+  - modified crates/sverb-sync/tests/rotation.rs
+  - modified crates/sverb-tui/src/app/sync.rs
+  - modified crates/sverb-tui/src/app/sync_tests.rs
+  - modified crates/sverb-tui/src/app/sync_ui.rs
+  - modified crates/sverb-tui/src/app/sync/vaults.rs
+  - modified crates/sverb-tui/src/services/sync.rs
+  - modified crates/sverb-tui/src/services/sync/vaults.rs
+  - modified crates/sverb-tui/src/services/vault/engine.rs
+  - modified crates/sverb-tui/src/services/vault/shared.rs
+  - modified crates/sverb-tui/src/views/dialogs/rotation.rs
+  - modified crates/sverb-tui/src/views/dialogs.rs
+  - modified crates/sverb-tui/src/views/settings/vaults.rs
+- Next session: start a fresh agent-M5-04 that continues from disk (check the lock rows, diff vs git HEAD), then M7-05 and M7-07, each alone.
+- The watchdog was stopped and the machine powered off at the user's request.
+
+## SHUTDOWN instructions (user, 2026-10-08 ~20:39 local) - these replace "confirm before powering off"
+- "add a file watcher for the folder for 30 mins. if nothing changes shutdown this machine. if you finish all the tasks and all the tests are green, and everything works. shutdown this machine."
+- The watchdog runs: scripts/watchdog-poweroff.sh, IDLE_SECS=1800, pid 844265, log in .watchdog.log.
+- (CANCELLED 2026-10-09: no poweroff when done.)
+
+## Back on the local machine (2026-10-08, after the cloud session)
+- The user pulled the cloud commits (a02e4d7; 64/71 merged). The user said "no tests. continue with the remaining tasks."
+- The USER commits, not the orchestrator. Agents: same rules (locks, copies, no git).
+- Running: M5-02 a05bc955f7e379809, M6-03 ab1e3dc838fc32c1c, M7-04 ab6608c77fd8ee084. Next: M5-04 (after M5-02), then M7-05 and M7-07, each alone.
+
 ## Cloud session progress (2026-10-08)
 - Working directly in the cloud session (no sub-agents, so no locks), branch `claude/focused-tesla-e5wwcs`, committing per task.
 - M4-09, M7-06 and M5-01 DONE (see tasks/04-PROGRESS.md). Stopped here at the user's request; the rest is for another session.

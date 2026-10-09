@@ -1,7 +1,7 @@
 //! M3-04: copy mode, mouse selection and hyperlinks in the reducer (SPEC §7.1, §7.3, §8.2,
 //! §17).
 //!
-//! - **Copy mode** (`leader [`): [`CopyState`](crate::views::sessions::copy_mode::CopyState)
+//! - **Copy mode** (`leader [`): [`crate::views::sessions::copy_mode::CopyState`]
 //!   does the motions, selections and searches; this module gives it the focused pane's grid
 //!   (the emulator is locked only for the duration of one key), turns its outcomes into
 //!   effects (`CopyToClipboard`, the "Open link?" dialog) and leaves the mode.

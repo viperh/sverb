@@ -144,6 +144,8 @@ pub fn markdown() -> String {
             r.description
         );
     }
+    // M7-07: view-local keys (fixed; not in the registry, so not rebindable).
+    view_keys_markdown(&mut out);
     // M3-04
     copy_mode_markdown(&mut out);
     out.push_str(
@@ -174,6 +176,103 @@ pub fn markdown() -> String {
          chord. Separate chords with spaces for a multi-key sequence (`\"g g\"`).\n",
     );
     out
+}
+
+// M7-07
+/// View-local keys of the Hosts view and Settings → Vaults (M2-01, M2-11, M5-02, M5-04,
+/// M7-01). They live in the views (`views/hosts`, `views/settings/vaults.rs`), only in
+/// Normal mode, and can't be rebound.
+/// One view: title, intro, `(keys, what it does)` rows.
+type ViewKeys = (
+    &'static str,
+    &'static str,
+    &'static [(&'static str, &'static str)],
+);
+
+const VIEW_KEYS: &[ViewKeys] = &[
+    (
+        "Hosts view",
+        "On a host row (or the marked rows). Marks (`space`) apply the key to every marked host.",
+        &[
+            ("`enter`", "connect (a new tab per host)"),
+            ("`ctrl-enter` `v`", "connect in a split"),
+            ("`a`", "add a host"),
+            ("`e`", "edit the host"),
+            ("`y`", "duplicate"),
+            ("`d`", "delete (asks first)"),
+            ("`p`", "pin / unpin"),
+            ("`m`", "move to a group"),
+            ("`t`", "tag"),
+            ("`c`", "copy the `ssh` command"),
+            ("`A`", "new group"),
+            ("`T`", "manage tags"),
+            ("`D`", "vault defaults (inherited settings)"),
+            (
+                "`I`",
+                "import (ssh_config, known_hosts, CSV, PuTTY, backup)",
+            ),
+            ("`X`", "export"),
+            ("`H`", "clear the host's command history"),
+            (
+                "`V`",
+                "next vault (personal, then each shared vault; the top bar shows it)",
+            ),
+            ("`M`", "move to another vault (re-encrypts under its key)"),
+            ("`C`", "copy to another vault"),
+            (
+                "`O`",
+                "your credential override for a host in a shared vault",
+            ),
+        ],
+    ),
+    (
+        "Hosts view, on a group row",
+        "Without marks.",
+        &[
+            ("`e`", "edit the group"),
+            ("`d`", "delete the group"),
+            ("`a`", "add a host in the group"),
+            ("`A`", "new subgroup"),
+        ],
+    ),
+    (
+        "Settings → Vaults (sync builds, connected)",
+        "Shared vaults on the left, the selected vault's members on the right.",
+        &[
+            ("`j` `k` `↓` `↑`", "move in the focused list"),
+            ("`tab`", "switch between vaults and members"),
+            ("`n`", "new shared vault (org owners and admins)"),
+            ("`u`", "reload"),
+            ("`g`", "grant `manage` to org admins who have no key yet"),
+            (
+                "`R`",
+                "rotate the vault key, or resume an interrupted rotation (`manage`)",
+            ),
+            (
+                "`r` `w` `m`",
+                "members: grant read / write / manage (`manage`)",
+            ),
+            (
+                "`x` `delete`",
+                "members: revoke (asks; the key is rotated), or leave the vault",
+            ),
+        ],
+    ),
+];
+
+// M7-07
+fn view_keys_markdown(out: &mut String) {
+    out.push_str(
+        "\n## View keys\n\n\
+         Keys handled by one view, in Normal mode only. They are fixed (not in `[keys.*]`).\n",
+    );
+    for (title, intro, rows) in VIEW_KEYS {
+        let _ = writeln!(out, "\n### {title}\n\n{intro}\n");
+        out.push_str("| Keys | Does |\n|---|---|\n");
+        for (keys, what) in *rows {
+            let _ = writeln!(out, "| {keys} | {what} |");
+        }
+    }
 }
 
 // M3-04

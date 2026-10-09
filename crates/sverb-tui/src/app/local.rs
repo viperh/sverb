@@ -4,7 +4,7 @@
 //!   (`Effect::OpenSession(SessionSpec::Local)`) and focuses its pane. Tabs arrive with
 //!   M1-17; until then the new session is one more entry in [`Tabs::sessions`].
 //! - When the shell exits (`State(Disconnected { Exited(code) })`) the pane shows
-//!   "Process exited (code N) — [Enter] restart · leader x close" and is no longer
+//!   "Process exited (code N) — `[Enter]` restart · leader x close" and is no longer
 //!   live: plain keys are swallowed, never forwarded and never acted on, so typing
 //!   `x…` into a just-exited shell can't close it (`03-KEYBINDINGS.md` §3.1 A5, §4.4).
 //!   `Enter` restarts the shell in the same pane (`Effect::ReconnectSession`), and

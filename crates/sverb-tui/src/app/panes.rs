@@ -128,6 +128,10 @@ impl App {
         id: SessionId,
         panes: &dyn PaneSource,
     ) -> Option<PaneCursor> {
+        // M6-03: a viewer pane draws the host-sized screen letterboxed.
+        if let Some(cursor) = self.render_share_viewer(frame, area, id, panes) {
+            return cursor;
+        }
         let emulator = panes.emulator(id);
         let mut info = self.pane(id);
         // M3-02: broadcast members get the broadcast border.
@@ -153,6 +157,8 @@ impl App {
         if let Some(c) = cursor {
             frame.set_cursor_position(c.position);
         }
+        // M6-03: `⚠ shared · view|control` on a pane this device shares.
+        self.render_share_badge(frame, area, id);
         // M7-01: the ghost-text suggestion after the cursor (`history.ghost_text`).
         self.render_ghost_text(frame, area, id, emulator.as_ref(), cursor.as_ref());
         cursor

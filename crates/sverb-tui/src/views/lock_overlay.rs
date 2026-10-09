@@ -21,9 +21,7 @@ pub fn render(frame: &mut Frame<'_>, area: Rect, theme: &Theme, ascii: bool, lea
         return;
     }
     frame.render_widget(Clear, area);
-    let block = Block::bordered()
-        .border_style(theme.dim)
-        .style(theme.base);
+    let block = Block::bordered().border_style(theme.dim).style(theme.base);
     let inner = block.inner(area);
     frame.render_widget(block, area);
     let lines = vec![
@@ -42,8 +40,10 @@ mod tests {
     #[test]
     fn renders_at_any_size() {
         for (w, h) in [(0, 0), (1, 1), (3, 2), (40, 10)] {
-            let mut t = Terminal::new(TestBackend::new(w.max(1), h.max(1))).unwrap_or_else(|_| unreachable!());
-            let _ = t.draw(|f| render(f, Rect::new(0, 0, w, h), &Theme::default(), true, "ctrl-\\"));
+            let mut t = Terminal::new(TestBackend::new(w.max(1), h.max(1)))
+                .unwrap_or_else(|_| unreachable!());
+            let _ =
+                t.draw(|f| render(f, Rect::new(0, 0, w, h), &Theme::default(), true, "ctrl-\\"));
         }
     }
 }

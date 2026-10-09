@@ -15,12 +15,16 @@ RUN apk add --no-cache musl-dev build-base
 WORKDIR /src
 COPY . .
 # rust-toolchain.toml pins the channel; add the musl target to whatever it installs.
-RUN rustup target add x86_64-unknown-linux-musl
+# M7-07: the target follows the build platform (x86_64 or aarch64), so
+# `docker buildx build --platform linux/arm64` builds an arm64 binary. The release
+# images are built from the release binaries instead (Dockerfile.server.release).
 ENV RUSTFLAGS="-C target-feature=+crt-static"
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/src/target \
-    cargo build --locked --release -p sverb-server --target x86_64-unknown-linux-musl \
- && install -D -m 0755 target/x86_64-unknown-linux-musl/release/sverb-server /out/sverb-server
+    target="$(uname -m)-unknown-linux-musl" \
+ && rustup target add "$target" \
+ && cargo build --locked --release -p sverb-server --target "$target" \
+ && install -D -m 0755 "target/$target/release/sverb-server" /out/sverb-server
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/sverb-server /usr/local/bin/sverb-server

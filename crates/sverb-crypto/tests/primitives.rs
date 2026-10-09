@@ -50,15 +50,28 @@ fn wrap_purposes_are_domain_separated() {
     let kek = random_key32(&mut rng());
     let vk = random_key32(&mut rng());
     let (v1, v2) = ([1u8; 16], [2u8; 16]);
-    let w = wrap_key(&kek, &WrapPurpose::VaultKey(v1), vk.expose_secret(), &mut rng()).unwrap();
-    assert_eq!(unwrap_key32(&kek, &WrapPurpose::VaultKey(v1), &w).unwrap(), vk);
+    let w = wrap_key(
+        &kek,
+        &WrapPurpose::VaultKey(v1),
+        vk.expose_secret(),
+        &mut rng(),
+    )
+    .unwrap();
+    assert_eq!(
+        unwrap_key32(&kek, &WrapPurpose::VaultKey(v1), &w).unwrap(),
+        vk
+    );
     for wrong in [
         WrapPurpose::VaultKey(v2),
         WrapPurpose::SyncTokens,
         WrapPurpose::Lmk,
         WrapPurpose::RecordingKey,
     ] {
-        assert_eq!(unwrap_key(&kek, &wrong, &w).unwrap_err(), CryptoError::Auth, "{wrong:?}");
+        assert_eq!(
+            unwrap_key(&kek, &wrong, &w).unwrap_err(),
+            CryptoError::Auth,
+            "{wrong:?}"
+        );
     }
     // Wrong KEK.
     let other = Key32::from_bytes([0xee; 32]);
@@ -77,7 +90,10 @@ fn wrap_variable_length_secret() {
     let kek = Key32::from_bytes([5; 32]);
     let tokens = b"access=abc;refresh=def".to_vec();
     let w = wrap_key(&kek, &WrapPurpose::SyncTokens, &tokens, &mut rng()).unwrap();
-    assert_eq!(*unwrap_key(&kek, &WrapPurpose::SyncTokens, &w).unwrap(), tokens);
+    assert_eq!(
+        *unwrap_key(&kek, &WrapPurpose::SyncTokens, &w).unwrap(),
+        tokens
+    );
     assert!(matches!(
         unwrap_key32(&kek, &WrapPurpose::SyncTokens, &w),
         Err(CryptoError::Malformed(_))
@@ -88,10 +104,24 @@ fn wrap_variable_length_secret() {
 #[test]
 fn argon2_params_validation() {
     let salt = random_salt16(&mut rng());
-    let bad = Argon2Params { m_kib: 1024, t: 3, p: 1, salt };
-    assert!(matches!(argon2id(b"pw", &bad), Err(CryptoError::InvalidParams(_))));
+    let bad = Argon2Params {
+        m_kib: 1024,
+        t: 3,
+        p: 1,
+        salt,
+    };
     assert!(matches!(
-        argon2id(b"pw", &Argon2Params { t: 0, ..Argon2Params::with_salt(salt) }),
+        argon2id(b"pw", &bad),
+        Err(CryptoError::InvalidParams(_))
+    ));
+    assert!(matches!(
+        argon2id(
+            b"pw",
+            &Argon2Params {
+                t: 0,
+                ..Argon2Params::with_salt(salt)
+            }
+        ),
         Err(CryptoError::InvalidParams(_))
     ));
     let d = Argon2Params::with_salt(salt);
@@ -100,7 +130,12 @@ fn argon2_params_validation() {
 
 #[test]
 fn argon2_wrong_password_differs() {
-    let params = Argon2Params { m_kib: 19_456, t: 1, p: 1, salt: [4; 16] };
+    let params = Argon2Params {
+        m_kib: 19_456,
+        t: 1,
+        p: 1,
+        salt: [4; 16],
+    };
     let a = argon2id(b"right", &params).unwrap();
     let b = argon2id(b"wrong", &params).unwrap();
     assert_ne!(a, b);
@@ -116,7 +151,10 @@ fn canonical_builders() {
     assert_eq!(&aad[13..29], &[0xaa; 16]);
     assert_eq!(&aad[29..45], &[0xbb; 16]);
     assert_eq!(&aad[45..], &[0, 0, 0, 7]);
-    assert_eq!(len_prefixed(b"abc"), [0x00, 0x00, 0x00, 0x03, 0x61, 0x62, 0x63]);
+    assert_eq!(
+        len_prefixed(b"abc"),
+        [0x00, 0x00, 0x00, 0x03, 0x61, 0x62, 0x63]
+    );
 }
 
 #[test]
@@ -125,9 +163,18 @@ fn recording_chunks_bind_index_and_last_flag() {
     let conn = [3u8; 16];
     let c = seal_chunk(&k, &conn, 4, false, b"line\n", &mut rng()).unwrap();
     assert_eq!(*open_chunk(&k, &conn, 4, false, &c).unwrap(), b"line\n");
-    assert_eq!(open_chunk(&k, &conn, 5, false, &c).unwrap_err(), CryptoError::Auth);
-    assert_eq!(open_chunk(&k, &conn, 4, true, &c).unwrap_err(), CryptoError::Auth);
-    assert_eq!(open_chunk(&k, &[4; 16], 4, false, &c).unwrap_err(), CryptoError::Auth);
+    assert_eq!(
+        open_chunk(&k, &conn, 5, false, &c).unwrap_err(),
+        CryptoError::Auth
+    );
+    assert_eq!(
+        open_chunk(&k, &conn, 4, true, &c).unwrap_err(),
+        CryptoError::Auth
+    );
+    assert_eq!(
+        open_chunk(&k, &[4; 16], 4, false, &c).unwrap_err(),
+        CryptoError::Auth
+    );
     for len in 0..c.len() {
         assert!(open_chunk(&k, &conn, 4, false, &c[..len]).is_err());
     }
@@ -144,7 +191,10 @@ fn key_debug_is_redacted() {
     assert!(dbg.contains("REDACTED"));
     let k2 = Key32::from_bytes([0x5c; 32]);
     let dbg2 = format!("{k2:#?}");
-    assert!(!dbg2.to_lowercase().contains("5c") && !dbg2.contains("92"), "{dbg2}");
+    assert!(
+        !dbg2.to_lowercase().contains("5c") && !dbg2.contains("92"),
+        "{dbg2}"
+    );
     // Nonces are public and may print.
     assert!(format!("{:?}", Nonce24::from_bytes([0; 24])).starts_with("Nonce24("));
 }

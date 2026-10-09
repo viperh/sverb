@@ -1,0 +1,57 @@
+# Maintainer: qviperh <olteanromeodavid34@gmail.com>
+#
+# M7-07: AUR package built from source (SPEC §20). `scripts/update-packaging.py` sets
+# pkgver and the checksum on every release; the release workflow pushes this file and
+# its .SRCINFO to aur.archlinux.org/sverb.git.
+pkgname=sverb
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Terminal-native SSH client and server manager with an encrypted vault and optional self-hosted sync'
+arch=('x86_64' 'aarch64')
+url='https://github.com/viperh/sverb'
+license=('MIT')
+depends=('gcc-libs' 'glibc')
+makedepends=('cargo')
+optdepends=('wl-clipboard: clipboard on Wayland without OSC 52'
+            'xclip: clipboard on X11 without OSC 52')
+conflicts=('sverb-bin')
+options=('!lto')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('0000000000000000000000000000000000000000000000000000000000000000')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  cargo build --frozen --release -p sverb
+  # The man page and completions come from the binary itself (no files are written
+  # outside $srcdir: SVERB_HOME points the config/log directories there).
+  export SVERB_HOME="$srcdir/sverb-home" SVERB_KEYRING=off
+  ./target/release/sverb generate man --out-dir gen/man
+  ./target/release/sverb generate completions bash >gen/sverb.bash
+  ./target/release/sverb generate completions zsh >gen/_sverb
+  ./target/release/sverb generate completions fish >gen/sverb.fish
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable SVERB_KEYRING=off
+  cargo test --frozen --release -p sverb-core --lib
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm0755 target/release/sverb "$pkgdir/usr/bin/sverb"
+  install -Dm0644 gen/man/sverb.1 "$pkgdir/usr/share/man/man1/sverb.1"
+  install -Dm0644 gen/sverb.bash "$pkgdir/usr/share/bash-completion/completions/sverb"
+  install -Dm0644 gen/_sverb "$pkgdir/usr/share/zsh/site-functions/_sverb"
+  install -Dm0644 gen/sverb.fish "$pkgdir/usr/share/fish/vendor_completions.d/sverb.fish"
+  install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm0644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

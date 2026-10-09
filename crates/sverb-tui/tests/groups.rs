@@ -175,7 +175,11 @@ async fn t07_delete_group_and_everything_below() {
 async fn t10_bulk_tags_change_only_the_tags_field() {
     let fx = Fixture::new("t10");
     let (_s, ops) = ops(&fx).await;
-    let web = ops.save_tag(None, "web".into(), Some("green".into())).await.unwrap().id;
+    let web = ops
+        .save_tag(None, "web".into(), Some("green".into()))
+        .await
+        .unwrap()
+        .id;
     let mut hosts = Vec::new();
     for i in 0..5 {
         let id = host(&ops, &format!("h{i}"), None).await;
@@ -208,7 +212,10 @@ async fn t10_bulk_tags_change_only_the_tags_field() {
         }
     }
     // An inline "db" reuses the existing tag (case-insensitive).
-    let ws = ops.set_tags(&hosts[..1], &[], &[], Some("db".into())).await.unwrap();
+    let ws = ops
+        .set_tags(&hosts[..1], &[], &[], Some("db".into()))
+        .await
+        .unwrap();
     assert_eq!(ws.len(), 1, "no new tag");
 }
 
@@ -224,7 +231,9 @@ async fn t09_tag_names_are_unique_per_vault() {
     ops.save_tag(Some(prod), "Prod".into(), Some("red".into()))
         .await
         .unwrap();
-    let bad = ops.save_tag(None, "x".into(), Some("chartreuse".into())).await;
+    let bad = ops
+        .save_tag(None, "x".into(), Some("chartreuse".into()))
+        .await;
     assert!(matches!(bad, Err(ItemError::Invalid(_))));
     // Deleting a tag leaves the stale id on hosts; the catalog ignores it.
     let h = host(&ops, "a", None).await;
@@ -241,7 +250,10 @@ async fn group_cycles_are_rejected_on_save() {
     let a = group(&ops, "a", None, None).await;
     let b = group(&ops, "b", Some(a), None).await;
     let r = ops
-        .save_group(Some(a), changes(&[("parent_id", FieldValue::Reference(Some(b)))]))
+        .save_group(
+            Some(a),
+            changes(&[("parent_id", FieldValue::Reference(Some(b)))]),
+        )
         .await;
     assert!(matches!(r, Err(ItemError::Invalid(_))), "{r:?}");
     let r = ops
@@ -271,7 +283,10 @@ async fn catalog_resolves_groups_and_vault_defaults() {
     .await
     .unwrap();
     let cat = ops.catalog().await.unwrap();
-    assert!(!cat.groups.values().any(|g| g == "Vault defaults"), "not a tree node");
+    assert!(
+        !cat.groups.values().any(|g| g == "Vault defaults"),
+        "not a tree node"
+    );
     let g = GlobalDefaults::default();
     let ra = cat.resolve(&cat.hosts[&a], &g);
     assert_eq!(ra.port, 2222);
@@ -281,9 +296,12 @@ async fn catalog_resolves_groups_and_vault_defaults() {
     assert_eq!(rb.port, 2022);
 
     // The group's default changes: the next resolution sees it.
-    ops.save_group(Some(prod), changes(&[("port", FieldValue::Number(Some(3333)))]))
-        .await
-        .unwrap();
+    ops.save_group(
+        Some(prod),
+        changes(&[("port", FieldValue::Number(Some(3333)))]),
+    )
+    .await
+    .unwrap();
     let cat2 = ops.catalog().await.unwrap();
     assert_eq!(cat2.resolve(&cat2.hosts[&a], &g).port, 3333);
     assert_eq!(ra.port, 2222, "an earlier resolution is a snapshot");

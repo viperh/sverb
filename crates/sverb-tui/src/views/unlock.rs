@@ -87,7 +87,11 @@ impl MaskedField {
     /// Edit with a key: characters and Backspace. Returns whether the text changed.
     pub fn edit(&mut self, key: &KeyEvent) -> bool {
         match key.code {
-            KeyCode::Char(c) if !key.modifiers.intersects(KeyModifiers::CONTROL | KeyModifiers::ALT) => {
+            KeyCode::Char(c)
+                if !key
+                    .modifiers
+                    .intersects(KeyModifiers::CONTROL | KeyModifiers::ALT) =>
+            {
                 self.push(c);
                 true
             }
@@ -321,8 +325,16 @@ impl ChangePasswordForm {
             lines.push(field("Current password", cur.masked(32), self.focus == row));
             row += 1;
         }
-        lines.push(field("New password", self.new.password.masked(32), self.focus == row));
-        lines.push(field("Confirm", self.new.confirm.masked(32), self.focus == row + 1));
+        lines.push(field(
+            "New password",
+            self.new.password.masked(32),
+            self.focus == row,
+        ));
+        lines.push(field(
+            "Confirm",
+            self.new.confirm.masked(32),
+            self.focus == row + 1,
+        ));
         lines.push(Line::raw(""));
         lines.push(render_meter(&self.new.strength, theme));
         lines.push(Line::raw(""));
@@ -333,7 +345,10 @@ impl ChangePasswordForm {
         } else {
             lines.push(Line::raw(""));
         }
-        lines.push(Line::styled("Tab next field · Enter save · Esc cancel", theme.dim));
+        lines.push(Line::styled(
+            "Tab next field · Enter save · Esc cancel",
+            theme.dim,
+        ));
         render_box(frame, area, " Change master password ", lines, theme, 72);
     }
 }
@@ -409,7 +424,10 @@ mod tests {
     fn unlock_form_keys() {
         let mut form = UnlockForm::default();
         assert_eq!(form.handle_key(&key(KeyCode::Enter)), FormAction::None);
-        assert_eq!(form.handle_key(&key(KeyCode::Char('q'))), FormAction::Changed);
+        assert_eq!(
+            form.handle_key(&key(KeyCode::Char('q'))),
+            FormAction::Changed
+        );
         assert_eq!(form.handle_key(&key(KeyCode::Enter)), FormAction::Submit);
         let ctrl_r = KeyEvent::new(KeyCode::Char('r'), KeyModifiers::CONTROL);
         assert_eq!(form.handle_key(&ctrl_r), FormAction::None);

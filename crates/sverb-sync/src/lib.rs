@@ -26,6 +26,15 @@ pub mod account;
 // M4-09: local sync state for the status panel and `sverb sync --status`.
 pub mod info;
 
+// M7-04: the read-only sync checks of `sverb doctor`.
+pub mod doctor;
+
+// M6-03: terminal sharing client (host, viewer; SPEC §14).
+pub mod share;
+
+// M5-04: vault key rotation after a revocation (§13.2), resumable.
+pub mod rotation;
+
 pub use engine::{
     EngineConfig, MAX_CONFLICT_ROUNDS, SharedHlc, SyncEngine, SyncHandle, SyncPolicy, shared_hlc,
 };

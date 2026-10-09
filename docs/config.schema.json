@@ -1,5 +1,25 @@
 {
   "$defs": {
+    "AsciiMode": {
+      "description": "ASCII fallback for UI glyphs (`ui.ascii`).",
+      "oneOf": [
+        {
+          "const": "auto",
+          "description": "ASCII when the locale is not UTF-8 or `TERM=linux` (the Linux console).",
+          "type": "string"
+        },
+        {
+          "const": "on",
+          "description": "Always draw ASCII (`+-|`, `*`, `>` …) instead of box-drawing and symbol glyphs.",
+          "type": "string"
+        },
+        {
+          "const": "off",
+          "description": "Always draw Unicode glyphs.",
+          "type": "string"
+        }
+      ]
+    },
     "BellMode": {
       "description": "What the terminal bell does.",
       "oneOf": [
@@ -271,7 +291,7 @@
         },
         "read_ssh_config": {
           "default": false,
-          "description": "Also resolve hosts from `~/.ssh/config` (read-only).",
+          "description": "Also resolve hosts from `~/.ssh/config` (read-only). Not implemented yet (a\nwarning when on; use `sverb import ssh-config`).",
           "type": "boolean"
         },
         "use_system_agent": {
@@ -310,7 +330,7 @@
         "bell": {
           "$ref": "#/$defs/BellMode",
           "default": "visual",
-          "description": "What the bell does: none, visual or audible."
+          "description": "What the bell does: none, visual or audible. Only `visual` (the tab's bell\nmarker) is implemented yet; other values warn."
         },
         "color_scheme": {
           "default": "terminal",
@@ -371,6 +391,11 @@
       "additionalProperties": false,
       "description": "`[ui]`.",
       "properties": {
+        "ascii": {
+          "$ref": "#/$defs/AsciiMode",
+          "default": "auto",
+          "description": "ASCII glyph fallback: auto (non-UTF-8 locale or `TERM=linux`), on or off."
+        },
         "date_format": {
           "default": "%Y-%m-%d %H:%M",
           "description": "strftime-style format for dates shown in the UI.",
@@ -379,6 +404,11 @@
         "mouse": {
           "default": true,
           "description": "Capture the mouse.",
+          "type": "boolean"
+        },
+        "reduce_motion": {
+          "default": false,
+          "description": "No animated glyphs (spinners show a static marker).",
           "type": "boolean"
         },
         "show_which_key": {
@@ -521,8 +551,10 @@
     "ui": {
       "$ref": "#/$defs/UiConfig",
       "default": {
+        "ascii": "auto",
         "date_format": "%Y-%m-%d %H:%M",
         "mouse": true,
+        "reduce_motion": false,
         "show_which_key": true,
         "sidebar": "auto",
         "theme": "default-dark",

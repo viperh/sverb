@@ -20,6 +20,9 @@ pub mod search;
 pub mod selection;
 // M7-01: OSC 133 shell integration: command capture and the prompt state.
 pub mod osc133;
+// M7-05: fuzz entry points (cargo-fuzz targets in `fuzz/`, property-tested here).
+#[doc(hidden)]
+pub mod fuzz;
 // M1-11: input encoding (keys, mouse, paste). The module is declared in `modes.rs`
 // (`src/input/`); this makes it `sverb_term::input` as well.
 pub use modes::input;

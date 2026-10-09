@@ -208,8 +208,13 @@ pub fn decrypt(text: &str, password: &str) -> Result<BackupPayload, BackupError>
         .map_err(|e| BackupError::Kdf(e.to_string()))?;
     let compressed = aead::open(&key, &Nonce24::from_bytes(nonce), AAD, &ct)
         .map_err(|_| BackupError::Decrypt)?;
+    decode_payload(&compressed)
+}
+
+/// The authenticated plaintext → payload: capped zstd, then CBOR.
+fn decode_payload(compressed: &[u8]) -> Result<BackupPayload, BackupError> {
     let mut cbor = zeroize::Zeroizing::new(Vec::new());
-    zstd::stream::read::Decoder::new(compressed.as_slice())
+    zstd::stream::read::Decoder::new(compressed)
         .map_err(|e| BackupError::Corrupt(e.to_string()))?
         .take(MAX_PAYLOAD + 1)
         .read_to_end(&mut cbor)
@@ -218,6 +223,27 @@ pub fn decrypt(text: &str, password: &str) -> Result<BackupPayload, BackupError>
         return Err(BackupError::Corrupt("the payload is too large".to_owned()));
     }
     ciborium::from_reader(cbor.as_slice()).map_err(|e| BackupError::Corrupt(e.to_string()))
+}
+
+/// M7-05: the `backup_decrypt` fuzz target (`fuzz/fuzz_targets/backup_decrypt.rs`). The
+/// input is tried as a backup file (header, KDF parameter checks, base64 fields) and,
+/// separately, as the authenticated plaintext (capped zstd + CBOR), then planned. Argon2
+/// itself is skipped (a fixed key stands in), so the fuzzer spends its time in parsers.
+/// Must never panic.
+#[doc(hidden)]
+pub fn fuzz_backup_decrypt(data: &[u8]) {
+    let text = String::from_utf8_lossy(data);
+    if let Ok(file) = read_header(&text) {
+        let _ = kdf_params(&file.kdf);
+        let _ = STANDARD.decode(&file.nonce_b64);
+        if let Ok(ct) = STANDARD.decode(&file.ciphertext_b64) {
+            let key = sverb_crypto::Key32::from_bytes([7; 32]);
+            let _ = aead::open(&key, &Nonce24::from_bytes([0; 24]), AAD, &ct);
+        }
+    }
+    if let Ok(payload) = decode_payload(data) {
+        let _ = plan(&payload);
+    }
 }
 
 /// The import plan of a decrypted backup: one item per body, keeping its id.

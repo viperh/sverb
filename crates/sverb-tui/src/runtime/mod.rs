@@ -64,6 +64,8 @@ use crate::services::vault::{VaultService, keyring_from_env};
 // M1-11
 use crate::services::clipboard::ClipboardService;
 
+// M7-04: terminal capability detection shared with `sverb doctor`.
+pub mod capabilities;
 // M0-09
 pub mod input;
 pub mod sessions;
@@ -241,6 +243,8 @@ pub async fn run(intent: LaunchIntent, ctx: LaunchCtx) -> io::Result<i32> {
     let app = App::new(config)
         .with_keymap(keymap)
         .with_theme_env(ThemeEnv::from_process())
+        // M7-07: `ui.ascii = "auto"`.
+        .with_ascii_env(crate::runtime::capabilities::TermEnv::from_process().wants_ascii())
         .with_debug_ring(sverb_core::logging::debug_ring())
         // M1-10
         .with_schemes(schemes)
@@ -501,6 +505,13 @@ where
 
     /// Run until an `Effect::Quit`; returns its code. `intent` is the first event.
     pub async fn run(&mut self, intent: LaunchIntent) -> io::Result<i32> {
+        // The reducer must know the real terminal size before the launch event: a session
+        // opened at launch (and every one opened before the first resize event) is sized
+        // from it. Terminals don't send a resize on startup, so without this the app
+        // assumed 80×24 and remote shells wrapped far short of the drawn pane.
+        if let Some(code) = self.sync_terminal_size()? {
+            return Ok(code);
+        }
         if let Some(code) = self.apply(UiEvent::Launch(intent))? {
             return Ok(code);
         }
@@ -542,7 +553,8 @@ where
                     LoopSignal::Shutdown => self.apply(UiEvent::ShutdownRequested)?,
                     LoopSignal::Continued => {
                         self.full_repaint = true;
-                        None
+                        // The window may have been resized while suspended.
+                        self.sync_terminal_size()?
                     }
                 },
                 _ = frame.tick() => self.on_frame().await?,
@@ -606,6 +618,22 @@ where
             tokio::time::sleep(stall).await;
         }
         Ok(())
+    }
+
+    /// Tell the reducer the terminal's current size (as an `InputEvent::Resize`) when it
+    /// differs from the size the reducer knows. Sessions are sized from it.
+    fn sync_terminal_size(&mut self) -> io::Result<Option<i32>> {
+        let size = self.terminal.size().map_err(io::Error::other)?;
+        if size.width == 0 || size.height == 0 {
+            return Ok(None);
+        }
+        if self.app.layout.size == Some((size.width, size.height)) {
+            return Ok(None);
+        }
+        self.apply(UiEvent::Input(InputEvent::Resize {
+            cols: size.width,
+            rows: size.height,
+        }))
     }
 
     fn apply_input(&mut self, input: InputEvent) -> io::Result<Option<i32>> {

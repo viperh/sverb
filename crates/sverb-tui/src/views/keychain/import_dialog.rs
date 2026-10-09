@@ -178,7 +178,7 @@ impl ConfirmDialog {
         }
     }
 
-    /// "<path> exists. Overwrite?"
+    /// "`<path>` exists. Overwrite?"
     pub fn overwrite(path: &str) -> Self {
         Self {
             purpose: ConfirmPurpose::Overwrite,

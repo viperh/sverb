@@ -102,7 +102,12 @@ async fn save_entry(
 #[async_trait]
 impl KnownHostsStore for VaultKnownHosts {
     fn entries(&self) -> Vec<KnownHost> {
-        self.cache.read().unwrap_or_else(PoisonError::into_inner).iter().map(|(_, e)| e.clone()).collect()
+        self.cache
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .iter()
+            .map(|(_, e)| e.clone())
+            .collect()
     }
 
     fn save(&self, host: &str, entry: KnownHost, replaces: Vec<KnownHost>, auto: bool) {
@@ -156,7 +161,8 @@ impl KnownHostsStore for VaultKnownHosts {
         };
         match load(&ops).await {
             Ok(entries) => {
-                *self.cache.write().unwrap_or_else(PoisonError::into_inner) = entries.into_iter().map(|(id, e)| (Some(id), e)).collect();
+                *self.cache.write().unwrap_or_else(PoisonError::into_inner) =
+                    entries.into_iter().map(|(id, e)| (Some(id), e)).collect();
             }
             Err(report) => warn!(error = %report.short, "known hosts not reloaded"),
         }

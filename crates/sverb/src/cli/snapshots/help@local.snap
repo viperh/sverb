@@ -3,7 +3,8 @@ source: crates/sverb/src/cli/tests.rs
 expression: all
 ---
 ===== sverb --help
-SSH TUI
+A terminal-native SSH client and server manager with an encrypted vault and optional self-hosted,
+end-to-end-encrypted sync
 
 Usage: sverb [OPTIONS] [COMMAND]
 
@@ -828,5 +829,68 @@ Options:
           Log at debug level and keep recent log lines for the log pane (log files may then contain
           hostnames)
 
+      --json
+          Machine-readable output
+
+      --ascii
+          Mark lines with [ok] [warn] [fail] instead of symbols
+
   -h, --help
           Print help
+
+===== sverb generate --help
+Generate the man page or shell completions (for packagers)
+
+Usage: sverb generate [OPTIONS] <COMMAND>
+
+Commands:
+  man          The man page (roff), to stdout or `<dir>/sverb.1`
+  completions  A shell completion script, to stdout
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help
+
+===== sverb generate man --help
+The man page (roff), to stdout or `<dir>/sverb.1`
+
+Usage: sverb generate man [OPTIONS]
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+      --out-dir <DIR>
+          Write `sverb.1` into this directory instead of stdout
+
+  -h, --help
+          Print help
+
+===== sverb generate completions --help
+A shell completion script, to stdout
+
+Usage: sverb generate completions [OPTIONS] <SHELL>
+
+Arguments:
+  <SHELL>
+          The shell
+
+          Possible values:
+          - bash:       bash (bash-completion)
+          - zsh:        zsh (`_sverb` in `$fpath`)
+          - fish:       fish (`sverb.fish` in `completions/`)
+          - powershell: PowerShell (`. _sverb.ps1` from the profile)
+
+Options:
+      --debug
+          Log at debug level and keep recent log lines for the log pane (log files may then contain
+          hostnames)
+
+  -h, --help
+          Print help (see a summary with '-h')

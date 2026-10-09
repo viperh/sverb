@@ -60,10 +60,10 @@ mod import;
 // M2-12: the command palette (sources, ranking, recents, running a pick).
 pub mod palette;
 // M4-07: `UiEvent::Sync` (toasts; the bars and index refresh are M4-09).
-#[cfg(feature = "sync")]
-mod sync;
 #[cfg(test)]
 mod palette_tests;
+#[cfg(feature = "sync")]
+mod sync;
 // M4-09: the sync facade (the UI's only `cfg(feature = "sync")` boundary).
 #[cfg(all(test, feature = "sync"))]
 mod sync_tests;
@@ -72,6 +72,13 @@ pub mod sync_ui;
 pub mod workspaces;
 // M7-01: command history (capture tiers, storage), the autocomplete overlay, ghost text.
 pub mod history;
+// M6-03: terminal sharing (start dialog, approvals, viewers panel, viewer panes).
+pub mod share;
+#[cfg(test)]
+mod share_tests;
+// M7-07: accessibility pass (T-06).
+#[cfg(test)]
+mod a11y_tests;
 
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -155,6 +162,9 @@ pub struct App {
     pub(crate) theme: Theme,
     /// `NO_COLOR` / `COLORTERM`, from the runtime.
     pub(crate) theme_env: ThemeEnv,
+    // M7-07
+    /// The environment asks for ASCII glyphs (`ui.ascii = "auto"`), from the runtime.
+    pub(crate) ascii_env: bool,
     /// The `--debug` log ring (`None` without `--debug`).
     pub(crate) debug_ring: Option<DebugRing>,
     /// `total_pushed` of the debug ring at the last draw.
@@ -191,6 +201,9 @@ pub struct App {
     // M4-09
     /// Sync status, Settings → Sync / Devices / Team, the account wizard.
     pub(crate) sync: sync_ui::SyncUi,
+    // M6-03
+    /// Shared panes and viewer panes (`app/share.rs`).
+    pub(crate) share: share::ShareUi,
 }
 
 impl App {
@@ -198,7 +211,12 @@ impl App {
     pub fn new(config: Arc<Config>) -> Self {
         // M0-11
         let theme_env = ThemeEnv::default();
-        let theme = Theme::resolve(&config.ui.theme, config.ui.truecolor, theme_env);
+        let theme = Theme::resolve(&config.ui.theme, config.ui.truecolor, theme_env)
+            // M7-07: `ui.ascii` (the environment is unknown until `with_ascii_env`).
+            .with_glyphs(
+                crate::theme::glyphs::ascii_wanted(config.ui.ascii, false),
+                config.ui.reduce_motion,
+            );
         // M3-04: the copy-mode table (`[keys.copy]`).
         let config_for_copy = Arc::clone(&config);
         Self {
@@ -222,6 +240,8 @@ impl App {
             notifications: Notifications::default(),
             theme,
             theme_env,
+            // M7-07
+            ascii_env: false,
             debug_ring: None,
             log_drawn: 0,
             debug_warning_shown: false,
@@ -243,6 +263,8 @@ impl App {
             history: history::HistoryUi::default(),
             // M4-09
             sync: sync_ui::SyncUi::default(),
+            // M6-03
+            share: share::ShareUi::default(),
         }
         .with_settings_panel()
     }
@@ -317,6 +339,8 @@ impl App {
             // M4-09
             #[cfg(feature = "sync")]
             UiEvent::SyncUi(ev) => self.on_sync_ui(ev, &mut effects),
+            // M6-03
+            UiEvent::Share(ev) => self.on_share(ev, &mut effects),
             // M2-07: the `confirm_on_use` modal (60 s, then deny).
             UiEvent::AgentConfirm(prompt) => {
                 self.push_modal(
@@ -343,6 +367,8 @@ impl App {
         self.auth_lock_transition(was_locked, &mut effects);
         // M1-17: tabs follow the sessions and focus; closes, new panes, resize debounce.
         self.tabs_after_handle(&mut effects);
+        // M6-03: viewer panes keep the host's size.
+        self.share_after_handle(&mut effects);
         // M0-10: the mode follows focus.
         self.mode = self.derive_mode();
         effects
@@ -484,6 +510,8 @@ impl App {
                 self.take_autocomplete_answer(effects);
                 // M4-09: the account wizard's input.
                 self.take_sync_dialog_answer(effects);
+                // M6-03: the share dialogs (start, approve, viewers panel).
+                self.take_share_answer(effects);
                 return outcome;
             }
         }
@@ -545,6 +573,8 @@ impl App {
             ActionName::Suspend => self.on_suspend(SUSPEND_SUPPORTED, effects),
             // M4-09: sync status, sync now, devices, team keys.
             other if self.apply_sync_action(other, effects) => {}
+            // M6-03: `leader S`.
+            other if self.apply_share_action(other, effects) => {}
             // M3-01: resize, resize mode, zoom, rename / move tab, equalize.
             other if self.apply_pane_ops_action(other, effects) => {}
             // M3-02: `leader b` / `leader B`.
@@ -658,8 +688,8 @@ impl App {
         }
     }
 
-    // M0-07: the command-line intent. Opening sessions (M1-07), workspaces (M3-03)
-    // and shared terminals (M6-03) replace these toasts.
+    // M0-07: the command-line intent: sessions (M1-07), workspaces (M3-03) and
+    // shared terminals (M6-03).
     fn on_launch(&mut self, intent: LaunchIntent, effects: &mut Vec<Effect>) {
         // M1-04: delivered after unlock.
         let Some(intent) = self.vault_defer_launch(intent) else {
@@ -667,15 +697,15 @@ impl App {
         };
         // M0-11: the one-time `--debug` warning.
         self.on_launch_shell(effects);
-        let pending = match intent {
-            LaunchIntent::Plain => return,
+        match intent {
+            LaunchIntent::Plain => {}
             // M1-07
-            LaunchIntent::Connect(target) => return self.launch_connect(target, effects),
+            LaunchIntent::Connect(target) => self.launch_connect(target, effects),
             // M3-03
-            LaunchIntent::Workspace(name) => return self.launch_workspace(name, effects),
-            LaunchIntent::Join(_) => "`sverb join` is not implemented yet (M6-03)",
-        };
-        self.push_toast(ToastLevel::Info, pending.to_owned(), effects);
+            LaunchIntent::Workspace(name) => self.launch_workspace(name, effects),
+            // M6-03: a viewer pane (a link that doesn't parse is a warning toast).
+            LaunchIntent::Join(link) => self.share_join(link, effects),
+        }
     }
 
     /// Draw the whole UI (M0-11: the shell, `app/shell.rs`). Infallible: tiny areas
@@ -685,6 +715,8 @@ impl App {
         self.render_shell(frame, &NoPanes);
         // M1-04: lock overlay and vault prompts on top.
         self.render_vault(frame);
+        // M7-07: `ui.ascii`.
+        self.render_glyph_fallback(frame);
     }
 
     // M1-10
@@ -699,6 +731,8 @@ impl App {
         let cursor = self.render_shell(frame, panes);
         // M1-04: lock overlay and vault prompts on top; no pane cursor under them.
         self.render_vault(frame);
+        // M7-07: `ui.ascii`.
+        self.render_glyph_fallback(frame);
         if self.vault_hides_panes() {
             return None;
         }

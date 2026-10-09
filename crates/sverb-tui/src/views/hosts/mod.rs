@@ -20,6 +20,11 @@
 //!   edits the vault defaults. `m`/`t` on hosts move / tag them in bulk.
 //! - **M2-11:** `I` opens the import wizard, `X` the export form
 //!   (`views/import_wizard.rs`).
+//! - **M5-02 shared vaults** (§4.13, §13): `V` cycles the vault selector (All
+//!   vaults → Personal → each shared vault; the top bar shows it, new items go to
+//!   it); in "All vaults" rows of shared vaults carry their vault's name as a badge.
+//!   `M` / `C` move / copy hosts to another vault (§13.1), `O` sets "Use my own
+//!   credentials…" on a shared host (§13.4).
 
 pub mod catalog;
 pub mod detail;
@@ -30,6 +35,9 @@ pub mod quick;
 
 #[cfg(test)]
 mod tests;
+// M5-02: vault selector, badges, read-only forms, override provenance.
+#[cfg(test)]
+mod vault_tests;
 
 use std::str::FromStr;
 use std::sync::Arc;
@@ -127,6 +135,9 @@ pub struct HostRow {
     pub icon: Option<String>,
     /// A warning chip (`missing group`; M2-02: `missing identity`).
     pub chip: Option<&'static str>,
+    // M5-02
+    /// The shared vault's name, in the merged "All vaults" list.
+    pub vault: Option<String>,
 }
 
 impl ListRow for HostRow {
@@ -212,6 +223,15 @@ pub enum HostsRequest {
     // M7-01
     /// `H`: clear the host's command history (asks first).
     ClearHistory(ItemId),
+    // M5-02
+    /// `V`: the vault selector changed (`None`: All vaults).
+    VaultSelected(Option<sverb_core::model::VaultId>),
+    /// `M`: move hosts to another vault (§13.1).
+    MoveToVault(Vec<ItemId>),
+    /// `C`: copy hosts to another vault.
+    CopyToVault(Vec<ItemId>),
+    /// `O`: "Use my own credentials…" on a shared host (§13.4).
+    Override(ItemId),
 }
 
 /// The Hosts section.
@@ -222,6 +242,9 @@ pub struct HostsView {
     index: Option<Arc<IndexSnapshot>>,
     catalog: Option<Arc<HostCatalog>>,
     request: Option<HostsRequest>,
+    // M5-02
+    /// The vault selector (`None`: All vaults, merged).
+    vault: Option<sverb_core::model::VaultId>,
 }
 
 impl Default for HostsView {
@@ -233,6 +256,7 @@ impl Default for HostsView {
             index: None,
             catalog: None,
             request: None,
+            vault: None,
         }
     }
 }
@@ -299,13 +323,85 @@ impl HostsView {
         self.catalog.as_ref()?.hosts.get(&id)
     }
 
+    // M5-02
+    /// The vault selector (`None`: All vaults).
+    pub fn vault(&self) -> Option<sverb_core::model::VaultId> {
+        self.vault
+    }
+
+    // M5-02
+    /// Selects `vault` (`None`: All vaults), e.g. `general.default_vault` at unlock.
+    pub fn set_vault(&mut self, vault: Option<sverb_core::model::VaultId>) {
+        if self.vault != vault {
+            self.vault = vault;
+            self.rebuild();
+        }
+    }
+
+    // M5-02
+    /// The top bar's vault label: `All vaults` or the selected vault's name.
+    pub fn vault_label(&self) -> String {
+        match (self.vault, self.catalog.as_deref()) {
+            (Some(v), Some(c)) => c
+                .vault_names
+                .get(&v)
+                .cloned()
+                .unwrap_or_else(|| "Vault".to_owned()),
+            (Some(_), None) => "Vault".to_owned(),
+            (None, Some(c)) if c.vault_names.len() > 1 => "All vaults".to_owned(),
+            (None, _) => "Personal".to_owned(),
+        }
+    }
+
+    // M5-02
+    /// The next vault of the selector: All → Personal → shared vaults (by name) →
+    /// All. Only offered once a shared vault exists.
+    fn next_vault(&self) -> Option<Option<sverb_core::model::VaultId>> {
+        let c = self.catalog.as_deref()?;
+        if c.vault_names.len() < 2 {
+            return None;
+        }
+        let mut order: Vec<sverb_core::model::VaultId> = c.personal_vault.into_iter().collect();
+        let mut shared: Vec<_> = c
+            .vault_names
+            .iter()
+            .filter(|(v, _)| Some(**v) != c.personal_vault)
+            .map(|(v, n)| (n.to_lowercase(), *v))
+            .collect();
+        shared.sort();
+        order.extend(shared.into_iter().map(|(_, v)| v));
+        let next = match self.vault.and_then(|v| order.iter().position(|x| *x == v)) {
+            None => order.first().copied(),
+            Some(i) => order.get(i + 1).copied(),
+        };
+        Some(next)
+    }
+
     /// The rows for the current index and catalog.
     pub fn rows(index: Option<&IndexSnapshot>, catalog: Option<&HostCatalog>) -> Vec<HostRow> {
+        Self::rows_in(index, catalog, None)
+    }
+
+    // M5-02
+    /// [`Self::rows`] limited to `vault` (`None`: every vault, with badges).
+    pub fn rows_in(
+        index: Option<&IndexSnapshot>,
+        catalog: Option<&HostCatalog>,
+        vault: Option<sverb_core::model::VaultId>,
+    ) -> Vec<HostRow> {
         let Some(index) = index else {
             return Vec::new();
         };
         let row = |key: HostRowKey, id: ItemId| -> Option<HostRow> {
             let entry = index.get(id)?;
+            // M5-02: the vault selector.
+            if vault.is_some_and(|v| v != entry.vault_id) {
+                return None;
+            }
+            let badge = match (vault, catalog) {
+                (None, Some(c)) => c.vault_badge(entry.vault_id).map(str::to_owned),
+                _ => None,
+            };
             let summary = catalog.and_then(|c| c.hosts.get(&id));
             // M2-01: the host's group node (a missing group shows a chip instead).
             let group = summary.and_then(|h| h.group_id);
@@ -361,6 +457,7 @@ impl HostsView {
                 parent,
                 icon: None,
                 chip,
+                vault: badge,
             })
         };
         let mut rows = Vec::new();
@@ -380,11 +477,16 @@ impl HostsView {
                     parent: None,
                     icon: None,
                     chip: None,
+                    vault: None,
                 });
                 rows.extend(recent);
             }
             // M2-01: group nodes, in tree order (the list nests them by parent).
             for (gid, _) in c.group_tree() {
+                // M5-02: groups of the selected vault only.
+                if vault.is_some_and(|v| c.group_vaults.get(&gid) != Some(&v)) {
+                    continue;
+                }
                 let g = &c.lookup.groups[&gid];
                 rows.push(HostRow {
                     key: HostRowKey::Group(gid),
@@ -398,6 +500,7 @@ impl HostsView {
                         .map(HostRowKey::Group),
                     icon: g.icon.clone(),
                     chip: None,
+                    vault: None,
                 });
             }
         }
@@ -411,7 +514,13 @@ impl HostsView {
     }
 
     fn rebuild(&mut self) {
-        let rows = Self::rows(self.index.as_deref(), self.catalog.as_deref());
+        // M5-02: a vault that went away (left, revoked) falls back to All.
+        if let (Some(v), Some(c)) = (self.vault, self.catalog.as_deref())
+            && !c.vault_names.contains_key(&v)
+        {
+            self.vault = None;
+        }
+        let rows = Self::rows_in(self.index.as_deref(), self.catalog.as_deref(), self.vault);
         self.list.set_rows(rows);
     }
 
@@ -485,6 +594,27 @@ impl HostsView {
             KeyCode::Char('X') => HostsRequest::Export,
             // M7-01
             KeyCode::Char('H') => HostsRequest::ClearHistory(self.selected_item()?),
+            // M5-02
+            KeyCode::Char('V') => {
+                let next = self.next_vault()?;
+                self.vault = next;
+                self.rebuild();
+                HostsRequest::VaultSelected(next)
+            }
+            KeyCode::Char('M') if any => HostsRequest::MoveToVault(targets),
+            KeyCode::Char('C') if any => HostsRequest::CopyToVault(targets),
+            KeyCode::Char('O') => {
+                let id = self.selected_item()?;
+                let c = self.catalog.as_deref()?;
+                if !c
+                    .hosts
+                    .get(&id)
+                    .is_some_and(|h| c.shared_vaults.contains(&h.vault))
+                {
+                    return None;
+                }
+                HostsRequest::Override(id)
+            }
             _ => return None,
         })
     }
@@ -568,6 +698,15 @@ impl RowRenderer<HostRow> for HostRowRenderer {
                 used += 1 + width(&chip);
                 spans.push(Span::styled(" ", cx.base));
                 spans.push(Span::styled(chip, cx.base.patch(cx.theme.warn)));
+            }
+        }
+        // M5-02: the shared vault's badge (merged list).
+        if let Some(v) = &row.vault {
+            let chip = format!("({v})");
+            if used + 1 + width(&chip) <= cx.width {
+                used += 1 + width(&chip);
+                spans.push(Span::styled(" ", cx.base));
+                spans.push(Span::styled(chip, cx.base.patch(cx.theme.info)));
             }
         }
         for tag in &row.tags {

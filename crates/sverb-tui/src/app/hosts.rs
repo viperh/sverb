@@ -1,7 +1,7 @@
 //! M1-07: hosts in the reducer (SPEC §9.1).
 //!
 //! - Keeps the Hosts view fed: every new index snapshot goes to the view and asks the
-//!   vault service for a fresh [`HostCatalog`](crate::views::hosts::catalog::HostCatalog)
+//!   vault service for a fresh [`crate::views::hosts::catalog::HostCatalog`]
 //!   (`ItemEffect::LoadHosts`; one load in flight, a newer snapshot re-loads after it).
 //! - Carries out the view's requests: connect, add / edit (the host form), duplicate,
 //!   delete (confirm "Delete N hosts?"), pin, copy the `ssh` command.
@@ -20,6 +20,10 @@
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
+
+// M5-02: the vault selector, move / copy to vault, credential overrides.
+mod shared_vaults;
+pub use shared_vaults::SharedVaultEvent;
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use sverb_conn::{SessionSpec, SessionState, SshSpec};
@@ -171,6 +175,31 @@ pub enum ItemEffect {
     /// Keychain work (generate, import, export, passphrase, certificates, flags).
     /// Results come back as `VaultEvent::Keychain`.
     Keychain(crate::app::keychain::keys::KeychainEffect),
+    // M5-02
+    /// New items go to this vault (`None`: the Personal vault): the vault
+    /// selector (§4.13).
+    SetNewItemVault(Option<sverb_core::model::VaultId>),
+    /// Move or copy items to `target` (§13.1: new ids, the sources of a move
+    /// tombstoned). A reference that would leave a shared target is handled by
+    /// `refs`; when blocked, `VaultEvent::Shared(TransferBlocked)` asks.
+    Transfer {
+        /// The items.
+        items: Vec<ItemId>,
+        /// The target vault.
+        target: sverb_core::model::VaultId,
+        /// Copy (else move).
+        copy: bool,
+        /// Referenced items outside the target.
+        refs: sverb_core::model::vault_refs::RefPolicy,
+    },
+    /// "Use my own credentials…" (§13.4): the personal-vault override of a shared
+    /// host uses `identity` (`None`: remove the override).
+    SetOverride {
+        /// The shared host.
+        host: ItemId,
+        /// A personal identity.
+        identity: Option<ItemId>,
+    },
 }
 
 /// Where a session came from.
@@ -193,6 +222,9 @@ pub struct HostsUi {
     sessions: BTreeMap<SessionId, SessionOrigin>,
     /// `sverb connect <target>` waiting for the first catalog.
     pending_connect: Option<String>,
+    // M5-02
+    /// `general.default_vault` was applied to the vault selector since unlock.
+    default_vault_applied: bool,
 }
 
 impl App {
@@ -240,6 +272,8 @@ impl App {
             self.pending.remove(&id);
         }
         self.hosts.reload = false;
+        // M5-02
+        self.hosts.default_vault_applied = false;
         self.needs_redraw = true;
     }
 
@@ -255,6 +289,20 @@ impl App {
                 self.hosts.loading = None;
                 match result {
                     Ok(EffectOutput::Hosts(catalog)) if self.index().is_some() => {
+                        // M5-02: the vault selected at unlock (§4.13).
+                        if !self.hosts.default_vault_applied {
+                            self.hosts.default_vault_applied = true;
+                            let v = shared_vaults::default_vault(
+                                &catalog,
+                                &self.config.general.default_vault,
+                            );
+                            if v.is_some() {
+                                self.views.hosts.set_vault(v);
+                                effects.push(Effect::Vault(VaultEffect::Items(
+                                    ItemEffect::SetNewItemVault(v),
+                                )));
+                            }
+                        }
                         // M2-02: identities, their usage counts and key names.
                         self.views.keychain.set_catalog(Arc::clone(&catalog));
                         self.views.hosts.set_catalog(catalog);
@@ -388,6 +436,15 @@ impl App {
             }
             HostsRequest::CopyCommand(id) => self.copy_ssh_command(id, effects),
             // M7-01: "Clear history" (asks first).
+            // M5-02
+            HostsRequest::VaultSelected(v) => {
+                effects.push(Effect::Vault(VaultEffect::Items(
+                    ItemEffect::SetNewItemVault(v),
+                )));
+            }
+            HostsRequest::MoveToVault(ids) => self.pick_target_vault(ids, false, effects),
+            HostsRequest::CopyToVault(ids) => self.pick_target_vault(ids, true, effects),
+            HostsRequest::Override(host) => self.pick_override(host, effects),
             HostsRequest::ClearHistory(id) => {
                 let label = self
                     .views

@@ -1,0 +1,28 @@
+---
+source: crates/sverb-tui/src/app/share_tests.rs
+expression: big
+---
+ sverb ─ Personal ▾ ────────────────────────────────────────────────────────────
+ 1 viewing shared session … ┬ +                                                 
+┌ viewing shared session (read-only) ──────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                             top-left                                         │
+│                                                                              │
+│                                                                              │
+│                             last row   [end]                                 │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+ TERMINAL                                                             ^\ ? help

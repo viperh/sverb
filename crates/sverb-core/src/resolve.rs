@@ -32,6 +32,8 @@ pub mod provenance;
 pub mod chain;
 // M2-10: approval of values that act locally (§17.1).
 pub mod approval;
+// M5-02: the per-user credential override layer of shared hosts (§13.4).
+pub mod overrides;
 
 #[cfg(test)]
 mod tests;
@@ -928,7 +930,9 @@ pub fn password_for<'a>(
         Source::Host => host.password.as_ref(),
         Source::Group { id, .. } => group(*id)?.defaults.password.as_ref(),
         Source::VaultDefaults => vault_defaults?.password.as_ref(),
-        Source::GlobalConfig | Source::BuiltinDefault => None,
+        // M5-02: an override's inline password is read from the override item by
+        // the caller (it is not one of these levels).
+        Source::GlobalConfig | Source::BuiltinDefault | Source::Override { .. } => None,
     }
 }
 

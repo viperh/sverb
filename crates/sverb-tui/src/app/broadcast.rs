@@ -10,7 +10,7 @@
 //!   reconnecting, locked or waiting for a password are skipped. The leader, sverb
 //!   actions, mouse input and resizes are never broadcast.
 //! - **Safety**: turning broadcast on for more than
-//!   [`CONFIRM_ABOVE`](crate::views::sessions::broadcast::CONFIRM_ABOVE) panes asks
+//!   [`crate::views::sessions::broadcast::CONFIRM_ABOVE`] panes asks
 //!   "Broadcast input to N panes?" once per run.
 //! - **Visuals**: members get the theme's `broadcast_border` and a `≋` in their border
 //!   title, the tab title gets `≋`, the status bar shows `BROADCAST ×N` (`(M skipped)`,

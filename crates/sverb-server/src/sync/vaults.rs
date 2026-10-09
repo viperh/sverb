@@ -48,12 +48,20 @@ pub struct MembershipRow {
 /// started_at}`).
 #[must_use]
 pub fn rotation_view(rotation: Option<&serde_json::Value>) -> Option<RotationView> {
-    rotation.map(|r| RotationView {
-        in_progress: true,
-        new_key_version: r
-            .get("new_key_version")
-            .and_then(serde_json::Value::as_u64)
-            .and_then(|v| u32::try_from(v).ok()),
+    rotation.map(|r| {
+        // M5-04: who runs it and since when (abandonment is decided by the
+        // route with the server clock, `rotation::mark_abandoned`).
+        let state = super::rotation::RotationState::parse(r);
+        RotationView {
+            in_progress: true,
+            new_key_version: r
+                .get("new_key_version")
+                .and_then(serde_json::Value::as_u64)
+                .and_then(|v| u32::try_from(v).ok()),
+            by: state.as_ref().map(|s| s.by),
+            started_at: state.as_ref().map(|s| s.started_at.timestamp()),
+            abandoned: false,
+        }
     })
 }
 

@@ -57,6 +57,10 @@ pub mod palette;
 pub mod workspaces;
 // M7-01: command history (captured commands, snippet runs, the per-host cap, purge).
 pub mod history;
+// M6-03: terminal sharing (shared panes, viewer panes). Behind `share` until
+// `sverb_sync::share` is merged; MERGE: fold the feature into `sync`.
+#[cfg(feature = "sync")]
+pub mod share;
 
 /// Sender half of the bounded UI event channel.
 pub type EventSender = mpsc::Sender<UiEvent>;
@@ -96,6 +100,10 @@ pub struct Services {
     /// vault).
     #[cfg(feature = "sync")]
     sync: Option<sync::SyncService>,
+    // M6-03
+    /// Running shares and viewer panes.
+    #[cfg(feature = "sync")]
+    share: share::ShareService,
 }
 
 impl Services {
@@ -349,7 +357,10 @@ impl Services {
                         warn!(session = id.0, ?sent, "host-key decision not delivered");
                     }
                 }
-                None => debug!(session = id.0, "host-key decision ignored: no session manager"),
+                None => debug!(
+                    session = id.0,
+                    "host-key decision ignored: no session manager"
+                ),
             },
             Effect::KnownHosts(op) => known_hosts::execute(self.vault.as_ref(), op, ev_tx),
             // M3-04: never logs the URL above debug (it can contain host names).
@@ -393,6 +404,14 @@ impl Services {
             },
             #[cfg(not(feature = "sync"))]
             Effect::Sync(op) => debug!(?op, "sync effect dropped: built without sync"),
+            // M6-03
+            #[cfg(feature = "sync")]
+            Effect::Share(op) => {
+                self.share
+                    .execute(op, self.vault.as_ref(), self.sessions.as_mut(), ev_tx);
+            }
+            #[cfg(not(feature = "sync"))]
+            Effect::Share(op) => share_unavailable(op, ev_tx),
             Effect::Quit { .. }
             | Effect::Suspend
             | Effect::SetMouseCapture(_)
@@ -402,4 +421,27 @@ impl Services {
             }
         }
     }
+}
+
+// M6-03
+/// Builds without terminal sharing answer every share request with "not available".
+#[cfg(not(feature = "sync"))]
+fn share_unavailable(op: crate::app::share::ShareEffect, ev_tx: &EventSender) {
+    use crate::app::share::{ShareEffect, ShareEvent};
+    let message = "Terminal sharing is not available in this build".to_owned();
+    let ev = match op {
+        ShareEffect::Start { session, .. } => ShareEvent::StartFailed {
+            session,
+            error: message,
+        },
+        ShareEffect::Join { id, .. } => ShareEvent::Unavailable {
+            id: Some(id),
+            message,
+        },
+        other => {
+            debug!(?other, "share effect dropped: built without sharing");
+            return;
+        }
+    };
+    let _ = ev_tx.try_send(UiEvent::Share(ev));
 }

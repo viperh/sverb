@@ -23,6 +23,9 @@ pub mod engine;
 // M1-07: item writes and reads (save, delete, duplicate, pin, the Hosts catalog).
 pub mod items;
 pub mod os_keyring;
+// M5-02: shared vaults: adopting granted vault keys, names, read-only flags,
+// credential overrides (§13).
+pub mod shared;
 
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -60,6 +63,9 @@ pub struct VaultService {
     // M1-07
     /// The HLC clock of item writes in this unlocked session (`None` while locked).
     items_clock: Arc<Mutex<Option<items::SharedClock>>>,
+    // M5-02
+    /// Where new hosts go (the vault selector; `None`: Personal).
+    new_item_vault: Arc<Mutex<Option<VaultId>>>,
 }
 
 impl VaultService {
@@ -72,6 +78,8 @@ impl VaultService {
             index: Arc::new(Mutex::new(None)),
             // M1-07
             items_clock: Arc::new(Mutex::new(None)),
+            // M5-02
+            new_item_vault: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -214,11 +222,14 @@ impl VaultService {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clone()?;
-        Some(items::ItemOps::with_clock(
-            self.engine.clone(),
-            vault,
-            clock,
-        ))
+        // M5-02: new hosts go to the selected vault.
+        let new_vault = *self
+            .new_item_vault
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        Some(
+            items::ItemOps::with_clock(self.engine.clone(), vault, clock).with_new_vault(new_vault),
+        )
     }
 
     /// Send the startup status (probes the keyring only before first run).
@@ -362,6 +373,8 @@ impl VaultService {
                 seen_leader_notice: seen,
             };
             let _ = tx.send(UiEvent::Meta(flags)).await;
+            // M5-02: shared vaults by their names (sealed under their keys).
+            self.refresh_vault_names().await;
             // M1-05: the index built during unlock.
             if let Some(snapshot) = self.index_snapshot() {
                 let _ = tx.send(UiEvent::IndexUpdated(snapshot)).await;

@@ -40,15 +40,26 @@ russh = { workspace = true }
 # M1-16: local wall-clock time for the `── reconnected at HH:MM:SS ──` separator.
 chrono = { workspace = true }
 
-# M2-06: proxies (SPEC §6.1.5). tokio-socks is not in the workspace table yet (the root
-# Cargo.toml is held); the merge may move it to `[workspace.dependencies]`.
+# M2-06: proxies (SPEC §6.1.5).
 base64 = { workspace = true }
-tokio-socks = { version = "0.5.2", default-features = false, features = ["tokio"] }
+tokio-socks = { workspace = true }
+
+# M7-05: the agent pipe's owner-only DACL (agent/dacl_windows.rs).
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_System_Pipes",
+    "Win32_System_Threading",
+] }
 
 # M1-08: stub emulators (the `Emulator` trait names ratatui-core and regex types),
 # paused virtual time, and a log-capturing subscriber.
 [dev-dependencies]
 pretty_assertions = { workspace = true }
+# M7-05: property-test twins of the fuzz targets (proxy/http_connect.rs).
+proptest = { workspace = true }
 ratatui-core = { workspace = true }
 regex = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
@@ -56,7 +67,8 @@ tracing-subscriber = { workspace = true }
 # M3-05: recording keys for the recorder tap tests.
 sverb-crypto = { workspace = true }
 # M1-13: `ssh::testing` (the in-process russh server) for the integration tests.
-sverb-conn = { workspace = true, features = ["test-util"] }
-# M2-07: socket tests in private temp dirs (not in [workspace.dependencies] yet;
-# same version as sverb-store's).
-tempfile = "3.27.0"
+# M7-07: path-only, so `cargo publish` drops it (a versioned self dev-dependency
+# would have to exist on crates.io already).
+sverb-conn = { path = ".", features = ["test-util"] }
+# M2-07: socket tests in private temp dirs.
+tempfile = { workspace = true }

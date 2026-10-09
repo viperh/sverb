@@ -426,13 +426,19 @@ mod tests {
             .push_dialog(DialogKind::HostForm(HostFormDialog::blank()));
         h.keys("tab w e b ctrl-s");
         let effects = h.take_effects();
-        let [Effect::Vault(VaultEffect::Items(ItemEffect::Save { id, item, changes, .. }))] =
-            effects.as_slice()
+        let [
+            Effect::Vault(VaultEffect::Items(ItemEffect::Save {
+                id, item, changes, ..
+            })),
+        ] = effects.as_slice()
         else {
             panic!("expected one Save, got {effects:?}");
         };
         assert_eq!(*item, None);
-        assert_eq!(changes.get("address"), Some(&FieldValue::Text("web".into())));
+        assert_eq!(
+            changes.get("address"),
+            Some(&FieldValue::Text("web".into()))
+        );
         assert_eq!(
             h.app.pending.get(id),
             Some(&PendingKind::SaveItem { dialog })

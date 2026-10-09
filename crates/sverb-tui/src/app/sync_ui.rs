@@ -20,7 +20,7 @@ use std::fmt;
 use sverb_core::vault::LockState;
 
 #[cfg(feature = "sync")]
-pub use super::sync::{SyncModel, SyncUiEvent, TeamResult};
+pub use super::sync::{SyncModel, SyncUiEvent, TeamResult, VaultsResult};
 use super::{App, Effect, VaultPassword};
 
 /// How the sync state reads (top bar color).
@@ -115,6 +115,108 @@ impl TeamPanel {
     }
 }
 
+// M5-02
+/// A shared vault in Settings → Vaults.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VaultEntry {
+    /// Vault id (UUID text).
+    pub id: String,
+    /// Owning org (UUID text).
+    pub org_id: String,
+    /// Owning org's name.
+    pub org_name: String,
+    /// Name (opened with the vault key; `Shared <id>` without one).
+    pub name: String,
+    /// This account's effective permission.
+    pub permission: sverb_proto::sync::Permission,
+    /// This device holds the key (`false`: "needs key", §13.1).
+    pub has_key: bool,
+}
+
+// M5-02
+/// An org member as seen from the shown vault.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VaultMemberEntry {
+    /// User id (UUID text).
+    pub user_id: String,
+    /// Email.
+    pub email: String,
+    /// Org role (owners and admins manage implicitly).
+    pub org_role: sverb_proto::orgs::Role,
+    /// Explicit vault permission (`None`: no grant).
+    pub permission: Option<sverb_proto::sync::Permission>,
+    /// Holds the current key.
+    pub has_key: bool,
+}
+
+// M5-02
+/// Settings → Vaults: the shared vaults of the account's orgs and the shown
+/// vault's members.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct VaultsPanel {
+    /// A request is running.
+    pub loading: bool,
+    /// The last error.
+    pub error: Option<String>,
+    /// Vaults, by org then name.
+    pub vaults: Vec<VaultEntry>,
+    /// The shown vault (index into `vaults`).
+    pub shown: usize,
+    /// Its members (org members with their vault permission).
+    pub members: Vec<VaultMemberEntry>,
+    /// Orgs where this account may create vaults (admin+): `(id, name)`.
+    pub admin_orgs: Vec<(String, String)>,
+}
+
+impl VaultsPanel {
+    /// The shown vault.
+    pub fn current(&self) -> Option<&VaultEntry> {
+        self.vaults.get(self.shown)
+    }
+}
+
+// M5-02
+/// A Settings → Vaults request for the sync service (ids as UUID text).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VaultOp {
+    /// Load the vaults (and the members of `vault`, else of the first).
+    Load {
+        /// The vault to show.
+        vault: Option<String>,
+    },
+    /// Create a shared vault in `org`.
+    Create {
+        /// Org.
+        org: String,
+        /// Name.
+        name: String,
+    },
+    /// Grant (or change) a member's access (§13.2; keys checked against the pins).
+    Grant {
+        /// Vault.
+        vault: String,
+        /// Member.
+        user: String,
+        /// Permission.
+        permission: sverb_proto::sync::Permission,
+    },
+    /// Revoke a member's access (or leave).
+    Revoke {
+        /// Vault.
+        vault: String,
+        /// Member.
+        user: String,
+    },
+    /// Grant `manage` to org admins without a key (§13.1 reconcile).
+    Reconcile,
+    // M5-04
+    /// Rotate the vault key (or resume / restart an interrupted rotation).
+    Rotate {
+        /// Vault.
+        vault: String,
+    },
+}
+
 /// Everything Settings → Sync / Devices render (plain data, every build).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct SyncPanel {
@@ -141,6 +243,9 @@ pub struct SyncPanel {
     // M5-01
     /// Settings → Team.
     pub team: TeamPanel,
+    // M5-02
+    /// Settings → Vaults.
+    pub vaults: VaultsPanel,
 }
 
 /// The account flows behind "Connect to a server" (M4-08).
@@ -255,6 +360,9 @@ pub enum SyncEffect {
     // M5-01
     /// Settings → Team: an org request.
     Team(TeamOp),
+    // M5-02
+    /// Settings → Vaults: a shared-vault request.
+    Vaults(VaultOp),
 }
 
 // M5-01

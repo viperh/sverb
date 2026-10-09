@@ -82,8 +82,7 @@ store rejects writes to it.
 | Tag | `tag` |
 | HistoryEntry | `history-entry` |
 | ConnLog | `conn-log` |
-
-`CredentialOverride` (§13.4) is added by M5-02.
+| CredentialOverride | `credential-override` (M5-02) |
 
 ## 3. Fields per kind
 
@@ -257,8 +256,21 @@ Variable references in scripts: `{{name}}`, `{{name:default}}`, `{{name|q}}` (sh
 
 ### Workspace (§4.10)
 
-`name` text, `layout` any CBOR value (the §8.4 layout tree; typed by M3-03),
-`broadcast_groups` array (opaque until M3-03).
+`name` text, `layout` map, `broadcast_groups` array. Both are whole-value LWW fields
+whose shape is defined by M3-03 (`sverb_core::model::workspace`):
+
+```text
+layout = { "v": 1, "active": uint, "tabs": [tab, …] }
+  tab  = { "title"?: text, "focused": uint, "leaves": [leaf, …], "tree": node }
+  leaf = { "host": bytes(16) } | { "local": null | text(cwd) }
+  node = uint (leaf index) | { "dir": "h" | "v", "ratio": [float, …], "children": [node, …] }
+broadcast_groups = [ { "tab": uint, "panes": "all" | [uint, …] }, … ]
+```
+
+Pane ids inside a saved workspace are leaf indices. Unknown map keys are ignored (a newer
+build may add some); a structurally invalid value is an error, never a panic. Ephemeral
+panes (quick connect, share viewers) are not saved. A host deleted since opens as a
+placeholder pane.
 
 ### Tag (§4.11)
 
@@ -309,6 +321,58 @@ entries written (created, finalized or deleted) after that are queued. Recording
 **Retention:** a maintenance task (on unlock and every 24 h) tombstones entries whose
 `started_at` is older than `logs.retention_days` (0 = forever), and deletes recording files
 older than `recording.retention_days` (spec addition; 0 = keep until deleted).
+
+### CredentialOverride (§13.4) — M5-02
+
+`shared_host_id` id (required), `username` text (optional), `password` secret (optional),
+`key_id` id (optional), `identity_id` id (optional).
+
+- Lives in the user's **personal** vault only (a write into a shared vault is refused);
+  `shared_host_id` is the one reference allowed to point into another vault.
+- Resolution: after the usual chain (host → groups → vault defaults → config), each
+  credential the override sets replaces the resolved one, with provenance
+  `Source::Override` ("your override"). An identity on the override counts as override
+  values below its inline `username` / `password` / `key_id`. If a sync race leaves several
+  overrides for one host, the smallest item id wins.
+
+### References across vaults (§13.4) — M5-02
+
+Every 16-byte id in a body is a reference. An item in a **shared** vault may only reference
+items of the same vault (`sverb_core::model::vault_refs`); references to items that no longer
+exist pass (they resolve as missing). "Move to vault…" / "Copy to vault…" writes the item(s)
+under **new ids** in the target (a move tombstones the sources) and rewrites references to
+items moved or copied along.
+
+### Local vault metadata (M5-02)
+
+`meta` keys, per shared vault: `vault_name_enc/<uuid>` (the name sealed under the vault key,
+as on the server) and `vault_permission/<uuid>` (`read` / `write` / `manage`, recorded from
+the vault list for the "Read-only vault" UI).
+
+## 3a. Backup file (`.sverb-backup`, §9.13) — M2-11
+
+`sverb export backup <file>` (and Hosts → `X`) writes one JSON document:
+
+```json
+{ "format": "sverb-backup", "version": 1,
+  "kdf": { "alg": "argon2id", "m_kib": 262144, "t": 3, "p": 1, "salt_b64": "…" },
+  "nonce_b64": "…", "ciphertext_b64": "…",
+  "created_at": "2026-10-08T12:00:00Z", "app_version": "0.1.0" }
+```
+
+- The ciphertext is XChaCha20-Poly1305 under `Argon2id(export password)` with AAD
+  `"sverb-backup-v1"`, over `zstd(cbor(payload))`. The decompressed payload is capped at
+  1 GiB (zstd-bomb guard), and import refuses KDF parameters outside sane bounds before
+  deriving anything.
+- The payload holds every item body **with its stamps** (secrets included) and its id,
+  so a restore keeps ids and HLC history. **Spec addition:** each item is
+  `{ id, vault, body }` (the id is not part of `ItemBody`), and each vault is
+  `{ id, name, kind, defaults }`, where `defaults` is the id of its vault-defaults item,
+  if any.
+- Device-local data (frecency, approvals, recordings) is not included.
+- The export password is typed twice on a terminal, or read from the environment variable
+  **`SVERB_EXPORT_PASSWORD`** in scripts (spec addition). `sverb import backup <file>
+  [--dry-run]` reads the same variable.
 
 ## 4. Enum string encodings
 

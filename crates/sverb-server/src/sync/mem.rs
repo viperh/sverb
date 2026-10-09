@@ -136,7 +136,8 @@ impl MemSync {
         }
     }
 
-    fn row_lock(&self, vault_id: Uuid) -> Arc<tokio::sync::Mutex<()>> {
+    // M5-04: rotation takes the same lock.
+    pub(super) fn row_lock(&self, vault_id: Uuid) -> Arc<tokio::sync::Mutex<()>> {
         lock(&self.row_locks).entry(vault_id).or_default().clone()
     }
 

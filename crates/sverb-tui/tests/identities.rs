@@ -106,7 +106,12 @@ async fn key(ops: &ItemOps, label: &str) -> ItemId {
     .id
 }
 
-async fn identity(ops: &ItemOps, user: &str, password: Option<&str>, key: Option<ItemId>) -> ItemId {
+async fn identity(
+    ops: &ItemOps,
+    user: &str,
+    password: Option<&str>,
+    key: Option<ItemId>,
+) -> ItemId {
     let (user, password) = (user.to_owned(), password.map(str::to_owned));
     ops.save_identity(None, None, move |i| {
         i.label = "ops".to_owned();
@@ -268,7 +273,10 @@ async fn t05_delete_without_convert_falls_back_to_the_next_level() {
     let cat = ops.catalog().await.unwrap();
     let r = cat.resolve(&cat.hosts[&h], &GlobalDefaults::default());
     assert_eq!(r.username.as_deref(), Some("fallback"));
-    assert!(matches!(r.source(SettingKey::Username), Source::Group { .. }));
+    assert!(matches!(
+        r.source(SettingKey::Username),
+        Source::Group { .. }
+    ));
     assert_eq!(r.password, None);
     assert_eq!(r.identity_id, None);
     assert!(r.warnings.contains(&ResolveWarning::MissingIdentity(ident)));

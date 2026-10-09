@@ -1,6 +1,6 @@
 //! M1-14: authentication prompts in the reducer (SPEC §6.1.1 step 4, task §2.3, §2.5).
 //!
-//! - `SessionEvent::Prompt(p)` queues the prompt ([`AuthPrompts`]); one dialog is on
+//! - `SessionEvent::Prompt(p)` queues the prompt ([`crate::widgets::auth_prompt::AuthPrompts`]); one dialog is on
 //!   screen at a time, the focused session's prompt first. The tab bar's 🔑 marker comes
 //!   from the session's `AwaitingUser` state (M1-17).
 //! - The dialog records its answer; after the dispatch [`App::take_auth_answer`] sends

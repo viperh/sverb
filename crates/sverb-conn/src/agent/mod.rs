@@ -9,13 +9,17 @@
 //! - [`socket`], [`peercred`]: the private local socket (`0700` dir, `0600` socket,
 //!   peer uid check, stale-socket handling); [`serve_local`] runs the agent on it.
 //! - [`control`]: the TUI's control socket (`sverb lock`).
-//! - `pipe_windows`: the Windows named-pipe skeleton (no DACL yet; M7-05).
+//! - `pipe_windows`: the Windows named pipe, with the owner-only DACL and client SID
+//!   check of `dacl_windows` (M7-05; a documented `unsafe` exception).
 
 pub mod builtin;
 pub mod confirm;
 pub mod control;
 pub mod forward;
 pub mod peercred;
+// M7-05: the owner-only pipe DACL (Win32 security calls; `unsafe` allowed here only).
+#[cfg(windows)]
+mod dacl_windows;
 #[cfg(windows)]
 pub mod pipe_windows;
 pub mod proto;

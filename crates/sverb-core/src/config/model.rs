@@ -125,6 +125,20 @@ pub enum TruecolorMode {
     Off,
 }
 
+// M7-07 (spec addition)
+/// ASCII fallback for UI glyphs (`ui.ascii`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub enum AsciiMode {
+    /// ASCII when the locale is not UTF-8 or `TERM=linux` (the Linux console).
+    #[default]
+    Auto,
+    /// Always draw ASCII (`+-|`, `*`, `>` …) instead of box-drawing and symbol glyphs.
+    On,
+    /// Always draw Unicode glyphs.
+    Off,
+}
+
 /// `[ui]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(default, deny_unknown_fields)]
@@ -143,6 +157,11 @@ pub struct UiConfig {
     pub which_key_delay_ms: u32,
     /// strftime-style format for dates shown in the UI.
     pub date_format: String,
+    // M7-07 (spec addition)
+    /// ASCII glyph fallback: auto (non-UTF-8 locale or `TERM=linux`), on or off.
+    pub ascii: AsciiMode,
+    /// No animated glyphs (spinners show a static marker).
+    pub reduce_motion: bool,
 }
 
 impl Default for UiConfig {
@@ -155,6 +174,9 @@ impl Default for UiConfig {
             show_which_key: true,
             which_key_delay_ms: 400,
             date_format: "%Y-%m-%d %H:%M".to_owned(),
+            // M7-07 (spec addition)
+            ascii: AsciiMode::Auto,
+            reduce_motion: false,
         }
     }
 }
@@ -182,7 +204,8 @@ pub struct TerminalConfig {
     pub scrollback: u32,
     /// Color scheme for hosts without one.
     pub color_scheme: String,
-    /// What the bell does: none, visual or audible.
+    /// What the bell does: none, visual or audible. Only `visual` (the tab's bell
+    /// marker) is implemented yet; other values warn.
     pub bell: BellMode,
     /// Ask before pasting text that contains newlines.
     pub paste_confirm_multiline: bool,
@@ -263,7 +286,8 @@ pub struct SshConfig {
     pub host_key_policy: HostKeyPolicy,
     /// Also offer keys from the system ssh-agent.
     pub use_system_agent: bool,
-    /// Also resolve hosts from `~/.ssh/config` (read-only).
+    /// Also resolve hosts from `~/.ssh/config` (read-only). Not implemented yet (a
+    /// warning when on; use `sverb import ssh-config`).
     pub read_ssh_config: bool,
     /// Store new known_hosts entries hashed.
     pub hash_known_hosts: bool,
@@ -479,6 +503,9 @@ pub const APPLY_SCOPES: &[(&str, ApplyScope)] = &[
     ("ui.show_which_key", ApplyScope::Live),
     ("ui.which_key_delay_ms", ApplyScope::Live),
     ("ui.date_format", ApplyScope::Live),
+    // M7-07 (spec addition)
+    ("ui.ascii", ApplyScope::Live),
+    ("ui.reduce_motion", ApplyScope::Live),
     ("terminal.term", ApplyScope::NewSessions),
     ("terminal.scrollback", ApplyScope::NewSessions),
     ("terminal.color_scheme", ApplyScope::Live),

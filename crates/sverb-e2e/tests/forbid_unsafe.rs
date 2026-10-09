@@ -1,4 +1,9 @@
-//! T-03: `unsafe_code = "forbid"` is inherited by every crate from `[workspace.lints]`.
+//! T-03: `unsafe_code = "deny"` is inherited by every crate from `[workspace.lints]`.
+//!
+//! M7-05: the level is `deny`, not `forbid` (SPEC §17): the two documented `unsafe`
+//! modules lift it with an inner `allow`, which `forbid` would reject. That those
+//! `allow`s appear nowhere else is checked by `scripts/check-unsafe.py` (M7-05 T-04,
+//! tested at the end of this file).
 //!
 //! trybuild cannot prove this: the project it generates for compile-fail cases
 //! does not carry over the crate's `[lints]` table, so an `unsafe` block compiles
@@ -7,7 +12,7 @@
 //! `[lints] workspace = true` (exactly what every real crate declares, which is
 //! checked too), and asserts that the compile-fail fixture
 //! `crates/sverb-core/tests/compile_fail/unsafe_block.rs` is rejected with the
-//! `forbid(unsafe_code)` diagnostic.
+//! `deny(unsafe_code)` diagnostic.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -54,6 +59,7 @@ fn every_crate_inherits_workspace_lints() {
 }
 
 /// The workspace lints, applied through `[lints] workspace = true`, reject `unsafe`.
+/// (M7-05: `-D unsafe-code`, the `deny` level.)
 #[test]
 fn unsafe_block_fails_with_forbid_diagnostic() {
     let root = workspace_root();
@@ -109,7 +115,124 @@ path = "src/lib.rs"
         "unexpected diagnostic:\n{stderr}"
     );
     assert!(
-        stderr.contains("-F unsafe-code"),
-        "error not caused by forbid(unsafe_code):\n{stderr}"
+        stderr.contains("-D unsafe-code"),
+        "error not caused by deny(unsafe_code):\n{stderr}"
     );
+}
+
+// M7-05 T-04: `scripts/check-unsafe.py` passes on the repository and fails when
+// `allow(unsafe_code)` appears outside the two allowed modules.
+
+/// Runs the check on `root`; `(success, stderr)`.
+fn check_unsafe(root: &std::path::Path) -> Option<(bool, String)> {
+    let script = workspace_root().join("scripts/check-unsafe.py");
+    let output = Command::new("python3")
+        .arg(&script)
+        .arg("--root")
+        .arg(root)
+        .output()
+        .ok()?;
+    Some((
+        output.status.success(),
+        String::from_utf8_lossy(&output.stderr).into_owned(),
+    ))
+}
+
+/// A minimal tree the script accepts: a workspace manifest with `deny`, one crate
+/// that inherits it.
+fn fake_repo(name: &str) -> PathBuf {
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(dir.join("crates/sverb-core/src/hardening")).unwrap();
+    fs::create_dir_all(dir.join("crates/sverb-conn/src/agent")).unwrap();
+    fs::write(
+        dir.join("Cargo.toml"),
+        "[workspace]\nmembers = [\"crates/*\"]\n[workspace.lints.rust]\nunsafe_code = \"deny\"\n",
+    )
+    .unwrap();
+    for krate in ["sverb-core", "sverb-conn"] {
+        fs::write(
+            dir.join(format!("crates/{krate}/Cargo.toml")),
+            format!("[package]\nname = \"{krate}\"\n[lints]\nworkspace = true\n"),
+        )
+        .unwrap();
+    }
+    fs::write(
+        dir.join("crates/sverb-core/src/hardening/unix.rs"),
+        "#![allow(unsafe_code)]\n",
+    )
+    .unwrap();
+    fs::write(
+        dir.join("crates/sverb-conn/src/agent/dacl_windows.rs"),
+        "#![allow(unsafe_code)]\n",
+    )
+    .unwrap();
+    fs::write(
+        dir.join("crates/sverb-core/src/lib.rs"),
+        "// a comment may say #[allow(unsafe_code)]\npub fn f() {}\n",
+    )
+    .unwrap();
+    dir
+}
+
+#[test]
+fn t04_unsafe_check_passes_on_the_repository() {
+    let Some((ok, stderr)) = check_unsafe(&workspace_root()) else {
+        eprintln!("SKIP: python3 not available");
+        return;
+    };
+    assert!(ok, "{stderr}");
+}
+
+#[test]
+fn t04_unsafe_check_fails_outside_the_allowed_modules() {
+    let clean = fake_repo("check-unsafe-clean");
+    let Some((ok, stderr)) = check_unsafe(&clean) else {
+        eprintln!("SKIP: python3 not available");
+        return;
+    };
+    assert!(ok, "the allowed modules were flagged: {stderr}");
+
+    for (i, attr) in [
+        "#![allow(unsafe_code)]",
+        "#[allow(dead_code, unsafe_code)]",
+        "#[cfg_attr(unix, expect(unsafe_code))]",
+        "#![warn(unsafe_code)]",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let dir = fake_repo(&format!("check-unsafe-dirty-{i}"));
+        fs::write(
+            dir.join("crates/sverb-core/src/lib.rs"),
+            format!("{attr}\npub fn f() {{}}\n"),
+        )
+        .unwrap();
+        let (ok, stderr) = check_unsafe(&dir).unwrap();
+        assert!(!ok, "{attr} was not flagged");
+        assert!(
+            stderr.contains("crates/sverb-core/src/lib.rs:1"),
+            "{stderr}"
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    // A crate manifest that lifts the lint, and a workspace level of `allow`.
+    let dir = fake_repo("check-unsafe-manifest");
+    fs::write(
+        dir.join("crates/sverb-conn/Cargo.toml"),
+        "[package]\nname = \"sverb-conn\"\n[lints.rust]\nunsafe_code = \"allow\"\n",
+    )
+    .unwrap();
+    fs::write(
+        dir.join("Cargo.toml"),
+        "[workspace]\n[workspace.lints.rust]\nunsafe_code = \"allow\"\n",
+    )
+    .unwrap();
+    let (ok, stderr) = check_unsafe(&dir).unwrap();
+    assert!(!ok);
+    assert!(stderr.contains("overrides `unsafe_code`"), "{stderr}");
+    assert!(stderr.contains("expected \"deny\""), "{stderr}");
+    let _ = fs::remove_dir_all(&dir);
+    let _ = fs::remove_dir_all(&clean);
 }

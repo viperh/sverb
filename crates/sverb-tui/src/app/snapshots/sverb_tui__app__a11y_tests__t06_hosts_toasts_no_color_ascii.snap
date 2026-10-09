@@ -1,0 +1,34 @@
+---
+source: crates/sverb-tui/src/app/a11y_tests.rs
+expression: screen
+---
+ sverb - Personal v --------------------------------------------------------------------------------
++--------------+ no sessions . ^\ o quick connect . ^\ v views/sessions                 + info ----+
+|> Hosts       |+ Hosts ----------------------------------------------------------------|info toast|
+|  Keychain    ||>   alpha  10.0.0.1                                                    +----------+
+|  Forwards    ||    bravo  10.0.0.2                                                 + warning ----+
+|  Snippets    ||    charlie  10.0.0.3                                               |warning toast|
+|  Known       ||                                                                    +-------------+
+|  Logs        ||                                                                      + error ----+
+|  Settings    ||                                                                      |error toast|
+|              ||                                                                      +-----------+
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
+|              ||                                                                                  |
++--------------++----------------------------------------------------------------------------- 3/3 +
+ NORMAL                                                                          ^\ ? help . q quit

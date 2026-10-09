@@ -199,6 +199,17 @@ pub fn host_lines(host: &HostSummary, catalog: &HostCatalog, theme: &Theme) -> V
         .cloned()
         .unwrap_or_else(|| "Personal".to_owned());
     lines.push(row("Vault", vault, theme));
+    // M5-02
+    if catalog.is_read_only_vault(host.vault) {
+        lines.push(Line::styled("Read-only vault", theme.warn));
+    }
+    if catalog.overrides.contains_key(&host.id) {
+        lines.push(inherited(
+            "Credentials",
+            "your override (personal vault)",
+            theme,
+        ));
+    }
     if host.read_only {
         lines.push(Line::styled(
             "Read-only: update sverb to edit this host",
@@ -329,6 +340,8 @@ fn with_source(value: String, src: &Source) -> String {
     match src {
         Source::BuiltinDefault | Source::GlobalConfig => format!("{value} (default)"),
         Source::Host => value,
+        // M5-02: this user's own credentials for a shared host (§13.4).
+        Source::Override { .. } => format!("{value} (your override)"),
         src => format!("{value} (from {src})"),
     }
 }
@@ -379,7 +392,11 @@ fn inherited_lines(r: &ResolvedHost, catalog: &HostCatalog, theme: &Theme) -> Ve
     let mut out = Vec::new();
     for (key, label) in INHERITED_ROWS {
         let src = r.source(key);
-        if !matches!(src, Source::Group { .. } | Source::VaultDefaults) {
+        // M5-02: and from this user's credential override.
+        if !matches!(
+            src,
+            Source::Group { .. } | Source::VaultDefaults | Source::Override { .. }
+        ) {
             continue;
         }
         let value = match key {

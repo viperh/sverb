@@ -1,7 +1,7 @@
 //! M1-11: the reducer side of pastes and remote clipboard writes (SPEC §7.3, §17).
 //!
 //! - `SessionEvent::PasteConfirm(text)`: the session found a multi-line paste and no
-//!   bracketed paste, and sent nothing. A dialog asks "Paste N lines into <host>?" with
+//!   bracketed paste, and sent nothing. A dialog asks "Paste N lines into `<host>`?" with
 //!   the first 5 lines; `y`/`Enter` sends it as `SessionInput::PasteUnchecked` (the session
 //!   turns newlines into `\r`), `n`/`Esc` drops it.
 //! - `SessionEvent::ClipboardWrite`: an OSC 52 write from the remote, under

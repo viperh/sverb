@@ -11,8 +11,8 @@
 //!   - *Paste & execute*: `SessionInput::Raw(l1\rl2\r…)`, never bracketed;
 //!   - *Exec on hosts*: the results dialog and `SnippetsEffect::Run` (at most
 //!     [`DEFAULT_CONCURRENCY`] hosts at a time, built-ins per host). The runs'
-//!     host-key and auth prompts open the usual dialogs ("… for: snippet <name>") and
-//!     their answers are rerouted to the run ([`App::reroute_snippet_answers`]).
+//!     host-key and auth prompts open the usual dialogs ("… for: snippet `<name>`") and
+//!     their answers are rerouted to the run (`App::reroute_snippet_answers`).
 //!
 //!   Pane runs also send a `SnippetsEffect::History` record whose command keeps secret
 //!   values as `{{name}}` (M7-01 stores it; nothing is stored until then).

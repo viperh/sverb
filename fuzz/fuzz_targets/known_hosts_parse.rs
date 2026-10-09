@@ -1,8 +1,8 @@
-//! M1-15 / T-18: feeds arbitrary text to `sverb_core::known_hosts::parse_known_hosts`
-//! and matches every parsed entry against a fixed host (hashed fields, globs). It must
-//! never panic. The cargo-fuzz workspace (`fuzz/Cargo.toml`, with `libfuzzer-sys` and a
-//! `sverb-core` path dependency) is created in M7-05; the same body runs today as the
-//! property test `known_hosts::tests::parser_never_panics` in `sverb-core`.
+//! M1-15 / T-18: feeds arbitrary text to `sverb_core::known_hosts::parse_known_hosts` and
+//! matches every parsed entry against a fixed host (hashed fields, globs). It must never
+//! panic. Run it with `cargo +nightly fuzz run known_hosts_parse` from `fuzz/` (the cargo-fuzz
+//! workspace); the same body runs on stable as the property test
+//! `known_hosts::tests::parser_never_panics` in `sverb-core`.
 #![no_main]
 
 use libfuzzer_sys::fuzz_target;

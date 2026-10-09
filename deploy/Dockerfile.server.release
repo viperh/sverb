@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.7
+# M7-07: the published sverb-server image (SPEC §20, §10.7):
+#   ghcr.io/<owner>/sverb-server:<version> and :latest, linux/amd64 + linux/arm64.
+#
+# Built by .github/workflows/cd.yml from the static musl release binaries, so the image
+# holds exactly the binary that is in the release archives (no compiler in the image
+# build, no qemu emulation of rustc). The build context must contain
+#   dist/sverb-server-amd64   (x86_64-unknown-linux-musl)
+#   dist/sverb-server-arm64   (aarch64-unknown-linux-musl)
+# deploy/Dockerfile.server builds the same image from source for local use.
+
+FROM gcr.io/distroless/static-debian12:nonroot
+ARG TARGETARCH
+ARG VERSION=dev
+LABEL org.opencontainers.image.title="sverb-server" \
+      org.opencontainers.image.description="Self-hosted, end-to-end-encrypted sync server for sverb" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="${VERSION}"
+COPY --chmod=0755 dist/sverb-server-${TARGETARCH} /usr/local/bin/sverb-server
+USER nonroot:nonroot
+ENV SVERB_BIND=0.0.0.0:8080 \
+    SVERB_LOG_FORMAT=json
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=6s --start-period=20s --retries=3 \
+    CMD ["/usr/local/bin/sverb-server", "healthcheck"]
+ENTRYPOINT ["/usr/local/bin/sverb-server"]
+CMD ["serve"]

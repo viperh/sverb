@@ -1,7 +1,7 @@
 //! M1-14: the authentication prompt dialog and the per-session prompt queue
 //! (SPEC §6.1.1 step 4, task M1-14 §2.3).
 //!
-//! - [`AuthPromptDialog`]: one dialog per request — "Authenticate to <label>", the
+//! - [`AuthPromptDialog`]: one dialog per request — "Authenticate to `<label>`", the
 //!   server's name and instruction (already sanitized by the connector:
 //!   `sverb_conn::ssh::sanitize_server_text`), one field per prompt line (masked unless
 //!   the server allows echo; `ctrl-r` reveals), and the "Save … to vault" checkbox for a

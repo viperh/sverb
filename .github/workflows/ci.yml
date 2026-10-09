@@ -334,3 +334,165 @@ jobs:
       # all-features and local-only (no-default-features) graphs.
       - name: Check dependency direction (script)
         run: python3 scripts/check-layering.py
+
+  # M7-05 T-04 (SPEC §17): `unsafe` stays confined to the two documented modules
+  # (process hardening, Windows agent pipe DACL); the workspace lint is `deny`.
+  unsafe-check:
+    name: unsafe confinement
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: allow(unsafe_code) only in the allowed modules
+        run: python3 scripts/check-unsafe.py
+
+  # M7-05 T-03 (SPEC §17 "Secrets in logs", §19): the whole suite at trace level, with
+  # every temp dir kept under one root, then a scan of all logs, crash reports, SQLite
+  # files, recordings, backups and the server database for the planted canaries
+  # (CONTRIBUTING.md, "Canary secrets").
+  canary:
+    name: Canary scan
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sverb
+          POSTGRES_PASSWORD: sverb
+          POSTGRES_DB: sverb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sverb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SVERB_LOG: trace
+      SVERB_KEYRING: "off"
+      DATABASE_URL: postgres://sverb:sverb@localhost:5432/sverb
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Scanner self-test
+        run: scripts/canary-scan.sh --self-test
+      - name: Prepare the artifact root
+        run: mkdir -p "$RUNNER_TEMP/canary/tmp" "$RUNNER_TEMP/canary/home"
+      - name: Run the test suite at trace level
+        env:
+          TMPDIR: ${{ runner.temp }}/canary/tmp
+          SVERB_HOME: ${{ runner.temp }}/canary/home
+        run: cargo test --workspace --all-features --locked --no-fail-fast
+      - name: Dump the server database
+        if: always()
+        env:
+          PGPASSWORD: sverb
+        run: >-
+          pg_dumpall -h localhost -U sverb > "$RUNNER_TEMP/canary/tmp/server-dump.sql"
+          || echo "pg_dumpall unavailable; server dump not scanned"
+      - name: Scan for canaries
+        if: always()
+        run: >-
+          scripts/canary-scan.sh --require-files
+          target/tmp "$RUNNER_TEMP/canary/tmp" "$RUNNER_TEMP/canary/home"
+
+  # M7-05 T-05 (SPEC §19 "Fuzzing"): every cargo-fuzz target builds and runs 30 s
+  # without a crash. The nightly 10-minute runs are in fuzz.yml.
+  fuzz:
+    name: Fuzz (30 s per target)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-fuzz
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+      - name: Seed corpus
+        run: fuzz/seed-corpus.sh
+      - name: Build every target
+        run: cargo +nightly fuzz build
+      - name: Run every target for 30 s
+        run: |
+          status=0
+          for target in $(cargo +nightly fuzz list); do
+            echo "::group::$target"
+            if ! cargo +nightly fuzz run "$target" "fuzz/corpus/$target" -- \
+                 -max_total_time=30 -rss_limit_mb=2048 -timeout=10; then
+              echo "::error::fuzz target $target crashed"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status
+      - name: Upload crashes
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: fuzz/artifacts
+          if-no-files-found: ignore
+
+  # M7-07 T-03: the Nix flake builds the client (SPEC §20).
+  nix:
+    name: Nix flake
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: nix flake check
+        run: nix flake check --no-build
+      - name: nix build .#sverb
+        run: |
+          nix build .#sverb -L
+          ./result/bin/sverb --version
+          test -f result/share/man/man1/sverb.1.gz
+          test -f result/share/bash-completion/completions/sverb.bash
+
+  # M7-07: release tooling that needs no secrets (the full release dry run is
+  # `workflow_dispatch` of cd.yml).
+  packaging:
+    name: Packaging files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Channel files update (self-test)
+        run: python3 scripts/update-packaging.py --self-test
+      - name: Syntax of the channel files
+        run: |
+          bash -n packaging/aur/sverb/PKGBUILD
+          bash -n packaging/aur/sverb-bin/PKGBUILD
+          ruby -c packaging/homebrew/sverb.rb
+          jq -e . packaging/scoop/sverb.json >/dev/null
+          python3 -c 'import tomllib; tomllib.load(open("release-plz.toml", "rb"))'
+      - name: Archives are reproducible
+        run: |
+          export SVERB_HOME="$RUNNER_TEMP/home" SVERB_KEYRING=off
+          cargo build --locked -p sverb
+          mkdir -p assets/man assets/completions
+          target/debug/sverb generate man --out-dir assets/man
+          target/debug/sverb generate completions bash >assets/completions/sverb.bash
+          for i in 1 2; do
+            scripts/release-package.sh sverb 0.0.0 linux-x86_64 target/debug/sverb "out$i" assets
+          done
+          cmp out1/sverb-0.0.0-linux-x86_64.tar.gz out2/sverb-0.0.0-linux-x86_64.tar.gz
+          (cd out1 && sha256sum -c ./*.sha256)
+      - name: crates package (cargo install sverb)
+        run: cargo package --workspace --exclude sverb-e2e --locked

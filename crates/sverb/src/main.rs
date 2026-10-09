@@ -44,6 +44,9 @@ fn try_main() -> color_eyre::Result<u8> {
     // restores the terminal. A panicking UI task unwinds out of `block_on` (exit 101)
     // after the hook restored the terminal and wrote the crash report.
     crate::panic::install()?;
+    // M7-05: no core dumps, no same-user ptrace (Linux), before any secret exists
+    // (SPEC §17). Best effort; the outcome is logged at debug once logging is up.
+    let hardening = sverb_core::hardening::harden_process();
     // M0-03: resolve the directories once, before anything touches the disk,
     // and pass them explicitly to logging, the CLI, config and the app.
     let paths = Paths::resolve(&SystemEnv)?;
@@ -63,6 +66,13 @@ fn try_main() -> color_eyre::Result<u8> {
     for warning in paths.warnings() {
         tracing::warn!("{warning}");
     }
+    // M7-05
+    tracing::debug!(
+        core_dumps_disabled = hardening.core_dumps_disabled,
+        non_dumpable = hardening.non_dumpable,
+        failures = ?hardening.failures,
+        "process hardening"
+    );
 
     // M0-06: config.toml (SPEC §15). A bad file never stops startup: the defaults are
     // used and every problem is logged (reload errors become toasts in the reducer).

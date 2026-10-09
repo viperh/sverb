@@ -1,0 +1,47 @@
+---
+source: crates/sverb/src/cli/doctor_tests.rs
+expression: "render_text(&mixed, false)"
+---
+Environment
+  [info] version           sverb 0.1.0-test (2026-10-08) (features: sync)
+  [info] platform          linux x86_64
+  [info] SVERB_HOME        not set
+  [ok]   config dir        /home/u/.config/sverb (0700)
+  [warn] data dir          /home/u/.local/share/sverb is 0755 (expected 0700)
+         -> chmod 700 /home/u/.local/share/sverb
+  [ok]   state dir         /home/u/.local/state/sverb (0700)
+  [ok]   runtime dir       /run/user/1000/sverb (0700)
+  [ok]   database file     /home/u/.local/share/sverb/sverb.db (0600)
+  [fail] config            config.toml has 1 error(s); the defaults are in effect: /home/u/.config/sverb/config.toml:3:1: ui.theme: unknown theme
+         -> see `sverb config --check`
+  [info] database          schema 6 (migrates to 7 on the next start), integrity ok
+  [ok]   logs              the log directory is writable
+
+Terminal
+  [ok]   TERM              tmux-256color
+  [warn] colors            256 colors (COLORTERM=unset); RGB colors are downsampled
+         -> if the terminal supports 24-bit color, set COLORTERM=truecolor or ui.truecolor = "on"
+  [info] kitty keyboard    skipped: not a terminal
+  [info] mouse             not captured (ui.mouse = false)
+  [info] bracketed paste   enabled by sverb; support can't be detected
+  [info] OSC 52 clipboard  unknown for tmux (it can't be detected)
+  [info] unicode width     skipped: not a terminal
+  [info] over SSH          yes: copies go through OSC 52 only
+  [warn] multiplexer       tmux: OSC 52 and passthrough sequences need tmux settings
+         -> in tmux.conf: `set -g set-clipboard on` and `set -g allow-passthrough on`
+
+Agent
+  [info] system agent      SSH_AUTH_SOCK is not set; agent authentication is skipped
+         -> start ssh-agent, or use keys from the vault
+  [info] built-in agent    not running (`sverb agent` starts it)
+
+Keyring
+  [warn] OS keyring        not available: keyring unlock can't be used
+         -> on Linux, run a Secret Service provider (gnome-keyring, KeePassXC)
+  [info] keyring unlock    disabled (the master password is asked at every start)
+
+Sync
+  [fail] server            https://sync.example.test is unreachable: connection refused
+         -> check the server URL and the network; local changes stay queued
+
+2 problems, 4 warnings.

@@ -446,6 +446,9 @@ pub fn host_form(
         .validator(FormValidator::new("host", host_rules));
     if h.read_only {
         form = form.read_only(ReadOnly::NewerSchema);
+    } else if init.item.is_some() && cat.is_read_only_vault(h.vault) {
+        // M5-02: a `read` member sees shared hosts read-only (§13.2).
+        form = form.read_only(ReadOnly::Vault);
     }
     if let Some(index) = index {
         form.set_index(index);

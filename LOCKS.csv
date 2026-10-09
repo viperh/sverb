@@ -5746,3 +5746,1027 @@ docs/keybindings.md,orchestrator,FIX,locked,2026-10-08T14:01:45Z,,regen
 crates/sverb-tui/src/services/team_verify_tests.rs,orchestrator,FIX,released,2026-10-08T14:03:50Z,,done
 crates/sverb-tui/src/views/settings/team_verify.rs,orchestrator,FIX,released,2026-10-08T14:03:50Z,,done
 docs/keybindings.md,orchestrator,FIX,released,2026-10-08T14:03:50Z,,done
+crates/sverb-conn/src/ssh/algorithms.rs,agent-M7-04,M7-04,locked,2026-10-08T18:20:56Z,,doctor --algos: unavailable preferred list
+crates/sverb-conn/src/ssh/algorithms.rs,agent-M7-04,M7-04,modified,2026-10-08T18:21:02Z,,SupportedAlgos.unavailable + legacy_unavailable
+crates/sverb-store/src/health.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:09Z,,read-only DB health for doctor
+crates/sverb-store/src/lib.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:09Z,,mod health
+crates/sverb-store/src/lib.rs,agent-M7-04,M7-04,modified,2026-10-08T18:21:30Z,,pub mod health
+crates/sverb-store/src/health.rs,agent-M7-04,M7-04,modified,2026-10-08T18:21:30Z,,new: inspect()
+crates/sverb-sync/src/doctor.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:53Z,,doctor sync probes
+crates/sverb-sync/src/lib.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:53Z,,doctor sync probes
+crates/sverb-sync/src/tokens.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:54Z,,doctor sync probes
+crates/sverb-sync/tests/doctor.rs,agent-M7-04,M7-04,locked,2026-10-08T18:21:54Z,,doctor sync probes
+crates/sverb-sync/src/tokens.rs,agent-M7-04,M7-04,modified,2026-10-08T18:22:00Z,,peek_access() for doctor
+crates/sverb-proto/src/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:22:52Z,,shared vault DTOs
+crates/sverb-proto/src/lib.rs,agent-M5-02,M5-02,locked,2026-10-08T18:22:52Z,,shared vault DTOs
+crates/sverb-sync/src/lib.rs,agent-M7-04,M7-04,modified,2026-10-08T18:22:57Z,,pub mod doctor
+crates/sverb-sync/src/doctor.rs,agent-M7-04,M7-04,modified,2026-10-08T18:22:57Z,,new
+crates/sverb-sync/tests/doctor.rs,agent-M7-04,M7-04,modified,2026-10-08T18:23:14Z,,new T-06
+crates/sverb-proto/src/lib.rs,agent-M5-02,M5-02,modified,2026-10-08T18:23:16Z,,pub mod vaults
+crates/sverb-proto/src/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:23:16Z,,new DTOs
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-04,M7-04,locked,2026-10-08T18:23:27Z,,shared capability detection
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-04,M7-04,locked,2026-10-08T18:23:27Z,,shared capability detection
+crates/sverb-tui/src/theme/mod.rs,agent-M7-04,M7-04,locked,2026-10-08T18:23:27Z,,shared capability detection
+crates/sverb-tui/src/services/clipboard.rs,agent-M7-04,M7-04,locked,2026-10-08T18:23:27Z,,shared capability detection
+crates/sverb-server/src/sync/shared.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:37Z,,shared vault routes
+crates/sverb-server/src/sync/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:37Z,,shared vault routes
+crates/sverb-conn/src/session/share_tap.rs,agent-M6-03,M6-03,locked,2026-10-08T18:23:37Z,,share tap (output observer)
+crates/sverb-server/src/routes/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:37Z,,shared vault routes
+crates/sverb-conn/src/session/actor.rs,agent-M6-03,M6-03,locked,2026-10-08T18:23:37Z,,share tap (output observer)
+crates/sverb-server/src/routes/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:38Z,,shared vault routes
+crates/sverb-conn/src/session/cmd.rs,agent-M6-03,M6-03,locked,2026-10-08T18:23:38Z,,share tap (output observer)
+crates/sverb-server/src/routes/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:38Z,,shared vault routes
+crates/sverb-conn/src/session/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:23:38Z,,share tap (output observer)
+crates/sverb-server/tests/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:23:38Z,,shared vault routes
+crates/sverb-conn/src/manager.rs,agent-M6-03,M6-03,locked,2026-10-08T18:23:38Z,,share tap (output observer)
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-04,M7-04,modified,2026-10-08T18:24:17Z,,M7-04 capabilities
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-04,M7-04,modified,2026-10-08T18:24:17Z,,M7-04 capabilities
+crates/sverb-tui/src/theme/mod.rs,agent-M7-04,M7-04,modified,2026-10-08T18:24:17Z,,M7-04 capabilities
+crates/sverb-tui/src/services/clipboard.rs,agent-M7-04,M7-04,modified,2026-10-08T18:24:17Z,,M7-04 capabilities
+crates/sverb-conn/src/session/share_tap.rs,agent-M6-03,M6-03,modified,2026-10-08T18:24:37Z,,new: OutputObserver/ShareTap
+crates/sverb-conn/src/session/actor.rs,agent-M6-03,M6-03,modified,2026-10-08T18:24:37Z,,share tap field + calls under emulator lock
+crates/sverb-conn/src/session/cmd.rs,agent-M6-03,M6-03,modified,2026-10-08T18:24:38Z,,AttachShareTap/DetachShareTap
+crates/sverb-conn/src/session/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:24:38Z,,pub mod share_tap + re-export
+crates/sverb-conn/src/manager.rs,agent-M6-03,M6-03,modified,2026-10-08T18:24:38Z,,share_tap: None
+crates/sverb-server/src/sync/shared.rs,agent-M5-02,M5-02,modified,2026-10-08T18:26:29Z,,M5-02 shared vaults
+crates/sverb-server/src/sync/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T18:26:29Z,,M5-02 shared vaults
+crates/sverb-server/src/routes/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:26:29Z,,M5-02 shared vaults
+crates/sverb-server/src/routes/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T18:26:29Z,,M5-02 shared vaults
+crates/sverb-server/src/routes/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:26:29Z,,M5-02 shared vaults
+crates/sverb/src/cli/doctor.rs,agent-M7-04,M7-04,locked,2026-10-08T18:26:52Z,,doctor body
+crates/sverb/src/cli/doctor_tests.rs,agent-M7-04,M7-04,locked,2026-10-08T18:26:52Z,,doctor tests
+crates/sverb/tests/doctor.rs,agent-M7-04,M7-04,locked,2026-10-08T18:26:52Z,,doctor T-05
+crates/sverb-server/tests/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:28:07Z,,server tests
+crates/sverb-core/src/model/credential_override.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:07Z,,credential override
+crates/sverb-core/src/model/vault_refs.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:07Z,,credential override
+crates/sverb-core/src/model/kinds.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-core/src/model/migrate.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-core/src/model/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-core/src/resolve/overrides.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-core/src/resolve.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-core/src/resolve/provenance.rs,agent-M5-02,M5-02,locked,2026-10-08T18:28:08Z,,credential override
+crates/sverb-sync/src/lib.rs,agent-M6-03,M6-03,copy,2026-10-08T18:28:59Z,.merge/agent-M6-03/crates/sverb-sync/src/lib.rs,adds pub mod share
+crates/sverb-sync/src/share/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:29:03Z,,share client
+crates/sverb-sync/src/share/host.rs,agent-M6-03,M6-03,locked,2026-10-08T18:29:03Z,,share client
+crates/sverb-sync/src/share/viewer.rs,agent-M6-03,M6-03,locked,2026-10-08T18:29:03Z,,share client
+crates/sverb-sync/tests/share.rs,agent-M6-03,M6-03,locked,2026-10-08T18:29:03Z,,share client
+crates/sverb-sync/Cargo.toml,agent-M6-03,M6-03,locked,2026-10-08T18:29:03Z,,share client
+crates/sverb/src/cli/mod.rs,agent-M7-04,M7-04,locked,2026-10-08T18:29:07Z,,doctor run async
+crates/sverb/src/cli/tests.rs,agent-M7-04,M7-04,locked,2026-10-08T18:29:07Z,,doctor no longer a stub
+crates/sverb/src/cli/mod.rs,agent-M7-04,M7-04,modified,2026-10-08T18:29:07Z,,doctor::run(..).await
+crates/sverb/src/cli/tests.rs,agent-M7-04,M7-04,modified,2026-10-08T18:29:07Z,,doctor out of stub list; DoctorArgs fields
+crates/sverb/src/cli/doctor.rs,agent-M7-04,M7-04,modified,2026-10-08T18:30:17Z,,doctor body
+crates/sverb/src/cli/doctor_tests.rs,agent-M7-04,M7-04,modified,2026-10-08T18:30:17Z,,new
+crates/sverb-core/src/resolve/approval.rs,agent-M5-02,M5-02,locked,2026-10-08T18:31:06Z,,Source::Override arm
+crates/sverb-core/src/model/credential_override.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/model/vault_refs.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/model/kinds.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/model/migrate.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/model/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/resolve/overrides.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/resolve.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/resolve/provenance.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-core/src/resolve/approval.rs,agent-M5-02,M5-02,modified,2026-10-08T18:31:28Z,,credential override / vault refs
+crates/sverb-sync/src/http.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/http/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/engine.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/keys.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/trust.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/tests/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:30Z,,shared vault client
+crates/sverb-sync/src/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T18:33:44Z,,lib.rs held; module lives in account/vaults.rs
+crates/sverb-sync/src/account/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:44Z,,pub mod vaults
+crates/sverb-sync/src/account/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:44Z,,shared vault client
+crates/sverb-sync/src/status.rs,agent-M5-02,M5-02,locked,2026-10-08T18:33:44Z,,SyncEvent::VaultAdded
+crates/sverb/tests/doctor.rs,agent-M7-04,M7-04,modified,2026-10-08T18:33:48Z,,new T-05
+crates/sverb-sync/src/share/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:35:01Z,,new: share client
+crates/sverb-sync/src/share/host.rs,agent-M6-03,M6-03,modified,2026-10-08T18:35:01Z,,new: share client
+crates/sverb-sync/src/share/viewer.rs,agent-M6-03,M6-03,modified,2026-10-08T18:35:02Z,,new: share client
+crates/sverb-sync/tests/share.rs,agent-M6-03,M6-03,modified,2026-10-08T18:35:02Z,,new: share client
+crates/sverb-sync/Cargo.toml,agent-M6-03,M6-03,modified,2026-10-08T18:35:02Z,,chrono dep; sverb-conn/sverb-term dev-deps; share feature + [[test]] gate
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_all_ok.snap,agent-M7-04,M7-04,locked,2026-10-08T18:35:39Z,,doctor snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_all_ok.snap,agent-M7-04,M7-04,modified,2026-10-08T18:35:39Z,,new snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_json.snap,agent-M7-04,M7-04,locked,2026-10-08T18:35:39Z,,doctor snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_json.snap,agent-M7-04,M7-04,modified,2026-10-08T18:35:39Z,,new snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_ascii.snap,agent-M7-04,M7-04,locked,2026-10-08T18:35:39Z,,doctor snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_ascii.snap,agent-M7-04,M7-04,modified,2026-10-08T18:35:39Z,,new snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_symbols.snap,agent-M7-04,M7-04,locked,2026-10-08T18:35:39Z,,doctor snapshot
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_symbols.snap,agent-M7-04,M7-04,modified,2026-10-08T18:35:39Z,,new snapshot
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-04,M7-04,locked,2026-10-08T18:37:32Z,,doctor --json/--ascii in help
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-04,M7-04,modified,2026-10-08T18:37:32Z,,doctor --json --ascii lines
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-04,M7-04,locked,2026-10-08T18:37:32Z,,doctor --json/--ascii in help
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-04,M7-04,modified,2026-10-08T18:37:32Z,,doctor --json --ascii lines
+crates/sverb-sync/src/http.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:35Z,,M5-02 shared vault client
+crates/sverb-sync/src/http/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:35Z,,M5-02 shared vault client
+crates/sverb-sync/src/account/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:35Z,,M5-02 shared vault client
+crates/sverb-sync/src/account/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:35Z,,M5-02 shared vault client
+crates/sverb-sync/src/engine.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:35Z,,M5-02 shared vault client
+crates/sverb-sync/src/keys.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:36Z,,M5-02 shared vault client
+crates/sverb-sync/src/trust.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:36Z,,M5-02 shared vault client
+crates/sverb-sync/src/status.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:36Z,,M5-02 shared vault client
+crates/sverb-sync/tests/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T18:43:36Z,,M5-02 shared vault client
+crates/sverb-tui/src/app/sync.rs,agent-M5-02,M5-02,locked,2026-10-08T18:46:45Z,,VaultAdded event
+docs/cli-json.md,agent-M7-04,M7-04,locked,2026-10-08T18:47:30Z,,doctor --json rows
+docs/cli-json.md,agent-M7-04,M7-04,modified,2026-10-08T18:47:30Z,,doctor rows
+crates/sverb-tui/Cargo.toml,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/event.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/effect.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/palette.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/palette_tests.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:54Z,,share UI
+crates/sverb-tui/src/app/panes.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/dialogs.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/services/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/app/share.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/app/share_tests.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/share/mod.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/share/start_dialog.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/share/approve_dialog.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/views/share/viewers_panel.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-tui/src/services/share.rs,agent-M6-03,M6-03,locked,2026-10-08T18:47:55Z,,share UI
+crates/sverb-conn/src/ssh/algorithms.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:23Z,,orchestrator: complete
+crates/sverb/src/cli/doctor.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:23Z,,orchestrator: complete
+crates/sverb/src/cli/doctor_tests.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/mod.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_all_ok.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_json.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_ascii.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__doctor__tests__doctor_mixed_symbols.snap,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/src/cli/tests.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-store/src/health.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-store/src/lib.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-sync/src/doctor.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-sync/src/lib.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-sync/src/tokens.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-sync/tests/doctor.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb/tests/doctor.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-tui/src/services/clipboard.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-tui/src/theme/mod.rs,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+docs/cli-json.md,agent-M7-04,M7-04,released,2026-10-08T18:48:24Z,,orchestrator: complete
+crates/sverb-tui/src/services/ssh.rs,agent-M5-02,M5-02,locked,2026-10-08T18:49:17Z,,credential override at connect
+crates/sverb-tui/src/services/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T18:49:32Z,,services/mod.rs held; use services/vault/shared.rs
+crates/sverb-tui/src/services/vault.rs,agent-M5-02,M5-02,locked,2026-10-08T18:49:32Z,,adopt vaults; mod shared
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-02,M5-02,locked,2026-10-08T18:49:32Z,,new
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-02,M5-02,locked,2026-10-08T18:49:32Z,,add vault keys while unlocked
+crates/sverb-tui/src/views/hosts/catalog.rs,agent-M5-02,M5-02,locked,2026-10-08T18:51:35Z,,shared vault UI
+crates/sverb-tui/src/services/vault/items.rs,agent-M5-02,M5-02,locked,2026-10-08T18:51:35Z,,shared vault UI
+crates/sverb-tui/src/views/hosts/detail.rs,agent-M5-02,M5-02,locked,2026-10-08T18:51:35Z,,shared vault UI
+crates/sverb-tui/src/views/hosts/form.rs,agent-M5-02,M5-02,locked,2026-10-08T18:51:35Z,,shared vault UI
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-02,M5-02,locked,2026-10-08T18:53:31Z,,Settings -> Vaults
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:53:31Z,,Settings -> Vaults
+crates/sverb-tui/src/views/settings/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:53:31Z,,Settings -> Vaults
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:53:31Z,,Settings -> Vaults
+crates/sverb-tui/src/services/sync.rs,agent-M5-02,M5-02,locked,2026-10-08T18:53:31Z,,Settings -> Vaults
+crates/sverb-tui/src/services/share_tests.rs,agent-M6-03,M6-03,locked,2026-10-08T18:55:24Z,,share service tests
+crates/sverb-tui/src/app/share.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/app/share_tests.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/views/share/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/views/share/start_dialog.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/views/share/approve_dialog.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/views/share/viewers_panel.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/services/share.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/src/services/share_tests.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,new: share UI
+crates/sverb-tui/Cargo.toml,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,feature share
+crates/sverb-tui/src/app/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,mod share; ShareUi field; Share event; Join launch; share action/answer/after_handle
+crates/sverb-tui/src/app/event.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,UiEvent::Share
+crates/sverb-tui/src/app/effect.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,Effect::Share
+crates/sverb-tui/src/app/palette.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,palette join -> share_join
+crates/sverb-tui/src/app/panes.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,viewer pane render + shared badge
+crates/sverb-tui/src/views/dialogs.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,DialogKind::Share
+crates/sverb-tui/src/views/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,pub mod share
+crates/sverb-tui/src/services/mod.rs,agent-M6-03,M6-03,modified,2026-10-08T18:55:36Z,,mod share (feature share); Effect::Share arm
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T18:55:52Z,,new
+crates/sverb-tui/src/app/palette_tests.rs,agent-M6-03,M6-03,modified,2026-10-08T18:58:28Z,,t07: join toast text
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M5-02,M5-02,locked,2026-10-08T18:58:50Z,,vault selector / move-copy / override
+crates/sverb-tui/src/app/shell.rs,agent-M5-02,M5-02,locked,2026-10-08T18:58:50Z,,vault selector / move-copy / override
+crates/sverb-tui/src/app/hosts.rs,agent-M5-02,M5-02,locked,2026-10-08T18:58:50Z,,vault selector / move-copy / override
+crates/sverb-tui/src/app/vault.rs,agent-M5-02,M5-02,locked,2026-10-08T18:58:50Z,,vault selector / move-copy / override
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t02_sync_page.snap,agent-M5-02,M5-02,locked,2026-10-08T18:59:43Z,,Vaults settings tab
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t05_devices_page.snap,agent-M5-02,M5-02,locked,2026-10-08T18:59:43Z,,Vaults settings tab
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t08_team_page.snap,agent-M5-02,M5-02,locked,2026-10-08T18:59:43Z,,Vaults settings tab
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t07_letterbox_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t07_letterbox_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_approve_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_approve_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_control_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_control_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_view_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_view_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_start_dialog_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_start_dialog_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_viewers_panel_80x24.snap,agent-M6-03,M6-03,locked,2026-10-08T19:01:30Z,,share snapshot
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_viewers_panel_80x24.snap,agent-M6-03,M6-03,modified,2026-10-08T19:01:30Z,,new snapshot
+crates/sverb-tui/tests/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T19:04:11Z,,TUI shared vault tests
+crates/sverb-tui/src/views/hosts/vault_tests.rs,agent-M5-02,M5-02,locked,2026-10-08T19:04:46Z,,view tests
+crates/sverb-tui/src/app/shell.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t08_team_page.snap,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t05_devices_page.snap,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/hosts.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/hosts/vault_tests.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/sync.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/hosts/catalog.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/vault/items.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/settings/mod.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t02_sync_page.snap,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/tests/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/vault.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/vault.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/hosts/form.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/views/hosts/detail.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/sync.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/services/ssh.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:43Z,,M5-02 shared vaults
+crates/sverb-tui/src/app/hosts/shared_vaults.rs,agent-M5-02,M5-02,locked,2026-10-08T19:06:50Z,,new reducer module
+crates/sverb-tui/src/app/hosts/shared_vaults.rs,agent-M5-02,M5-02,modified,2026-10-08T19:06:50Z,,move/copy/override reducer
+docs/data-model.md,agent-M5-02,M5-02,locked,2026-10-08T19:17:10Z,,credential-override kind
+docs/data-model.md,agent-M5-02,M5-02,modified,2026-10-08T19:17:10Z,,credential-override; cross-vault refs
+crates/sverb-conn/src/manager.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-conn/src/session/actor.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-conn/src/session/cmd.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-conn/src/session/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-conn/src/session/share_tap.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/Cargo.toml,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/src/lib.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/src/share/host.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/src/share/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/src/share/viewer.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/tests/share.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/Cargo.toml,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/effect.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/event.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/palette.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/palette_tests.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/panes.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/share.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/share_tests.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t07_letterbox_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_approve_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_control_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_badge_view_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_start_dialog_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__share_tests__t11_viewers_panel_80x24.snap,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/services/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/services/share.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/services/share_tests.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/dialogs.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/share/approve_dialog.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/share/mod.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/share/start_dialog.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-tui/src/views/share/viewers_panel.rs,agent-M6-03,M6-03,released,2026-10-08T19:18:40Z,,orchestrator merging
+crates/sverb-sync/src/lib.rs,orchestrator,MERGE-M6-03,locked,2026-10-08T19:18:40Z,,merge
+crates/sverb-sync/Cargo.toml,orchestrator,MERGE-M6-03,locked,2026-10-08T19:18:55Z,,fold share feature into sync
+crates/sverb-tui/Cargo.toml,orchestrator,MERGE-M6-03,locked,2026-10-08T19:18:55Z,,fold share feature into sync
+crates/sverb-tui/src/services/mod.rs,orchestrator,MERGE-M6-03,locked,2026-10-08T19:18:55Z,,fold share feature into sync
+crates/sverb/src/cli/mod.rs,orchestrator,MERGE-M6-03,locked,2026-10-08T19:20:57Z,,box tui future
+crates/sverb/src/cli/mod.rs,orchestrator,MERGE,released,2026-10-08T19:21:23Z,,merged
+crates/sverb-sync/Cargo.toml,orchestrator,MERGE,released,2026-10-08T19:21:23Z,,merged
+crates/sverb-sync/src/lib.rs,orchestrator,MERGE,released,2026-10-08T19:21:23Z,,merged
+crates/sverb-tui/Cargo.toml,orchestrator,MERGE,released,2026-10-08T19:21:23Z,,merged
+crates/sverb-tui/src/services/mod.rs,orchestrator,MERGE,released,2026-10-08T19:21:23Z,,merged
+crates/sverb-core/src/model/credential_override.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/model/kinds.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/model/migrate.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/model/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/model/vault_refs.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/resolve/approval.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/resolve/overrides.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/resolve/provenance.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-core/src/resolve.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-proto/src/lib.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-proto/src/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/src/routes/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/src/routes/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/src/routes/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/src/sync/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/src/sync/shared.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-server/tests/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-sync/src/account/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:34Z,,orchestrator: complete
+crates/sverb-sync/src/account/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/engine.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/http.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/http/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/keys.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/status.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/src/trust.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-sync/tests/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/hosts.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/hosts/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/shell.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t02_sync_page.snap,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t05_devices_page.snap,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__sync_tests__t08_team_page.snap,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/app/vault.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/ssh.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/sync.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/items.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/catalog.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/detail.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/form.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/vault_tests.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/settings/mod.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-tui/tests/shared_vaults.rs,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+docs/data-model.md,agent-M5-02,M5-02,released,2026-10-08T19:22:35Z,,orchestrator: complete
+crates/sverb-proto/src/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:27:01Z,,rotation DTOs
+crates/sverb-proto/src/lib.rs,agent-M5-04,M5-04,locked,2026-10-08T19:27:01Z,,rotation DTOs
+crates/sverb-proto/src/sync.rs,agent-M5-04,M5-04,locked,2026-10-08T19:27:01Z,,rotation DTOs
+crates/sverb-proto/src/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:27:30Z,,M5-04 rotation DTOs
+crates/sverb-proto/src/lib.rs,agent-M5-04,M5-04,modified,2026-10-08T19:27:30Z,,M5-04 rotation DTOs
+crates/sverb-proto/src/sync.rs,agent-M5-04,M5-04,modified,2026-10-08T19:27:30Z,,M5-04 rotation DTOs
+crates/sverb-server/src/auth/store/mem.rs,agent-M5-04,M5-04,locked,2026-10-08T19:27:53Z,,rotation staging table
+crates/sverb-server/src/auth/store/mem.rs,agent-M5-04,M5-04,modified,2026-10-08T19:27:53Z,,MemData.rotation_staging
+crates/sverb-server/src/sync/shared.rs,agent-M5-04,M5-04,locked,2026-10-08T19:28:41Z,,rotation backend
+crates/sverb-server/src/sync/mem.rs,agent-M5-04,M5-04,locked,2026-10-08T19:28:41Z,,rotation backend
+crates/sverb-server/src/sync/mod.rs,agent-M5-04,M5-04,locked,2026-10-08T19:28:41Z,,rotation backend
+crates/sverb-server/src/sync/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:28:41Z,,rotation backend
+crates/sverb-server/src/sync/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:28:41Z,,rotation backend
+crates/sverb-server/src/sync/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:28:49Z,,rotation view by/started_at
+crates/sverb-server/src/sync/shared.rs,agent-M5-04,M5-04,modified,2026-10-08T19:28:49Z,,M5-04 wiring/visibility
+crates/sverb-server/src/sync/mem.rs,agent-M5-04,M5-04,modified,2026-10-08T19:28:49Z,,M5-04 wiring/visibility
+crates/sverb-server/src/sync/mod.rs,agent-M5-04,M5-04,modified,2026-10-08T19:28:49Z,,M5-04 wiring/visibility
+crates/sverb-server/src/routes/rotate.rs,agent-M5-04,M5-04,locked,2026-10-08T19:30:47Z,,rotate route
+crates/sverb-server/src/routes/mod.rs,agent-M5-04,M5-04,locked,2026-10-08T19:30:47Z,,rotate route
+crates/sverb-server/src/routes/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:30:47Z,,rotate route
+crates/sverb-server/src/admin/gc.rs,agent-M5-04,M5-04,locked,2026-10-08T19:30:47Z,,rotate route
+crates/sverb-server/src/cli.rs,agent-M5-04,M5-04,locked,2026-10-08T19:31:02Z,,gc output
+crates/sverb-server/src/routes/rotate.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-server/src/routes/mod.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-server/src/routes/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-server/src/admin/gc.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-server/src/cli.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-server/src/sync/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:31:32Z,,M5-04 rotation
+crates/sverb-sync/src/http/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:33:00Z,,client rotation
+crates/sverb-sync/src/http.rs,agent-M5-04,M5-04,locked,2026-10-08T19:33:00Z,,client rotation
+crates/sverb-sync/src/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:33:00Z,,client rotation
+crates/sverb-sync/src/lib.rs,agent-M5-04,M5-04,locked,2026-10-08T19:33:00Z,,client rotation
+crates/sverb-sync/src/account/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:33:14Z,,revoke+rotate; fields
+crates/sverb-sync/src/account/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:33:14Z,,fields pub(crate); docs
+crates/sverb-sync/src/engine.rs,agent-M5-04,M5-04,locked,2026-10-08T19:35:13Z,,rotation receive side
+crates/sverb-sync/src/status.rs,agent-M5-04,M5-04,locked,2026-10-08T19:35:13Z,,rotation receive side
+crates/sverb-sync/src/pull.rs,agent-M5-04,M5-04,locked,2026-10-08T19:35:13Z,,rotation receive side
+crates/sverb-sync/src/engine.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/status.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/pull.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/lib.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/http.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/src/http/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:36:24Z,,M5-04 rotation
+crates/sverb-sync/tests/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:36:27Z,,rotation tests
+crates/sverb-sync/tests/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:39:45Z,,T-01..T-08
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/app/sync.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/views/dialogs.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/views/dialogs/rotation.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/services/sync.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-04,M5-04,locked,2026-10-08T19:41:50Z,,rotation UI
+crates/sverb-tui/src/app/sync_tests.rs,agent-M5-04,M5-04,locked,2026-10-08T19:45:05Z,,rotation reducer tests
+crates/sverb-tui/src/app/sync_tests.rs,agent-M5-04,M5-04,modified,2026-10-08T19:45:05Z,,rotation reducer tests
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/app/sync.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/views/dialogs.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/views/dialogs/rotation.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/services/sync.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-04,M5-04,modified,2026-10-08T19:46:09Z,,M5-04 rotation UI
+crates/sverb-tui/src/services/sync.rs,agent-M5-04,M5-04,modified,2026-10-09T06:24:04Z,,M5-04 rotation UI; Flow variants boxed (clippy)
+crates/sverb-sync/src/rotation.rs,agent-M5-04,M5-04,modified,2026-10-09T06:24:04Z,,M5-04 rotation; tests module moved last (clippy)
+crates/sverb-proto/src/lib.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-proto/src/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-proto/src/sync.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/admin/gc.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/auth/store/mem.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/cli.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/routes/mod.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/routes/rotate.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/routes/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/sync/mem.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/sync/mod.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/sync/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/sync/shared.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-server/src/sync/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-sync/src/account/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-sync/src/engine.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:57Z,,orchestrator: complete
+crates/sverb-sync/src/http/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/src/http.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/src/lib.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/src/pull.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/src/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/src/status.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-sync/tests/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync_tests.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync_ui.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/app/sync/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/services/sync.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/services/sync/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/engine.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/shared.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/views/dialogs/rotation.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/views/dialogs.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+crates/sverb-tui/src/views/settings/vaults.rs,agent-M5-04,M5-04,released,2026-10-09T06:24:58Z,,orchestrator: complete
+Cargo.toml,agent-M7-05,M7-05,locked,2026-10-09T06:29:36Z,,unsafe_code forbid->deny; libc + windows-sys workspace deps; exclude fuzz
+Cargo.toml,agent-M7-05,M7-05,modified,2026-10-09T06:29:36Z,,unsafe_code forbid->deny; libc + windows-sys workspace deps; exclude fuzz
+scripts/check-unsafe.py,agent-M7-05,M7-05,locked,2026-10-09T06:29:36Z,,new: allow(unsafe_code) grep check
+scripts/check-unsafe.py,agent-M7-05,M7-05,modified,2026-10-09T06:29:36Z,,new: allow(unsafe_code) grep check
+crates/sverb-e2e/tests/forbid_unsafe.rs,agent-M7-05,M7-05,locked,2026-10-09T06:29:36Z,,deny instead of forbid; T-04 check-unsafe test
+crates/sverb-e2e/tests/forbid_unsafe.rs,agent-M7-05,M7-05,modified,2026-10-09T06:29:36Z,,deny instead of forbid; T-04 check-unsafe test
+crates/sverb-core/tests/compile_fail/unsafe_block.rs,agent-M7-05,M7-05,locked,2026-10-09T06:29:36Z,,doc: deny
+crates/sverb-core/tests/compile_fail/unsafe_block.rs,agent-M7-05,M7-05,modified,2026-10-09T06:29:36Z,,doc: deny
+README.md,agent-M7-05,M7-05,locked,2026-10-09T06:30:33Z,,unsafe_code deny note
+README.md,agent-M7-05,M7-05,modified,2026-10-09T06:30:33Z,,unsafe_code deny note
+crates/sverb-core/src/hardening/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:31:36Z,,M7-05 process hardening
+crates/sverb-core/src/hardening/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:31:36Z,,M7-05 process hardening
+crates/sverb-core/src/hardening/unix.rs,agent-M7-05,M7-05,locked,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/src/hardening/unix.rs,agent-M7-05,M7-05,modified,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/src/hardening/windows.rs,agent-M7-05,M7-05,locked,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/src/hardening/windows.rs,agent-M7-05,M7-05,modified,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/src/lib.rs,agent-M7-05,M7-05,locked,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/src/lib.rs,agent-M7-05,M7-05,modified,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/Cargo.toml,agent-M7-05,M7-05,locked,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/Cargo.toml,agent-M7-05,M7-05,modified,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/tests/hardening.rs,agent-M7-05,M7-05,locked,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-core/tests/hardening.rs,agent-M7-05,M7-05,modified,2026-10-09T06:31:37Z,,M7-05 process hardening
+crates/sverb-tui/src/services/vault/engine.rs,agent-M7-05,M7-05,locked,2026-10-09T06:34:19Z,,LMK/VK in mlocked pages (hardening::Locked)
+crates/sverb-tui/src/services/vault/engine.rs,agent-M7-05,M7-05,modified,2026-10-09T06:34:19Z,,LMK/VK in mlocked pages (hardening::Locked)
+crates/sverb/src/main.rs,agent-M7-05,M7-05,locked,2026-10-09T06:34:19Z,,harden_process at startup
+crates/sverb/src/main.rs,agent-M7-05,M7-05,modified,2026-10-09T06:34:19Z,,harden_process at startup
+crates/sverb/tests/hardening.rs,agent-M7-05,M7-05,locked,2026-10-09T06:35:05Z,,T-01 binary-level
+crates/sverb/tests/hardening.rs,agent-M7-05,M7-05,modified,2026-10-09T06:35:05Z,,T-01 binary-level
+crates/sverb-conn/src/agent/dacl_windows.rs,agent-M7-05,M7-05,locked,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/src/agent/dacl_windows.rs,agent-M7-05,M7-05,modified,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/src/agent/pipe_windows.rs,agent-M7-05,M7-05,locked,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/src/agent/pipe_windows.rs,agent-M7-05,M7-05,modified,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/src/agent/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/src/agent/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/Cargo.toml,agent-M7-05,M7-05,locked,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb-conn/Cargo.toml,agent-M7-05,M7-05,modified,2026-10-09T06:36:24Z,,M7-05 Windows agent pipe DACL
+crates/sverb/src/cli/agent.rs,agent-M7-05,M7-05,locked,2026-10-09T06:37:15Z,,doc: DACL done
+crates/sverb/src/cli/agent.rs,agent-M7-05,M7-05,modified,2026-10-09T06:37:15Z,,doc: DACL done
+crates/sverb-term/src/fuzz.rs,agent-M7-05,M7-05,locked,2026-10-09T06:37:57Z,,fuzz entry points
+crates/sverb-term/src/fuzz.rs,agent-M7-05,M7-05,modified,2026-10-09T06:37:57Z,,fuzz entry points
+crates/sverb-term/src/lib.rs,agent-M7-05,M7-05,locked,2026-10-09T06:37:57Z,,pub mod fuzz
+crates/sverb-term/src/lib.rs,agent-M7-05,M7-05,modified,2026-10-09T06:37:57Z,,pub mod fuzz
+crates/sverb-core/src/importers/backup.rs,agent-M7-05,M7-05,locked,2026-10-09T06:39:03Z,,fuzz_backup_decrypt entry point
+crates/sverb-core/src/importers/backup.rs,agent-M7-05,M7-05,modified,2026-10-09T06:39:04Z,,fuzz_backup_decrypt entry point
+crates/sverb-core/src/importers/tests.rs,agent-M7-05,M7-05,locked,2026-10-09T06:39:19Z,,backup_decrypt fuzz twin tests
+crates/sverb-core/src/importers/tests.rs,agent-M7-05,M7-05,modified,2026-10-09T06:39:19Z,,backup_decrypt fuzz twin tests
+crates/sverb-conn/src/proxy/http_connect.rs,agent-M7-05,M7-05,locked,2026-10-09T06:39:48Z,,fuzz_http_connect_response entry point
+crates/sverb-conn/src/proxy/http_connect.rs,agent-M7-05,M7-05,modified,2026-10-09T06:39:48Z,,fuzz_http_connect_response entry point
+fuzz/Cargo.toml,agent-M7-05,M7-05,locked,2026-10-09T06:41:26Z,,M7-05 fuzzing
+fuzz/Cargo.toml,agent-M7-05,M7-05,modified,2026-10-09T06:41:26Z,,M7-05 fuzzing
+fuzz/.gitignore,agent-M7-05,M7-05,locked,2026-10-09T06:41:26Z,,M7-05 fuzzing
+fuzz/.gitignore,agent-M7-05,M7-05,modified,2026-10-09T06:41:26Z,,M7-05 fuzzing
+fuzz/README.md,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/README.md,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/seed-corpus.sh,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/seed-corpus.sh,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/emulator_feed.rs,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/emulator_feed.rs,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/osc133_scan.rs,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/osc133_scan.rs,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/key_event_encode.rs,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/key_event_encode.rs,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/backup_decrypt.rs,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/backup_decrypt.rs,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/http_connect_response.rs,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+fuzz/fuzz_targets/http_connect_response.rs,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+.github/workflows/fuzz.yml,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+.github/workflows/fuzz.yml,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+.github/workflows/ci.yml,agent-M7-05,M7-05,locked,2026-10-09T06:41:27Z,,M7-05 fuzzing
+.github/workflows/ci.yml,agent-M7-05,M7-05,modified,2026-10-09T06:41:27Z,,M7-05 fuzzing
+scripts/canary-scan.sh,agent-M7-05,M7-05,locked,2026-10-09T06:44:25Z,,new: canary scan
+scripts/canary-scan.sh,agent-M7-05,M7-05,modified,2026-10-09T06:44:25Z,,new: canary scan
+crates/sverb/tests/canary.rs,agent-M7-05,M7-05,locked,2026-10-09T06:45:30Z,,canary fixture e2e test
+crates/sverb/tests/canary.rs,agent-M7-05,M7-05,modified,2026-10-09T06:45:30Z,,canary fixture e2e test
+crates/sverb-term/tests/security.rs,agent-M7-05,M7-05,locked,2026-10-09T06:48:08Z,,T-06 consolidated security tests
+crates/sverb-term/tests/security.rs,agent-M7-05,M7-05,modified,2026-10-09T06:48:08Z,,T-06 consolidated security tests
+crates/sverb-proto/src/auth.rs,agent-M7-05,M7-05,locked,2026-10-09T06:49:41Z,,redacting Debug for token fields (M7-05 audit)
+crates/sverb-proto/src/auth.rs,agent-M7-05,M7-05,modified,2026-10-09T06:49:41Z,,redacting Debug for token fields (M7-05 audit)
+crates/sverb-server/src/admin/invite.rs,agent-M7-05,M7-05,locked,2026-10-09T06:49:41Z,,redacting Debug for invite token
+crates/sverb-server/src/admin/invite.rs,agent-M7-05,M7-05,modified,2026-10-09T06:49:42Z,,redacting Debug for invite token
+crates/sverb-sync/src/trust.rs,agent-M7-05,M7-05,locked,2026-10-09T06:49:42Z,,redacting Debug for access token
+crates/sverb-sync/src/trust.rs,agent-M7-05,M7-05,modified,2026-10-09T06:49:42Z,,redacting Debug for access token
+CONTRIBUTING.md,agent-M7-05,M7-05,locked,2026-10-09T06:50:55Z,,canary conventions; unsafe; fuzzing
+CONTRIBUTING.md,agent-M7-05,M7-05,modified,2026-10-09T06:50:55Z,,canary conventions; unsafe; fuzzing
+docs/threat-model.md,agent-M7-05,M7-05,locked,2026-10-09T06:51:05Z,,full threat model (M7-05)
+docs/threat-model.md,agent-M7-05,M7-05,modified,2026-10-09T06:51:05Z,,full threat model (M7-05)
+crates/sverb-core/src/quick_connect.rs,agent-M7-05,M7-05,locked,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-core/src/quick_connect.rs,agent-M7-05,M7-05,modified,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-core/src/importers/ssh_config/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-core/src/importers/ssh_config/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-core/src/history/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-core/src/history/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:52:22Z,,rustdoc -D warnings fix
+crates/sverb-term/src/render.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-term/src/render.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-term/src/scheme/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-term/src/scheme/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-sync/src/account/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-sync/src/account/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/agent/confirm.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/agent/confirm.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/approval.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/approval.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-server/src/routes/vaults.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-server/src/routes/vaults.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/keychain/install.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/keychain/install.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/snippets.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/snippets.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:19Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/palette.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/palette.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/workspaces.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/workspaces.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/services/share.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/services/share.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/input/remote_io.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/input/remote_io.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/copy.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/copy.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/broadcast.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/broadcast.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/hosts.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/hosts.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/dialogs/agent_confirm.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/dialogs/agent_confirm.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/dialogs.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/dialogs.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/keychain/import_dialog.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/keychain/import_dialog.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/palette.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/views/palette.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/widgets/confirm.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/widgets/confirm.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:20Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/widgets/auth_prompt.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/widgets/auth_prompt.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb/src/cli/doctor.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb/src/cli/doctor.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb/src/cli/hosts.rs,agent-M7-05,M7-05,locked,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb/src/cli/hosts.rs,agent-M7-05,M7-05,modified,2026-10-09T06:53:21Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/ssh/auth_testing.rs,agent-M7-05,M7-05,locked,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/ssh/auth_testing.rs,agent-M7-05,M7-05,modified,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/remote.rs,agent-M7-05,M7-05,locked,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/remote.rs,agent-M7-05,M7-05,modified,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/socks_server.rs,agent-M7-05,M7-05,locked,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-conn/src/forward/socks_server.rs,agent-M7-05,M7-05,modified,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/local.rs,agent-M7-05,M7-05,locked,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/local.rs,agent-M7-05,M7-05,modified,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/auth.rs,agent-M7-05,M7-05,locked,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+crates/sverb-tui/src/app/auth.rs,agent-M7-05,M7-05,modified,2026-10-09T06:54:14Z,,rustdoc -D warnings fix
+fuzz/README.md,agent-M7-05,M7-05,released,2026-10-09T06:57:04Z,,not created (docs in CONTRIBUTING.md)
+crates/sverb-conn/src/agent/dacl_windows.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-conn/src/proxy/http_connect.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-conn/src/ssh/tests.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-conn/src/ssh/tests.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-core/src/hardening/unix.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-core/src/hardening/windows.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-core/src/model/host.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-core/src/model/host.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/envelope.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/envelope.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/fixtures.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/fixtures.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/kat.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/kat.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/primitives.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-crypto/tests/primitives.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-e2e/tests/forbid_unsafe.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-proto/src/auth.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-server/src/routes/vaults.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-server/tests/sync.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-server/tests/sync.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-sync/tests/common/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-sync/tests/common/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-term/tests/security.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb/tests/canary.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb/tests/hardening.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb/tests/vault.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb/tests/vault.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/app/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/app/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/import.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/import.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/known_hosts.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/known_hosts.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:36Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/services/vault/engine.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/testing.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/testing.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/first_run.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/first_run.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/hosts/tests.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/hosts/tests.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/lock_overlay.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/lock_overlay.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/unlock.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/src/views/unlock.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/groups.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/groups.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/identities.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/identities.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/vault.rs,agent-M7-05,M7-05,locked,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+crates/sverb-tui/tests/vault.rs,agent-M7-05,M7-05,modified,2026-10-09T07:04:37Z,,cargo fmt (workspace pass)
+Cargo.toml,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+CONTRIBUTING.md,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/Cargo.toml,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/agent/confirm.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/agent/dacl_windows.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/agent/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/agent/pipe_windows.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/forward/approval.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/forward/remote.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/forward/socks_server.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/proxy/http_connect.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/ssh/auth_testing.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-conn/src/ssh/tests.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/Cargo.toml,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/hardening/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/hardening/unix.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/hardening/windows.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/history/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/importers/backup.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/importers/ssh_config/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/importers/tests.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/lib.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/model/host.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/src/quick_connect.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/tests/compile_fail/unsafe_block.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-core/tests/hardening.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-crypto/tests/envelope.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-crypto/tests/fixtures.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-crypto/tests/kat.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-crypto/tests/primitives.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-e2e/tests/forbid_unsafe.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-proto/src/auth.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-server/src/admin/invite.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-server/src/routes/vaults.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb-server/tests/sync.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb/src/cli/agent.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:45Z,,orchestrator: complete
+crates/sverb/src/cli/doctor.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb/src/cli/hosts.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb/src/main.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-sync/src/account/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-sync/src/trust.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-sync/tests/common/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-term/src/fuzz.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-term/src/lib.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-term/src/render.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-term/src/scheme/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-term/tests/security.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb/tests/canary.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb/tests/hardening.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb/tests/vault.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/auth.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/broadcast.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/copy.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/hosts.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/input/remote_io.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/keychain/install.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/local.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/palette.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/snippets.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/app/workspaces.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/services/import.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/services/known_hosts.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/services/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/services/share.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/services/vault/engine.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/testing.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/dialogs/agent_confirm.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/dialogs.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/first_run.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/mod.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/hosts/tests.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/keychain/import_dialog.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/lock_overlay.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/palette.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/views/unlock.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/widgets/auth_prompt.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/src/widgets/confirm.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/tests/groups.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/tests/identities.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+crates/sverb-tui/tests/vault.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+docs/threat-model.md,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/Cargo.toml,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/fuzz_targets/backup_decrypt.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/fuzz_targets/emulator_feed.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/fuzz_targets/http_connect_response.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/fuzz_targets/key_event_encode.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/fuzz_targets/osc133_scan.rs,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/.gitignore,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+fuzz/seed-corpus.sh,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+.github/workflows/ci.yml,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+.github/workflows/fuzz.yml,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+README.md,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+scripts/canary-scan.sh,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+scripts/check-unsafe.py,agent-M7-05,M7-05,released,2026-10-09T07:21:46Z,,orchestrator: complete
+Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-conn/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-core/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-sync/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-tui/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-store/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+crates/sverb-server/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:27:15Z,,workspace dependency pins
+Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-conn/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-core/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-sync/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-tui/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-store/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+crates/sverb-server/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:28:23Z,,crate-local pins moved to workspace.dependencies (versions unchanged)
+fuzz/fuzz_targets/bundle_open.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/envelope_open.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/grant_open.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/known_hosts_parse.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/ppk_parse.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/share_frame_decode.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/socks5_request.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/ssh_config_parse.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:35Z,,stale fuzz comments
+fuzz/fuzz_targets/bundle_open.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/envelope_open.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/grant_open.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/known_hosts_parse.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/ppk_parse.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/share_frame_decode.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/socks5_request.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+fuzz/fuzz_targets/ssh_config_parse.rs,agent-M7-07,M7-07,modified,2026-10-09T07:28:35Z,,stale 'fuzz/Cargo.toml is created in M7-05' comments fixed
+crates/sverb-core/src/config/model.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:51Z,,ui.ascii and ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/default_config.toml,agent-M7-07,M7-07,locked,2026-10-09T07:28:51Z,,ui.ascii and ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/tests.rs,agent-M7-07,M7-07,locked,2026-10-09T07:28:51Z,,ui.ascii and ui.reduce_motion (spec additions)
+docs/config.schema.json,agent-M7-07,M7-07,locked,2026-10-09T07:28:51Z,,ui.ascii and ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/model.rs,agent-M7-07,M7-07,modified,2026-10-09T07:29:26Z,,ui.ascii + ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/default_config.toml,agent-M7-07,M7-07,modified,2026-10-09T07:29:26Z,,ui.ascii + ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/tests.rs,agent-M7-07,M7-07,modified,2026-10-09T07:29:26Z,,ui.ascii + ui.reduce_motion (spec additions)
+docs/config.schema.json,agent-M7-07,M7-07,modified,2026-10-09T07:29:26Z,,ui.ascii + ui.reduce_motion (spec additions)
+crates/sverb-core/src/config/schema.rs,agent-M7-07,M7-07,locked,2026-10-09T07:29:38Z,,docs/config.md generated from the schema
+docs/config.md,agent-M7-07,M7-07,locked,2026-10-09T07:29:38Z,,docs/config.md generated from the schema
+crates/sverb-core/src/config/schema.rs,agent-M7-07,M7-07,modified,2026-10-09T07:30:40Z,,docs/config.md generator + freshness test
+docs/config.md,agent-M7-07,M7-07,modified,2026-10-09T07:30:40Z,,docs/config.md generator + freshness test
+crates/sverb-tui/src/theme/mod.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/theme/glyphs.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/app/mod.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/app/shell.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/widgets/terminal_pane.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/app/a11y_tests.rs,agent-M7-07,M7-07,locked,2026-10-09T07:31:55Z,,accessibility: ascii glyphs + reduce_motion
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_broadcast_no_color_ascii.snap,agent-M7-07,M7-07,locked,2026-10-09T07:35:44Z,,T-06 snapshots
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_hosts_toasts_no_color_ascii.snap,agent-M7-07,M7-07,locked,2026-10-09T07:35:44Z,,T-06 snapshots
+crates/sverb-tui/src/theme/mod.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/theme/glyphs.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/app/mod.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/app/shell.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/widgets/terminal_pane.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/app/a11y_tests.rs,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_broadcast_no_color_ascii.snap,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_hosts_toasts_no_color_ascii.snap,agent-M7-07,M7-07,modified,2026-10-09T07:35:44Z,,M7-07 accessibility: ui.ascii fallback; reduce_motion; T-06 tests
+crates/sverb-tui/src/keymap/dump.rs,agent-M7-07,M7-07,locked,2026-10-09T07:36:13Z,,view keys (Hosts V/M/C/O; Settings Vaults) in keybindings docs
+docs/keybindings.md,agent-M7-07,M7-07,locked,2026-10-09T07:36:13Z,,view keys (Hosts V/M/C/O; Settings Vaults) in keybindings docs
+tasks/03-KEYBINDINGS.md,agent-M7-07,M7-07,locked,2026-10-09T07:36:13Z,,view keys (Hosts V/M/C/O; Settings Vaults) in keybindings docs
+crates/sverb-tui/src/keymap/dump.rs,agent-M7-07,M7-07,modified,2026-10-09T07:36:43Z,,view keys sections (Hosts V/M/C/O etc; Settings Vaults)
+docs/keybindings.md,agent-M7-07,M7-07,modified,2026-10-09T07:36:43Z,,view keys sections (Hosts V/M/C/O etc; Settings Vaults)
+tasks/03-KEYBINDINGS.md,agent-M7-07,M7-07,modified,2026-10-09T07:36:43Z,,view keys sections (Hosts V/M/C/O etc; Settings Vaults)
+crates/sverb/src/cli/generate.rs,agent-M7-07,M7-07,locked,2026-10-09T07:38:48Z,,man page + completions (hidden generate command)
+crates/sverb/src/cli/mod.rs,agent-M7-07,M7-07,locked,2026-10-09T07:38:48Z,,man page + completions (hidden generate command)
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_local.snap,agent-M7-07,M7-07,locked,2026-10-09T07:41:37Z,,man snapshots
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_sync.snap,agent-M7-07,M7-07,locked,2026-10-09T07:41:37Z,,man snapshots
+crates/sverb/src/cli/generate.rs,agent-M7-07,M7-07,modified,2026-10-09T07:41:37Z,,M7-07 hidden generate command (man page + completions) and T-05 snapshots
+crates/sverb/src/cli/mod.rs,agent-M7-07,M7-07,modified,2026-10-09T07:41:37Z,,M7-07 hidden generate command (man page + completions) and T-05 snapshots
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_local.snap,agent-M7-07,M7-07,modified,2026-10-09T07:41:37Z,,M7-07 hidden generate command (man page + completions) and T-05 snapshots
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_sync.snap,agent-M7-07,M7-07,modified,2026-10-09T07:41:37Z,,M7-07 hidden generate command (man page + completions) and T-05 snapshots
+crates/sverb-server/src/db.rs,agent-M7-07,M7-07,locked,2026-10-09T07:42:31Z,,move include_str sources into the crates (cargo package)
+crates/sverb-core/src/snippet/builtin/shell_integration.rs,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+migrations/server/0001_init.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-server/migrations/0001_init.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+migrations/server/0002_login_states.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-server/migrations/0002_login_states.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+migrations/server/0003_sync.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-server/migrations/0003_sync.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+migrations/server/0004_share.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-server/migrations/0004_share.sql,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+assets/shell-integration/bash,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-core/assets/shell-integration/bash,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+assets/shell-integration/zsh,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-core/assets/shell-integration/zsh,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+assets/shell-integration/fish,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-core/assets/shell-integration/fish,agent-M7-07,M7-07,locked,2026-10-09T07:42:32Z,,move include_str sources into the crates (cargo package)
+crates/sverb-server/src/db.rs,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-core/src/snippet/builtin/shell_integration.rs,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+migrations/server/0001_init.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-server/migrations/0001_init.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+migrations/server/0002_login_states.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-server/migrations/0002_login_states.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+migrations/server/0003_sync.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-server/migrations/0003_sync.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+migrations/server/0004_share.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-server/migrations/0004_share.sql,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+assets/shell-integration/bash,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-core/assets/shell-integration/bash,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+assets/shell-integration/zsh,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-core/assets/shell-integration/zsh,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+assets/shell-integration/fish,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb-core/assets/shell-integration/fish,agent-M7-07,M7-07,modified,2026-10-09T07:42:32Z,,moved into the crate (root path is now a symlink) so cargo package works
+crates/sverb/Cargo.toml,agent-M7-07,M7-07,locked,2026-10-09T07:42:46Z,,crates.io metadata
+crates/sverb/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:42:46Z,,crates.io metadata; internal dep versions; db.rs doc
+Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:42:46Z,,crates.io metadata; internal dep versions; db.rs doc
+crates/sverb-server/src/db.rs,agent-M7-07,M7-07,modified,2026-10-09T07:42:46Z,,crates.io metadata; internal dep versions; db.rs doc
+crates/sverb-conn/Cargo.toml,agent-M7-07,M7-07,modified,2026-10-09T07:43:24Z,,self dev-dep path-only for cargo publish
+scripts/release-package.sh,agent-M7-07,M7-07,locked,2026-10-09T07:43:49Z,,release automation + packaging
+scripts/update-packaging.py,agent-M7-07,M7-07,locked,2026-10-09T07:43:49Z,,release automation + packaging
+.github/workflows/cd.yml,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+.github/workflows/release-plz.yml,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+release-plz.toml,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/aur/sverb/PKGBUILD,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/aur/sverb-bin/PKGBUILD,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/homebrew/sverb.rb,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/scoop/sverb.json,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/README.md,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+flake.nix,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+deploy/Dockerfile.server,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+deploy/Dockerfile.server.release,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+.github/workflows/ci.yml,agent-M7-07,M7-07,locked,2026-10-09T07:43:50Z,,release automation + packaging
+packaging/aur/sverb/.SRCINFO,agent-M7-07,M7-07,locked,2026-10-09T07:46:42Z,,aur srcinfo
+packaging/aur/sverb-bin/.SRCINFO,agent-M7-07,M7-07,locked,2026-10-09T07:46:42Z,,aur srcinfo
+release-plz-changelog.toml,agent-M7-07,M7-07,locked,2026-10-09T07:50:08Z,,release-plz changelog config
+release-plz-changelog.toml,agent-M7-07,M7-07,released,2026-10-09T07:50:18Z,,not created (folded into release-plz.toml)
+scripts/release-package.sh,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+scripts/update-packaging.py,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+.github/workflows/cd.yml,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+.github/workflows/release-plz.yml,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+release-plz.toml,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/aur/sverb/PKGBUILD,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/aur/sverb-bin/PKGBUILD,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/aur/sverb/.SRCINFO,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/aur/sverb-bin/.SRCINFO,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/homebrew/sverb.rb,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/scoop/sverb.json,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+flake.nix,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+deploy/Dockerfile.server,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+deploy/Dockerfile.server.release,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+.github/workflows/ci.yml,agent-M7-07,M7-07,modified,2026-10-09T07:50:33Z,,M7-07 release automation and package channels
+packaging/README.md,agent-M7-07,M7-07,released,2026-10-09T07:50:40Z,,not created (docs/release.md instead)
+docs/data-model.md,agent-M7-07,M7-07,locked,2026-10-09T07:51:06Z,,docs: workspace encoding; backup format
+docs/data-model.md,agent-M7-07,M7-07,modified,2026-10-09T07:51:06Z,,workspace encoding + backup format sections
+crates/sverb-core/src/config/validate.rs,agent-M7-07,M7-07,locked,2026-10-09T07:51:42Z,,warn on not-yet-effective keys
+crates/sverb-core/src/config/validate.rs,agent-M7-07,M7-07,modified,2026-10-09T07:52:11Z,,warnings for ssh.read_ssh_config / terminal.bell (not implemented)
+crates/sverb-core/src/config/model.rs,agent-M7-07,M7-07,modified,2026-10-09T07:52:11Z,,warnings for ssh.read_ssh_config / terminal.bell (not implemented)
+crates/sverb-core/src/config/tests.rs,agent-M7-07,M7-07,modified,2026-10-09T07:52:11Z,,warnings for ssh.read_ssh_config / terminal.bell (not implemented)
+docs/config.schema.json,agent-M7-07,M7-07,modified,2026-10-09T07:52:11Z,,warnings for ssh.read_ssh_config / terminal.bell (not implemented)
+docs/config.md,agent-M7-07,M7-07,modified,2026-10-09T07:52:11Z,,warnings for ssh.read_ssh_config / terminal.bell (not implemented)
+crates/sverb/src/cli/tests.rs,agent-M7-07,M7-07,locked,2026-10-09T07:52:42Z,,help snapshots + stub coverage for generate
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-07,M7-07,locked,2026-10-09T07:52:42Z,,help snapshots + stub coverage for generate
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-07,M7-07,locked,2026-10-09T07:52:42Z,,help snapshots + stub coverage for generate
+crates/sverb/src/cli/tests.rs,agent-M7-07,M7-07,modified,2026-10-09T07:53:11Z,,help snapshots (new description + hidden generate); stub coverage
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-07,M7-07,modified,2026-10-09T07:53:11Z,,help snapshots (new description + hidden generate); stub coverage
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-07,M7-07,modified,2026-10-09T07:53:11Z,,help snapshots (new description + hidden generate); stub coverage
+crates/sverb/src/cli/generate.rs,agent-M7-07,M7-07,modified,2026-10-09T07:53:11Z,,help snapshots (new description + hidden generate); stub coverage
+SPEC.md,agent-M7-07,M7-07,locked,2026-10-09T07:53:28Z,,record decisions and spec additions before 1.0
+SPEC.md,agent-M7-07,M7-07,modified,2026-10-09T07:54:56Z,,decisions log; §22 resolved; §10.4 endpoints/close codes; §13.2 rotation; §15/§16/§17/§20; Appendix B
+README.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+docs/faq.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+docs/accessibility.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+docs/release.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+CHANGELOG.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+docs/self-hosting.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+CONTRIBUTING.md,agent-M7-07,M7-07,locked,2026-10-09T07:55:14Z,,1.0 docs
+README.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+docs/faq.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+docs/accessibility.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+docs/release.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+CHANGELOG.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+docs/self-hosting.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+CONTRIBUTING.md,agent-M7-07,M7-07,modified,2026-10-09T07:58:23Z,,1.0 docs: README rewrite; FAQ; accessibility; release guide; CHANGELOG; published image
+assets/shell-integration/bash,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+assets/shell-integration/fish,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+assets/shell-integration/zsh,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+CHANGELOG.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+CONTRIBUTING.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-conn/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/assets/shell-integration/bash,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/assets/shell-integration/fish,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/assets/shell-integration/zsh,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/config/default_config.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/config/model.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/config/schema.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/config/tests.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/config/validate.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-core/src/snippet/builtin/shell_integration.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/migrations/0001_init.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/migrations/0002_login_states.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/migrations/0003_sync.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/migrations/0004_share.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-server/src/db.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/generate.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/mod.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/help@local.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/help@sync.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_local.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/snapshots/sverb__cli__generate__tests__man_sync.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb/src/cli/tests.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-store/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-sync/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/Cargo.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/app/a11y_tests.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/app/mod.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/app/shell.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_broadcast_no_color_ascii.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/app/snapshots/sverb_tui__app__a11y_tests__t06_hosts_toasts_no_color_ascii.snap,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/keymap/dump.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/runtime/capabilities.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/runtime/mod.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/theme/glyphs.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/theme/mod.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-tui/src/widgets/terminal_pane.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+deploy/Dockerfile.server,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+deploy/Dockerfile.server.release,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/accessibility.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/config.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/config.schema.json,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/data-model.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/faq.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/keybindings.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/release.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+docs/self-hosting.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+flake.nix,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/bundle_open.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/envelope_open.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/grant_open.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/known_hosts_parse.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/ppk_parse.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/share_frame_decode.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/socks5_request.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+fuzz/fuzz_targets/ssh_config_parse.rs,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+.github/workflows/cd.yml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+.github/workflows/ci.yml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+.github/workflows/release-plz.yml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+migrations/server/0001_init.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+migrations/server/0002_login_states.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+migrations/server/0003_sync.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+migrations/server/0004_share.sql,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/aur/sverb-bin/PKGBUILD,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/aur/sverb-bin/.SRCINFO,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/aur/sverb/PKGBUILD,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/aur/sverb/.SRCINFO,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/homebrew/sverb.rb,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+packaging/scoop/sverb.json,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+README.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+release-plz.toml,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+scripts/release-package.sh,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+scripts/update-packaging.py,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+SPEC.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+tasks/03-KEYBINDINGS.md,agent-M7-07,M7-07,released,2026-10-09T08:09:02Z,,orchestrator: complete
+crates/sverb-term/src/render.rs,orchestrator,FIX-TAB,locked,2026-10-09T08:27:51Z,,control chars in rendered cells
+crates/sverb-term/src/fuzz.rs,orchestrator,FIX-TAB,locked,2026-10-09T08:27:51Z,,control chars in rendered cells
+crates/sverb-term/tests/render_controls.rs,orchestrator,FIX-TAB,locked,2026-10-09T08:27:51Z,,control chars in rendered cells
+crates/sverb-tui/src/app/copy_tests.rs,orchestrator,FIX-TAB,locked,2026-10-09T08:30:19Z,,tab regression test
+crates/sverb-term/src/fuzz.rs,orchestrator,FIX-TAB,released,2026-10-09T08:33:18Z,,tab crash fix + tests
+crates/sverb-term/src/render.rs,orchestrator,FIX-TAB,released,2026-10-09T08:33:18Z,,tab crash fix + tests
+crates/sverb-term/tests/render_controls.rs,orchestrator,FIX-TAB,released,2026-10-09T08:33:18Z,,tab crash fix + tests
+crates/sverb-tui/src/app/copy_tests.rs,orchestrator,FIX-TAB,released,2026-10-09T08:33:18Z,,tab crash fix + tests
+crates/sverb-tui/src/app/hosts_tests.rs,orchestrator,FIX-SIZE,locked,2026-10-09T08:37:20Z,,pty size probe/test
+crates/sverb-tui/src/app/hosts_tests.rs,orchestrator,FIX-SIZE,released,2026-10-09T08:38:29Z,,probe removed
+crates/sverb-tui/src/runtime/mod.rs,orchestrator,FIX-SIZE,locked,2026-10-09T08:40:44Z,,initial terminal size
+crates/sverb-tui/src/runtime/tests.rs,orchestrator,FIX-SIZE,locked,2026-10-09T08:40:44Z,,initial terminal size
+crates/sverb-tui/src/runtime/mod.rs,orchestrator,FIX-SIZE,released,2026-10-09T08:43:48Z,,initial terminal size fix + tests
+crates/sverb-tui/src/runtime/tests.rs,orchestrator,FIX-SIZE,released,2026-10-09T08:43:48Z,,initial terminal size fix + tests
+crates/sverb-tui/src/shell_tests.rs,orchestrator,FIX-FOCUS,locked,2026-10-09T08:49:41Z,,sidebar focus probe/tests
+crates/sverb-tui/src/shell_tests.rs,orchestrator,FIX-FOCUS,released,2026-10-09T08:50:29Z,,probe removed
+crates/sverb-tui/src/runtime/tests.rs,orchestrator,FIX-FOCUS,locked,2026-10-09T08:50:29Z,,sidebar focus regression test
+crates/sverb-tui/src/runtime/tests.rs,orchestrator,FIX-FOCUS,released,2026-10-09T08:51:09Z,,done

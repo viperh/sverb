@@ -62,6 +62,11 @@ pub enum ItemError {
     Invalid(Vec<ValidationError>),
     /// Storage or crypto failure.
     Storage(String),
+    // M5-02
+    /// The vault grants this account only `read` (§13.2).
+    ReadOnlyVault,
+    /// A move / copy would leave references outside the shared target (§13.4).
+    Blocked(Vec<String>),
 }
 
 impl std::fmt::Display for ItemError {
@@ -78,6 +83,13 @@ impl std::fmt::Display for ItemError {
                 f.write_str(&all.join("; "))
             }
             Self::Storage(msg) => f.write_str(msg),
+            // M5-02
+            Self::ReadOnlyVault => f.write_str("this shared vault is read-only for you"),
+            Self::Blocked(refs) => write!(
+                f,
+                "items in a shared vault can only reference items of that vault: {}",
+                refs.join(", ")
+            ),
         }
     }
 }
@@ -152,6 +164,9 @@ pub struct ItemOps {
     engine: VaultEngine,
     vault: Arc<UnlockedVault>,
     clock: SharedClock,
+    // M5-02
+    /// Where new hosts go (the vault selector; `None`: Personal).
+    new_vault: Option<VaultId>,
 }
 
 /// Validate a body of `kind` (the self-contained rules of its typed view).
@@ -173,6 +188,7 @@ impl ItemOps {
             engine,
             vault,
             clock,
+            new_vault: None,
         }
     }
 
@@ -182,6 +198,7 @@ impl ItemOps {
             engine,
             vault,
             clock,
+            new_vault: None,
         }
     }
 
@@ -305,9 +322,205 @@ impl ItemOps {
             .with(|clock| edit(&mut body, clock, device))
             .map_err(ItemError::Invalid)?;
         validate(&body)?;
+        // M5-02: read-only vaults and the §13.4 reference rule of shared vaults.
+        self.check_shared_vault(vault, &body).await?;
         let written = self.store(id, vault, body).await?;
         self.approve_typed(id, before.as_ref(), &written.body).await;
         Ok(written)
+    }
+
+    // M5-02
+    /// New hosts go to `vault` (the vault selector; `None`: Personal).
+    #[must_use]
+    pub fn with_new_vault(mut self, vault: Option<VaultId>) -> Self {
+        self.new_vault = vault.filter(|v| self.vault.vault_kind(*v).is_some());
+        self
+    }
+
+    // M5-02
+    /// "Move to vault…" / "Copy to vault…" (§13.1): new ids in `target`, sealed
+    /// under its key; a move tombstones the sources. References that would leave a
+    /// shared target follow `refs` ([`ItemError::Blocked`] lists them for
+    /// `RefPolicy::Block`). Returns every write.
+    ///
+    /// # Errors
+    /// [`ItemError::Blocked`], [`ItemError::ReadOnlyVault`], [`ItemError::NotFound`],
+    /// storage failures.
+    pub async fn transfer(
+        &self,
+        items: &[ItemId],
+        target: VaultId,
+        copy: bool,
+        refs: sverb_core::model::vault_refs::RefPolicy,
+    ) -> Result<Vec<Written>, ItemError> {
+        use sverb_core::model::vault_refs::{
+            TransferError, TransferMode, VaultScope, plan_transfer,
+        };
+        let all = self.list(&[]).await?;
+        let by_id: std::collections::BTreeMap<ItemId, (VaultId, &ItemBody)> =
+            all.iter().map(|l| (l.id, (l.vault, &l.body))).collect();
+        let scope = match self.vault.vault_kind(target) {
+            Some(sverb_store::VaultKind::Shared) => VaultScope::Shared,
+            Some(sverb_store::VaultKind::Personal) => VaultScope::Personal,
+            None => return Err(ItemError::Locked),
+        };
+        let mode = if copy {
+            TransferMode::Copy
+        } else {
+            TransferMode::Move
+        };
+        let device = self.vault.device_id();
+        let plan = self
+            .clock
+            .with(|clock| {
+                plan_transfer(
+                    items,
+                    target,
+                    scope,
+                    mode,
+                    refs,
+                    |id| by_id.get(&id).copied(),
+                    ItemId::new,
+                    clock,
+                    device,
+                )
+            })
+            .map_err(|e| match e {
+                TransferError::Blocked(bad) => ItemError::Blocked(
+                    bad.iter()
+                        .map(|b| {
+                            let label = by_id
+                                .get(&b.target)
+                                .and_then(|(_, body)| {
+                                    body.get("label").or_else(|| body.get("name"))
+                                })
+                                .and_then(|v| v.as_text())
+                                .map_or_else(|| b.target.short(), ToOwned::to_owned);
+                            let kind = by_id
+                                .get(&b.target)
+                                .map_or("item", |(_, body)| body.kind.as_str());
+                            format!("{kind} “{label}”")
+                        })
+                        .collect(),
+                ),
+                TransferError::Unknown(_) => ItemError::NotFound,
+                TransferError::SameVault => {
+                    ItemError::Invalid(vec![ValidationError::new("vault", "already in that vault")])
+                }
+            })?;
+        for (_, body) in &plan.writes {
+            self.check_shared_vault(target, body).await?;
+        }
+        for (_, vault, _) in &plan.tombstones {
+            if self.vault.vault_kind(*vault) == Some(sverb_store::VaultKind::Shared) {
+                let key = format!(
+                    "{}{}",
+                    super::shared::META_VAULT_PERMISSION_PREFIX,
+                    vault.uuid()
+                );
+                if self.engine.store().get_meta(&key).await?.as_deref() == Some(b"read".as_slice())
+                {
+                    return Err(ItemError::ReadOnlyVault);
+                }
+            }
+        }
+        let mut out = Vec::new();
+        for (id, body) in plan.writes {
+            out.push(self.store(id, target, body).await?);
+        }
+        for (id, vault, body) in plan.tombstones {
+            out.push(self.store(id, vault, body).await?);
+        }
+        Ok(out)
+    }
+
+    // M5-02
+    /// "Use my own credentials…" (§13.4): the personal-vault override of
+    /// `host` uses `identity`; `None` removes the override.
+    ///
+    /// # Errors
+    /// [`ItemError::Locked`], storage failures.
+    pub async fn set_override(
+        &self,
+        host: ItemId,
+        identity: Option<ItemId>,
+    ) -> Result<Vec<Written>, ItemError> {
+        use sverb_core::model::CredentialOverride;
+        let personal = self.vault.personal_vault().ok_or(ItemError::Locked)?;
+        let existing: Vec<ItemId> = self
+            .list(&[ItemKind::CredentialOverride])
+            .await?
+            .into_iter()
+            .filter(|l| l.vault == personal)
+            .filter(|l| {
+                CredentialOverride::try_from(&l.body).is_ok_and(|o| o.shared_host_id == host)
+            })
+            .map(|l| l.id)
+            .collect();
+        let mut out = Vec::new();
+        let Some(identity) = identity else {
+            for id in existing {
+                out.push(self.delete(id).await?);
+            }
+            return Ok(out);
+        };
+        let (keep, extra) = match existing.split_first() {
+            Some((k, rest)) => (Some(*k), rest.to_vec()),
+            None => (None, Vec::new()),
+        };
+        out.push(
+            self.save(
+                ItemKind::CredentialOverride,
+                keep,
+                Some(personal),
+                move |body, clock, device| {
+                    let mut o = CredentialOverride::try_from(&*body)
+                        .unwrap_or_else(|_| CredentialOverride::new(host));
+                    o.shared_host_id = host;
+                    o.identity_id = Some(identity);
+                    o.apply_to(body, clock, device);
+                    Ok(())
+                },
+            )
+            .await?,
+        );
+        for id in extra {
+            out.push(self.delete(id).await?);
+        }
+        Ok(out)
+    }
+
+    // M5-02
+    /// A shared vault: refused when this account may only read it (§13.2), and
+    /// every reference must stay inside the vault (§13.4).
+    ///
+    /// # Errors
+    /// [`ItemError::ReadOnly`], [`ItemError::Invalid`].
+    async fn check_shared_vault(&self, vault: VaultId, body: &ItemBody) -> Result<(), ItemError> {
+        use sverb_core::model::vault_refs::{VaultScope, item_refs, validate_vault_refs};
+        if self.vault.vault_kind(vault) != Some(sverb_store::VaultKind::Shared) {
+            return Ok(());
+        }
+        let key = format!(
+            "{}{}",
+            super::shared::META_VAULT_PERMISSION_PREFIX,
+            vault.uuid()
+        );
+        if self.engine.store().get_meta(&key).await?.as_deref() == Some(b"read".as_slice()) {
+            return Err(ItemError::ReadOnlyVault);
+        }
+        let mut vaults = std::collections::BTreeMap::new();
+        for (_, r) in item_refs(body) {
+            if let Some(row) = self.engine.store().get_item(r).await?
+                && !row.deleted
+            {
+                vaults.insert(r, row.vault_id);
+            }
+        }
+        validate_vault_refs(vault, VaultScope::Shared, body, |id| {
+            vaults.get(&id).copied()
+        })
+        .map_err(ItemError::Invalid)
     }
 
     // M2-10
@@ -527,8 +740,13 @@ impl ItemOps {
     ) -> Result<Written, ItemError> {
         // M2-02: identities are referenced only within their vault (§13.4).
         let identity_vaults = self.identity_vaults().await?;
-        let host_vault = self.vault_of(id).await?;
-        self.save(ItemKind::Host, id, None, move |body, clock, device| {
+        // M5-02: a new host goes to the selected vault (§4.13).
+        let new_vault = if id.is_none() { self.new_vault } else { None };
+        let host_vault = match new_vault {
+            Some(v) => v,
+            None => self.vault_of(id).await?,
+        };
+        self.save(ItemKind::Host, id, new_vault, move |body, clock, device| {
             let mut host = Host::try_from(&*body)
                 .map_err(|e| vec![ValidationError::new("item", e.to_string())])?;
             apply_changes(&mut host, &changes)?;
@@ -933,6 +1151,20 @@ impl ItemOps {
             cat.vault_names
                 .insert(v.id, vault_display_name(v.id, v.kind));
         }
+        // M5-02: shared vault names, read-only vaults, this user's overrides.
+        let info = super::shared::vault_info(self.engine.store(), &self.vault).await;
+        cat.vault_names.extend(info.names);
+        cat.shared_vaults = info.shared;
+        cat.read_only_vaults = info.read_only;
+        for layer in super::shared::overrides(&items, cat.personal_vault) {
+            let keep = cat
+                .overrides
+                .get(&layer.host)
+                .is_none_or(|cur| layer.item < cur.item);
+            if keep {
+                cat.overrides.insert(layer.host, layer);
+            }
+        }
         for item in &items {
             let b = &item.body;
             cat.lookup.mark_live(item.id);
@@ -970,6 +1202,8 @@ impl ItemOps {
                 }
                 ItemKind::Identity => {
                     if let Ok(i) = Identity::try_from(b) {
+                        // M5-02
+                        cat.identity_vaults.insert(item.id, item.vault);
                         cat.lookup.insert_identity(item.id, &i);
                         cat.identities.insert(
                             item.id,
@@ -1056,6 +1290,11 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
     let op = match op {
         ItemEffect::Keychain(crate::app::keychain::keys::KeychainEffect::Install(op)) => {
             install::execute(service, op, tx);
+            return;
+        }
+        // M5-02: the vault selector.
+        ItemEffect::SetNewItemVault(v) => {
+            service.set_new_item_vault(v);
             return;
         }
         op => op,
@@ -1220,6 +1459,58 @@ pub fn execute(service: &VaultService, op: ItemEffect, tx: &EventSender) {
             ItemEffect::Keychain(op) => {
                 let ev = keychain::run(&ops, op, index).await;
                 let _ = tx.send(UiEvent::Vault(VaultEvent::Keychain(ev))).await;
+            }
+            // M5-02
+            ItemEffect::SetNewItemVault(_) => {}
+            ItemEffect::Transfer {
+                items,
+                target,
+                copy,
+                refs,
+            } => {
+                use crate::app::hosts::SharedVaultEvent;
+                let ev = match ops.transfer(&items, target, copy, refs).await {
+                    Ok(ws) => {
+                        ws.iter().for_each(index);
+                        let n = items.len();
+                        let what = if n == 1 {
+                            "1 host".to_owned()
+                        } else {
+                            format!("{n} hosts")
+                        };
+                        SharedVaultEvent::Done(if copy {
+                            format!("Copied {what}")
+                        } else {
+                            format!("Moved {what}")
+                        })
+                    }
+                    Err(ItemError::Blocked(refs)) => SharedVaultEvent::TransferBlocked {
+                        items,
+                        target,
+                        copy,
+                        refs,
+                    },
+                    Err(e) => {
+                        let what = if copy { "Copy failed" } else { "Move failed" };
+                        return report_error(&tx, what, &e).await;
+                    }
+                };
+                let _ = tx.send(UiEvent::Vault(VaultEvent::Shared(ev))).await;
+            }
+            ItemEffect::SetOverride { host, identity } => {
+                match ops.set_override(host, identity).await {
+                    Ok(ws) => {
+                        ws.iter().for_each(index);
+                        let msg = if identity.is_some() {
+                            "Your own credentials are used for this host"
+                        } else {
+                            "Override removed: the shared credentials are used"
+                        };
+                        let ev = crate::app::hosts::SharedVaultEvent::Done(msg.to_owned());
+                        let _ = tx.send(UiEvent::Vault(VaultEvent::Shared(ev))).await;
+                    }
+                    Err(e) => report_error(&tx, "Saving the override failed", &e).await,
+                }
             }
         }
     });

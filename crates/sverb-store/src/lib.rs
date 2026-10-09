@@ -22,6 +22,8 @@ pub mod clock;
 pub mod db;
 pub mod device_local;
 pub mod error;
+// M7-04: read-only health check for `sverb doctor`.
+pub mod health;
 pub mod index;
 pub mod items;
 pub mod meta;

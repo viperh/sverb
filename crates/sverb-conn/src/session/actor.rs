@@ -26,6 +26,10 @@
 //!   also handed to the recording tap (a `try_send` that never blocks; see
 //!   `sverb_term::recording::tap`), as are resizes and, when the tap records input,
 //!   the bytes written for keys, input and pastes.
+//! - M6-03: with a share tap attached ([`SessionCmd::AttachShareTap`]), every chunk
+//!   fed to the emulator and every resize is reported to it **while the emulator is
+//!   locked** (see [`super::share_tap`]); the tap is told `ended` and detached when the
+//!   connection ends.
 //! - M3-06: every connection attempt is reported to the [`ConnLogSink`] (start, then
 //!   end with the outcome, the session channel's byte counts and the last error).
 //!
@@ -144,6 +148,9 @@ pub(crate) struct Actor {
     pub(crate) forwards: Option<Arc<dyn crate::forward::ForwardHook>>,
     /// Standalone tunnel: connect without a shell channel.
     pub(crate) tunnel_only: bool,
+    // M6-03
+    /// The share tap, while the session is shared.
+    pub(crate) share_tap: Option<super::share_tap::ShareTap>,
 }
 
 // M3-06
@@ -172,6 +179,8 @@ impl Actor {
                     stats.connected = true;
                 }
                 let ended = self.connected(transport).await;
+                // M6-03: a share ends with the connection.
+                self.end_share_tap();
                 self.end_attempt();
                 if let Ended::Closed = ended {
                     return;
@@ -418,6 +427,10 @@ impl Actor {
             let (responses, events) = {
                 let mut term = self.term.lock();
                 term.feed(chunk);
+                // M6-03: under the lock, so a share snapshot sees a consistent cut.
+                if let Some(tap) = &self.share_tap {
+                    tap.0.output(chunk);
+                }
                 (term.take_responses(), term.take_events())
             };
             for response in responses {
@@ -475,6 +488,32 @@ impl Actor {
         self.recorder = tap;
     }
 
+    // M6-03
+    /// Attach (reporting the current size, under the emulator lock) or detach the share
+    /// tap. A replaced tap is told `ended`.
+    fn set_share_tap(&mut self, tap: Option<super::share_tap::ShareTap>) {
+        if let Some(old) = self.share_tap.take()
+            && tap.is_some()
+        {
+            old.0.ended();
+        }
+        if let Some(tap) = &tap {
+            let term = self.term.lock();
+            let (cols, rows) = term.size();
+            tap.0.resize(cols, rows);
+        }
+        debug!(session = %self.id, shared = tap.is_some(), "share tap changed");
+        self.share_tap = tap;
+    }
+
+    // M6-03
+    /// The connection ended: tell the share tap and detach it.
+    fn end_share_tap(&mut self) {
+        if let Some(tap) = self.share_tap.take() {
+            tap.0.ended();
+        }
+    }
+
     async fn handle_cmd(&mut self, transport: &mut dyn Transport, cmd: SessionCmd) -> Flow {
         match cmd {
             SessionCmd::Input(bytes) => {
@@ -495,6 +534,11 @@ impl Actor {
                     if cols > 0 && rows > 0 && px_w > 0 && px_h > 0 {
                         term.set_pixel_size(px_w / cols, px_h / rows);
                     }
+                    // M6-03
+                    if let Some(tap) = &self.share_tap {
+                        let (c, r) = term.size();
+                        tap.0.resize(c, r);
+                    }
                 }
                 // M3-05
                 if let Some(tap) = &self.recorder {
@@ -514,6 +558,9 @@ impl Actor {
             }
             SessionCmd::StopRecording => self.set_recorder(None),
             SessionCmd::AttachRecorder(tap) => self.set_recorder(Some(tap)),
+            // M6-03
+            SessionCmd::AttachShareTap(tap) => self.set_share_tap(Some(tap)),
+            SessionCmd::DetachShareTap => self.set_share_tap(None),
             SessionCmd::HostKeyDecision(_) | SessionCmd::AuthAnswer(_) => {
                 debug!(session = %self.id, "prompt answer ignored: not connecting");
             }
@@ -618,6 +665,8 @@ impl Actor {
                 // M3-05: recording can be toggled while disconnected.
                 Some(SessionCmd::AttachRecorder(tap)) => self.set_recorder(Some(tap)),
                 Some(SessionCmd::StopRecording) => self.set_recorder(None),
+                // M6-03: a disconnected session can't be shared.
+                Some(SessionCmd::AttachShareTap(tap)) => tap.0.ended(),
                 Some(other) => {
                     debug!(session = %self.id, cmd = other.name(), "command ignored while disconnected");
                 }

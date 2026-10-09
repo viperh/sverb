@@ -7,8 +7,8 @@
 
 | | |
 |---|---|
-| Status | Draft v0.3 |
-| Date | 2026-10-07 |
+| Status | v0.4, 1.0 release candidate (the decisions and spec additions made during implementation are recorded below and in Appendix B) |
+| Date | 2026-10-09 |
 | License | MIT (all crates, client and server) |
 | Language | Rust (edition 2024) |
 | Client UI | ratatui + crossterm |
@@ -26,6 +26,17 @@
 | 2026-10-07 | **SSH only.** Every remote shell and command goes through `russh`. Mosh, Telnet and Serial are out of scope. |
 | 2026-10-07 | **No file transfer.** sverb has no SFTP, SCP or file manager. |
 | 2026-10-07 | **Default leader is `Ctrl-\`.** `Ctrl-g` conflicts with Emacs `keyboard-quit` and readline abort, and `Ctrl-b`/`Ctrl-a` with remote tmux/screen. A pass-through guarantee is added to §8.2, and the §8.3 key collisions (`h`, `l`, `L`) are resolved. See `tasks/03-KEYBINDINGS.md`. |
+| 2026-10-07 | **The client binary stays at `crates/sverb/`** (not `bin/sverb/`): the `crates/*` workspace glob picks it up and `cargo install sverb` is unaffected (§3). |
+| 2026-10-08 | **No AI assistant.** §9.11 is removed; there are no `ai.*` config keys and no `leader a` binding. |
+| 2026-10-08 | **Field-level LWW for lists (§22 Q1).** `tags`, `env`, `jump_chain`, `broadcast_groups` and every other list field are whole-value LWW registers in v1 (§12.4). No OR-sets: concurrent tag edits on two devices keep the later list. Revisit after 1.0 if users lose tag edits in practice. |
+| 2026-10-08 | **Shared-vault grants pin unseen keys (M5-02).** Granting access to a member whose key was never seen pins it (TOFU, §13.3); only a key that **changed** since it was pinned is refused until it is verified. |
+| 2026-10-08 | **Rotation never drops a member silently (M5-04, §13.2).** A remaining member whose key changed, or whose key can't be fetched or verified, blocks the rotation commit. The rotation stays open (pushes stay paused) until the key is accepted in Settings → Team and the rotation is resumed, or it is abandoned after 15 minutes. Org admins that never held a grant are optional and are skipped. |
+| 2026-10-09 | **`unsafe_code = "deny"`, not `forbid` (§17).** `forbid` can't be lifted by an inner `allow`, and two documented modules need one: process hardening (`sverb-core/src/hardening/`: `prctl`, `setrlimit`, `mlock`, and the Windows equivalents) and the Windows agent pipe DACL (`sverb-conn/src/agent/dacl_windows.rs`). `scripts/check-unsafe.py` fails CI if `allow(unsafe_code)` appears anywhere else. |
+| 2026-10-09 | **`read_ssh_config` live mode is post-1.0 (§22 Q2).** The parser is reusable (`sverb_core::importers::ssh_config`), but 1.0 only imports (`sverb import ssh-config`, Hosts → `I`). The key `ssh.read_ssh_config` is accepted and warns that it has no effect yet. |
+| 2026-10-09 | **No web share viewer in 1.0 (§22 Q3).** Viewers join with `sverb join <link>`; a browser viewer is post-1.0. The share protocol (§14.2) needs no change for it. |
+| 2026-10-09 | **Emulator: `alacritty_terminal` stays (§22 Q4).** 0.26 behind the `sverb-term` wrapper, so a switch touches one crate. Known workaround: split UTF-8 sequences across reads are re-joined before `vte` 0.15. Re-evaluate at each alacritty_terminal release; `wezterm-term` or vendoring remain the fallbacks. |
+| 2026-10-09 | **Accessibility (§8.8).** `ui.ascii` (ASCII glyph fallback) and `ui.reduce_motion` (static spinners) are added; every status indicator has a text label, so monochrome is complete. |
+| 2026-10-09 | **Packaging (§20).** Releases are cut by release-plz; one tag `vX.Y.Z` produces static musl Linux, universal macOS and Windows archives (with man page and completions), static server archives, a multi-arch distroless image, `SHA256SUMS` and an SBOM, and updates the AUR, Homebrew, Scoop and Nix channels. All library crates are published with the `sverb-` prefix so `cargo install sverb` works. |
 
 ---
 
@@ -54,6 +65,7 @@
 21. [Milestones](#21-milestones)
 22. [Open questions](#22-open-questions)
 23. [Appendix: dependency shortlist](#appendix-a-dependency-shortlist)
+24. [Appendix: spec additions made during implementation](#appendix-b-spec-additions-made-during-implementation)
 
 ---
 
@@ -223,18 +235,31 @@ sverb/
 │   ├── sverb-e2e/             # docker-based openssh integration tests (publish = false)
 │   └── sverb/                 # client binary (clap CLI → TUI or subcommands)
 ├── migrations/
-│   ├── client/                # SQLite migrations
-│   └── server/                # PostgreSQL migrations (sqlx)
+│   ├── client/                # SQLite migrations (links into crates/sverb-store/migrations/)
+│   └── server/                # PostgreSQL migrations (links into crates/sverb-server/migrations/)
+├── assets/shell-integration/  # OSC 133 snippets (links into crates/sverb-core/assets/)
 ├── deploy/
 │   ├── docker-compose.yml
-│   └── Dockerfile.server
+│   ├── Dockerfile.server          # image built from source
+│   └── Dockerfile.server.release  # published image, from the release binaries
+├── packaging/                 # AUR (sverb, sverb-bin), Homebrew formula, Scoop manifest
+├── flake.nix                  # Nix packages sverb, sverb-server and a dev shell
+├── release-plz.toml           # release automation (§20)
+├── CHANGELOG.md
+├── fuzz/                      # cargo-fuzz targets (own workspace, nightly)
+├── scripts/                   # CI helpers: layering, unsafe, canary scan, bench gate, release
 ├── tests/
 │   └── fixtures/              # sample ssh configs, keys, known_hosts
 └── docs/
-    ├── keybindings.md
+    ├── keybindings.md         # generated from the keymap registry
+    ├── config.md              # generated from the config schema
     ├── threat-model.md
-    └── self-hosting.md
+    ├── self-hosting.md
+    └── …                      # architecture, data model, CLI JSON, themes, FAQ, accessibility
 ```
+
+Files that crates embed with `include_str!` (migrations, shell-integration snippets) live
+inside the crate, so `cargo package` includes them; the top-level paths are symlinks.
 
 ---
 
@@ -931,6 +956,18 @@ The chrome is styled through a `UiTheme` struct (sidebar, borders, accent, selec
 colors). It ships `default-dark`, `default-light` and `high-contrast`. sverb respects `NO_COLOR`
 and is fully usable in monochrome: focus and selection are shown with reverse video and bold.
 
+Accessibility (M7, decisions log 2026-10-09):
+- No information is conveyed by color alone. Every status indicator has text or a glyph: the
+  mode segment, `BROADCAST ×N`, `REC ●`, the sync status text, toast titles (`info`,
+  `warning`, `error`, `ok`), host-key and certificate warnings.
+- `ui.ascii = "auto" | "on" | "off"` (spec addition): ASCII stand-ins for box drawing and
+  symbols (`+ - |`, `*`, `>`, `!`). `auto` picks ASCII when the locale isn't UTF-8 or
+  `TERM=linux`.
+- `ui.reduce_motion = false` (spec addition): spinners show a static glyph.
+- Every action is reachable from the keyboard: it has a default binding or a command
+  palette entry (enforced by a test).
+- See `docs/accessibility.md` for screen-reader notes.
+
 ---
 
 ## 9. Feature specifications
@@ -1232,8 +1269,9 @@ keys) are base64url without padding. Auth is via `Authorization: Bearer <access 
   revokes the whole token `family`, so the device must log in again. This catches stolen
   refresh tokens.
 - **Error format** (all endpoints):
-  `{ "error": { "code": "conflict|forbidden|not_found|rate_limited|invalid|gone|rotating|auth_required", "message": "...", "retry_after_s"?: n } }`.
-  `429` responses carry `Retry-After`.
+  `{ "error": { "code": "conflict|forbidden|not_found|rate_limited|invalid|gone|rotating|auth_required|internal", "message": "...", "retry_after_s"?: n } }`.
+  `429` responses carry `Retry-After`. `internal` (5xx, unexpected server failure) is a spec
+  addition; clients treat it as transient.
 - **Request IDs.** Each request gets an `x-request-id` (generated if absent), which is echoed in
   responses and logs.
 - **Account enumeration resistance.** For an unknown email, `login/start` returns a
@@ -1255,8 +1293,11 @@ keys) are base64url without padding. Auth is via `Authorization: Bearer <access 
 | POST | `/v1/auth/login/finish` | KE3 (+ TOTP) → tokens + encrypted key bundle |
 | POST | `/v1/auth/refresh` | Rotate tokens |
 | POST | `/v1/auth/logout` | Revoke the current device's tokens |
+| POST | `/v1/account/password/start` | Password change step 1: OPAQUE registration start for the new password (needs a fresh `reauth_token`) |
 | POST | `/v1/account/password` | Password change: new OPAQUE record + re-wrapped bundle (atomic) |
-| POST | `/v1/account/recovery` | Recovery-key flow |
+| POST | `/v1/account/recovery/code` | Recovery step 1: mail a one-time code (with SMTP; otherwise the operator issues it with `sverb-server admin user recovery-code`) |
+| POST | `/v1/account/recovery/start` | Recovery step 2: code + OPAQUE registration request → `recovery_bundle_enc` + registration response |
+| POST | `/v1/account/recovery` | Recovery step 3: code + signature with the account key; replaces record and bundle, revokes every device |
 | GET/DELETE | `/v1/devices`, `/v1/devices/{id}` | List and revoke devices |
 | POST/DELETE | `/v1/account/totp` | Enable or disable TOTP |
 | DELETE | `/v1/account` | Delete account (requires re-auth) |
@@ -1288,11 +1329,28 @@ The server closes the socket with `4401` when the token expires, and the client 
 after refreshing. Notifications are hints only, because correctness comes from pull (§12.2), so a
 missed message is harmless.
 
+**WebSocket close codes** (`/v1/ws` and the share streams). Only `4401` was named above; the
+rest are spec additions (M4-05, M6-01):
+
+| Code | Meaning |
+|---|---|
+| `4401` | Authentication missing, invalid or expired, device revoked, account disabled; or the share requires an account |
+| `4403` | Not allowed to host this share (not the owner) |
+| `4404` | No such share (viewer stream) |
+| `4408` | Ping timeout (2 missed pongs), or a share viewer too slow to keep up |
+| `4409` | Replaced by a newer host connection for the same share |
+| `4410` | The share ended (deleted, host gone past the grace period, or expired) |
+| `4411` | Kicked by the share host |
+| `4429` | The share already has `max_viewers` viewers |
+
 **Orgs and members**
 
 | Method | Path | Purpose |
 |---|---|---|
 | POST/GET | `/v1/orgs` | Create or list orgs |
+| GET | `/v1/orgs/{id}/members` | Members with roles (spec addition, M5-01) |
+| GET | `/v1/orgs/{id}/vaults` | The org's shared vaults (spec addition, M5-02) |
+| GET | `/v1/vaults/{id}/members` | A vault's members with permission and key version (spec addition, M5-02) |
 | POST | `/v1/orgs/{id}/invites` | Invite by email or link |
 | POST | `/v1/invites/{token}/accept` | Accept an invite |
 | GET | `/v1/users/{id}/public-keys` | Fetch member public keys, used for wrapping |
@@ -1626,6 +1684,16 @@ On conflict, the client merges and retries, at most 5 rounds before surfacing an
   still be decrypted by remaining members during the window. They are deleted at commit. The
   revoked user keeps any data they had already synced, which is unavoidable. Rotation only
   protects **future** changes.
+
+  **Decision (M5-04):** before step 4 the rotating client fetches every remaining member's
+  public keys and checks them against its pins (§13.3). A member whose key **changed**, or whose
+  key can't be fetched or verified, **blocks the commit**: the client stops with an error naming
+  those members, the rotation stays open (pushes stay paused), and it is resumed after the new
+  keys are accepted in Settings → Team, or abandoned after 15 minutes (step 5). A member is never
+  silently dropped from the vault because of a key change. Org admins who never held a grant are
+  optional: an untrusted one is skipped and granted later by the §13.1 reconcile. A crashed
+  rotation **resumes** on the same device (VK′ and the uploaded ids are kept, wrapped under the
+  LMK) instead of restarting.
 - **Read-only enforcement:** the server rejects pushes from `read` members (`forbidden`).
   Clients hide edit actions.
 
@@ -1800,6 +1868,30 @@ sync = false
 "ctrl-k" = "palette"
 ```
 
+**Spec additions** (all optional, defaults shown; the generated reference with types and
+descriptions is `docs/config.md`):
+
+```toml
+[ui]
+ascii = "auto"                  # auto | on | off: ASCII glyphs (auto: non-UTF-8 locale or TERM=linux)
+reduce_motion = false           # no animated spinners
+
+[ssh]
+auto_reconnect = false          # reconnect dropped sessions (backoff 1 s → 30 s, 10 tries); hosts can override
+
+[recording]
+retention_days = 0              # delete recordings after N days; 0 = keep until deleted
+
+[history]
+ghost_text = false              # inline suggestion after the cursor (needs OSC 133); leader Tab accepts
+
+[keys.copy]                     # copy-mode bindings (leader [)
+"y" = "yank"
+```
+
+`ssh.read_ssh_config = true` and `terminal.bell` values other than `"visual"` are accepted
+but have no effect in 1.0 (a warning says so; decisions log 2026-10-09).
+
 - The config is hot-reloaded on change (`notify` crate). Invalid config is reported as a toast
   and the last good config stays in effect.
 - `sverb config --check` validates the file. `sverb config --print-default` prints the defaults.
@@ -1833,10 +1925,21 @@ sverb login [--server url] | logout | register
 sverb sync [--now] [--status]
 sverb devices list | revoke <id>
 sverb team list | invite <email> | verify <user>
-sverb config --check | --print-default | --path
-sverb keys --dump                     Print effective keymap
-sverb doctor [--algos]                Diagnose terminal capabilities, agent, sync; list SSH algorithms
+sverb team create <name> | accept <link>                     (spec addition, M5-01)
+sverb config --check [--file f] | --print-default | --path
+sverb keys --dump [--json]            Print effective keymap
+sverb doctor [--algos] [--json] [--ascii]  Diagnose terminal capabilities, agent, sync; list SSH algorithms
 ```
+
+Hidden commands (not in `--help`; spec additions): `sverb keymap` (alias of `keys --dump`) and
+`sverb generate man [--out-dir d] | completions <bash|zsh|fish|powershell>` (M7-07, used by
+packagers). Exit codes are stable: 0 ok, 1 failure,
+2 usage, 3 vault locked, 4 not found or ambiguous, 5 approval required, 6 network or server,
+7 partial failure. `--json` output is wrapped as `{"version":1,"data":…}` (`docs/cli-json.md`).
+
+Environment (spec additions): `SVERB_HOME` (relocate every directory, §5.1), `SVERB_LOG`
+(§18), `SVERB_KEYRING=off` (never use the OS keyring), `SVERB_EXPORT_PASSWORD` (backup
+password for `export backup` / `import backup` in scripts, §9.13), `NO_COLOR` (§8.8).
 
 Headless commands that need vault access prompt for the master password on the TTY, or use the
 keyring. They exit non-zero with a clear message when the vault is locked and no TTY is
@@ -1863,8 +1966,13 @@ Full detail goes in `docs/threat-model.md`. The summary:
 | Shared-terminal hijack | Key only in the URL fragment, host approval of each viewer, view mode by default, AEAD with sequence numbers. |
 | Supply chain | `cargo-deny` (licenses, advisories, bans), `cargo-vet` for crypto deps, pinned `Cargo.lock`, reproducible release builds. |
 
-The project avoids `unsafe` outside vetted dependencies (`#![forbid(unsafe_code)]` in sverb
-crates, with documented exceptions for `mlock`/`prctl`).
+The project avoids `unsafe` outside vetted dependencies: every sverb crate inherits the workspace
+lint `unsafe_code = "deny"`. Exactly two documented modules lift it with `allow(unsafe_code)`:
+process hardening (`sverb-core/src/hardening/`: `prctl(PR_SET_DUMPABLE, 0)`, `setrlimit`,
+`mlock`, and `SetErrorMode`/`VirtualLock` on Windows) and the Windows agent pipe DACL
+(`sverb-conn/src/agent/dacl_windows.rs`). `deny` rather than `forbid` because `forbid` can't be
+lifted by an inner `allow`; `scripts/check-unsafe.py` fails CI if `allow(unsafe_code)` appears
+anywhere else (decisions log 2026-10-09).
 
 ### 17.1 Synced items that act locally
 
@@ -1925,15 +2033,29 @@ cargo-deny and an MSRV check.
 ## 20. Packaging and distribution
 
 - **Client:**
-  - `cargo install sverb`
+  - `cargo install sverb` (every library crate is published as `sverb-*`; `sverb-e2e` is not)
   - GitHub releases with prebuilt binaries for x86_64/aarch64 Linux (musl), macOS (universal) and
-    Windows
-  - AUR (`sverb`, `sverb-bin`), Homebrew tap, Nix flake, Scoop
-- **Server:** Docker image `ghcr.io/<org>/sverb-server`, static binary releases and a Helm chart
-  (stretch goal).
+    Windows: `sverb-<v>-linux-{x86_64,aarch64}.tar.gz`, `sverb-<v>-macos-universal.tar.gz`,
+    `sverb-<v>-windows-x86_64.zip`. Each archive holds the binary, `LICENSE`, `README.md`,
+    `CHANGELOG.md`, the man page `man/sverb.1` and completions for bash, zsh, fish and PowerShell
+    (generated by `sverb generate`).
+  - AUR (`sverb`, `sverb-bin`), Homebrew tap (`<org>/homebrew-sverb`), Nix flake (`flake.nix`,
+    packages `sverb` and `sverb-server`), Scoop (`<org>/scoop-sverb`, with `autoupdate`)
+  - macOS binaries are signed and notarized when the signing secrets are configured; otherwise
+    `docs/faq.md` documents the Gatekeeper workaround.
+- **Server:** Docker image `ghcr.io/<org>/sverb-server:<v>` and `:latest` (linux/amd64 and
+  linux/arm64, distroless, non-root, built from the release binaries), static binary releases
+  `sverb-server-<v>-linux-{x86_64,aarch64}.tar.gz`, and a Helm chart (stretch goal, not in 1.0).
+- **Checksums and builds:** every release has `SHA256SUMS` and a CycloneDX SBOM. Release builds
+  are reproducible: `--locked`, `SOURCE_DATE_EPOCH` from the tagged commit, `-C strip=symbols`,
+  `--remap-path-prefix` for the checkout and the cargo home, deterministic archives; CI builds the
+  Linux musl binaries twice from different directories and compares them.
 - **Versioning:** SemVer. The sync protocol is versioned separately (`/v1`), and the client sends
   `Sverb-Proto: 1`. The server supports N and N-1.
-- `release-plz` handles changelogs and releases.
+- `release-plz` handles changelogs and releases: a release PR bumps every crate's version together
+  and updates `CHANGELOG.md` from conventional commits; merging it publishes the crates, tags
+  `vX.Y.Z` and creates the GitHub release, and the tag starts `cd.yml` (binaries, image, package
+  channels). `docs/release.md` has the checklist, including the manual install test per channel.
 - **License:** MIT for the whole repository. A single `LICENSE` file sits at the root, and every
   crate sets `license = "MIT"` in `Cargo.toml`. `cargo-deny` rejects dependencies with licenses
   that aren't compatible with MIT distribution of the binaries (for example GPL), with
@@ -1960,14 +2082,19 @@ Each milestone ends with a usable build.
 
 ## 22. Open questions
 
+All four were resolved before 1.0; the answers are in the decisions log.
+
 1. **List merge semantics.** Is whole-value LWW for `tags`/`env`/`jump_chain` good enough, or do
    we need OR-sets for `tags` in v1? `env` and `jump_chain` are ordered, so LWW is the right
-   choice for them either way.
+   choice for them either way. **Resolved (2026-10-08):** whole-value LWW for every list in v1.
 2. **`read_ssh_config` live mode.** Should `~/.ssh/config` hosts appear read-only in the Hosts list
-   without importing, for people who manage SSH config via dotfiles?
-3. **Web viewer** for shares. Is it in scope for M6 or post-1.0?
+   without importing, for people who manage SSH config via dotfiles? **Resolved (2026-10-09):**
+   post-1.0; 1.0 imports only, and the config key warns.
+3. **Web viewer** for shares. Is it in scope for M6 or post-1.0? **Resolved (2026-10-09):**
+   post-1.0.
 4. **Emulator choice.** Track `alacritty_terminal` API stability. If it churns too much, consider
-   `wezterm-term` or vendoring.
+   `wezterm-term` or vendoring. **Resolved (2026-10-09):** keep `alacritty_terminal` behind
+   `sverb-term`; re-evaluate per release.
 
 ---
 
@@ -1989,3 +2116,26 @@ Each milestone ends with a usable build.
 | Server | `axum`, `tower`, `tower-http`, `sqlx` (postgres), `governor`, `totp-rs`, `rustls`, `metrics`, `metrics-exporter-prometheus` |
 | Testing | `insta`, `proptest`, `testcontainers`, `criterion`, `cargo-fuzz` |
 | Recording | asciicast v2 writer (in-house, trivial) |
+
+---
+
+## Appendix B: spec additions made during implementation
+
+Things the implementation needed that this spec did not name. Each was marked "spec addition"
+in its task and is part of the 1.0 contract. Details are in the linked docs.
+
+| Area | Addition | Where |
+|---|---|---|
+| Config | `ssh.auto_reconnect = false` (M1-16), `recording.retention_days = 0` (M3-06), `history.ghost_text = false` (M7-01), `ui.ascii = "auto"`, `ui.reduce_motion = false` (M7-07), the `[keys.copy]` table (M3-04) | §15, `docs/config.md` |
+| Host / group defaults | `auto_reconnect: Option<bool>` (M1-16) and `record_sessions: Option<bool>` (M3-05), inheritable like the other settings | `docs/data-model.md` |
+| HistoryEntry | `verified` (false for heuristic captures without OSC 133) (M7-01) | `docs/data-model.md` |
+| ConnLog | optional `host_id`; `label`, `target`, `error_detail` (M3-06) | `docs/data-model.md` |
+| Workspace | the `layout` / `broadcast_groups` encoding (M3-03) | `docs/data-model.md` |
+| Backup file | items stored as `{ id, vault, body }`, vaults as `{ id, name, kind, defaults }`; the password from `SVERB_EXPORT_PASSWORD` in scripts (M2-11) | §9.13, `docs/data-model.md` |
+| CredentialOverride | fields `shared_host_id`, `username`, `password`, `key_id`, `identity_id` (M5-02) | §13.4, `docs/data-model.md` |
+| HTTP API | `GET /v1/orgs/{id}/members` (M5-01); `GET /v1/vaults/{id}/members`, `GET /v1/orgs/{id}/vaults` (M5-02); `POST /v1/account/password/start`, `/v1/account/recovery/code`, `/v1/account/recovery/start` (M4-02); error code `internal` | §10.4 |
+| WebSocket | close codes `4403`, `4404`, `4408`, `4409`, `4410`, `4411`, `4429` (M4-05, M6-01) | §10.4 |
+| CLI | `team create`, `team accept` (M5-01); `config --check --file`; `doctor --json --ascii` (M7-04); hidden `keymap` and `generate` (M7-07) | §16 |
+| Environment | `SVERB_HOME`, `SVERB_KEYRING=off`, `SVERB_EXPORT_PASSWORD`; `SVERB_PANE` set in local shells (M1-12); `SVERB_INSECURE_ACCEPT_ANY_HOST_KEY=1` (development only, M1-13) | §16, README |
+| Keys | Hosts view `A T D I X H V M C O` and group-row keys; Settings → Vaults keys (M2-01, M2-11, M5-02, M5-04, M7-01) | `docs/keybindings.md` "View keys", `tasks/03-KEYBINDINGS.md` |
+| Lints | `unsafe_code = "deny"` with two exception modules (M7-05) | §17 |

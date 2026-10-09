@@ -330,6 +330,12 @@ pub struct SupportedAlgos {
     pub default: Vec<String>,
     /// Available as a per-host legacy opt-in.
     pub legacy: Vec<String>,
+    // M7-04
+    /// Names in the spec's secure list that the pinned russh doesn't implement.
+    pub unavailable: Vec<String>,
+    // M7-04
+    /// Legacy names that can't be opted into with the pinned russh.
+    pub legacy_unavailable: Vec<String>,
 }
 
 /// Everything sverb can negotiate with this build (`sverb doctor --algos`, M7-04).
@@ -344,6 +350,19 @@ pub fn supported() -> Vec<SupportedAlgos> {
                 .legacy()
                 .iter()
                 .filter(|n| kind.is_supported(n))
+                .map(|n| (*n).to_owned())
+                .collect(),
+            // M7-04
+            unavailable: kind
+                .secure()
+                .iter()
+                .filter(|n| !kind.is_supported(n))
+                .map(|n| (*n).to_owned())
+                .collect(),
+            legacy_unavailable: kind
+                .legacy()
+                .iter()
+                .filter(|n| !kind.is_supported(n))
                 .map(|n| (*n).to_owned())
                 .collect(),
         })

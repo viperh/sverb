@@ -609,14 +609,16 @@ mod m2_06 {
         );
         // Switch to HTTP: the address and credentials carry over.
         apply_changes(&mut host, &FieldChanges(vec![kind("http")])).unwrap();
-        assert!(matches!(&host.proxy, Some(Proxy::Http { auth: Some(ProxyAuth { user, .. }), .. }) if user == "alice"));
+        assert!(
+            matches!(&host.proxy, Some(Proxy::Http { auth: Some(ProxyAuth { user, .. }), .. }) if user == "alice")
+        );
         // None.
         apply_changes(&mut host, &FieldChanges(vec![kind("")])).unwrap();
         assert!(host.proxy.is_none());
 
         // Errors land on the visible field.
-        let errs = apply_changes(&mut Host::default(), &FieldChanges(vec![kind("http")]))
-            .unwrap_err();
+        let errs =
+            apply_changes(&mut Host::default(), &FieldChanges(vec![kind("http")])).unwrap_err();
         assert_eq!(errs[0].field, PROXY_ADDR);
         let errs = apply_changes(
             &mut Host::default(),

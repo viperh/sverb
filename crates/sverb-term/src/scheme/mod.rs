@@ -13,7 +13,7 @@
 //! - **User schemes** are `config_dir/themes/*.toml` in the same format
 //!   ([`load_dir`], documented in `docs/themes.md`).
 //! - **Imports**: Alacritty (`.toml`, legacy `.yml`) and Kitty (`.conf`) theme files
-//!   ([`import_file`], [`import_alacritty`], [`import_kitty`]).
+//!   ([`import_file`], [`import_alacritty()`], [`import_kitty()`]).
 //!
 //! # File format
 //! ```toml

@@ -1,0 +1,47 @@
+---
+source: crates/sverb/src/cli/doctor_tests.rs
+expression: "render_text(&mixed, true)"
+---
+Environment
+  · version           sverb 0.1.0-test (2026-10-08) (features: sync)
+  · platform          linux x86_64
+  · SVERB_HOME        not set
+  ✓ config dir        /home/u/.config/sverb (0700)
+  ! data dir          /home/u/.local/share/sverb is 0755 (expected 0700)
+    → chmod 700 /home/u/.local/share/sverb
+  ✓ state dir         /home/u/.local/state/sverb (0700)
+  ✓ runtime dir       /run/user/1000/sverb (0700)
+  ✓ database file     /home/u/.local/share/sverb/sverb.db (0600)
+  ✗ config            config.toml has 1 error(s); the defaults are in effect: /home/u/.config/sverb/config.toml:3:1: ui.theme: unknown theme
+    → see `sverb config --check`
+  · database          schema 6 (migrates to 7 on the next start), integrity ok
+  ✓ logs              the log directory is writable
+
+Terminal
+  ✓ TERM              tmux-256color
+  ! colors            256 colors (COLORTERM=unset); RGB colors are downsampled
+    → if the terminal supports 24-bit color, set COLORTERM=truecolor or ui.truecolor = "on"
+  · kitty keyboard    skipped: not a terminal
+  · mouse             not captured (ui.mouse = false)
+  · bracketed paste   enabled by sverb; support can't be detected
+  · OSC 52 clipboard  unknown for tmux (it can't be detected)
+  · unicode width     skipped: not a terminal
+  · over SSH          yes: copies go through OSC 52 only
+  ! multiplexer       tmux: OSC 52 and passthrough sequences need tmux settings
+    → in tmux.conf: `set -g set-clipboard on` and `set -g allow-passthrough on`
+
+Agent
+  · system agent      SSH_AUTH_SOCK is not set; agent authentication is skipped
+    → start ssh-agent, or use keys from the vault
+  · built-in agent    not running (`sverb agent` starts it)
+
+Keyring
+  ! OS keyring        not available: keyring unlock can't be used
+    → on Linux, run a Secret Service provider (gnome-keyring, KeePassXC)
+  · keyring unlock    disabled (the master password is asked at every start)
+
+Sync
+  ✗ server            https://sync.example.test is unreachable: connection refused
+    → check the server URL and the network; local changes stay queued
+
+2 problems, 4 warnings.

@@ -379,6 +379,15 @@ pub struct HostCatalog {
     pub key_details: BTreeMap<ItemId, crate::views::keychain::keys::KeyInfo>,
     /// Certificates for the Keychain, with their derived fields.
     pub certs: BTreeMap<ItemId, crate::views::keychain::keys::CertSummary>,
+    // M5-02
+    /// This user's credential overrides (personal vault), by shared host (§13.4).
+    pub overrides: BTreeMap<ItemId, sverb_core::resolve::overrides::OverrideLayer>,
+    /// The shared vaults (§13.1).
+    pub shared_vaults: std::collections::BTreeSet<VaultId>,
+    /// Shared vaults this account may only read (§13.2: forms read-only).
+    pub read_only_vaults: std::collections::BTreeSet<VaultId>,
+    /// The vault of each identity (override pickers stay in the personal vault).
+    pub identity_vaults: BTreeMap<ItemId, VaultId>,
 }
 
 impl fmt::Debug for HostCatalog {
@@ -401,13 +410,34 @@ impl HostCatalog {
     // M2-01
     /// Resolve `host` through its group chain, its vault's defaults and `globals`.
     pub fn resolve(&self, host: &HostSummary, globals: &GlobalDefaults) -> ResolvedHost {
-        resolve_settings(
+        let mut r = resolve_settings(
             &host.resolve_target(),
             &host.settings(),
             self,
             self.lookup.defaults_of(host.vault),
             globals,
-        )
+        );
+        // M5-02: this user's own credentials for a shared host (§13.4).
+        if let Some(layer) = self.overrides.get(&host.id) {
+            sverb_core::resolve::overrides::apply_override(&mut r, layer, self);
+        }
+        r
+    }
+
+    // M5-02
+    /// The vault badge of an item of `vault` in the merged "All vaults" list
+    /// (`None` for the personal vault: only shared items carry one).
+    pub fn vault_badge(&self, vault: VaultId) -> Option<&str> {
+        if !self.shared_vaults.contains(&vault) {
+            return None;
+        }
+        self.vault_names.get(&vault).map(String::as_str)
+    }
+
+    // M5-02
+    /// Whether items of `vault` are read-only for this account (§13.2).
+    pub fn is_read_only_vault(&self, vault: VaultId) -> bool {
+        self.read_only_vaults.contains(&vault)
     }
 
     // M2-01

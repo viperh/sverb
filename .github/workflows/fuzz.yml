@@ -1,0 +1,82 @@
+name: Fuzz (nightly)
+
+# M7-05 (SPEC §19 "Fuzzing"): every cargo-fuzz target runs for 10 minutes each night,
+# starting from the seed corpus (fixtures) plus the corpus kept from earlier runs.
+# Crashes are uploaded as artifacts and fail the job. PRs run each target for 30 s in
+# ci.yml (job `fuzz`).
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: Seconds per target
+        default: "600"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  fuzz:
+    name: Fuzz ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - ssh_config_parse
+          - ppk_parse
+          - known_hosts_parse
+          - socks5_request
+          - share_frame_decode
+          - envelope_open
+          - key_event_encode
+          - emulator_feed
+          - backup_decrypt
+          - http_connect_response
+          - osc133_scan
+          - bundle_open
+          - grant_open
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-fuzz
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+      - name: Restore the corpus of earlier runs
+        uses: actions/cache@v4
+        with:
+          path: fuzz/corpus/${{ matrix.target }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
+      - name: Seed corpus
+        run: fuzz/seed-corpus.sh
+      - name: Run ${{ matrix.target }}
+        env:
+          SECONDS_PER_TARGET: ${{ inputs.seconds || '600' }}
+        run: >-
+          cargo +nightly fuzz run ${{ matrix.target }}
+          fuzz/corpus/${{ matrix.target }}
+          -- -max_total_time=${SECONDS_PER_TARGET} -rss_limit_mb=2048 -timeout=10
+      - name: Minimize the corpus
+        if: success()
+        run: cargo +nightly fuzz cmin ${{ matrix.target }} fuzz/corpus/${{ matrix.target }}
+      - name: Upload crashes
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes-${{ matrix.target }}
+          path: fuzz/artifacts/${{ matrix.target }}
+          if-no-files-found: ignore

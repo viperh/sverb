@@ -144,9 +144,11 @@ impl TestServer {
                 }
             }
         });
-        let router = app::router(self.state.clone()).layer(hook).layer(axum::middleware::from_fn(
-            move |req: Request, next: Next| record(log.clone(), req, next),
-        ));
+        let router = app::router(self.state.clone())
+            .layer(hook)
+            .layer(axum::middleware::from_fn(
+                move |req: Request, next: Next| record(log.clone(), req, next),
+            ));
         let task = tokio::spawn(async move {
             let mut conns = JoinSet::new();
             loop {

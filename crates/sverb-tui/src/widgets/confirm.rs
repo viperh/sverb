@@ -25,7 +25,7 @@ pub fn discard_changes() -> Modal {
     )
 }
 
-/// "Delete N <noun>s?" (bulk actions). Danger: `Enter` cancels.
+/// "Delete N `<noun>`s?" (bulk actions). Danger: `Enter` cancels.
 pub fn delete(count: usize, noun: &str) -> Modal {
     let what = if count == 1 {
         format!("1 {noun}")

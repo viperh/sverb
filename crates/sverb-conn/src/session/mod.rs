@@ -25,6 +25,8 @@ pub mod actor;
 pub mod cmd;
 pub mod event;
 pub mod sender;
+// M6-03: output observers for terminal sharing.
+pub mod share_tap;
 pub mod state;
 
 #[cfg(test)]
@@ -36,6 +38,8 @@ pub use event::{MAX_TITLE_CHARS, SessionEvent, sanitize_title};
 pub use event::SshSessionInfo;
 // M1-14
 pub use sender::{OVERFLOW_WARN_BYTES, SendOutcome, UiSender};
+// M6-03
+pub use share_tap::{OutputObserver, ShareTap};
 pub use state::PromptKind;
 pub use state::{
     AuthMethod,

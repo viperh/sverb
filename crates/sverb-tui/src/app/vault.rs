@@ -169,6 +169,9 @@ pub enum VaultEvent {
     // M2-03
     /// A keychain result (`ItemEffect::Keychain`).
     Keychain(crate::app::keychain::keys::KeychainEvent),
+    // M5-02
+    /// A move / copy / override result (`app/hosts/shared_vaults.rs`).
+    Shared(crate::app::hosts::SharedVaultEvent),
 }
 
 /// What the vault prompt shows.
@@ -601,6 +604,8 @@ impl App {
             VaultEvent::ItemFailed(report) => self.push_error(&report, effects),
             // M2-03
             VaultEvent::Keychain(ev) => self.on_keychain_event(ev, effects),
+            // M5-02
+            VaultEvent::Shared(ev) => self.on_shared_vault_event(ev, effects),
         }
     }
 

@@ -37,7 +37,7 @@ pub const LOGIN_FAILED_MESSAGE: &str = "invalid email or password";
 // ------------------------------------------------------------ registration
 
 /// `POST /v1/auth/register/start`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RegisterStartRequest {
     /// Account email.
     pub email: String,
@@ -118,7 +118,7 @@ pub struct DeviceInfo {
 }
 
 /// `POST /v1/auth/register/finish`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RegisterFinishRequest {
     /// Account email (same as in start).
     pub email: String,
@@ -192,7 +192,7 @@ pub struct LoginDevice {
 }
 
 /// `POST /v1/auth/login/finish`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LoginFinishRequest {
     /// From [`LoginStartResponse`].
     pub login_state_id: Uuid,
@@ -487,6 +487,49 @@ pub struct AccountDeleteRequest {
 impl std::fmt::Debug for AccountDeleteRequest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("AccountDeleteRequest([REDACTED])")
+    }
+}
+
+// M7-05 (SPEC §17 "Secrets in logs"): the request DTOs that carry one-time tokens or a
+// TOTP code print them as `[REDACTED]`.
+fn redacted(v: &Option<String>) -> &'static str {
+    if v.is_some() {
+        "Some([REDACTED])"
+    } else {
+        "None"
+    }
+}
+
+impl std::fmt::Debug for RegisterStartRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RegisterStartRequest")
+            .field("email", &self.email)
+            .field("invite_token", &redacted(&self.invite_token))
+            .field("setup_token", &redacted(&self.setup_token))
+            .finish_non_exhaustive()
+    }
+}
+
+impl std::fmt::Debug for RegisterFinishRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RegisterFinishRequest")
+            .field("email", &self.email)
+            .field("user_id", &self.user_id)
+            .field("device", &self.device)
+            .field("invite_token", &redacted(&self.invite_token))
+            .field("setup_token", &redacted(&self.setup_token))
+            .finish_non_exhaustive()
+    }
+}
+
+impl std::fmt::Debug for LoginFinishRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LoginFinishRequest")
+            .field("login_state_id", &self.login_state_id)
+            .field("totp", &redacted(&self.totp))
+            .field("device", &self.device)
+            .field("purpose", &self.purpose)
+            .finish_non_exhaustive()
     }
 }
 

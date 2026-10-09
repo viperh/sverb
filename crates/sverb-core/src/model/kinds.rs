@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 /// What an [`ItemBody`](super::ItemBody) describes. Encoded as a stable lowercase string.
 ///
-/// `#[non_exhaustive]`: M5-02 adds `CredentialOverride` (§13.4).
+/// `#[non_exhaustive]`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[non_exhaustive]
@@ -35,11 +35,14 @@ pub enum ItemKind {
     HistoryEntry,
     /// §4.12
     ConnLog,
+    // M5-02
+    /// §13.4: a user's own credentials for a shared host (personal vault).
+    CredentialOverride,
 }
 
 impl ItemKind {
     /// Every kind this build knows.
-    pub const ALL: [ItemKind; 12] = [
+    pub const ALL: [ItemKind; 13] = [
         ItemKind::Host,
         ItemKind::Group,
         ItemKind::Identity,
@@ -52,6 +55,8 @@ impl ItemKind {
         ItemKind::Tag,
         ItemKind::HistoryEntry,
         ItemKind::ConnLog,
+        // M5-02
+        ItemKind::CredentialOverride,
     ];
 
     /// The stable wire string (`"host"`, `"port-forward"`, …).
@@ -69,6 +74,8 @@ impl ItemKind {
             ItemKind::Tag => "tag",
             ItemKind::HistoryEntry => "history-entry",
             ItemKind::ConnLog => "conn-log",
+            // M5-02
+            ItemKind::CredentialOverride => "credential-override",
         }
     }
 }

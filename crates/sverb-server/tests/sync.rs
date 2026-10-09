@@ -165,7 +165,9 @@ impl Harness {
         let rotation =
             new_key_version.map(|v| json!({ "by": Uuid::nil(), "new_key_version": v, "started_at": "2026-10-08T00:00:00Z" }));
         match &self.backend {
-            Backend::Mem(m) => m.with_data(|d| d.vaults.get_mut(&vault).unwrap().rotation = rotation),
+            Backend::Mem(m) => {
+                m.with_data(|d| d.vaults.get_mut(&vault).unwrap().rotation = rotation)
+            }
             Backend::Pg(db) => {
                 sqlx_core::query::query("UPDATE vaults SET rotation = $2 WHERE id = $1")
                     .bind(vault)
@@ -281,7 +283,14 @@ async fn register(h: &Harness, email: &str) -> User {
     let mut rng = os_rng();
     let (state, request) = client_registration_start(&mut rng, password).unwrap();
     let start = json!({ "email": email, "registration_request": b64::encode(&request) });
-    let (st, v) = call(&h.app, "POST", "/v1/auth/register/start", Some(&start), None).await;
+    let (st, v) = call(
+        &h.app,
+        "POST",
+        "/v1/auth/register/start",
+        Some(&start),
+        None,
+    )
+    .await;
     assert_eq!(st, StatusCode::OK, "{v}");
     let response = b64::decode(v["registration_response"].as_str().unwrap()).unwrap();
     let user_id: Uuid = serde_json::from_value(v["user_id"].clone()).unwrap();
@@ -318,7 +327,14 @@ async fn register(h: &Harness, email: &str) -> User {
         },
         "device": { "name": "laptop", "platform": "linux" },
     });
-    let (st, v) = call(&h.app, "POST", "/v1/auth/register/finish", Some(&finish), None).await;
+    let (st, v) = call(
+        &h.app,
+        "POST",
+        "/v1/auth/register/finish",
+        Some(&finish),
+        None,
+    )
+    .await;
     assert_eq!(st, StatusCode::OK, "{v}");
     User {
         id: user_id,
@@ -343,7 +359,12 @@ fn new_items(n: usize, len: usize) -> Vec<Value> {
         .collect()
 }
 
-async fn push_raw(app: &Router, token: &str, vault: Uuid, changes: Vec<Value>) -> (StatusCode, Value) {
+async fn push_raw(
+    app: &Router,
+    token: &str,
+    vault: Uuid,
+    changes: Vec<Value>,
+) -> (StatusCode, Value) {
     call(
         app,
         "POST",
@@ -378,7 +399,13 @@ async fn pull_raw(
     .await
 }
 
-async fn pull(app: &Router, token: &str, vault: Uuid, since: u64, limit: Option<u32>) -> PullResponse {
+async fn pull(
+    app: &Router,
+    token: &str,
+    vault: Uuid,
+    since: u64,
+    limit: Option<u32>,
+) -> PullResponse {
     let (st, v) = pull_raw(app, token, vault, since, limit).await;
     assert_eq!(st, StatusCode::OK, "{v}");
     serde_json::from_value(v).unwrap()
@@ -445,7 +472,10 @@ async fn t01_push_new(h: &Harness) {
     )
     .await;
     assert_error(st, &v, StatusCode::BAD_REQUEST, "invalid");
-    assert_eq!(pull(&h.app, &a.token, a.vault, 0, None).await.head_revision, 3);
+    assert_eq!(
+        pull(&h.app, &a.token, a.vault, 0, None).await.head_revision,
+        3
+    );
 }
 
 /// T-02: stale base → conflict with `current`; in a mixed batch the
@@ -454,9 +484,21 @@ async fn t01_push_new(h: &Harness) {
 async fn t02_conflicts(h: &Harness) {
     let a = register(h, "alice@example.com").await;
     let x = Uuid::now_v7();
-    let res = push(&h.app, &a.token, a.vault, vec![change(x, 0, b"x-v1", false)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(x, 0, b"x-v1", false)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(1));
-    let res = push(&h.app, &a.token, a.vault, vec![change(x, 1, b"x-v2", false)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(x, 1, b"x-v2", false)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(2));
 
     let (y, z, ghost) = (Uuid::now_v7(), Uuid::now_v7(), Uuid::now_v7());
@@ -497,7 +539,10 @@ async fn t02_conflicts(h: &Harness) {
     let page = pull(&h.app, &a.token, a.vault, 0, None).await;
     assert_eq!(page.head_revision, 4);
     assert_eq!(
-        page.items.iter().map(|i| (i.id, i.revision)).collect::<Vec<_>>(),
+        page.items
+            .iter()
+            .map(|i| (i.id, i.revision))
+            .collect::<Vec<_>>(),
         vec![(x, 2), (y, 3), (z, 4)]
     );
 }
@@ -529,8 +574,17 @@ async fn t03_pagination(h: &Harness) {
     assert_eq!(seen.len(), 1200);
     assert_eq!(cursor, 1200);
     // Default limit is 500; 0 is invalid; larger is clamped.
-    assert_eq!(pull(&h.app, &a.token, a.vault, 0, None).await.items.len(), 500);
-    assert_eq!(pull(&h.app, &a.token, a.vault, 0, Some(5000)).await.items.len(), 500);
+    assert_eq!(
+        pull(&h.app, &a.token, a.vault, 0, None).await.items.len(),
+        500
+    );
+    assert_eq!(
+        pull(&h.app, &a.token, a.vault, 0, Some(5000))
+            .await
+            .items
+            .len(),
+        500
+    );
     let (st, v) = pull_raw(&h.app, &a.token, a.vault, 0, Some(0)).await;
     assert_error(st, &v, StatusCode::BAD_REQUEST, "invalid");
 }
@@ -570,7 +624,12 @@ async fn t04_concurrency(h: &Harness) {
                     // Items are never overwritten here, so the revisions
                     // present are exactly 1..=head: the next one must be
                     // cursor + 1, or the puller would skip it forever.
-                    assert_eq!(i.revision, cursor + 1, "gap: missed revision {}", cursor + 1);
+                    assert_eq!(
+                        i.revision,
+                        cursor + 1,
+                        "gap: missed revision {}",
+                        cursor + 1
+                    );
                     cursor = i.revision;
                     seen.push(i.revision);
                 }
@@ -591,7 +650,10 @@ async fn t04_concurrency(h: &Harness) {
         pushed.sort_unstable();
         let all: Vec<u64> = (1..=TOTAL).collect();
         assert_eq!(pushed, all, "pushers got every revision exactly once");
-        assert_eq!(seen, all, "puller saw every revision exactly once, in order");
+        assert_eq!(
+            seen, all,
+            "puller saw every revision exactly once, in order"
+        );
         assert!(pulls > 1);
         let page = pull(&h.app, &a.token, a.vault, TOTAL, None).await;
         assert!(page.items.is_empty() && page.head_revision == TOTAL);
@@ -634,7 +696,11 @@ async fn t06_rotating(h: &Harness) {
     assert_eq!(rot.new_key_version, Some(2));
     h.set_rotation(a.vault, None).await;
     let res = push(&h.app, &a.token, a.vault, new_items(1, 8)).await;
-    assert_eq!(res.results[0].revision, Some(2), "nothing consumed by the 409");
+    assert_eq!(
+        res.results[0].revision,
+        Some(2),
+        "nothing consumed by the 409"
+    );
 }
 
 /// T-07: envelope of 1 MiB + 1 → item `too_large`; 501 changes → 400;
@@ -656,7 +722,11 @@ async fn t07_limits(h: &Harness) {
     assert_eq!(res.results[0].status, PushStatus::TooLarge);
     assert_eq!(res.results[0].revision, None);
     assert_eq!(res.results[1].status, PushStatus::Ok);
-    assert_eq!(res.results[1].revision, Some(1), "the rejected one consumed nothing");
+    assert_eq!(
+        res.results[1].revision,
+        Some(1),
+        "the rejected one consumed nothing"
+    );
 
     let (st, v) = push_raw(&h.app, &a.token, a.vault, new_items(501, 1)).await;
     assert_error(st, &v, StatusCode::BAD_REQUEST, "invalid");
@@ -669,7 +739,12 @@ async fn t07_limits(h: &Harness) {
     // Exactly 8 MiB of envelopes fits the body limit and the batch limit.
     let res = push(&h.app, &a.token, a.vault, new_items(8, MAX_ENVELOPE_BYTES)).await;
     assert!(res.results.iter().all(|r| r.status == PushStatus::Ok));
-    assert_eq!(pull(&h.app, &a.token, a.vault, 0, Some(1)).await.head_revision, 9);
+    assert_eq!(
+        pull(&h.app, &a.token, a.vault, 0, Some(1))
+            .await
+            .head_revision,
+        9
+    );
 }
 
 /// T-08 (quota 1 MiB): over quota → `too_large` "quota exceeded", nothing
@@ -690,7 +765,10 @@ async fn t08_quota(h: &Harness) {
             PushStatus::TooLarge
         ]
     );
-    assert_eq!(res.results[3].message.as_deref(), Some(QUOTA_EXCEEDED_MESSAGE));
+    assert_eq!(
+        res.results[3].message.as_deref(),
+        Some(QUOTA_EXCEEDED_MESSAGE)
+    );
     assert_eq!(revisions(&res)[..3], [Some(1), Some(2), Some(3)]);
     // 900,000 of 1,048,576 used: 148,576 left.
     let res = push(&h.app, &a.token, a.vault, new_items(1, 148_577)).await;
@@ -698,7 +776,13 @@ async fn t08_quota(h: &Harness) {
     let res = push(&h.app, &a.token, a.vault, new_items(1, 148_576)).await;
     assert_eq!(res.results[0].revision, Some(4));
     // Full. Replacing an item by a tombstone frees space…
-    let res = push(&h.app, &a.token, a.vault, vec![change(first, 1, &[0; 16], true)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(first, 1, &[0; 16], true)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(5));
     // …which new data may then use.
     let res = push(&h.app, &a.token, a.vault, new_items(1, 299_984)).await;
@@ -726,13 +810,25 @@ async fn t09_gc(h: &Harness) {
         vec![change(x, 0, b"x", false), change(y, 0, b"y", false)],
     )
     .await;
-    let res = push(&h.app, &a.token, a.vault, vec![change(x, 1, b"x-dead", true)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(x, 1, b"x-dead", true)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(3));
     let t_old = h.now();
     // A newer tombstone, still inside the horizon at GC time.
     h.clock.advance(TimeDelta::minutes(10));
     push(&h.app, &a.token, a.vault, vec![change(z, 0, b"z", false)]).await;
-    let res = push(&h.app, &a.token, a.vault, vec![change(z, 4, b"z-dead", true)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(z, 4, b"z-dead", true)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(5));
 
     // 90 days after the first tombstone (+5 min) but before the second.
@@ -752,7 +848,10 @@ async fn t09_gc(h: &Harness) {
     assert_error(st, &v, StatusCode::GONE, "gone");
     let full = pull(&h.app, &a.token, a.vault, 0, None).await;
     assert_eq!(
-        full.items.iter().map(|i| (i.id, i.revision, i.deleted)).collect::<Vec<_>>(),
+        full.items
+            .iter()
+            .map(|i| (i.id, i.revision, i.deleted))
+            .collect::<Vec<_>>(),
         vec![(y, 2, false), (z, 5, true)],
         "the old tombstone is gone, the recent one stays"
     );
@@ -761,12 +860,24 @@ async fn t09_gc(h: &Harness) {
     assert_eq!(page.items.len(), 1);
 
     // A second run finds nothing; the floor never goes down.
-    let out = h.state.sync().store().gc_tombstones(gc::cutoff(gc_now, 90)).await.unwrap();
+    let out = h
+        .state
+        .sync()
+        .store()
+        .gc_tombstones(gc::cutoff(gc_now, 90))
+        .await
+        .unwrap();
     assert_eq!(out.purged_tombstones, 0);
     assert_eq!(h.gc_floor(a.vault).await, 3);
 
     // The purged item can be pushed again as new (full-resync path).
-    let res = push(&h.app, &a.token, a.vault, vec![change(x, 0, b"x-again", false)]).await;
+    let res = push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(x, 0, b"x-again", false)],
+    )
+    .await;
     assert_eq!(res.results[0].revision, Some(6));
 }
 
@@ -801,7 +912,10 @@ async fn t11_key_version(h: &Harness) {
     )
     .await;
     assert_error(st, &v, StatusCode::BAD_REQUEST, "invalid");
-    assert_eq!(pull(&h.app, &a.token, a.vault, 0, None).await.head_revision, 0);
+    assert_eq!(
+        pull(&h.app, &a.token, a.vault, 0, None).await.head_revision,
+        0
+    );
 }
 
 /// T-12: items sealed client-side with a canary label → nothing in the
@@ -815,8 +929,15 @@ async fn t12_no_plaintext(h: &Harness) {
     for i in 0..5 {
         let id = Uuid::now_v7();
         let body = format!("{{\"label\":\"{CANARY}-{i}\",\"hostname\":\"{CANARY}\"}}");
-        let env = seal_item(&vk, a.vault.as_bytes(), id.as_bytes(), 1, body.as_bytes(), &mut rng)
-            .unwrap();
+        let env = seal_item(
+            &vk,
+            a.vault.as_bytes(),
+            id.as_bytes(),
+            1,
+            body.as_bytes(),
+            &mut rng,
+        )
+        .unwrap();
         changes.push(change(id, 0, &env, false));
     }
     let res = push(&h.app, &a.token, a.vault, changes).await;
@@ -850,7 +971,13 @@ async fn notify_hook(h: &Harness) {
     let a = register(h, "alice@example.com").await;
     let x = Uuid::now_v7();
     push(&h.app, &a.token, a.vault, vec![change(x, 0, b"x", false)]).await;
-    push(&h.app, &a.token, a.vault, vec![change(x, 0, b"stale", false)]).await;
+    push(
+        &h.app,
+        &a.token,
+        a.vault,
+        vec![change(x, 0, b"stale", false)],
+    )
+    .await;
     push(&h.app, &a.token, a.vault, new_items(2, 4)).await;
     assert_eq!(*rec.0.lock().unwrap(), vec![(a.vault, 1), (a.vault, 3)]);
 }
@@ -878,22 +1005,62 @@ macro_rules! both {
 }
 
 both!(t01_push_new, t01_push_new_items_mem, t01_push_new_items_pg);
-both!(t02_conflicts, t02_conflicts_consume_no_revisions_mem, t02_conflicts_consume_no_revisions_pg);
-both!(t03_pagination, t03_pull_pagination_mem, t03_pull_pagination_pg);
-both!(t04_concurrency, t04_parallel_pushers_puller_never_misses_mem, t04_parallel_pushers_puller_never_misses_pg);
-both!(t05_read_only, t05_read_member_push_forbidden_mem, t05_read_member_push_forbidden_pg);
-both!(t06_rotating, t06_rotation_blocks_push_not_pull_mem, t06_rotation_blocks_push_not_pull_pg);
-both!(t07_limits, t07_item_and_batch_limits_mem, t07_item_and_batch_limits_pg);
+both!(
+    t02_conflicts,
+    t02_conflicts_consume_no_revisions_mem,
+    t02_conflicts_consume_no_revisions_pg
+);
+both!(
+    t03_pagination,
+    t03_pull_pagination_mem,
+    t03_pull_pagination_pg
+);
+both!(
+    t04_concurrency,
+    t04_parallel_pushers_puller_never_misses_mem,
+    t04_parallel_pushers_puller_never_misses_pg
+);
+both!(
+    t05_read_only,
+    t05_read_member_push_forbidden_mem,
+    t05_read_member_push_forbidden_pg
+);
+both!(
+    t06_rotating,
+    t06_rotation_blocks_push_not_pull_mem,
+    t06_rotation_blocks_push_not_pull_pg
+);
+both!(
+    t07_limits,
+    t07_item_and_batch_limits_mem,
+    t07_item_and_batch_limits_pg
+);
 both!(
     t08_quota,
     t08_quota_exceeded_mem,
     t08_quota_exceeded_pg,
     &[("SVERB_STORAGE_QUOTA_MIB", "1")]
 );
-both!(t09_gc, t09_tombstone_gc_and_gone_mem, t09_tombstone_gc_and_gone_pg);
-both!(t10_non_member, t10_non_member_not_found_mem, t10_non_member_not_found_pg);
-both!(t11_key_version, t11_key_version_mismatch_mem, t11_key_version_mismatch_pg);
-both!(t12_no_plaintext, t12_no_plaintext_stored_mem, t12_no_plaintext_stored_pg);
+both!(
+    t09_gc,
+    t09_tombstone_gc_and_gone_mem,
+    t09_tombstone_gc_and_gone_pg
+);
+both!(
+    t10_non_member,
+    t10_non_member_not_found_mem,
+    t10_non_member_not_found_pg
+);
+both!(
+    t11_key_version,
+    t11_key_version_mismatch_mem,
+    t11_key_version_mismatch_pg
+);
+both!(
+    t12_no_plaintext,
+    t12_no_plaintext_stored_mem,
+    t12_no_plaintext_stored_pg
+);
 both!(notify_hook, notify_after_commit_mem, notify_after_commit_pg);
 
 /// T-04 (model check): while a push holds the vault lock before commit, its
@@ -917,7 +1084,10 @@ async fn t04_vault_lock_serializes_and_hides_uncommitted_mem() {
     let (app, token, vault) = (h.app.clone(), a.token.clone(), a.vault);
     let second = tokio::spawn(async move { push(&app, &token, vault, new_items(1, 8)).await });
     tokio::time::sleep(Duration::from_millis(150)).await;
-    assert!(!second.is_finished(), "a second push must wait for the vault lock");
+    assert!(
+        !second.is_finished(),
+        "a second push must wait for the vault lock"
+    );
 
     paused.resume.send(()).unwrap();
     let r1 = first.await.unwrap();

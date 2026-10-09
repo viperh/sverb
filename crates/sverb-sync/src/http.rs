@@ -17,6 +17,11 @@ use sverb_proto::sync::{PullResponse, PushRequest, PushResponse, VaultView};
 use sverb_proto::version::{API_PREFIX, PROTO_HEADER, PROTO_VERSION};
 use uuid::Uuid;
 
+// M5-02: the shared vault endpoints (create, members, grants, org vaults).
+mod shared_vaults;
+// M5-04: the key rotation endpoint.
+mod rotation;
+
 use crate::error::SyncError;
 
 /// Request timeout (§12.5).

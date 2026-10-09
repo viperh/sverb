@@ -42,6 +42,9 @@ fn t01_defaults_table() {
         ("ui.show_which_key", true.into()),
         ("ui.which_key_delay_ms", 400.into()),
         ("ui.date_format", "%Y-%m-%d %H:%M".into()),
+        // M7-07 (spec addition)
+        ("ui.ascii", "auto".into()),
+        ("ui.reduce_motion", false.into()),
         ("terminal.term", "xterm-256color".into()),
         ("terminal.scrollback", 10000.into()),
         ("terminal.color_scheme", "terminal".into()),
@@ -563,4 +566,15 @@ proptest! {
     fn t23_no_panics_random(doc in "[\\[\\]a-z_.=\"'{}, \\n0-9\\-\\\\#]{0,80}|\\PC{0,80}") {
         let _ = parse(&doc);
     }
+}
+
+// M7-07: accepted keys that this version doesn't act on yet warn instead of failing.
+#[test]
+fn not_yet_effective_keys_warn() {
+    let out = parse("[ssh]\nread_ssh_config = true\n[terminal]\nbell = \"none\"\n");
+    assert_eq!(out.errors, vec![]);
+    let paths: Vec<&str> = out.warnings.iter().map(|w| w.path.as_str()).collect();
+    assert_eq!(paths, ["ssh.read_ssh_config", "terminal.bell"]);
+    assert!(out.config.ssh.read_ssh_config);
+    assert!(parse("[terminal]\nbell = \"visual\"\n").warnings.is_empty());
 }

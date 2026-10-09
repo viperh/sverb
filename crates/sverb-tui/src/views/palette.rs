@@ -232,7 +232,7 @@ pub struct PaletteState {
     pub selected: usize,
     /// A host's secondary menu.
     pub menu: Option<HostMenu>,
-    /// "Run snippet on <host>": only snippets are listed and run on this host.
+    /// "Run snippet on `<host>`": only snippets are listed and run on this host.
     pub on_host: Option<(ItemId, String)>,
     /// The input changed: the reducer recomputes `entries`.
     pub stale: bool,

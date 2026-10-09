@@ -238,5 +238,26 @@ fn to_token_error(e: SyncError) -> TokenError {
     }
 }
 
+// M7-04
+/// The stored access token and its expiry (UNIX ms, device clock), read **without**
+/// refreshing (`sverb doctor` must not rotate the tokens). `Ok(None)` when no tokens
+/// are stored.
+///
+/// # Errors
+/// [`SyncError::Crypto`] when they don't unwrap under `lmk`, [`SyncError::Store`].
+pub async fn peek_access(
+    store: &Store,
+    lmk: &Key32,
+) -> Result<Option<(Zeroizing<String>, i64)>, SyncError> {
+    let Some(enc) = store.get_sync_state().await?.and_then(|s| s.tokens_enc) else {
+        return Ok(None);
+    };
+    let tokens = StoredTokens::open(lmk, &enc)?;
+    Ok(Some((
+        Zeroizing::new(tokens.access_token.clone()),
+        tokens.access_expires_at,
+    )))
+}
+
 /// `Arc<TokenManager>` is what the engine shares with the WebSocket task.
 pub type SharedTokens = Arc<TokenManager>;

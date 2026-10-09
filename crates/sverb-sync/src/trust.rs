@@ -383,6 +383,53 @@ impl VaultKeySource for TrustedKeySource {
             }
         }
     }
+
+    // M5-02: shared-vault adoption by the engine.
+    fn account(&self) -> Option<Uuid> {
+        Some(self.me)
+    }
+
+    fn update_pins(&self, pins: PinSet) {
+        self.set_pins(pins);
+    }
+
+    fn observe_vault_members(&self, members: &sverb_proto::vaults::VaultMembersView) {
+        self.set_membership(members.vault_id, membership_from_view(members));
+    }
+
+    fn check_grant(&self, view: &VaultView, version: u32) -> Result<Key32, String> {
+        self.open_checked(view, version).map_err(|e| {
+            tracing::warn!(vault = %view.id, version, error = %e, "vault key grant rejected");
+            e.to_string()
+        })
+    }
+}
+
+// M5-02
+/// The [`VaultMembership`] of a `GET /v1/vaults/{id}/members` answer.
+#[must_use]
+pub fn membership_from_view(v: &sverb_proto::vaults::VaultMembersView) -> VaultMembership {
+    use sverb_proto::orgs::Role;
+    VaultMembership {
+        org_roles: v
+            .members
+            .iter()
+            .map(|m| {
+                let role = match m.org_role {
+                    Role::Owner => OrgRole::Owner,
+                    Role::Admin => OrgRole::Admin,
+                    Role::Member => OrgRole::Member,
+                };
+                (m.user_id, role)
+            })
+            .collect(),
+        permissions: v
+            .members
+            .iter()
+            .filter_map(|m| m.permission.map(|p| (m.user_id, p)))
+            .collect(),
+        creator: v.created_by,
+    }
 }
 
 // ------------------------------------------------------------------- directory
@@ -397,12 +444,22 @@ pub trait KeyDirectory: Send + Sync {
 }
 
 /// [`KeyDirectory`] over the API with a fixed access token.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ApiDirectory {
     /// The client.
     pub api: ApiClient,
     /// An access token.
     pub token: String,
+}
+
+// M7-05: the access token never reaches `Debug` output.
+impl std::fmt::Debug for ApiDirectory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApiDirectory")
+            .field("api", &self.api)
+            .field("token", &"[REDACTED]")
+            .finish()
+    }
 }
 
 impl KeyDirectory for ApiDirectory {

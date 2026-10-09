@@ -6,6 +6,10 @@
 
 use std::collections::BTreeSet;
 
+// M5-02: Settings → Vaults in the reducer.
+mod vaults;
+pub use vaults::VaultsResult;
+
 use sverb_store::{PinnedKey, VaultKind};
 use sverb_sync::{LocalSyncInfo, SyncEvent, SyncStatus, ToastLevel as SyncToast};
 
@@ -58,6 +62,12 @@ pub struct SyncModel {
     // M5-01
     /// Settings → Team.
     pub team: TeamPanel,
+    // M5-02
+    /// Settings → Vaults.
+    pub vaults: super::sync_ui::VaultsPanel,
+    // M5-04
+    /// The open key-rotation progress dialog.
+    pub rotation_dialog: Option<crate::views::DialogId>,
 }
 
 // M5-01
@@ -108,6 +118,9 @@ pub enum SyncUiEvent {
     // M5-01
     /// Settings → Team: an org request finished.
     Team(TeamResult),
+    // M5-02
+    /// Settings → Vaults: a request finished.
+    Vaults(VaultsResult),
 }
 
 /// How a status reads.
@@ -158,6 +171,8 @@ impl SyncModel {
             errors: self.errors.clone(),
             devices: self.devices.clone(),
             team: self.team.clone(),
+            // M5-02
+            vaults: self.vaults.clone(),
         }
     }
 
@@ -222,6 +237,22 @@ impl App {
                 self.sync_changed();
             }
             SyncEvent::Applied { .. } | SyncEvent::ReadOnly { .. } => {}
+            // M5-02: the sync service loaded the new vault's key before forwarding
+            // this; its items arrive as index updates (the toast came separately).
+            SyncEvent::VaultAdded { .. } => {
+                if self.views.settings.page == SettingsPage::Vaults {
+                    self.vaults_request(super::sync_ui::VaultOp::Load { vault: None }, effects);
+                }
+            }
+            // M5-04: the service reloaded the vault key before forwarding this.
+            SyncEvent::KeyRotated { .. } => {
+                if self.views.settings.page == SettingsPage::Vaults {
+                    self.vaults_request(super::sync_ui::VaultOp::Load { vault: None }, effects);
+                }
+            }
+            SyncEvent::RotationAbandoned { vault } => {
+                self.prompt_abandoned_rotation(&vault.uuid().to_string(), effects);
+            }
         }
     }
 
@@ -300,6 +331,8 @@ impl App {
             }
             // M5-01
             SyncUiEvent::Team(res) => self.on_team_result(res, effects),
+            // M5-02
+            SyncUiEvent::Vaults(res) => self.on_vaults_result(res, effects),
         }
     }
 
@@ -484,6 +517,15 @@ impl App {
                 user,
                 accept_new_key,
             })),
+            // M5-02
+            SettingsRequest::Vaults(op) => self.vaults_request(op, effects),
+            SettingsRequest::VaultRevoke {
+                vault,
+                vault_name,
+                user,
+                email,
+                me,
+            } => self.confirm_vault_revoke(vault, &vault_name, user, &email, me, effects),
         }
     }
 }

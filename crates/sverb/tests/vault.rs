@@ -57,7 +57,8 @@ fn t16_locked_without_a_terminal_exits_3() {
     assert_eq!(out.status.code(), Some(3), "{out:?}");
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(
-        stderr.contains("vault is locked and no terminal is available to enter the master password"),
+        stderr
+            .contains("vault is locked and no terminal is available to enter the master password"),
         "{stderr}"
     );
     let _ = std::fs::remove_dir_all(&home);
@@ -75,7 +76,10 @@ fn t16_terminal_prompt_then_success() -> TestResult {
     run.wait_for("Password OK.", at)?;
     let status = run.wait_exit()?;
     assert_eq!(status.exit_code(), 0, "{:?}", run.output());
-    assert!(!run.output().contains(TEST_PASSWORD), "the password was echoed");
+    assert!(
+        !run.output().contains(TEST_PASSWORD),
+        "the password was echoed"
+    );
     let _ = std::fs::remove_dir_all(&home);
     Ok(())
 }

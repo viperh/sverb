@@ -1,7 +1,11 @@
 //! T-14: cross-version fixtures (§19). Every `.bin` under
 //! `tests/fixtures/envelopes/v1/` was produced by this version and must keep
 //! opening with the keys recorded in `manifest.json` in every future version.
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::cast_possible_truncation)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::cast_possible_truncation
+)]
 
 use std::path::PathBuf;
 
@@ -22,7 +26,8 @@ fn hx(v: &Value, k: &str) -> Vec<u8> {
 #[test]
 fn v1_fixtures_open() {
     let manifest: Value =
-        serde_json::from_str(&std::fs::read_to_string(dir().join("manifest.json")).unwrap()).unwrap();
+        serde_json::from_str(&std::fs::read_to_string(dir().join("manifest.json")).unwrap())
+            .unwrap();
     let entries = manifest["fixtures"].as_array().unwrap();
     assert!(!entries.is_empty());
     let mut seen = 0;
@@ -39,7 +44,13 @@ fn v1_fixtures_open() {
     // Every .bin in the directory is covered by the manifest.
     let bins = std::fs::read_dir(dir())
         .unwrap()
-        .filter(|d| d.as_ref().unwrap().path().extension().is_some_and(|x| x == "bin"))
+        .filter(|d| {
+            d.as_ref()
+                .unwrap()
+                .path()
+                .extension()
+                .is_some_and(|x| x == "bin")
+        })
         .count();
     assert_eq!(bins, seen);
 }
@@ -64,7 +75,11 @@ fn generate_v1_fixtures() {
     let mut rng = os_rng();
     let cases: [(&str, Vec<u8>, u32); 3] = [
         ("empty.bin", Vec::new(), 1),
-        ("small.bin", br#"{"kind":"host","address":"example.org","port":22}"#.to_vec(), 1),
+        (
+            "small.bin",
+            br#"{"kind":"host","address":"example.org","port":22}"#.to_vec(),
+            1,
+        ),
         ("large.bin", xorshift_bytes(3000), 0x0001_0002),
     ];
     let mut out = Vec::new();

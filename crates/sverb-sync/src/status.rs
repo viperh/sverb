@@ -105,4 +105,31 @@ pub enum SyncEvent {
         /// The blocked items.
         items: Vec<ItemId>,
     },
+    // M5-02
+    /// A shared vault was granted to this account, verified and stored locally
+    /// (its key is wrapped under the LMK); its items follow as `Applied`. The UI
+    /// loads the new key and lists the vault.
+    VaultAdded {
+        /// The vault.
+        vault: VaultId,
+        /// Its name, opened with the vault key.
+        name: Option<String>,
+    },
+    // M5-04
+    /// A vault's key was rotated and this device switched to the new key (its
+    /// local items were re-sealed; the rotated items follow as `Applied`). The UI
+    /// reloads the vault key.
+    KeyRotated {
+        /// The vault.
+        vault: VaultId,
+        /// The new key version.
+        key_version: u32,
+    },
+    /// A key rotation of a vault this account manages was abandoned (15 minutes
+    /// without a commit, §13.2): pushes stay paused until it is restarted. The UI
+    /// prompts to restart it. Sent once per vault per engine.
+    RotationAbandoned {
+        /// The vault.
+        vault: VaultId,
+    },
 }

@@ -1,0 +1,7 @@
+# M7-05: cargo-fuzz output. Seeds are copied in by seed-corpus.sh; crashes go to artifacts/.
+target/
+corpus/
+artifacts/
+coverage/
+# Resolved per run (nightly toolchain; never shipped).
+Cargo.lock

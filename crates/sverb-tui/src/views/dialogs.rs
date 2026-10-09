@@ -31,6 +31,9 @@ use crate::{
 pub mod host_key;
 // M2-07: the `confirm_on_use` agent prompt.
 pub mod agent_confirm;
+// M5-04: key rotation progress, restart prompt, revoke text.
+#[cfg(feature = "sync")]
+pub mod rotation;
 
 /// Identifies an open dialog, so effect results can find the dialog that issued them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -61,10 +64,10 @@ pub enum DialogKind {
     /// The notification history (`leader !`).
     Notifications(NotificationList),
     // M1-11
-    /// "Paste N lines into <host>?": a multi-line paste into a pane without bracketed
+    /// "Paste N lines into `<host>`?": a multi-line paste into a pane without bracketed
     /// paste (`terminal.paste_confirm_multiline`). `y`/`Enter` pastes, `n`/`Esc` cancels.
     ConfirmPaste(PasteConfirm),
-    /// "<host> wants to set your clipboard": an OSC 52 write under
+    /// "`<host>` wants to set your clipboard": an OSC 52 write under
     /// `clipboard.allow_remote_write = "ask"`. `a` allow once, `f` allow for this session,
     /// `d`/`Esc` deny.
     RemoteClipboard(RemoteClipboard),
@@ -133,6 +136,11 @@ pub enum DialogKind {
     /// The account wizard (log in / create an account). The reducer takes its answer
     /// after each key (`App::take_wizard_answer`); screens come from the sync service.
     AccountWizard(Box<super::settings::account_wizard::AccountWizardDialog>),
+    // M6-03
+    /// A terminal-sharing dialog: the start dialog, a viewer's approval modal, the
+    /// viewers panel. The reducer takes its answer after the key
+    /// (`App::take_share_answer`).
+    Share(Box<super::share::ShareDialog>),
 }
 
 // M1-06
@@ -495,6 +503,10 @@ impl View for Dialog {
             DialogKind::AccountWizard(w) => {
                 w.handle(ev, cx);
             }
+            // M6-03
+            DialogKind::Share(d) => {
+                d.handle(ev, cx);
+            }
             // M7-01
             DialogKind::Autocomplete(a) => {
                 cx.request_redraw();
@@ -555,6 +567,8 @@ impl View for Dialog {
             DialogKind::Workspaces(w) => return w.render(frame, area, cx),
             // M4-09
             DialogKind::AccountWizard(w) => return w.render(frame, area, cx),
+            // M6-03
+            DialogKind::Share(d) => return d.render(frame, area, cx),
             // M7-01: anchored at the cursor (absolute screen cells).
             DialogKind::Autocomplete(a) => return a.render(frame, area, cx.theme),
             // M0-10

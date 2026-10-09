@@ -14,7 +14,7 @@
 //!   index's `nucleo` matcher) plus a recency boost from the last
 //!   [`RECENTS_LEN`] picks; results are grouped by source, groups ordered by their best
 //!   result.
-//! - **Running:** an action goes through [`App::run_action`], the same path as its key
+//! - **Running:** an action goes through `App::run_action`, the same path as its key
 //!   binding. Hosts connect in a new tab (`ctrl-enter`: a split); `tab` opens the
 //!   host's menu (edit, copy the `ssh` command, run a snippet on it). Snippets run in the
 //!   current pane through the Snippets view's request (the variable form if needed).
@@ -603,13 +603,8 @@ impl App {
             PaletteTarget::Pane(session) => self.palette_focus_pane(session),
             PaletteTarget::Section(section) => self.open_section(section),
             PaletteTarget::QuickConnect(text) => self.connect_target(&text, effects),
-            PaletteTarget::Join(_) => {
-                self.push_toast(
-                    ToastLevel::Info,
-                    "Joining shared terminals is not available yet (M6-03)".to_owned(),
-                    effects,
-                );
-            }
+            // M6-03: a viewer pane.
+            PaletteTarget::Join(link) => self.share_join(link, effects),
         }
     }
 

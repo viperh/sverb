@@ -185,6 +185,11 @@ pub enum Effect {
     /// local state, devices, disconnect, the account wizard, team pins. Results come
     /// back as `UiEvent::Sync` / `UiEvent::SyncUi`; local-only builds drop it.
     Sync(super::sync_ui::SyncEffect),
+    // M6-03
+    /// A terminal-sharing request (`services::share`): start / stop a share, approve,
+    /// deny, control, kick, join a share in a viewer pane. Results come back as
+    /// `UiEvent::Share`; builds without sharing answer `ShareEvent::Unavailable`.
+    Share(super::share::ShareEffect),
 }
 
 // M0-10

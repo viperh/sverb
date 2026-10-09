@@ -21,6 +21,8 @@ pub(crate) mod doctor;
 pub(crate) mod exit;
 pub(crate) mod export;
 pub(crate) mod forward;
+// M7-07: man page and shell completions (hidden `sverb generate`).
+pub(crate) mod generate;
 pub(crate) mod hosts;
 pub(crate) mod import;
 pub(crate) mod keys;
@@ -136,6 +138,10 @@ pub(crate) enum Command {
     Config(config::ConfigArgs),
     /// Diagnose terminal capabilities, agent and sync; list SSH algorithms
     Doctor(doctor::DoctorArgs),
+    /// Generate the man page or shell completions (for packagers)
+    // M7-07
+    #[command(hide = true)]
+    Generate(generate::GenerateArgs),
     /// Sync-only commands in a local-only build (and unknown commands).
     #[cfg(not(feature = "sync"))]
     #[command(external_subcommand)]
@@ -317,7 +323,10 @@ pub(crate) async fn run(cli: Cli, ctx: &Ctx, out: &mut dyn Write) -> Result<u8, 
         // M5-03: `team verify` opens the store (async).
         Command::Team(cmd) => team::run_async(cmd, ctx, out).await,
         Command::Config(args) => config::run(args, ctx, out),
-        Command::Doctor(args) => doctor::run(args, ctx, out),
+        // M7-04: probes the agent, keyring and sync server (async).
+        Command::Doctor(args) => doctor::run(args, ctx, out).await,
+        // M7-07
+        Command::Generate(args) => generate::run(args, ctx, out),
         #[cfg(not(feature = "sync"))]
         Command::External(args) => external(&args),
     }
@@ -357,13 +366,16 @@ async fn launch_tui(intent: LaunchIntent, ctx: &Ctx) -> Result<u8, CliError> {
         // M1-04: the TUI opens the store and starts locked.
         paths: Some(ctx.paths.clone()),
     };
-    let code = sverb_tui::run(intent, launch)
+    // The TUI future is large (clippy::large_futures); keep it on the heap.
+    let code = Box::pin(sverb_tui::run(intent, launch))
         .await
         .map_err(|e| CliError::failure(&e))?;
     Ok(u8::try_from(code).unwrap_or(exit::FAILURE))
 }
 
 /// Shorthand for a stub body.
+// M7-04: `doctor` was the last stub; kept for commands added later.
+#[allow(dead_code)]
 pub(crate) fn not_implemented<T>(
     command: &'static str,
     milestone: &'static str,

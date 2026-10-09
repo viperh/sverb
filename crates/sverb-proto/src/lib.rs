@@ -29,4 +29,10 @@ pub mod users;
 // M5-01: orgs, members, invites, the audit log.
 pub mod orgs;
 
+// M5-02: shared vaults (create, members, grants).
+pub mod vaults;
+
+// M5-04: vault key rotation (`POST /v1/vaults/{id}/rotate`).
+pub mod rotation;
+
 pub use error::{ErrorBody, ErrorCode, ErrorEnvelope};

@@ -29,6 +29,9 @@ pub mod team_verify;
 // M4-09: the account wizard dialog (log in / create an account).
 pub mod account_wizard;
 
+// M5-02: Settings → Vaults (shared vaults, grants, §13.1–§13.2).
+pub mod vaults;
+
 use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     Frame,
@@ -58,16 +61,21 @@ pub enum SettingsPage {
     Devices,
     /// Team keys (M5-03).
     Team,
+    // M5-02
+    /// Shared vaults (M5-02).
+    Vaults,
 }
 
 impl SettingsPage {
-    const ALL: [Self; 3] = [Self::Sync, Self::Devices, Self::Team];
+    const ALL: [Self; 4] = [Self::Sync, Self::Devices, Self::Team, Self::Vaults];
 
     fn title(self) -> &'static str {
         match self {
             Self::Sync => "Sync",
             Self::Devices => "Devices",
             Self::Team => "Team",
+            // M5-02
+            Self::Vaults => "Vaults",
         }
     }
 }
@@ -110,6 +118,22 @@ pub enum SettingsRequest {
         org: String,
         /// Org name.
         org_name: String,
+        /// Member id.
+        user: String,
+        /// Their email.
+        email: String,
+        /// It is this account (leaving).
+        me: bool,
+    },
+    // M5-02
+    /// A Settings → Vaults request (no confirmation needed).
+    Vaults(crate::app::sync_ui::VaultOp),
+    /// Revoke a member's vault access or leave (asks first).
+    VaultRevoke {
+        /// Vault id.
+        vault: String,
+        /// Vault name.
+        vault_name: String,
         /// Member id.
         user: String,
         /// Their email.
@@ -160,6 +184,9 @@ pub struct SettingsView {
     pub member_selected: usize,
     /// The Team page's input line, while open.
     pub input: Option<(TeamInput, String)>,
+    // M5-02
+    /// The Vaults page's cursor and input line.
+    pub vaults: vaults::VaultsState,
     request: Option<SettingsRequest>,
 }
 
@@ -177,11 +204,15 @@ impl SettingsView {
         self.member_selected = self
             .member_selected
             .min(self.panel.team.members.len().saturating_sub(1));
+        // M5-02
+        self.vaults.clamp(&self.panel.vaults);
     }
 
     /// The Team page edits text (Insert mode).
     pub fn wants_text(&self) -> bool {
-        self.page == SettingsPage::Team && self.input.is_some()
+        (self.page == SettingsPage::Team && self.input.is_some())
+            // M5-02
+            || (self.page == SettingsPage::Vaults && self.vaults.input.is_some())
     }
 
     /// The pages shown now: only Sync until a server is connected.
@@ -203,6 +234,12 @@ impl SettingsView {
             SettingsPage::Devices => Some(SettingsRequest::RefreshDevices),
             SettingsPage::Team => Some(SettingsRequest::LoadTeam),
             SettingsPage::Sync => None,
+            // M5-02
+            SettingsPage::Vaults => Some(SettingsRequest::Vaults(
+                crate::app::sync_ui::VaultOp::Load {
+                    vault: self.panel.vaults.current().map(|v| v.id.clone()),
+                },
+            )),
         };
     }
 
@@ -372,6 +409,10 @@ impl SettingsView {
         if mods.intersects(KeyModifiers::CONTROL | KeyModifiers::ALT) || !self.panel.available {
             return false;
         }
+        // M5-02: the Vaults page's input line.
+        if self.page == SettingsPage::Vaults && self.vaults.input.is_some() {
+            return self.vaults_input_key(code);
+        }
         // M5-01: the input line takes every key.
         if self.wants_text() {
             return self.input_key(code);
@@ -379,7 +420,7 @@ impl SettingsView {
         match code {
             KeyCode::Left | KeyCode::Char('[') if self.panel.connected => self.cycle_page(-1),
             KeyCode::Right | KeyCode::Char(']') if self.panel.connected => self.cycle_page(1),
-            KeyCode::Char(c @ '1'..='3') if self.panel.connected => {
+            KeyCode::Char(c @ '1'..='4') if self.panel.connected => {
                 let i = usize::from(c as u8 - b'1');
                 self.show(SettingsPage::ALL[i]);
             }
@@ -389,6 +430,8 @@ impl SettingsView {
                     SettingsPage::Devices => self.devices_key(code),
                     // M5-01
                     SettingsPage::Team => self.team_key(code),
+                    // M5-02
+                    SettingsPage::Vaults => self.vaults_key(code),
                 };
             }
         }
@@ -448,6 +491,13 @@ impl SettingsView {
 
     /// Pastes go to the input line.
     pub fn paste(&mut self, text: &str) -> bool {
+        // M5-02
+        if self.page == SettingsPage::Vaults
+            && let Some(t) = self.vaults.input.as_mut()
+        {
+            t.push_str(text.trim());
+            return true;
+        }
         match self.input.as_mut() {
             Some((_, t)) if self.page == SettingsPage::Team => {
                 t.push_str(text.trim());
@@ -763,6 +813,8 @@ impl View for SettingsView {
                 self.team.render_dialog_only(frame, body, cx);
                 return;
             }
+            // M5-02
+            SettingsPage::Vaults => self.vault_lines(cx),
         };
         frame.render_widget(Paragraph::new(lines).wrap(Wrap { trim: false }), body);
     }

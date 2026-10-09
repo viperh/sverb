@@ -5,7 +5,7 @@ expression: screen
  sverb ─ Personal ▾ ───────────────────────────────────────────────────────────────────────── error 
 ┌──────────────┐ no sessions · ^\ o quick connect · ^\ v views/sessions                             
 │  Hosts       │┌ Settings ────────────────────────────────────────────────────────────────────────┐
-│  Keychain    ││Sync · Devices · Team                                                             │
+│  Keychain    ││Sync · Devices · Team · Vaults                                                    │
 │  Forwards    ││                                                                                  │
 │  Snippets    ││Status      error                                                                 │
 │  Known       ││Server      https://sync.example.test                                             │

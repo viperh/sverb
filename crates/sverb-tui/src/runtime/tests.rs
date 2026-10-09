@@ -56,6 +56,8 @@ struct Record {
     key_times: Vec<Duration>,
     /// Session flag value right after each draw.
     flag_at_draw: Vec<bool>,
+    /// `Resize` and `Launch` events in the order the loop applied them.
+    sizing: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -87,6 +89,13 @@ impl Probe {
 
 impl LoopObserver for Probe {
     fn on_event(&mut self, ev: &UiEvent) {
+        match ev {
+            UiEvent::Input(InputEvent::Resize { cols, rows }) => {
+                self.rec().sizing.push(format!("resize {cols}x{rows}"));
+            }
+            UiEvent::Launch(_) => self.rec().sizing.push("launch".to_owned()),
+            _ => {}
+        }
         if let UiEvent::Input(InputEvent::Key(_)) = ev {
             let now = self.start.elapsed();
             let mut rec = self.rec();
@@ -127,7 +136,12 @@ struct Rig {
     event_loop: EventLoop<TestBackend, FakeControl, Probe>,
 }
 
-fn rig(app: App, mut probe: Probe) -> Rig {
+fn rig(app: App, probe: Probe) -> Rig {
+    rig_sized(app, probe, 80, 24)
+}
+
+/// A rig whose terminal is `cols` × `rows`.
+fn rig_sized(app: App, mut probe: Probe, cols: u16, rows: u16) -> Rig {
     let (input, input_rx) = input::channel();
     if probe.redirty.is_some() {
         // Placeholder replaced by the loop's real input sender.
@@ -143,7 +157,7 @@ fn rig(app: App, mut probe: Probe) -> Rig {
         events_tx,
         signals: signal_rx,
     };
-    let terminal = Terminal::new(TestBackend::new(80, 24)).unwrap();
+    let terminal = Terminal::new(TestBackend::new(cols, rows)).unwrap();
     let event_loop =
         EventLoop::new(app, terminal, FakeControl::default(), ch).with_observer(probe.clone());
     Rig {
@@ -409,4 +423,88 @@ async fn mouse_capture_and_suspend_are_loop_owned() {
     assert_eq!(rig.event_loop.full_repaint, cfg!(unix));
     rig.event_loop.control.set_mouse(false).unwrap();
     assert_eq!(rig.event_loop.control.mouse, [false]);
+}
+
+// ---- The terminal size reaches the reducer (bug: remote shells wrapped at 80 columns) ----
+
+/// The terminal never sends a resize on startup. The loop must still tell the reducer
+/// the real size, before the launch event (a session opened at launch is sized from it).
+#[tokio::test(start_paused = true)]
+async fn initial_terminal_size_reaches_the_reducer_before_launch() {
+    let mut rig = rig_sized(app(), Probe::new(), 200, 50);
+    shutdown_at(&rig.signals, Duration::from_millis(100));
+    run(&mut rig).await;
+    assert_eq!(rig.event_loop.app.layout.size, Some((200, 50)));
+    assert_eq!(
+        rig.probe.rec().sizing,
+        ["resize 200x50", "launch"],
+        "the size is applied first, once"
+    );
+}
+
+/// A session opened before any resize event is sized from the real window, not the
+/// 80×24 default: what the remote pty gets (`docker ps` wrapped short of the pane).
+#[tokio::test(start_paused = true)]
+async fn session_opened_before_any_resize_gets_the_pane_size() {
+    let mut rig = rig_sized(app(), Probe::new(), 200, 50);
+    let leader = KeyEvent::new(KeyCode::Char('\\'), crossterm::event::KeyModifiers::CONTROL);
+    rig.input.send(InputEvent::Key(leader)).await.unwrap();
+    rig.input.send(key('t')).await.unwrap();
+    shutdown_at(&rig.signals, Duration::from_millis(500));
+    run(&mut rig).await;
+
+    let app = &rig.event_loop.app;
+    let tab = app.active_tab().expect("a local tab was opened");
+    let rects =
+        crate::views::sessions::panes::pane_rects(&tab.layout, tab.zoomed, app.shell_rects().main);
+    assert_eq!(rects.len(), 1);
+    let want = crate::views::sessions::panes::content_size(rects[0].1);
+    assert!(
+        want.0 > 150,
+        "a 200-column window gives a wide pane: {want:?}"
+    );
+    let sent: Vec<_> = app.tabs().sent_sizes.values().copied().collect();
+    assert_eq!(
+        sent,
+        [want],
+        "the session was opened (or resized) at the pane's size"
+    );
+}
+
+/// After a resume (`LoopSignal::Continued`) the loop re-reads the size: the window may
+/// have been resized while sverb was suspended. Nothing is sent when it didn't change.
+#[tokio::test(start_paused = true)]
+async fn size_is_resynced_and_unchanged_size_sends_nothing() {
+    let mut rig = rig_sized(app(), Probe::new(), 100, 30);
+    assert_eq!(rig.event_loop.sync_terminal_size().unwrap(), None);
+    assert_eq!(rig.event_loop.app.layout.size, Some((100, 30)));
+    // Same size: no event.
+    rig.event_loop.sync_terminal_size().unwrap();
+    assert_eq!(rig.probe.rec().sizing, ["resize 100x30"]);
+    // The window changed while suspended.
+    rig.event_loop.terminal.backend_mut().resize(140, 45);
+    rig.event_loop.sync_terminal_size().unwrap();
+    assert_eq!(rig.event_loop.app.layout.size, Some((140, 45)));
+    assert_eq!(rig.probe.rec().sizing, ["resize 100x30", "resize 140x45"]);
+}
+
+/// `tab` cycles focus through the sidebar (Normal mode). The reducer only offers the
+/// sidebar when it thinks the window is wide enough (≥ 100 columns); before the startup
+/// size sync it assumed 80×24, so the sidebar was drawn on a wide screen but `tab` never
+/// reached it.
+#[tokio::test(start_paused = true)]
+async fn tab_reaches_the_sidebar_on_a_wide_terminal_without_a_resize_event() {
+    use crate::views::shell::Region;
+    let mut rig = rig_sized(app(), Probe::new(), 160, 48);
+    let tab = InputEvent::Key(KeyEvent::from(KeyCode::Tab));
+    rig.input.send(tab.clone()).await.unwrap();
+    rig.input.send(tab).await.unwrap();
+    shutdown_at(&rig.signals, Duration::from_millis(200));
+    run(&mut rig).await;
+    let app = &rig.event_loop.app;
+    assert!(
+        app.shell_rects().sidebar.is_some(),
+        "a 160-column window shows the sidebar"
+    );
+    assert_eq!(app.shell().region, Region::Sidebar);
 }

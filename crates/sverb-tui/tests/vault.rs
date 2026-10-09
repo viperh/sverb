@@ -14,9 +14,7 @@ use sverb_core::model::{HlcClock, ItemBody, ItemId, ItemKind};
 use sverb_core::vault::{Argon2Cost, KdfParams, MemKeyring, VaultError};
 use sverb_store::meta::keys;
 use sverb_store::{ManualClock, Store, SyncState, VaultKind};
-use sverb_tui::app::{
-    UiEvent, UnlockRequest, VaultEffect, VaultEvent, VaultPassword,
-};
+use sverb_tui::app::{UiEvent, UnlockRequest, VaultEffect, VaultEvent, VaultPassword};
 use sverb_tui::services::vault::{UnlockMethod, VaultEngine, VaultService};
 
 const PW: &str = "correct horse battery staple violin";
@@ -106,7 +104,10 @@ async fn t01_first_run_creates_meta_vault_and_device() {
     assert_eq!(kdf.cost(), Argon2Cost::TEST);
     assert!(meta(store, keys::LMK_WRAPPED_PW).await.is_some());
     assert!(meta(store, keys::LMK_WRAPPED_KEYRING).await.is_none());
-    assert_eq!(meta(store, keys::DEVICE_ID).await.map(|d| d.len()), Some(16));
+    assert_eq!(
+        meta(store, keys::DEVICE_ID).await.map(|d| d.len()),
+        Some(16)
+    );
     assert!(meta(store, keys::DB_ID).await.is_some());
     assert!(meta(store, keys::HLC_LAST).await.is_some());
     let vaults = store.list_vaults().await.unwrap();
@@ -210,7 +211,9 @@ async fn t06_backoff_persists_across_restart() {
             6 => Some(Duration::from_secs(2)),
             _ => None,
         };
-        assert!(matches!(err, VaultError::WrongPassword { retry_after, .. } if retry_after == expected));
+        assert!(
+            matches!(err, VaultError::WrongPassword { retry_after, .. } if retry_after == expected)
+        );
     }
     drop(engine);
 
@@ -221,7 +224,9 @@ async fn t06_backoff_persists_across_restart() {
     assert_eq!(status.backoff.failures, 6);
     assert_eq!(status.retry_after, Some(Duration::from_secs(2)));
     let err = engine.unlock_with_password(PW).await.unwrap_err();
-    assert!(matches!(err, VaultError::Backoff { retry_after } if retry_after <= Duration::from_secs(2)));
+    assert!(
+        matches!(err, VaultError::Backoff { retry_after } if retry_after <= Duration::from_secs(2))
+    );
     assert_eq!(engine.kdf_runs(), 0);
     fx.clock.advance(1_000);
     assert!(matches!(
@@ -248,7 +253,13 @@ async fn t07_success_resets_the_counter() {
     assert!(meta(engine.store(), keys::UNLOCK_FAILURES).await.is_none());
     // The next failure is #1 again (no delay).
     let err = engine.unlock_with_password("nope").await.unwrap_err();
-    assert!(matches!(err, VaultError::WrongPassword { failures: 1, retry_after: None }));
+    assert!(matches!(
+        err,
+        VaultError::WrongPassword {
+            failures: 1,
+            retry_after: None
+        }
+    ));
 }
 
 // T-08
@@ -301,7 +312,10 @@ async fn t08_service_reports_keyring_failure() {
     service.execute(VaultEffect::Unlock(UnlockRequest::Keyring), &tx);
     assert!(matches!(
         rx.recv().await,
-        Some(UiEvent::Vault(VaultEvent::Unlocked { via_keyring: true, .. }))
+        Some(UiEvent::Vault(VaultEvent::Unlocked {
+            via_keyring: true,
+            ..
+        }))
     ));
     assert!(matches!(rx.recv().await, Some(UiEvent::Meta(_))));
     // M1-05: the search index built during unlock follows.
@@ -313,7 +327,9 @@ async fn t08_service_reports_keyring_failure() {
     service.execute(VaultEffect::Unlock(UnlockRequest::Keyring), &tx);
     assert!(matches!(
         rx.recv().await,
-        Some(UiEvent::Vault(VaultEvent::UnlockFailed(sverb_tui::app::UnlockFailure::Keyring(_))))
+        Some(UiEvent::Vault(VaultEvent::UnlockFailed(
+            sverb_tui::app::UnlockFailure::Keyring(_)
+        )))
     ));
     assert!(!service.is_unlocked());
 }
@@ -353,7 +369,10 @@ async fn t13_lock_drops_every_key() {
     );
     assert!(matches!(
         rx.recv().await,
-        Some(UiEvent::Vault(VaultEvent::Unlocked { via_keyring: false, .. }))
+        Some(UiEvent::Vault(VaultEvent::Unlocked {
+            via_keyring: false,
+            ..
+        }))
     ));
     assert!(matches!(rx.recv().await, Some(UiEvent::Meta(_))));
     // M1-05: the search index built during unlock follows.
@@ -387,9 +406,19 @@ async fn t14_change_password() {
     let old_kdf = KdfParams::from_cbor(&meta(engine.store(), keys::KDF).await.unwrap()).unwrap();
     let unlocked = engine.unlock_with_password(PW).await.unwrap();
     // Wrong current password and weak new passwords are refused.
-    assert!(wrong_password(&engine.change_password(&unlocked, Some("nope"), PW2).await.unwrap_err()).is_some());
+    assert!(
+        wrong_password(
+            &engine
+                .change_password(&unlocked, Some("nope"), PW2)
+                .await
+                .unwrap_err()
+        )
+        .is_some()
+    );
     assert!(matches!(
-        engine.change_password(&unlocked, Some(PW), "password123").await,
+        engine
+            .change_password(&unlocked, Some(PW), "password123")
+            .await,
         Err(VaultError::WeakPassword(_))
     ));
     // Without the current password only after a keyring unlock.
@@ -398,7 +427,10 @@ async fn t14_change_password() {
         Some(VaultError::KeyringNotEnabled)
     );
     fx.clock.advance(60_000);
-    engine.change_password(&unlocked, Some(PW), PW2).await.unwrap();
+    engine
+        .change_password(&unlocked, Some(PW), PW2)
+        .await
+        .unwrap();
     drop(unlocked);
 
     let engine = fx.engine();
@@ -419,7 +451,10 @@ async fn t15_keyring_recovery_sets_a_new_password() {
     let service = VaultService::new(fx.engine());
     let (tx, mut rx) = tokio::sync::mpsc::channel(16);
     service.execute(VaultEffect::Unlock(UnlockRequest::Keyring), &tx);
-    assert!(matches!(rx.recv().await, Some(UiEvent::Vault(VaultEvent::Unlocked { .. }))));
+    assert!(matches!(
+        rx.recv().await,
+        Some(UiEvent::Vault(VaultEvent::Unlocked { .. }))
+    ));
     let _meta = rx.recv().await;
     // M1-05: the search index snapshot.
     let _index = rx.recv().await;

@@ -1,4 +1,4 @@
-//! Compile-fail fixture (T-03): must be rejected by `unsafe_code = "forbid"`,
+//! Compile-fail fixture (T-03): must be rejected by `unsafe_code = "deny"`,
 //! which every crate inherits from `[workspace.lints]`. Compiled by
 //! `crates/sverb-e2e/tests/forbid_unsafe.rs`, never by this crate.
 

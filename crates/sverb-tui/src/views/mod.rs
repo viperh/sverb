@@ -48,6 +48,8 @@ pub mod palette;
 pub mod workspaces;
 // M5-03: Settings → Team: safety numbers, ✓ verification, key-change warnings.
 pub mod settings;
+// M6-03: terminal sharing (start dialog, approval modal, viewers panel, letterboxing).
+pub mod share;
 
 use std::collections::BTreeMap;
 

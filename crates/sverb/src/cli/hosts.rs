@@ -1,6 +1,6 @@
 //! M0-07 / M1-07: `sverb hosts list | add | rm` (SPEC §16).
 //!
-//! The vault is unlocked through [`require_unlocked`](super::vault::require_unlocked)
+//! The vault is unlocked through [`super::vault::require_unlocked`]
 //! (keyring, else the master password on a TTY, else exit 3). Writes go through the
 //! TUI's item service (`ItemOps`: HLC-stamped, sealed with the vault key, marked
 //! dirty for a future sync).

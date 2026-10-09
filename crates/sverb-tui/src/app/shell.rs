@@ -73,6 +73,23 @@ impl App {
         self
     }
 
+    // M7-07
+    /// Whether the environment asks for ASCII glyphs (`ui.ascii = "auto"`: a non-UTF-8
+    /// locale or `TERM=linux`; `runtime::capabilities::TermEnv::wants_ascii`).
+    #[must_use]
+    pub fn with_ascii_env(mut self, wants_ascii: bool) -> Self {
+        self.ascii_env = wants_ascii;
+        self.resolve_theme();
+        self
+    }
+
+    /// M7-07: rewrite the finished frame in ASCII when `ui.ascii` asks for it.
+    pub(crate) fn render_glyph_fallback(&self, frame: &mut Frame<'_>) {
+        if self.theme.ascii {
+            crate::theme::glyphs::asciify(frame.buffer_mut());
+        }
+    }
+
     /// `--debug`: the log pane reads this ring, and `toggle_log_pane` is bound.
     #[must_use]
     pub fn with_debug_ring(mut self, ring: Option<LogRing>) -> Self {
@@ -100,6 +117,11 @@ impl App {
             &self.config.ui.theme,
             self.config.ui.truecolor,
             self.theme_env,
+        )
+        // M7-07: `ui.ascii`, `ui.reduce_motion`.
+        .with_glyphs(
+            crate::theme::glyphs::ascii_wanted(self.config.ui.ascii, self.ascii_env),
+            self.config.ui.reduce_motion,
         );
         self.needs_redraw = true;
     }
@@ -426,6 +448,10 @@ impl App {
         let top = TopBarInfo {
             sync,
             sync_level,
+            // M5-02: the vault selector (`V` in Hosts).
+            vault: self.views.hosts.vault_label(),
+            // M7-07
+            ascii: theme.ascii,
             ..TopBarInfo::default()
         };
         topbar::render(frame, rects.top_bar, &top, theme);
