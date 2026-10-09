@@ -7,6 +7,17 @@ the sync protocol is versioned separately (`/v1`, `Sverb-Proto: 1`).
 
 Each release adds a section here before its tag is pushed (`docs/release.md`).
 
+## [1.0.3] - 2026-10-09
+
+### Fixed
+
+- **Release:** the server image's smoke test ran PostgreSQL under the emulated arm64
+  platform too; only sverb-server is emulated now, so the multi-arch image
+  (`ghcr.io/viperh/sverb-server`) and the GitHub release are published. 1.0.2 has no
+  published image or GitHub release.
+- The `sverb-server healthcheck` probe is tested against the real server, and the image
+  smoke test prints Docker's health log when a container never becomes healthy.
+
 ## [1.0.2] - 2026-10-09
 
 ### Fixed

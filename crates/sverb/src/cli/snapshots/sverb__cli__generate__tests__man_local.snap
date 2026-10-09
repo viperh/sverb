@@ -2,7 +2,7 @@
 source: crates/sverb/src/cli/generate.rs
 expression: page
 ---
-.TH SVERB 1 "" "sverb 1.0.2" "User Commands"
+.TH SVERB 1 "" "sverb 1.0.3" "User Commands"
 .SH NAME
 sverb \- SSH client and server manager for the terminal
 .SH SYNOPSIS
