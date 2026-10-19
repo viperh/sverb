@@ -54,7 +54,7 @@ the kitty protocol does, and stops the clock when the first host's label is draw
 * `ci.yml`, job **Benchmarks compile** (every PR): `cargo bench --no-run` (T-01) and
   the gate script's self-test, which proves a 20% slowdown is flagged and a 5% one
   is not (T-05).
-* `bench.yml` (nightly and on demand, not per PR because shared runners are noisy):
+* `bench.yml` (on every push to master and on demand, not per PR because shared runners are noisy):
   runs every bench, applies the CI gates, compares against the cached `main`
   baseline (> 15% fails the run), runs the startup harness, and on `main` promotes
   the results to the new baseline.

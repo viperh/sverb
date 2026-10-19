@@ -357,7 +357,7 @@ jobs:
           scripts/canary-scan.sh --require-files
           target/tmp "$RUNNER_TEMP/canary/tmp" "$RUNNER_TEMP/canary/home"
 
-  # without a crash. The nightly 10-minute runs are in fuzz.yml.
+  # without a crash. The 10-minute runs on release tags are in fuzz.yml.
   fuzz:
     name: Fuzz (30 s per target)
     runs-on: ubuntu-latest

@@ -1,7 +1,7 @@
 name: Benchmarks
 
 # Performance targets (SPEC §1, §5.2, §19). Not run on every PR (shared
-# runners are noisy): nightly on master and on demand.
+# runners are noisy): on every push to master and on demand.
 #
 # * Hard gates for the spec targets, CI-adjusted (2x): scripts/bench-gates.toml.
 # * Startup to the host list with keyring unlock: median of 20 runs < 200 ms.
@@ -9,8 +9,9 @@ name: Benchmarks
 #   median more than 15% slower fails the run (scripts/bench-gate.py compare).
 
 on:
-  schedule:
-    - cron: "17 3 * * *"
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:

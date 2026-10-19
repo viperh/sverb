@@ -1,12 +1,14 @@
-name: Fuzz (nightly)
+name: Fuzz (release)
 
+# Every fuzz target runs for 10 minutes on each release tag (or `seconds` on a manual run),
 # starting from the seed corpus (fixtures) plus the corpus kept from earlier runs.
 # Crashes are uploaded as artifacts and fail the job. PRs run each target for 30 s in
 # ci.yml (job `fuzz`).
 
 on:
-  schedule:
-    - cron: "17 3 * * *"
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
     inputs:
       seconds:

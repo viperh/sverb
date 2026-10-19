@@ -81,7 +81,7 @@ crate inherits the `deny`.
 ## Fuzzing
 
 `fuzz/` (cargo-fuzz, its own workspace). PR CI runs each target 30 s, `fuzz.yml` 10 minutes
-nightly with the corpus cached between runs and crashes uploaded.
+on each release tag with the corpus cached between runs and crashes uploaded.
 
 | Target | Input | Body also run by |
 |---|---|---|

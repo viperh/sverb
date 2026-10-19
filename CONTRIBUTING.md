@@ -52,7 +52,7 @@ cargo +nightly fuzz run emulator_feed fuzz/corpus/emulator_feed -- -max_total_ti
 ```
 
 PR CI runs each target for 30 s (`ci.yml`, job `fuzz`); `fuzz.yml` runs each for
-10 minutes every night and uploads crashes. A new parser of untrusted input gets a
+10 minutes on each release tag and uploads crashes. A new parser of untrusted input gets a
 target: add `fuzz_targets/<name>.rs`, a `[[bin]]` in `fuzz/Cargo.toml`, seeds in
 `fuzz/seed-corpus.sh`, and the target name to the matrix in `fuzz.yml`.
 
